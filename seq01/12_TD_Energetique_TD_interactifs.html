@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Énergétique — TD interactifs</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wdth,wght@75..100,400..700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F5F8F8; --grid:#E2EAEA; --panel:#FFFFFF; --soft:#EAF0F1; --ink:#172430; --muted:#566573; --line:#CBD5D8;
+  --meca:#2A62CC; --elec:#C98C00; --chim:#1C8A5E; --ther:#CC3F2A; --water:#4C8FE0;
+  --ok:#1C8A5E; --bad:#CC3F2A;
+  --sans:"Instrument Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --serif:"Instrument Serif","Times New Roman",Georgia,serif;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#10181F; --grid:#18232C; --panel:#16212A; --soft:#1D2A35; --ink:#E4ECF1; --muted:#98A7B3; --line:#2B3A46;
+    --meca:#6C9BFF; --elec:#F2B92E; --chim:#3FC58B; --ther:#FF6F57; --water:#6FA8F0; --ok:#3FC58B; --bad:#FF6F57;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#10181F; --grid:#18232C; --panel:#16212A; --soft:#1D2A35; --ink:#E4ECF1; --muted:#98A7B3; --line:#2B3A46;
+  --meca:#6C9BFF; --elec:#F2B92E; --chim:#3FC58B; --ther:#FF6F57; --water:#6FA8F0; --ok:#3FC58B; --bad:#FF6F57;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + 70px)}
+body{
+  margin:0;color:var(--ink);font-family:var(--sans);font-size:17px;line-height:1.55;
+  background-color:var(--paper);
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:24px 24px;
+}
+button{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--meca);outline-offset:2px;border-radius:4px}
+.wrap{max-width:1080px;margin:0 auto;padding:0 20px}
+
+/* barre du haut */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:color-mix(in srgb,var(--paper) 92%,transparent);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);border-bottom:1px solid var(--line)}
+.top .wrap{display:flex;align-items:center;gap:14px;padding-top:10px;padding-bottom:10px;flex-wrap:wrap}
+.brand{font-weight:700;font-stretch:78%;font-size:1.15rem;margin-right:auto}
+.xp{display:flex;align-items:center;gap:8px;font-weight:700;font-variant-numeric:tabular-nums}
+.xp .bolt{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:50%;background:var(--elec);color:#fff;font-size:.9rem}
+.xp.bump{animation:bump .5s}
+@keyframes bump{40%{transform:scale(1.25)}}
+.ghost{border:1px solid var(--line);background:var(--panel);border-radius:8px;padding:6px 12px;cursor:pointer;font-size:.92rem}
+.ghost:hover{border-color:var(--ink)}
+
+/* accueil */
+.hero{padding:40px 0 10px}
+.hero h1{font-size:clamp(2.4rem,6vw,4rem);line-height:.95;margin:0 0 12px;font-weight:700;font-stretch:75%}
+.hero p{max-width:60ch;margin:0 0 6px;color:var(--muted)}
+.tabs{display:flex;gap:8px;margin:24px 0 18px;flex-wrap:wrap}
+.tab{border:1.5px solid var(--ink);background:transparent;border-radius:10px;padding:8px 16px;cursor:pointer;text-align:left;line-height:1.2}
+.tab small{display:block;color:var(--muted);font-size:.8rem}
+.tab[aria-selected="true"]{background:var(--ink);color:var(--paper)}
+.tab[aria-selected="true"] small{color:color-mix(in srgb,var(--paper) 75%,transparent)}
+.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px;padding-bottom:60px}
+.tile{position:relative;text-align:left;border:1px solid var(--line);border-left:6px solid var(--c);background:var(--panel);border-radius:12px;padding:14px 16px 12px;cursor:pointer;display:flex;flex-direction:column;gap:6px;min-height:150px;transition:transform .15s}
+.tile:hover{transform:translateY(-3px)}
+@media (prefers-reduced-motion:reduce){.tile:hover{transform:none}}
+.tile .ico{font-size:1.8rem;line-height:1}
+.tile b{font-size:1.02rem;line-height:1.25}
+.tile .meta{margin-top:auto;display:flex;justify-content:space-between;align-items:center;font-size:.85rem;color:var(--muted)}
+.stars{letter-spacing:2px;color:var(--elec);font-size:1rem}
+.stars .off{color:var(--line)}
+.bar{height:6px;border-radius:3px;background:var(--soft);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--chim);width:0;transition:width .4s}
+
+/* exercice */
+.ex{padding:24px 0 80px}
+.back{margin-bottom:16px}
+.ex-head{display:flex;gap:14px;align-items:flex-start;margin-bottom:14px}
+.ex-head .ico{font-size:2.4rem;line-height:1}
+.ex-head h2{margin:0;font-size:clamp(1.5rem,3.4vw,2.1rem);line-height:1.1;font-stretch:80%}
+.ex-head p{margin:2px 0 0;color:var(--muted);font-size:.95rem}
+.ex-grid{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr);gap:22px;align-items:start}
+.left{position:sticky;top:80px;display:flex;flex-direction:column;gap:14px}
+.scene{background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden;position:relative}
+.scene svg{width:100%;height:auto;display:block}
+.scene .ctrl{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:8px 12px 12px;font-size:.9rem;border-top:1px dashed var(--line)}
+.ctx{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+.ctx p{margin:0 0 8px}
+.data{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.data span{background:var(--soft);border-radius:6px;padding:3px 9px;font-size:.88rem;font-variant-numeric:tabular-nums}
+.data span b{font-family:var(--serif);font-style:italic;font-weight:400;font-size:1.1rem;margin-right:4px}
+
+.qs{display:flex;flex-direction:column;gap:12px}
+.q{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px;position:relative}
+.q.locked{background:transparent;border-style:dashed;color:var(--muted);text-align:center;padding:10px}
+.q.ok{border-color:var(--ok)}
+.q.shown{border-color:var(--elec)}
+.q .qt{margin:0 0 10px;font-weight:600}
+.q .qt .n{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:50%;background:var(--ink);color:var(--paper);font-size:.8rem;margin-right:8px;vertical-align:1px}
+.q.ok .qt .n{background:var(--ok)}
+.q.shown .qt .n{background:var(--elec)}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.row input{font:inherit;width:11em;padding:7px 10px;border:1.5px solid var(--line);border-radius:8px;background:var(--paper);color:var(--ink);font-variant-numeric:tabular-nums}
+.row .u{color:var(--muted);min-width:2em}
+.btn{border:1.5px solid var(--ink);background:var(--ink);color:var(--paper);border-radius:8px;padding:7px 14px;cursor:pointer;font-weight:600}
+.btn.alt{background:transparent;color:var(--ink)}
+.btn:disabled{opacity:.4;cursor:default}
+.lnk{background:none;border:0;color:var(--muted);text-decoration:underline;cursor:pointer;font-size:.88rem;padding:4px}
+.fb{margin:8px 0 0;font-size:.92rem;font-weight:600}
+.fb.good{color:var(--ok)} .fb.bad{color:var(--bad)}
+.hint{margin:8px 0 0;padding:8px 10px;border-radius:8px;background:color-mix(in srgb,var(--meca) 10%,transparent);font-size:.92rem}
+.sol{margin:10px 0 0;padding:10px 12px;border-radius:8px;background:var(--soft);font-size:.93rem;font-variant-numeric:tabular-nums}
+.sol b{color:var(--ok)}
+.shake{animation:shake .35s}
+@keyframes shake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.choices{display:flex;flex-direction:column;gap:6px}
+.choice{text-align:left;border:1.5px solid var(--line);background:var(--paper);border-radius:8px;padding:8px 12px;cursor:pointer}
+.choice:hover:not(:disabled){border-color:var(--ink)}
+.choice.right{border-color:var(--ok);background:color-mix(in srgb,var(--ok) 14%,transparent)}
+.choice.wrong{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 12%,transparent);text-decoration:line-through}
+.choice:disabled{cursor:default}
+textarea{font:inherit;width:100%;min-height:70px;padding:8px 10px;border:1.5px solid var(--line);border-radius:8px;background:var(--paper);color:var(--ink);margin-bottom:8px}
+
+/* tableau TD1 ex7 */
+.tbl{overflow-x:auto}
+.tbl table{border-collapse:collapse;width:100%;min-width:520px;font-size:.9rem}
+.tbl th,.tbl td{border-bottom:1px solid var(--line);padding:6px 6px;text-align:left;vertical-align:top}
+.tbl th{font-size:.8rem;color:var(--muted);font-weight:600}
+.tbl select{font:inherit;font-size:.88rem;padding:4px 6px;border-radius:6px;border:1.5px solid var(--line);background:var(--paper);color:var(--ink);max-width:100%}
+.tbl select.g{border-color:var(--ok)} .tbl select.b{border-color:var(--bad)}
+.tbl .comp{font-size:.8rem;color:var(--muted);display:block;margin-top:3px}
+
+.done-banner{display:none;margin-top:6px;padding:14px 16px;border-radius:12px;background:var(--ink);color:var(--paper);font-weight:600;align-items:center;gap:12px;flex-wrap:wrap}
+.done-banner.on{display:flex}
+.done-banner .stars{font-size:1.3rem}
+.done-banner button{margin-left:auto;background:var(--paper);color:var(--ink);border:0;border-radius:8px;padding:7px 14px;font-weight:600;cursor:pointer}
+
+/* formulaire */
+dialog{border:1px solid var(--line);border-radius:14px;background:var(--panel);color:var(--ink);max-width:640px;width:calc(100% - 32px);padding:20px 22px;max-height:85vh}
+dialog::backdrop{background:rgba(10,20,30,.45)}
+dialog h3{margin:0 0 10px;font-stretch:80%;font-size:1.5rem}
+.fl{display:grid;grid-template-columns:auto 1fr;gap:6px 18px;font-size:.93rem}
+.fl dt{font-family:var(--serif);font-size:1.2rem;white-space:nowrap}
+.fl dd{margin:0;color:var(--muted);align-self:center}
+
+/* confettis */
+.conf{position:fixed;inset:0;pointer-events:none;z-index:50;overflow:hidden}
+.conf i{position:absolute;top:-12px;width:8px;height:12px;border-radius:2px;animation:fall 1.6s cubic-bezier(.3,.6,.5,1) forwards}
+@keyframes fall{to{transform:translateY(105vh) rotate(720deg);opacity:.6}}
+
+/* scènes : animations */
+.lbl{font:600 12px var(--sans);fill:var(--ink)}
+.lbl.m{fill:var(--muted);font-weight:500}
+.k1{stroke:var(--ink);stroke-width:1.5;fill:none}
+.k2{stroke:var(--ink);stroke-width:2.5;fill:none}
+.spin{transform-box:fill-box;transform-origin:center;animation:spin 1.4s linear infinite}
+.spin.fast{animation-duration:.35s}
+.spin.slow{animation-duration:3s}
+@keyframes spin{to{transform:rotate(360deg)}}
+.a-lift{animation:lift 6s ease-in-out infinite}
+@keyframes lift{0%,12%{transform:translateY(112px)}50%,62%{transform:translateY(14px)}100%{transform:translateY(112px)}}
+.a-cw{animation:cw 6s ease-in-out infinite}
+@keyframes cw{0%,12%{transform:translateY(16px)}50%,62%{transform:translateY(118px)}100%{transform:translateY(16px)}}
+.a-train{animation:train 5.5s infinite}
+@keyframes train{0%{transform:translateX(-250px);animation-timing-function:cubic-bezier(.15,.85,.35,1)}55%{transform:translateX(60px)}78%{transform:translateX(60px);animation-timing-function:ease-in}100%{transform:translateX(380px)}}
+.a-spark{animation:spark 5.5s infinite}
+@keyframes spark{0%,12%{opacity:0}15%,50%{opacity:1}55%,100%{opacity:0}}
+.a-spark circle{animation:flick .15s steps(2) infinite}
+@keyframes flick{50%{opacity:.2}}
+.a-hover{animation:hover 2s ease-in-out infinite alternate}
+@keyframes hover{to{transform:translateY(-8px)}}
+.a-prop{transform-box:fill-box;transform-origin:center;animation:prop .12s linear infinite alternate}
+@keyframes prop{to{transform:scaleX(.25)}}
+.a-drain{transform-box:fill-box;transform-origin:left center;animation:drain 8s linear infinite}
+@keyframes drain{from{transform:scaleX(1)}to{transform:scaleX(.06)}}
+.a-heat{animation:heat 6s ease-in-out infinite alternate}
+@keyframes heat{from{fill:var(--water)}to{fill:var(--ther)}}
+.a-thermo{transform-box:fill-box;transform-origin:center bottom;animation:thermo 6s ease-in-out infinite alternate}
+@keyframes thermo{from{transform:scaleY(.25)}to{transform:scaleY(1)}}
+.a-glow{animation:glow 1s ease-in-out infinite alternate}
+@keyframes glow{from{opacity:.35}to{opacity:1}}
+.a-flow{stroke-dasharray:6 10;animation:flow 1s linear infinite}
+@keyframes flow{to{stroke-dashoffset:-16}}
+.rev .a-flow{animation-direction:reverse}
+.rev .spin{animation-direction:reverse}
+.a-tv{animation:tv 4s steps(1) infinite}
+@keyframes tv{0%{fill:var(--meca)}25%{fill:var(--chim)}50%{fill:var(--elec)}75%{fill:var(--ther)}}
+.standby .a-tv{animation:none;fill:#0c1319}
+.led{fill:var(--chim)}
+.standby .led{fill:#e03a2a;animation:glow .8s infinite alternate}
+.a-road{stroke-dasharray:18 14;animation:road .6s linear infinite}
+@keyframes road{to{stroke-dashoffset:32}}
+.a-bob{animation:bob .5s ease-in-out infinite alternate}
+@keyframes bob{to{transform:translateY(-1.5px)}}
+.a-puff{animation:puff 1.2s linear infinite}
+@keyframes puff{from{transform:translate(0,0);opacity:.7}to{transform:translate(-40px,-10px);opacity:0}}
+.a-climb{animation:climb 7s linear infinite}
+@keyframes climb{from{transform:translateX(0)}to{transform:translateX(240px)}}
+.a-bolt{animation:bolt 3s infinite}
+@keyframes bolt{0%,68%{opacity:0}70%{opacity:1}73%{opacity:.15}76%{opacity:1}84%,100%{opacity:0}}
+.a-flash{animation:flash 3s infinite}
+@keyframes flash{0%,68%{opacity:0}70%{opacity:.35}73%{opacity:0}76%{opacity:.25}84%,100%{opacity:0}}
+.a-press{animation:press 3s infinite}
+@keyframes press{0%{transform:translateY(50px);animation-timing-function:ease-out}33%{transform:translateY(0);animation-timing-function:ease-in-out}100%{transform:translateY(50px)}}
+.a-press.drop{animation:drop .45s cubic-bezier(.55,0,1,.45) 1 forwards}
+@keyframes drop{from{transform:translateY(0)}to{transform:translateY(50px)}}
+.a-steam{animation:steam 3s linear infinite}
+@keyframes steam{from{transform:translateY(0) scale(.6);opacity:.8}to{transform:translateY(-45px) scale(1.4);opacity:0}}
+.a-steam{transform-box:fill-box;transform-origin:center}
+.a-sun{transform-box:fill-box;transform-origin:center;animation:spin 18s linear infinite}
+.a-sumo{animation:sumo 3s ease-in-out infinite alternate}
+@keyframes sumo{from{transform:translateX(-36px)}to{transform:translateX(36px)}}
+.a-drill{animation:drill .3s linear infinite}
+@keyframes drill{to{transform:translateX(-12px)}}
+@media (prefers-reduced-motion:reduce){
+  .scene *{animation:none!important}
+  .conf{display:none}
+}
+
+@media (max-width:860px){
+  .ex-grid{grid-template-columns:1fr}
+  .left{position:static}
+}
+footer{color:var(--muted);font-size:.85rem;padding:0 0 40px}
+</style>
+</head>
+<body>
+
+<div class="top">
+  <div class="wrap">
+    <span class="brand">⚡ Énergétique : les TD</span>
+    <span class="xp" id="xp" aria-live="polite"><span class="bolt">XP</span><span id="xpVal">0</span></span>
+    <button class="ghost" id="openF">Formulaire</button>
+    <button class="ghost" id="resetAll">Recommencer</button>
+  </div>
+</div>
+
+<main class="wrap" id="app"></main>
+
+<dialog id="formDlg">
+  <h3>Formulaire</h3>
+  <dl class="fl">
+    <dt>E<sub>p</sub> = m·g·h</dt><dd>énergie potentielle (J), g = 9,81 m/s²</dd>
+    <dt>E<sub>c</sub> = ½·m·v²</dt><dd>énergie cinétique de translation (J)</dd>
+    <dt>E = ½·J·ω²</dt><dd>énergie cinétique de rotation</dd>
+    <dt>E = m·c·Δθ</dt><dd>énergie thermique (c en J/(kg·K))</dd>
+    <dt>E = Q·U</dt><dd>énergie d’une batterie (Q en Ah → E en Wh)</dd>
+    <dt>Q = I·t</dt><dd>charge électrique (C si t en s, Ah si t en h)</dd>
+    <dt>W = F·d</dt><dd>travail d’une force (J)</dd>
+    <dt>P = W / t</dt><dd>puissance (W)</dd>
+    <dt>P = F·V</dt><dd>puissance en translation</dd>
+    <dt>P = C·ω</dt><dd>puissance en rotation</dd>
+    <dt>P = U·I</dt><dd>puissance électrique en continu</dd>
+    <dt>ω = N·2π/60</dt><dd>N en tr/min, ω en rad/s</dd>
+    <dt>V = ω·R</dt><dd>vitesse linéaire d’un point à la distance R</dd>
+    <dt>η = P<sub>u</sub> / P<sub>a</sub></dt><dd>rendement ; η<sub>g</sub> = η<sub>1</sub>×η<sub>2</sub>×…</dd>
+    <dt>1 Wh = 3 600 J</dt><dd>1 ch = 736 W ; 1 km/h = 1/3,6 m/s</dd>
+  </dl>
+  <form method="dialog" style="margin-top:16px;text-align:right"><button class="btn">Fermer</button></form>
+</dialog>
+
+<script>
+(function(){
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+/* =================== SCÈNES ANIMÉES =================== */
+const arrowV = (x,y1,y2) => `<line x1="${x}" y1="${y1}" x2="${x}" y2="${y2}" class="k1"/><path d="M${x-4},${y1+7} L${x},${y1} L${x+4},${y1+7}" class="k1"/><path d="M${x-4},${y2-7} L${x},${y2} L${x+4},${y2-7}" class="k1"/>`;
+const gear = (cx,cy,r,col,cls) => `<g class="spin ${cls||""}"><circle cx="${cx}" cy="${cy}" r="${r+3}" fill="none" stroke="${col}" stroke-width="8" stroke-dasharray="${(r/5).toFixed(1)} ${(r/6).toFixed(1)}"/><circle cx="${cx}" cy="${cy}" r="${r}" fill="${col}"/><line x1="${cx-r+5}" y1="${cy}" x2="${cx+r-5}" y2="${cy}" stroke="var(--panel)" stroke-width="3"/><line x1="${cx}" y1="${cy-r+5}" x2="${cx}" y2="${cy+r-5}" stroke="var(--panel)" stroke-width="3"/><circle cx="${cx}" cy="${cy}" r="5" fill="var(--panel)"/></g>`;
+const SC = {
+  lift:o=>`<svg viewBox="0 0 320 170" role="img" aria-label="Ascenseur qui monte et descend">
+    <defs><clipPath id="clL"><rect x="110" y="10" width="90" height="150"/></clipPath></defs>
+    <rect x="110" y="10" width="90" height="150" fill="var(--soft)" stroke="var(--ink)" stroke-width="2"/>
+    <g clip-path="url(#clL)">
+      <g class="a-lift"><line x1="140" y1="-300" x2="140" y2="0" class="k1"/><rect x="118" y="0" width="46" height="44" rx="4" fill="var(--meca)"/><rect x="125" y="8" width="14" height="30" rx="2" fill="#fff" opacity=".6"/><rect x="143" y="8" width="14" height="30" rx="2" fill="#fff" opacity=".6"/></g>
+      <g class="a-cw"><line x1="185" y1="-300" x2="185" y2="0" class="k1"/><rect x="178" y="0" width="14" height="34" rx="2" fill="var(--muted)"/></g>
+    </g>
+    <rect x="100" y="3" width="110" height="9" rx="2" fill="var(--ink)"/>
+    ${arrowV(230,14,158)}
+    <text x="240" y="90" class="lbl">h = ${o.h}</text>
+    <text x="14" y="84" class="lbl">m = ${o.m}</text>
+    <text x="14" y="102" class="lbl m">${o.note||""}</text></svg>`,
+  train:()=>`<svg viewBox="0 0 320 170" role="img" aria-label="TGV qui freine">
+    <line x1="0" y1="140" x2="320" y2="140" class="k2"/><line x1="0" y1="146" x2="320" y2="146" stroke="var(--muted)" stroke-width="4" stroke-dasharray="4 10"/>
+    <g class="a-train">
+      <path d="M0,92 H168 Q204,94 224,132 H0 Z" fill="var(--meca)"/>
+      <path d="M176,98 Q198,100 212,122 H176 Z" fill="#fff" opacity=".7"/>
+      ${[16,46,76,106,136].map(x=>`<rect x="${x}" y="100" width="20" height="12" rx="2" fill="#fff" opacity=".7"/>`).join("")}
+      <rect x="0" y="118" width="224" height="4" fill="var(--elec)"/>
+      ${[30,64,150,190].map(x=>`<circle cx="${x}" cy="134" r="7" fill="var(--ink)"/>`).join("")}
+      <g class="a-spark">${[[186,142],[194,139],[146,142],[154,139]].map(([x,y])=>`<circle cx="${x}" cy="${y}" r="2.5" fill="var(--elec)"/>`).join("")}</g>
+    </g>
+    <text x="12" y="28" class="lbl">Freinage : 300 km/h → 110 km/h</text>
+    <text x="12" y="46" class="lbl m">m = 383 t</text></svg>`,
+  gear:o=>`<svg viewBox="0 0 320 170" role="img" aria-label="Moteur entraînant un arbre en rotation">
+    <rect x="28" y="48" width="100" height="76" rx="10" fill="${o.col||"var(--ther)"}"/>
+    ${[44,60,76,92,108].map(x=>`<line x1="${x}" y1="56" x2="${x}" y2="116" stroke="#fff" stroke-opacity=".35" stroke-width="3"/>`).join("")}
+    <text x="78" y="92" text-anchor="middle" class="lbl" style="fill:#fff">${o.name||"Moteur"}</text>
+    <rect x="128" y="81" width="76" height="10" fill="var(--muted)"/>
+    ${gear(236,86,30,"var(--meca)")}
+    <path d="M226,40 A46,46 0 0 1 282,64" class="k1"/><path d="M276,56 L282,64 L273,66" class="k1"/>
+    <text x="286" y="50" class="lbl">ω</text>
+    <text x="14" y="26" class="lbl">${o.t1||""}</text><text x="14" y="152" class="lbl m">${o.t2||""}</text></svg>`,
+  drill:()=>`<svg viewBox="0 0 320 170" role="img" aria-label="Chaîne batterie, moteur, réducteur, foret">
+    <defs><clipPath id="clD"><rect x="262" y="78" width="54" height="16" rx="3"/></clipPath></defs>
+    <rect x="8" y="62" width="36" height="48" rx="4" fill="var(--chim)"/><rect x="18" y="56" width="16" height="6" fill="var(--chim)"/>
+    <text x="26" y="92" text-anchor="middle" class="lbl" style="fill:#fff">24 V</text>
+    <path d="M44,74 H70 M44,98 H70" class="k1"/>
+    <rect x="70" y="58" width="62" height="56" rx="8" fill="var(--elec)"/><text x="101" y="91" text-anchor="middle" class="lbl" style="fill:#fff">M</text>
+    <rect x="132" y="82" width="14" height="8" fill="var(--muted)"/>
+    <rect x="146" y="44" width="90" height="84" rx="8" fill="var(--soft)" stroke="var(--ink)" stroke-width="1.5"/>
+    ${gear(166,86,9,"var(--ther)","fast")}
+    ${gear(204,86,26,"var(--meca)","slow")}
+    <rect x="236" y="80" width="26" height="12" fill="var(--muted)"/>
+    <rect x="262" y="78" width="54" height="16" rx="3" fill="var(--muted)"/>
+    <g clip-path="url(#clD)"><g class="a-drill">${Array.from({length:10},(_,i)=>`<line x1="${262+i*12}" y1="96" x2="${272+i*12}" y2="76" stroke="var(--panel)" stroke-width="3"/>`).join("")}</g></g>
+    <text x="101" y="134" text-anchor="middle" class="lbl m">η = 0,89</text>
+    <text x="191" y="146" text-anchor="middle" class="lbl m">1/26, η = 0,75</text>
+    <text x="101" y="38" text-anchor="middle" class="lbl">2 670 tr/min</text><text x="289" y="68" text-anchor="middle" class="lbl">foret</text></svg>`,
+  drone:()=>`<svg viewBox="0 0 320 170" role="img" aria-label="Drone en vol dont la batterie se vide">
+    <g class="a-hover">
+      <line x1="120" y1="72" x2="80" y2="58" class="k2"/><line x1="200" y1="72" x2="240" y2="58" class="k2"/>
+      <ellipse class="a-prop" cx="80" cy="54" rx="34" ry="4" fill="var(--muted)"/><ellipse class="a-prop" cx="240" cy="54" rx="34" ry="4" fill="var(--muted)"/>
+      <ellipse cx="160" cy="78" rx="46" ry="16" fill="var(--ther)"/><ellipse cx="160" cy="74" rx="20" ry="7" fill="var(--elec)"/>
+    </g>
+    <rect x="20" y="130" width="130" height="20" rx="4" fill="none" stroke="var(--ink)" stroke-width="2"/><rect x="150" y="135" width="5" height="10" fill="var(--ink)"/>
+    <rect class="a-drain" x="23" y="133" width="124" height="14" rx="2" fill="var(--chim)"/>
+    <text x="170" y="145" class="lbl">3 × 334 mAh, 11,1 V</text><text x="230" y="110" class="lbl m">P = 55 W</text></svg>`,
+  heater:o=>`<svg viewBox="0 0 320 170" role="img" aria-label="Ballon d’eau qui chauffe">
+    ${o.sun?`<g class="a-sun"><circle cx="40" cy="34" r="16" fill="var(--elec)"/>${Array.from({length:8},(_,i)=>{const a=i*Math.PI/4;return `<line x1="${40+22*Math.cos(a)}" y1="${34+22*Math.sin(a)}" x2="${40+30*Math.cos(a)}" y2="${34+30*Math.sin(a)}" stroke="var(--elec)" stroke-width="3"/>`}).join("")}</g>
+      <path d="M20,140 L60,76 H140 L100,140 Z" fill="var(--meca)" opacity=".85"/>${[0,1,2,3].map(i=>`<line x1="${30+i*20}" y1="140" x2="${70+i*20}" y2="76" stroke="#fff" stroke-opacity=".35"/>`).join("")}
+      <text x="60" y="160" class="lbl m">capteur 2 m²</text>
+      <path d="M120,108 H180" stroke="var(--ther)" stroke-width="3" fill="none" class="a-flow"/><path d="M180,138 H104" stroke="var(--water)" stroke-width="3" fill="none" class="a-flow"/>`
+     :`<path d="M40,120 H100 Q120,120 120,100 V90 H180" class="k1"/><rect x="24" y="110" width="20" height="24" rx="3" fill="var(--ink)"/><text x="30" y="100" class="lbl">${o.p||""}</text>`}
+    <rect x="180" y="20" width="80" height="130" rx="16" fill="var(--soft)" stroke="var(--ink)" stroke-width="2"/>
+    <rect class="a-heat" x="186" y="34" width="68" height="110" rx="10"/>
+    <path d="M196,136 l6,-8 l6,8 l6,-8 l6,8 l6,-8 l6,8 l6,-8" stroke="var(--elec)" stroke-width="3" fill="none" class="a-glow"/>
+    <rect x="286" y="24" width="12" height="112" rx="6" fill="none" stroke="var(--ink)" stroke-width="1.5"/>
+    <rect class="a-thermo" x="289" y="30" width="6" height="104" rx="3" fill="var(--ther)"/><circle cx="292" cy="140" r="9" fill="var(--ther)"/>
+    <text x="220" y="14" text-anchor="middle" class="lbl">${o.v||""}</text>
+    <text x="268" y="162" class="lbl m">${o.temp||""}</text></svg>`,
+  tv:()=>`<svg viewBox="0 0 320 170" role="img" aria-label="Téléviseur en marche ou en veille" style="cursor:pointer">
+    <rect x="70" y="14" width="180" height="112" rx="8" fill="var(--ink)"/><rect class="a-tv" x="78" y="22" width="164" height="96" rx="3"/>
+    <rect x="150" y="126" width="20" height="18" fill="var(--muted)"/><rect x="118" y="144" width="84" height="6" rx="3" fill="var(--muted)"/>
+    <circle class="led" cx="240" cy="121" r="3"/>
+    <text id="tvTxt" x="160" y="166" text-anchor="middle" class="lbl">En marche : 100 W</text></svg>`,
+  cars:()=>`<svg viewBox="0 0 320 170" role="img" aria-label="Voiture thermique et voiture électrique">
+    <rect x="0" y="92" width="320" height="70" fill="var(--soft)"/><line x1="0" y1="127" x2="320" y2="127" stroke="var(--muted)" stroke-width="3" class="a-road"/>
+    <g transform="translate(60,78)"><g class="a-bob"><path d="M0,24 Q10,6 40,4 H78 Q100,6 114,24 H122 V38 H0 Z" fill="var(--ther)"/><rect x="42" y="10" width="30" height="12" rx="2" fill="#fff" opacity=".6"/><circle cx="24" cy="38" r="8" fill="var(--ink)"/><circle cx="98" cy="38" r="8" fill="var(--ink)"/></g>
+      <circle class="a-puff" cx="-6" cy="34" r="5" fill="var(--muted)"/><circle class="a-puff" cx="-6" cy="34" r="4" fill="var(--muted)" style="animation-delay:.6s"/></g>
+    <g transform="translate(150,116)"><g class="a-bob" style="animation-delay:.25s"><path d="M0,24 Q10,6 40,4 H78 Q100,6 114,24 H122 V38 H0 Z" fill="var(--elec)"/><rect x="42" y="10" width="30" height="12" rx="2" fill="#fff" opacity=".6"/><path d="M58,22 l-6,9 h5 l-3,8 l9,-11 h-5 l3,-6z" fill="var(--ink)"/><circle cx="24" cy="38" r="8" fill="var(--ink)"/><circle cx="98" cy="38" r="8" fill="var(--ink)"/></g></g>
+    <text x="14" y="26" class="lbl">Audi TT RS : 340 ch, essence 60 L</text><text x="14" y="44" class="lbl">Furtive e-GT : 2 × 125 kW, 50 kWh</text></svg>`,
+  bike:()=>`<svg viewBox="0 0 320 170" role="img" aria-label="Cycliste dans une montée">
+    <path d="M0,160 L60,60 L110,110 L190,20 L320,160 Z" fill="var(--soft)"/>
+    <line x1="20" y1="158" x2="310" y2="54" class="k2"/>
+    <g transform="translate(34,150) rotate(-19.7)"><g class="a-climb">
+      <g transform="translate(0,-12)"><circle cx="0" cy="0" r="10" class="k2 spin"/><circle cx="34" cy="0" r="10" class="k2 spin"/>
+      <path d="M0,0 L14,-16 H30 L34,0 M14,-16 L18,0 H0" class="k1"/><path d="M18,-16 L22,-32 L30,-36" stroke="var(--ther)" stroke-width="5" stroke-linecap="round" fill="none"/><circle cx="32" cy="-42" r="5" fill="var(--ther)"/></g>
+    </g></g>
+    <text x="200" y="150" class="lbl">7,83 %</text><text x="14" y="24" class="lbl">15,9 km, dénivelé 1 255 m</text><text x="14" y="42" class="lbl m">431 W, 78 kg avec le vélo</text></svg>`,
+  dam:o=>`<svg viewBox="0 0 320 170" role="img" aria-label="Centrale hydraulique : turbinage et pompage">
+    <path d="M0,70 L0,40 L110,40 L130,74 L230,140 L320,140 L320,170 L0,170 Z" fill="var(--soft)"/>
+    <rect x="6" y="44" width="100" height="22" fill="var(--water)" opacity=".85"/>
+    <rect x="240" y="126" width="74" height="14" fill="var(--water)" opacity=".85"/>
+    <path d="M106,58 L200,132" stroke="var(--muted)" stroke-width="9" fill="none"/>
+    <path id="pen" d="M106,58 L200,132" stroke="#fff" stroke-width="3" fill="none" class="a-flow"/>
+    ${gear(214,132,11,"var(--meca)","fast")}
+    <rect x="206" y="106" width="24" height="12" rx="2" fill="var(--elec)"/>
+    <path d="M218,106 V60 M218,60 L200,90 M218,60 L236,90 M204,72 H232 M218,60 L300,30" class="k1"/>
+    <text x="8" y="30" class="lbl">${o.up||"Lac haut"}</text><text x="238" y="160" class="lbl" style="font-size:11px">${o.down||"Lac bas"}</text>
+    <text id="damMode" x="140" y="30" class="lbl">${o.label||"Turbinage"}</text></svg>`,
+  bolt:()=>`<svg viewBox="0 0 320 170" role="img" aria-label="Éclair entre un nuage et le sol">
+    <rect class="a-flash" x="0" y="0" width="320" height="170" fill="#fff"/>
+    <g fill="var(--muted)"><circle cx="120" cy="36" r="22"/><circle cx="150" cy="26" r="26"/><circle cx="184" cy="36" r="22"/><rect x="100" y="36" width="104" height="22" rx="11"/></g>
+    <polygon class="a-bolt" points="152,58 136,100 154,100 138,152 184,86 162,86 176,58" fill="var(--elec)"/>
+    <line x1="0" y1="154" x2="320" y2="154" class="k2"/>
+    ${arrowV(262,40,152)}<text x="270" y="100" class="lbl">5 000 m</text>
+    <text x="14" y="24" class="lbl">Q = 5 C</text><text x="14" y="42" class="lbl m">Δt = 25 ms</text><text x="14" y="140" class="lbl m">20 kV/m</text></svg>`,
+  press:()=>`<svg viewBox="0 0 320 170" role="img" aria-label="Presse à cuisses avec 100 kg">
+    <line x1="112" y1="14" x2="112" y2="150" class="k2"/><line x1="208" y1="14" x2="208" y2="150" class="k2"/>
+    <g class="a-press" id="pressBar"><rect x="96" y="54" width="128" height="8" rx="3" fill="var(--ink)"/><rect x="82" y="40" width="16" height="36" rx="3" fill="var(--muted)"/><rect x="222" y="40" width="16" height="36" rx="3" fill="var(--muted)"/>
+      <line x1="150" y1="62" x2="150" y2="84" stroke="var(--ther)" stroke-width="5" stroke-linecap="round"/><line x1="170" y1="62" x2="170" y2="84" stroke="var(--ther)" stroke-width="5" stroke-linecap="round"/></g>
+    <rect x="130" y="134" width="60" height="14" rx="4" fill="var(--ther)"/><circle cx="160" cy="124" r="9" fill="var(--ther)"/>
+    ${arrowV(262,54,104)}<text x="270" y="84" class="lbl">0,7 m</text>
+    <text x="14" y="30" class="lbl">100 kg</text><text x="14" y="48" class="lbl m">montée 1 s, descente 2 s</text></svg>`,
+  plant:o=>`<svg viewBox="0 0 320 170" role="img" aria-label="Centrale électrique">
+    ${o.nuc?`<path d="M150,154 Q166,104 156,44 H222 Q212,104 228,154 Z" fill="var(--soft)" stroke="var(--ink)" stroke-width="2"/>
+      ${[0,1,2].map(i=>`<circle class="a-steam" cx="${176+i*14}" cy="36" r="12" fill="var(--muted)" opacity=".5" style="animation-delay:${i}s"/>`).join("")}
+      <rect x="40" y="96" width="80" height="58" fill="var(--meca)"/><path d="M40,96 Q80,60 120,96" fill="var(--meca)"/>`
+     :`<rect x="178" y="30" width="18" height="124" fill="var(--ink)"/>${[0,1,2].map(i=>`<circle class="a-steam" cx="${187+i*6}" cy="22" r="10" fill="var(--ink)" opacity=".4" style="animation-delay:${i}s"/>`).join("")}
+      <rect x="40" y="96" width="120" height="58" fill="var(--ther)"/><path d="M50,154 l14,-14 l14,14z M70,154 l12,-10 l12,10z" fill="var(--ink)"/>`}
+    <path d="M250,154 V70 M238,154 L250,70 L262,154 M240,90 H260 M250,70 L320,56" class="k1"/>
+    <line x1="0" y1="154" x2="320" y2="154" class="k2"/>
+    <text x="14" y="26" class="lbl">${o.t1}</text><text x="14" y="44" class="lbl m">${o.t2}</text></svg>`,
+  solar:()=>`<svg viewBox="0 0 320 170" role="img" aria-label="Capteur photovoltaïque de 33 panneaux">
+    <g id="sunG"><g class="a-sun"><circle cx="40" cy="38" r="18" fill="var(--elec)"/>${Array.from({length:8},(_,i)=>{const a=i*Math.PI/4;return `<line x1="${40+24*Math.cos(a)}" y1="${38+24*Math.sin(a)}" x2="${40+32*Math.cos(a)}" y2="${38+32*Math.sin(a)}" stroke="var(--elec)" stroke-width="3"/>`}).join("")}</g></g>
+    ${[0,1,2].map(c=>[0,1,2,3].map(r=>`<rect x="${110+c*44}" y="${20+r*32}" width="34" height="24" rx="2" fill="var(--meca)"/>`).join("")).join("")}
+    <text x="176" y="160" text-anchor="middle" class="lbl m">3 branches de 11 panneaux</text>
+    <path d="M300,24 V140" class="k1"/><path d="M300,24 V140" stroke="var(--elec)" stroke-width="3" class="a-flow" fill="none"/>
+    <text x="252" y="16" class="lbl">U<tspan font-size="9">C</tspan>, I<tspan font-size="9">C</tspan></text></svg>`,
+  sumo:()=>`<svg viewBox="0 0 320 170" role="img" aria-label="Deux robots sumo qui se poussent">
+    <ellipse cx="160" cy="104" rx="140" ry="52" fill="#1b1f24" stroke="#fff" stroke-width="5"/>
+    <g class="a-sumo"><rect x="110" y="86" width="44" height="30" rx="4" fill="var(--meca)"/><rect x="166" y="86" width="44" height="30" rx="4" fill="var(--ther)"/>
+      <circle cx="120" cy="118" r="6" fill="var(--muted)"/><circle cx="144" cy="118" r="6" fill="var(--muted)"/><circle cx="176" cy="118" r="6" fill="var(--muted)"/><circle cx="200" cy="118" r="6" fill="var(--muted)"/></g>
+    <rect x="14" y="14" width="96" height="18" rx="3" fill="none" stroke="var(--ink)" stroke-width="2"/><rect class="a-drain" x="17" y="17" width="90" height="12" fill="var(--chim)"/>
+    <text x="120" y="28" class="lbl">6 × 1,2 V, 1 600 mAh</text><text x="14" y="48" class="lbl m">1 combat = 3 × 3 min</text></svg>`
+};
+const INIT = {
+  tv:root=>{const s=root.querySelector("svg"); const t=root.querySelector("#tvTxt");
+    const tog=()=>{s.classList.toggle("standby"); t.textContent=s.classList.contains("standby")?"En veille : 0,5 W":"En marche : 100 W";};
+    s.addEventListener("click",tog); addCtrl(root,`<button class="btn alt" type="button">Marche / veille</button><span>Touchez aussi l’écran.</span>`).querySelector("button").addEventListener("click",tog);},
+  dam:(root,o)=>{ if(!o.toggle) return; const s=root.querySelector("svg");
+    const c=addCtrl(root,`<button class="btn alt" type="button">Passer en pompage</button><span>Le sens de l’eau et de la machine s’inverse.</span>`);
+    const b=c.querySelector("button");
+    b.addEventListener("click",()=>{const r=s.classList.toggle("rev"); root.querySelector("#damMode").textContent=r?"Pompage : 52 m³/s":"Turbinage : 96 m³/s"; b.textContent=r?"Passer en turbinage":"Passer en pompage";});},
+  press:root=>{const bar=root.querySelector("#pressBar");
+    addCtrl(root,`<button class="btn alt" type="button">Lâcher les poids</button><span>Chute libre sur 0,7 m.</span>`).querySelector("button").addEventListener("click",()=>{
+      bar.classList.add("drop"); setTimeout(()=>bar.classList.remove("drop"),1400);});},
+  solar:root=>{
+    const c=addCtrl(root,`<label for="eSl">Éclairement E</label><input id="eSl" type="range" min="0" max="1200" step="50" value="800" style="flex:1;min-width:120px;accent-color:var(--elec)"><b id="eV" style="min-width:8em;font-variant-numeric:tabular-nums"></b>
+      <svg viewBox="0 0 300 120" style="width:100%;height:auto"><g id="plot"></g></svg>`);
+    const sl=c.querySelector("#eSl"), out=c.querySelector("#eV"), plot=c.querySelector("#plot"), sun=root.querySelector("#sunG");
+    const X=e=>40+e/1200*240, Y=i=>100-i/3*85;
+    let base=`<line x1="40" y1="100" x2="285" y2="100" class="k1"/><line x1="40" y1="100" x2="40" y2="10" class="k1"/>
+      <text x="285" y="115" text-anchor="end" class="lbl m">E (W/m²)</text><text x="44" y="12" class="lbl m">I<tspan font-size="9">P</tspan> (A)</text>`;
+    [0,400,800,1200].forEach(e=>base+=`<text x="${X(e)}" y="113" text-anchor="middle" class="lbl m" style="font-size:10px">${e}</text>`);
+    [1,2,3].forEach(i=>base+=`<text x="34" y="${Y(i)+4}" text-anchor="end" class="lbl m" style="font-size:10px">${i}</text><line x1="40" x2="285" y1="${Y(i)}" y2="${Y(i)}" stroke="var(--line)"/>`);
+    const upd=()=>{const e=+sl.value, ip=e*0.0025; out.textContent=`${e} W/m² → I_P ≈ ${ip.toLocaleString("fr-FR",{maximumFractionDigits:2})} A`;
+      sun.style.opacity=(0.2+0.8*e/1200).toFixed(2);
+      plot.innerHTML=base+`<line x1="${X(0)}" y1="${Y(0)}" x2="${X(1200)}" y2="${Y(3)}" stroke="var(--elec)" stroke-width="2" stroke-dasharray="4 4"/><circle cx="${X(e)}" cy="${Y(ip)}" r="5" fill="var(--ther)"/>`;};
+    sl.addEventListener("input",upd); upd();}
+};
+function addCtrl(root,html){const d=document.createElement("div"); d.className="ctrl"; d.innerHTML=html; root.appendChild(d); return d;}
+
+/* =================== DONNÉES DES TD =================== */
+const ENER = ["électrique","mécanique de rotation","mécanique de translation","hydraulique","thermique","rayonnante","chimique"];
+const TDS = [
+{id:"td1", name:"TD 1", sub:"Énergies et transmission de puissance", ex:[
+ {id:"t1e1", ico:"🛗", c:"--meca", t:"Récupérer l’énergie d’un ascenseur", sc:"lift", so:{h:"27 m",m:"1 200 kg",note:"descente"},
+  ctx:"On cherche l’énergie récupérable lors de la descente d’un ascenseur.", data:[["m","1 200 kg"],["h","27 m"],["g","9,81 m/s²"]],
+  qs:[{q:"Calculer l’énergie potentielle de l’ascenseur.",a:317844,u:"J",hint:"E<sub>p</sub> = m · g · h",sol:"E<sub>p</sub> = 1 200 × 9,81 × 27 = <b>317 844 J ≈ 318 kJ</b> (soit environ 88 Wh)."}]},
+ {id:"t1e2", ico:"🚄", c:"--meca", t:"Récupérer l’énergie du freinage d’un TGV", sc:"train",
+  ctx:"On évalue l’énergie récupérable lors du freinage d’une rame de TGV.", data:[["m","383 t"],["v₁","300 km/h"],["v₂","110 km/h"]],
+  qs:[{q:"Convertir la vitesse initiale v₁ en m/s.",a:83.33,u:"m/s",hint:"Diviser par 3,6.",sol:"v₁ = 300 / 3,6 = <b>83,33 m/s</b>"},
+      {q:"Convertir la vitesse finale v₂ en m/s.",a:30.56,u:"m/s",hint:"Diviser par 3,6.",sol:"v₂ = 110 / 3,6 = <b>30,56 m/s</b>"},
+      {q:"Calculer l’énergie récupérable lors du freinage.",a:1.151e9,u:"J",hint:"ΔE<sub>c</sub> = ½ · m · (v₁² − v₂²), avec m en kg.",sol:"ΔE<sub>c</sub> = ½ × 383 000 × (83,33² − 30,56²) = <b>1,15 × 10⁹ J ≈ 1,15 GJ</b> (≈ 320 kWh)."}]},
+ {id:"t1e3", ico:"🏙️", c:"--meca", t:"Dimensionner le moteur d’un ascenseur", sc:"lift", so:{h:"196 m",m:"1 200 kg",note:"en 38 s"},
+  ctx:"L’ascenseur le plus rapide de la tour Montparnasse monte au 56ᵉ étage à vitesse constante, sans frottement.", data:[["m","1,2 t"],["h","196 m"],["t","38 s"]],
+  qs:[{q:"Calculer l’énergie potentielle gagnée par la cabine.",a:2307312,u:"J",hint:"E<sub>p</sub> = m · g · h",sol:"E<sub>p</sub> = 1 200 × 9,81 × 196 = <b>2 307 312 J ≈ 2,31 MJ</b>"},
+      {q:"Calculer la puissance utile du moteur.",a:60719,u:"W",hint:"P = W / t",sol:"P = 2 307 312 / 38 = <b>60 719 W ≈ 60,7 kW</b>"}]},
+ {id:"t1e4", ico:"🚗", c:"--ther", t:"Couple d’un moteur de voiture", sc:"gear", so:{t1:"80 ch à 3 500 tr/min",t2:"1 ch = 736 W",name:"Moteur"},
+  ctx:"Le moteur thermique d’une voiture développe 80 ch à 3 500 tr/min.", data:[["P","80 ch"],["N","3 500 tr/min"]],
+  qs:[{q:"Convertir la puissance en watts.",a:58880,u:"W",hint:"1 ch = 736 W",sol:"P = 80 × 736 = <b>58 880 W</b>"},
+      {q:"Calculer la vitesse angulaire ω de l’arbre.",a:366.5,u:"rad/s",hint:"ω = N · 2π / 60",sol:"ω = 3 500 × 2π / 60 = <b>366,5 rad/s</b>"},
+      {q:"Déterminer le couple disponible sur l’arbre moteur.",a:160.6,u:"N·m",hint:"P = C · ω donc C = P / ω",sol:"C = 58 880 / 366,5 = <b>160,6 N·m</b>"}]},
+ {id:"t1e5", ico:"🚁", c:"--elec", t:"Autonomie d’un drone", sc:"drone",
+  ctx:"Le drone Parrot a trois cellules lithium en dérivation (parallèle), chacune de 334 mAh sous 11,1 V. En vol il consomme 55 W en moyenne.", data:[["Q","3 × 334 mAh"],["U","11,1 V"],["P","55 W"]],
+  qs:[{q:"Calculer la capacité totale de la batterie (cellules en parallèle).",a:1.002,u:"Ah",hint:"En parallèle, les capacités s’additionnent (la tension reste 11,1 V).",sol:"Q = 3 × 334 = 1 002 mAh = <b>1,002 Ah</b>"},
+      {q:"Calculer l’énergie stockée.",a:11.12,u:"Wh",hint:"E = Q · U",sol:"E = 1,002 × 11,1 = <b>11,12 Wh</b>"},
+      {q:"Calculer l’autonomie du drone.",a:12.13,u:"min",hint:"t = E / P donne des heures si E est en Wh.",sol:"t = 11,12 / 55 = 0,202 h = <b>12,1 min</b> (environ 12 min 8 s)."}]},
+ {id:"t1e6", ico:"🚿", c:"--ther", t:"Quand l’eau de la douche sera-t-elle chaude ?", sc:"heater", so:{p:"2 kW",v:"200 L",temp:"15 → 65 °C"},
+  ctx:"Un chauffe-eau de 200 L et de 2 kW porte l’eau du réseau de 15 °C à 65 °C.", data:[["V","200 L"],["P","2 kW"],["θ₁","15 °C"],["θ₂","65 °C"],["c","4 180 J/(kg·K)"]],
+  qs:[{q:"Quelle est la masse d’eau à chauffer ?",a:200,u:"kg",hint:"1 L d’eau a une masse de 1 kg.",sol:"<b>m = 200 kg</b>"},
+      {q:"Calculer l’énergie nécessaire.",a:41800000,u:"J",hint:"E = m · c · Δθ",sol:"E = 200 × 4 180 × (65 − 15) = <b>41 800 000 J = 41,8 MJ</b>"},
+      {q:"Calculer le temps de chauffe.",a:20900,u:"s",hint:"t = E / P",sol:"t = 41 800 000 / 2 000 = <b>20 900 s</b>, soit 5 h 48 min 20 s."}]},
+ {id:"t1e7", ico:"🧩", c:"--chim", t:"Qui convertit quoi ?", sc:null,
+  ctx:"Pour chaque système, choisissez la nature de l’énergie d’entrée et de sortie. Après vérification, les composantes de la puissance s’affichent.",
+  data:[],
+  qs:[{type:"table", rows:[
+    ["⚙️ Moteur électrique asynchrone","électrique","mécanique de rotation","U, I","C, ω"],
+    ["🚲 Bicyclette","mécanique de rotation","mécanique de translation","C, ω (pédalier)","F, V"],
+    ["🔆 Panneau photovoltaïque","rayonnante","électrique","éclairement × surface","U, I"],
+    ["🔌 Alternateur","mécanique de rotation","électrique","C, ω","U, I"],
+    ["📱 Chargeur de téléphone","électrique","électrique","U, I (alternatif)","U, I (continu)"],
+    ["🦾 Vérin hydraulique","hydraulique","mécanique de translation","pression p, débit Q","F, V"],
+    ["☀️ Capteur solaire thermique","rayonnante","thermique","éclairement × surface","débit, élévation de température"],
+    ["🧰 Boîte de vitesses","mécanique de rotation","mécanique de rotation","C, ω","C, ω (autres valeurs)"],
+    ["🔥 Moteur thermique","chimique","mécanique de rotation","carburant (débit, pouvoir calorifique)","C, ω"]
+  ], alt:{8:{in:["thermique"]}} }]},
+ {id:"t1e8", ico:"🔩", c:"--elec", t:"Perceuse électrique", sc:"drill",
+  ctx:"À puissance maximale, le moteur absorbe 10 A sous 24 V et tourne à 2 670 tr/min. Un réducteur de rapport 1/26 entraîne le mandrin. Rendements : moteur 89 %, réducteur 75 %.",
+  data:[["U","24 V"],["I","10 A"],["N<sub>mot</sub>","2 670 tr/min"],["r","1/26"],["η<sub>mot</sub>","0,89"],["η<sub>réd</sub>","0,75"]],
+  qs:[{q:"Représentation fonctionnelle : quel est le 1ᵉʳ bloc après la batterie ?",choices:["Le réducteur","Le moteur électrique","Le foret"],a:1,sol:"Batterie → <b>moteur électrique</b> → réducteur → foret."},
+      {q:"Et le 2ᵉ bloc, avant le foret ?",choices:["Le réducteur de vitesse","Un alternateur","La batterie"],a:0,sol:"Le <b>réducteur</b> diminue la vitesse et augmente le couple."},
+      {q:"Déterminer la puissance électrique absorbée par le moteur P<sub>amot</sub>.",a:240,u:"W",hint:"P = U · I",sol:"P<sub>amot</sub> = 24 × 10 = <b>240 W</b>"},
+      {q:"Déterminer la puissance utile sur l’arbre moteur P<sub>umot</sub>.",a:213.6,u:"W",hint:"P<sub>u</sub> = η · P<sub>a</sub>",sol:"P<sub>umot</sub> = 0,89 × 240 = <b>213,6 W</b>"},
+      {q:"Déterminer la puissance de sortie sur le foret P<sub>foret</sub>.",a:160.2,u:"W",hint:"On multiplie par le rendement du réducteur.",sol:"P<sub>foret</sub> = 0,75 × 213,6 = <b>160,2 W</b>"},
+      {q:"Déterminer la fréquence de rotation du foret N<sub>foret</sub>.",a:102.7,alt:[100],u:"tr/min",hint:"N<sub>foret</sub> = N<sub>mot</sub> × 1/26",sol:"N<sub>foret</sub> = 2 670 / 26 = <b>102,7 tr/min</b> (l’énoncé arrondit à 100 tr/min)."},
+      {q:"En déduire sa vitesse angulaire ω<sub>foret</sub>.",a:10.75,alt:[10.47],u:"rad/s",hint:"ω = N · 2π / 60",sol:"ω<sub>foret</sub> = 102,7 × 2π / 60 = <b>10,75 rad/s</b>"},
+      {q:"Calculer la vitesse angulaire du moteur ω<sub>moteur</sub>.",a:279.6,u:"rad/s",hint:"ω = N · 2π / 60",sol:"ω<sub>moteur</sub> = 2 670 × 2π / 60 = <b>279,6 rad/s</b>"},
+      {q:"Déterminer le couple exercé par le foret C<sub>foret</sub>.",a:14.9,alt:[15.3],u:"N·m",tol:.04,hint:"C = P / ω",sol:"C<sub>foret</sub> = 160,2 / 10,75 = <b>14,9 N·m</b> (15,3 N·m avec 100 tr/min)."}]}
+]},
+{id:"td2", name:"TD 2", sub:"TD supplémentaire sur les énergies", ex:[
+ {id:"t2e1", ico:"📺", c:"--elec", t:"Étude énergétique d’un téléviseur", sc:"tv",
+  ctx:"Téléviseur de classe A : 100 W en marche, 0,5 W en veille. Il est allumé 5 h par jour et en veille le reste du temps. Prix du kWh : 0,1740 €.",
+  data:[["P<sub>m</sub>","100 W"],["P<sub>v</sub>","0,5 W"],["prix","0,1740 €/kWh"]],
+  qs:[{q:"Énergie consommée pour un film de 2 h, en kWh.",a:0.2,u:"kWh",hint:"E = P · t, avec P en kW et t en h.",sol:"E = 0,1 kW × 2 h = <b>0,2 kWh</b>"},
+      {q:"La même énergie en kJ.",a:720,u:"kJ",hint:"1 kWh = 3 600 kJ",sol:"E = 0,2 × 3 600 = <b>720 kJ</b>"},
+      {q:"Énergie consommée par jour lorsque le téléviseur est allumé.",a:0.5,u:"kWh",sol:"E = 0,1 × 5 = <b>0,5 kWh</b>",hint:"5 h de marche par jour."},
+      {q:"Énergie consommée par jour en veille.",a:0.0095,u:"kWh",hint:"Veille pendant 24 − 5 = 19 h.",sol:"E = 0,0005 kW × 19 h = <b>0,0095 kWh</b> (9,5 Wh)"},
+      {q:"Énergie totale consommée sur une journée.",a:0.5095,u:"kWh",hint:"Additionner marche et veille.",sol:"E = 0,5 + 0,0095 = <b>0,5095 kWh</b>"},
+      {q:"Énergie consommée sur une année complète.",a:185.97,u:"kWh",hint:"× 365",sol:"E = 0,5095 × 365 = <b>186 kWh</b>"},
+      {q:"Coût annuel de l’utilisation du téléviseur.",a:32.36,u:"€",hint:"Coût = énergie × prix du kWh",sol:"Coût = 185,97 × 0,1740 = <b>32,36 €</b>"}]},
+ {id:"t2e2", ico:"🏎️", c:"--ther", t:"Voiture thermique ou électrique ?", sc:"cars",
+  ctx:"Audi TT RS (340 ch, réservoir de 60 L, 6,9 L/100 km sur route) contre Furtive e-GT (2 × 125 kW, batterie 50 kWh, 288 km d’autonomie à 90 km/h). Essence : ρ = 0,75 kg/L, PCI = 43 800 kJ/kg.",
+  data:[["V","60 L"],["ρ","0,75 kg/L"],["PCI","43 800 kJ/kg"],["conso","6,9 L/100 km"],["E<sub>bat</sub>","50 kWh"],["autonomie","288 km"]],
+  qs:[{q:"Déterminer la masse d’essence contenue dans le réservoir.",a:45,u:"kg",hint:"Masse = ρ · V",sol:"m = 0,75 × 60 = <b>45 kg</b>"},
+      {q:"Énergie thermique du réservoir plein, en kJ.",a:1971000,u:"kJ",hint:"E = m × PCI",sol:"E<sub>th</sub> = 45 × 43 800 = <b>1 971 000 kJ</b>"},
+      {q:"La même énergie en kWh.",a:547.5,u:"kWh",hint:"1 kWh = 3 600 kJ",sol:"E<sub>th</sub> = 1 971 000 / 3 600 = <b>547,5 kWh</b>"},
+      {q:"Autonomie sur route du véhicule thermique.",a:869.6,u:"km",hint:"60 L à raison de 6,9 L pour 100 km.",sol:"d = 60 / 6,9 × 100 = <b>870 km</b>"},
+      {q:"Énergie consommée par kilomètre (thermique).",a:629.6,u:"Wh/km",hint:"Énergie en Wh divisée par la distance.",sol:"547 500 / 869,6 = <b>630 Wh/km</b>"},
+      {q:"Énergie consommée par kilomètre (électrique, à 90 km/h).",a:173.6,u:"Wh/km",hint:"50 kWh pour 288 km.",sol:"50 000 / 288 = <b>174 Wh/km</b>, environ 3,6 fois moins que la thermique."},
+      {q:"Masse des batteries (énergie massique 150 Wh/kg).",a:333.3,u:"kg",hint:"m = E / énergie massique",sol:"m = 50 000 / 150 = <b>333 kg</b>, soit 7 fois la masse d’essence !"},
+      {q:"Puissance du moteur thermique en kW.",a:250.2,u:"kW",hint:"1 ch = 736 W",sol:"P = 340 × 736 = 250 240 W = <b>250 kW</b>"},
+      {q:"Conclure.",choices:["Les puissances sont quasi identiques (≈ 250 kW) mais l’électrique consomme bien moins d’énergie par km","La thermique est deux fois plus puissante","L’électrique consomme plus d’énergie par km"],a:0,sol:"Puissances équivalentes (250 kW), mais l’électrique consomme ≈ 174 Wh/km contre ≈ 630 Wh/km : <b>meilleur rendement</b>, au prix d’une batterie lourde."}]},
+ {id:"t2e3", ico:"🏢", c:"--meca", t:"Ascenseur de la tour Sears", sc:"lift", so:{h:"408,4 m",m:"1 000 kg",note:"548,6 m/min"},
+  ctx:"L’ascenseur express monte au 103ᵉ étage (408,4 m) à 548,6 m/min en moyenne. Charge totale : 1,0 × 10³ kg. La traction compense exactement le poids.",
+  data:[["m","1 000 kg"],["h","408,4 m"],["v","548,6 m/min"]],
+  qs:[{q:"Calculer le travail de la force de traction.",a:4006404,u:"J",hint:"W = F · d avec F = m · g",sol:"W = 1 000 × 9,81 × 408,4 = <b>4 006 404 J ≈ 4 MJ</b>"},
+      {q:"Exprimer ce travail en kWh.",a:1.113,u:"kWh",hint:"1 kWh = 3 600 000 J",sol:"W = 4 006 404 / 3 600 000 = <b>1,11 kWh</b>"},
+      {q:"Convertir la vitesse en m/s.",a:9.143,u:"m/s",hint:"Diviser par 60.",sol:"v = 548,6 / 60 = <b>9,14 m/s</b>"},
+      {q:"Calculer la puissance moyenne développée pendant la montée.",a:89696,u:"W",hint:"P = F · V (ou W / t avec t = h / v)",sol:"P = 9 810 × 9,14 = <b>89 700 W ≈ 90 kW</b> (montée en 44,7 s)"}]},
+ {id:"t2e4", ico:"🚴", c:"--ther", t:"Contador au plateau de Beille", sc:"bike",
+  ctx:"Montée de 15,9 km à 7,83 % (dénivelé 1 255 m), vitesse moyenne 21,54 km/h, durée 44’17’’, puissance moyenne 431 W pour 78 kg avec le vélo.",
+  data:[["d","15,9 km"],["Δh","1 255 m"],["v","21,54 km/h"],["t","44 min 17 s"],["P","431 W"],["m","78 kg"]],
+  qs:[{q:"Convertir la vitesse moyenne en m/s.",a:5.983,u:"m/s",hint:"Diviser par 3,6.",sol:"v = 21,54 / 3,6 = <b>5,98 m/s</b>"},
+      {q:"Calculer la force de propulsion moyenne.",a:72.03,u:"N",hint:"P = F · V donc F = P / V",sol:"F = 431 / 5,983 = <b>72,0 N</b>"},
+      {q:"Énergie dépensée avec le travail d’une force (W = F · d).",a:1145331,u:"J",hint:"d en mètres.",sol:"W = 72,03 × 15 900 = <b>1 145 000 J ≈ 1,15 MJ</b>"},
+      {q:"Énergie dépensée avec la puissance (W = P · t).",a:1145167,u:"J",hint:"44 min 17 s = 2 657 s.",sol:"W = 431 × 2 657 = <b>1 145 167 J</b> : les deux méthodes concordent."},
+      {q:"Énergie potentielle de pesanteur stockée pendant l’ascension.",a:960301,u:"J",hint:"E<sub>p</sub> = m · g · Δh",sol:"E<sub>p</sub> = 78 × 9,81 × 1 255 = <b>960 300 J ≈ 0,96 MJ</b>"},
+      {q:"Que devient cette énergie potentielle dans la descente ?",choices:["Elle disparaît","Elle devient énergie cinétique, puis chaleur dans les freins et l’air","Elle recharge le cycliste"],a:1,sol:"E<sub>p</sub> → <b>énergie cinétique</b>, dissipée en <b>chaleur</b> par les freins et les frottements de l’air."}]},
+ {id:"t2e5", ico:"💧", c:"--meca", t:"Centrale de Grand-Maison", sc:"dam", so:{up:"Chute d’eau",down:"Réseau",label:"174,7 MW"},
+  ctx:"La chute d’eau fournit 174,7 MW au groupe turbine-alternateur. Turbine : η = 90 %. L’alternateur fournit 153 MW au réseau et absorbe en plus 323 kW électriques pour son fonctionnement.",
+  data:[["P<sub>chute</sub>","174,7 MW"],["η<sub>T</sub>","90 %"],["P<sub>réseau</sub>","153 MW"],["P<sub>aux</sub>","323 kW"]],
+  qs:[{q:"Flèche creuse (chute → turbine → alternateur) : quelle puissance ?",choices:["Puissance mécanique (hydraulique puis rotation)","Puissance électrique","Puissance perdue"],a:0,sol:"Les flèches creuses portent de la <b>puissance mécanique</b>."},
+      {q:"Flèche noire épaisse (323 kW entrant, 153 MW vers le réseau) ?",choices:["Puissance thermique","Puissance électrique","Puissance chimique"],a:1,sol:"<b>Puissance électrique</b>."},
+      {q:"Flèches fines vers le bas ?",choices:["Puissances perdues (chaleur)","Puissance électrique","Puissance hydraulique"],a:0,sol:"Ce sont les <b>pertes</b>, surtout thermiques."},
+      {q:"Puissance mécanique fournie par la turbine.",a:157.23,u:"MW",hint:"P = η<sub>T</sub> · P<sub>chute</sub>",sol:"P = 0,9 × 174,7 = <b>157,23 MW</b>"},
+      {q:"Pertes de la turbine.",a:17.47,u:"MW",hint:"Entrée − sortie.",sol:"174,7 − 157,23 = <b>17,47 MW</b>"},
+      {q:"Pertes de l’alternateur.",a:4.553,u:"MW",hint:"Entrées : 157,23 MW + 0,323 MW. Sortie : 153 MW.",sol:"157,23 + 0,323 − 153 = <b>4,553 MW</b>"},
+      {q:"Rendement η<sub>A</sub> de l’alternateur.",a:97.11,u:"%",hint:"η<sub>A</sub> = sortie / (toutes les entrées)",sol:"η<sub>A</sub> = 153 / 157,553 = <b>97,1 %</b>"},
+      {q:"Rendement η du groupe complet.",a:87.42,u:"%",hint:"Entrées du groupe : 174,7 MW + 0,323 MW.",sol:"η = 153 / 175,023 = <b>87,4 %</b>"},
+      {q:"Énergie fournie au réseau en une journée.",a:3672,u:"MWh",hint:"E = P · t avec t = 24 h.",sol:"E = 153 × 24 = <b>3 672 MWh</b> (≈ 1,32 × 10¹³ J)"}]},
+ {id:"t2e6", ico:"🤖", c:"--chim", t:"Robot sumo : l’autonomie tiendra-t-elle ?", sc:"sumo",
+  ctx:"Par rencontre de 3 min, pour chaque moteur : arrêt 5 s ; recherche 55 s à 0,65 A ; poussée 60 s à 1,9 A ; poussé 60 s à 1,9 A. L’électronique consomme 5 % de Q<sub>totale</sub>. Éléments de 1,2 V et 1 600 mAh, alimentation 7,2 V.",
+  data:[["V<sub>élém</sub>","1,2 V"],["Q<sub>élém</sub>","1 600 mAh"],["U","7,2 V"],["moteurs","2"]],
+  qs:[{q:"Nombre d’éléments associés en série.",a:6,u:"éléments",tol:0,hint:"7,2 V / 1,2 V",sol:"n = 7,2 / 1,2 = <b>6 éléments</b>"},
+      {q:"Capacité totale Q<sub>totale</sub> (éléments en série).",a:1.6,u:"Ah",hint:"En série, la tension s’additionne, pas la capacité.",sol:"<b>Q<sub>totale</sub> = 1,6 Ah</b> ; tension disponible 6 × 1,2 = 7,2 V."},
+      {q:"Q₁ pour les 2 moteurs, phase de recherche.",a:0.01986,u:"Ah",hint:"Q = I · t avec t en heures, × 2 moteurs.",sol:"Q₁ = 2 × 0,65 × 55/3 600 = <b>0,0199 Ah</b>"},
+      {q:"Q₂ pour les 2 moteurs, phase de poussée.",a:0.06333,u:"Ah",hint:"2 × 1,9 A pendant 60 s.",sol:"Q₂ = 2 × 1,9 × 60/3 600 = <b>0,0633 Ah</b>"},
+      {q:"Q₃ pour les 2 moteurs, quand le robot est poussé.",a:0.06333,u:"Ah",hint:"Mêmes valeurs que la poussée.",sol:"<b>Q₃ = 0,0633 Ah</b>"},
+      {q:"Q₄ pour la chaîne d’information.",a:0.08,u:"Ah",hint:"5 % de Q<sub>totale</sub>.",sol:"Q₄ = 0,05 × 1,6 = <b>0,08 Ah</b>"},
+      {q:"Capacité nécessaire pour une rencontre.",a:0.2265,u:"Ah",hint:"Q₁ + Q₂ + Q₃ + Q₄",sol:"Q<sub>rencontre</sub> = 0,0199 + 0,0633 + 0,0633 + 0,08 = <b>0,227 Ah</b>"},
+      {q:"Capacité nécessaire pour un combat.",a:0.6796,alt:[0.4396],u:"Ah",hint:"1 combat = 3 rencontres.",sol:"Q<sub>combat</sub> = 3 × 0,2265 = <b>0,68 Ah</b> (0,44 Ah pour les moteurs seuls)."},
+      {q:"Conclure au regard de la contrainte.",choices:["Les accumulateurs sont insuffisants","1,6 Ah > 0,68 Ah : les accumulateurs conviennent, avec de la marge","Il faudrait 12 éléments"],a:1,sol:"<b>1,6 Ah > 0,68 Ah</b> : la batterie tient un combat complet (plus de deux, même)."}]}
+]},
+{id:"td3", name:"TD 3", sub:"Énergétique, transmission de puissance", ex:[
+ {id:"t3e1", ico:"⚙️", c:"--elec", t:"Puissance absorbée d’un moteur", sc:"gear", so:{t1:"P<sub>u</sub> = 1 500 W",t2:"η = 75 %",col:"var(--elec)",name:"Moteur"},
+  ctx:"Un moteur électrique a une puissance utile de 1 500 W et un rendement de 75 %.", data:[["P<sub>u</sub>","1 500 W"],["η","0,75"]],
+  qs:[{q:"Déterminer la puissance absorbée par le moteur.",a:2000,u:"W",hint:"η = P<sub>u</sub> / P<sub>a</sub> donc P<sub>a</sub> = P<sub>u</sub> / η",sol:"P<sub>a</sub> = 1 500 / 0,75 = <b>2 000 W</b>"},
+      {q:"Conclure sur les pertes : combien de watts sont perdus ?",a:500,u:"W",hint:"P<sub>a</sub> − P<sub>u</sub>",sol:"Pertes = 2 000 − 1 500 = <b>500 W</b>, dissipés surtout en chaleur."}]},
+ {id:"t3e2", ico:"🌩️", c:"--elec", t:"Récupérer l’énergie de la foudre ?", sc:"bolt",
+  ctx:"Champ électrique sous un nuage d’orage : 20 kV/m. Un éclair transporte 5 C, le nuage est à 5 000 m et l’éclair dure 25 ms. Un orage : 100 éclairs. En France : 1 million d’éclairs par an. Un foyer consomme 4 kW en moyenne.",
+  data:[["E","20 kV/m"],["d","5 000 m"],["Q","5 C"],["Δt","25 ms"]],
+  qs:[{q:"Calculer la tension U entre le sol et le nuage.",a:1e8,u:"V",hint:"U = champ × distance",sol:"U = 20 000 × 5 000 = <b>10⁸ V = 100 MV</b>"},
+      {q:"Calculer l’intensité du courant de l’éclair.",a:200,u:"A",hint:"I = Δq / Δt",sol:"I = 5 / 0,025 = <b>200 A</b>"},
+      {q:"Calculer l’énergie d’un éclair.",a:5e8,u:"J",hint:"W = Q · U",sol:"W = 5 × 10⁸ = <b>5 × 10⁸ J = 500 MJ</b>"},
+      {q:"Exprimer cette énergie en Wh.",a:138889,u:"Wh",hint:"1 Wh = 3 600 J",sol:"500 × 10⁶ / 3 600 = <b>138 889 Wh ≈ 139 kWh</b>"},
+      {q:"Calculer la puissance d’un éclair.",a:2e10,u:"W",hint:"P = W / Δt (ou U · I)",sol:"P = 5 × 10⁸ / 0,025 = <b>2 × 10¹⁰ W = 20 GW</b>"},
+      {q:"Énergie moyenne d’un orage (100 éclairs).",a:5e10,u:"J",hint:"× 100",sol:"100 × 500 MJ = <b>5 × 10¹⁰ J = 50 GJ</b>"},
+      {q:"Énergie des éclairs en France sur une année.",a:5e14,u:"J",hint:"× 1 000 000",sol:"10⁶ × 5 × 10⁸ = <b>5 × 10¹⁴ J = 500 TJ</b>"},
+      {q:"Puissance moyenne correspondante sur une année.",a:1.585e7,u:"W",hint:"Diviser par 365 × 24 × 3 600 s.",sol:"P = 5 × 10¹⁴ / 31 536 000 = <b>1,59 × 10⁷ W ≈ 15,9 MW</b>"},
+      {q:"Combien de foyers pourrait-on alimenter pendant un an ?",a:3964,u:"foyers",hint:"Puissance moyenne / 4 000 W",sol:"15,9 × 10⁶ / 4 000 ≈ <b>3 960 foyers</b> : c’est très peu à l’échelle de la France."}]},
+ {id:"t3e3", ico:"🏋️", c:"--meca", t:"Énergie d’une masse", sc:"press",
+  ctx:"Un athlète pousse 100 kg de fonte sur 0,7 m. Il fait une montée et une descente toutes les 3 s (poussée 1 s, descente 2 s). La machine tourne 4 h par jour à ce rythme.",
+  data:[["m","100 kg"],["h","0,7 m"],["cycle","3 s"],["durée","4 h/j"]],
+  qs:[{q:"Calculer l’énergie potentielle gagnée par la fonte.",a:686.7,u:"J",hint:"E<sub>p</sub> = m · g · h",sol:"E<sub>p</sub> = 100 × 9,81 × 0,7 = <b>686,7 J</b>"},
+      {q:"Si l’athlète lâche les poids, en quoi se convertit cette énergie ?",choices:["En énergie électrique","En énergie cinétique","En énergie chimique"],a:1,sol:"L’énergie mécanique se conserve : E<sub>p</sub> devient <b>énergie cinétique</b> juste avant la butée."},
+      {q:"Calculer la vitesse atteinte en butée.",a:3.706,u:"m/s",hint:"½ · m · v² = m · g · h donc v = √(2 · g · h)",sol:"v = √(2 × 9,81 × 0,7) = <b>3,71 m/s</b>"},
+      {q:"Puissance développée pendant la poussée.",a:686.7,u:"W",hint:"P = E / t avec t = 1 s.",sol:"P = 686,7 / 1 = <b>686,7 W</b>"},
+      {q:"Puissance moyenne si les cycles s’enchaînent.",a:228.9,u:"W",hint:"Une poussée toutes les 3 s.",sol:"P<sub>moy</sub> = 686,7 / 3 = <b>228,9 W</b>"},
+      {q:"Énergie quotidienne disponible, en Wh.",a:915.6,u:"Wh",hint:"P<sub>moy</sub> × 4 h",sol:"E = 228,9 × 4 = <b>915,6 Wh</b> (≈ 3,3 MJ)"},
+      {q:"Combien de temps une ampoule LED de 20 W pourrait-elle fonctionner ?",a:45.78,u:"h",hint:"t = E / P",sol:"t = 915,6 / 20 = <b>45,8 h</b>"}]},
+ {id:"t3e4", ico:"☢️", c:"--chim", t:"Centrale nucléaire", sc:"plant", so:{nuc:true,t1:"P = 1 300 MW électriques",t2:"η = 30 %"},
+  ctx:"Une centrale fournit 1 300 MW électriques avec un rendement de 30 %. En 2005, la France a consommé 574,66 TWh. 1 g d’uranium 235 libère environ 82 GJ.",
+  data:[["P<sub>é</sub>","1 300 MW"],["η","30 %"],["conso France","574,66 TWh"],["1 g U235","82 GJ"]],
+  qs:[{q:"Énergie électrique fournie sur une année, en joules.",a:4.1e16,u:"J",hint:"W = P · t avec t = 365 × 24 × 3 600 s.",sol:"W = 1 300 × 10⁶ × 31 536 000 = <b>4,1 × 10¹⁶ J</b>"},
+      {q:"La même énergie en TWh.",a:11.388,u:"TWh",hint:"1 300 MW × 8 760 h",sol:"W = 1 300 × 8 760 = 11 388 000 MWh = <b>11,39 TWh</b>"},
+      {q:"Contribution de la centrale à la consommation française.",a:1.98,u:"%",hint:"11,39 / 574,66",sol:"11,39 / 574,66 = <b>1,98 %</b>"},
+      {q:"Puissance produite par les réactions nucléaires.",a:4333,u:"MW",hint:"P<sub>nucl</sub> = P<sub>é</sub> / η",sol:"P<sub>nucl</sub> = 1 300 / 0,3 = <b>4 333 MW</b>"},
+      {q:"Énergie nucléaire produite sur une année.",a:1.3666e17,u:"J",hint:"P<sub>nucl</sub> × 31 536 000 s",sol:"W<sub>nucl</sub> = 4 333 × 10⁶ × 31 536 000 = <b>1,37 × 10¹⁷ J</b>"},
+      {q:"Masse d’uranium 235 nécessaire pour un an.",a:1667,u:"kg",hint:"W<sub>nucl</sub> / 82 × 10⁹ J donne des grammes.",sol:"m = 1,37 × 10¹⁷ / 82 × 10⁹ = 1,67 × 10⁶ g = <b>1 667 kg</b>"}]},
+ {id:"t3e5", ico:"🌞", c:"--ther", t:"Chauffe-eau solaire", sc:"heater", so:{sun:true,v:"20 L/h",temp:"15 → 60 °C"},
+  ctx:"Capteur de 2 m², puissance solaire 800 W/m² pendant 1 h. Débit : 20 L/h, eau de 15 °C à 60 °C. E = c<sub>eau</sub> × D<sub>m</sub> × (θ₂ − θ₁) × durée.",
+  data:[["S","2 m²"],["800 W/m²",""],["D<sub>vol</sub>","20 L/h"],["θ₁","15 °C"],["θ₂","60 °C"],["c","4 180 J/(kg·°C)"]],
+  qs:[{q:"Calculer le débit massique de l’eau.",a:20,u:"kg/h",hint:"20 L d’eau = 20 kg.",sol:"<b>D<sub>m</sub> = 20 kg/h</b>"},
+      {q:"Énergie absorbée par l’eau en 1 h, en kJ.",a:3762,u:"kJ",hint:"E = 4 180 × 20 × 45 × 1 (en J)",sol:"E = 4 180 × 20 × 45 = 3 762 000 J = <b>3 762 kJ</b>"},
+      {q:"La même énergie en kWh.",a:1.045,u:"kWh",hint:"1 kWh = 3 600 kJ",sol:"E = 3 762 / 3 600 = <b>1,045 kWh</b>"},
+      {q:"Puissance solaire reçue par le capteur.",a:1600,u:"W",hint:"P = 800 × surface",sol:"P = 800 × 2 = <b>1 600 W</b>"},
+      {q:"Énergie solaire reçue en 1 heure.",a:1.6,u:"kWh",hint:"E = P · t",sol:"E = 1,6 kW × 1 h = <b>1,6 kWh</b>"},
+      {q:"Rendement du capteur solaire.",a:65.3,u:"%",hint:"η = E<sub>eau</sub> / E<sub>solaire</sub>",sol:"η = 1,045 / 1,6 = <b>65,3 %</b>"}]},
+ {id:"t3e6", ico:"🔋", c:"--elec", t:"Capteur photovoltaïque", sc:"solar",
+  ctx:"33 panneaux de 1 m × 0,4 m, en 3 branches de 11 panneaux en série. Chaque panneau est maintenu à U<sub>P</sub> = 17,5 V. Utilisez le curseur pour lire I<sub>P</sub> sur la caractéristique.",
+  data:[["U<sub>P</sub>","17,5 V"],["panneaux","33"],["surface","1 m × 0,4 m"]],
+  qs:[{q:"Exprimer U<sub>C</sub> et I<sub>C</sub>.",choices:["U<sub>C</sub> = 3 · U<sub>P</sub> et I<sub>C</sub> = 11 · I<sub>P</sub>","U<sub>C</sub> = 11 · U<sub>P</sub> et I<sub>C</sub> = 3 · I<sub>P</sub>","U<sub>C</sub> = U<sub>P</sub> et I<sub>C</sub> = 33 · I<sub>P</sub>"],a:1,sol:"Loi des mailles : <b>U<sub>C</sub> = 11 U<sub>P</sub></b> ; loi des nœuds : <b>I<sub>C</sub> = 3 I<sub>P</sub></b>."},
+      {q:"Vérifier la valeur U<sub>C</sub> imposée par le hacheur.",a:192.5,u:"V",hint:"11 × 17,5",sol:"U<sub>C</sub> = 11 × 17,5 = <b>192,5 V</b> : chaque panneau travaille à sa tension de puissance maximale."},
+      {q:"Lire I<sub>P</sub> pour E = 800 W/m² (curseur).",a:2,u:"A",hint:"Placez le curseur sur 800.",sol:"<b>I<sub>P</sub> = 2 A</b> : I<sub>P</sub> est proportionnel à E (I<sub>P</sub> = 0,0025 · E)."},
+      {q:"En déduire le coefficient k tel que P<sub>C</sub> = k · E.",a:1.444,u:"",hint:"P<sub>C</sub> = U<sub>C</sub> · I<sub>C</sub> = 192,5 × 3 × 0,0025 · E",sol:"k = 192,5 × 3 × 0,0025 = <b>1,44</b>, donc P<sub>C</sub> = 1,44 · E."},
+      {q:"Calculer la surface totale S<sub>C</sub> du capteur.",a:13.2,u:"m²",hint:"33 × 1 × 0,4",sol:"S<sub>C</sub> = 33 × 0,4 = <b>13,2 m²</b>"},
+      {q:"Rendement du capteur solaire.",a:10.9,u:"%",hint:"P<sub>lum</sub> = S<sub>C</sub> · E, donc η = 1,44 / 13,2",sol:"η = 1,44 E / 13,2 E = <b>10,9 %</b>, quel que soit l’éclairement."}]},
+ {id:"t3e7", ico:"🏭", c:"--ther", t:"Centrale thermique", sc:"plant", so:{nuc:false,t1:"P = 1 300 MW",t2:"5,00 TWh en 1 500 h"},
+  ctx:"Une centrale thermique produit 1 300 MW. Sur 1 500 h de fonctionnement, elle a consommé 5,00 TWh. 1 tep charbon (TEC) = 29,3 GJ.",
+  data:[["P<sub>u</sub>","1 300 MW"],["E<sub>a</sub>","5,00 TWh"],["t","1 500 h"],["1 TEC","29,3 GJ"]],
+  qs:[{q:"Calculer la puissance consommée par la centrale.",a:3.333,u:"GW",hint:"P = E / t",sol:"P = 5 × 10¹² Wh / 1 500 h = 3,33 × 10⁹ W = <b>3,33 GW</b>"},
+      {q:"Calculer le rendement de la centrale.",a:39,u:"%",hint:"η = 1,3 / 3,33",sol:"η = 1,3 / 3,333 = <b>39 %</b>"},
+      {q:"En déduire la puissance perdue.",a:2.033,u:"GW",hint:"P<sub>a</sub> − P<sub>u</sub>",sol:"3,333 − 1,3 = <b>2,03 GW</b>, perdus en chaleur."},
+      {q:"Énergie consommée en joules.",a:1.8e16,u:"J",hint:"1 Wh = 3 600 J",sol:"5 × 10¹² × 3 600 = <b>1,8 × 10¹⁶ J</b>"},
+      {q:"Masse de charbon nécessaire.",a:614334,u:"t",hint:"Diviser par 29,3 × 10⁹ J.",sol:"m = 1,8 × 10¹⁶ / 29,3 × 10⁹ = <b>614 000 t</b> de charbon."}]},
+ {id:"t3e8", ico:"🏞️", c:"--meca", t:"Centrale du lac Noir (STEP)", sc:"dam", so:{up:"Lac Blanc",down:"Lac Noir",label:"Turbinage : 96 m³/s",toggle:true},
+  ctx:"Lac Blanc : cotes 1 057,6 m (max) et 1 041,4 m (min). Lac Noir : 950,5 m (max) et 932,0 m (min). Volume échangé : 2 000 000 m³. Hauteur moyenne adoptée : H = 100 m. Turbinage : 96 m³/s, pompage : 52 m³/s, 80 MW électriques dans les deux cas.",
+  data:[["V","2 × 10⁶ m³"],["H","100 m"],["Q<sub>turb</sub>","96 m³/s"],["Q<sub>pomp</sub>","52 m³/s"],["P<sub>é</sub>","80 MW"]],
+  qs:[{q:"Dénivelé maximal H<sub>max</sub>.",a:125.6,u:"m",hint:"Lac Blanc au plus haut, lac Noir au plus bas.",sol:"H<sub>max</sub> = 1 057,6 − 932,0 = <b>125,6 m</b>"},
+      {q:"Dénivelé minimal H<sub>min</sub>.",a:90.9,u:"m",hint:"Lac Blanc au plus bas, lac Noir au plus haut.",sol:"H<sub>min</sub> = 1 041,4 − 950,5 = <b>90,9 m</b>"},
+      {q:"Masse d’eau transférée.",a:2e9,u:"kg",hint:"1 m³ = 1 000 L = 1 000 kg",sol:"m = 2 × 10⁶ × 1 000 = <b>2 × 10⁹ kg</b>"},
+      {q:"Énergie fournie par l’eau (à vérifier : 1,962 × 10¹² J).",a:1.962e12,u:"J",hint:"E = m · g · H",sol:"E = 2 × 10⁹ × 9,81 × 100 = <b>1,962 × 10¹² J</b>"},
+      {q:"Durée du turbinage.",a:20833,u:"s",hint:"t = volume / débit",sol:"t = 2 × 10⁶ / 96 = <b>20 833 s</b> = 5 h 47 min 13 s"},
+      {q:"Puissance hydraulique reçue par les turbines.",a:94.18,u:"MW",hint:"P = E / t",sol:"P = 1,962 × 10¹² / 20 833 = <b>94,2 MW</b>"},
+      {q:"Rendement global turbines/alternateurs.",a:84.9,u:"%",hint:"η = 80 / 94,2",sol:"η = 80 / 94,2 = <b>85 %</b>"},
+      {q:"Énergie électrique fournie lors du turbinage.",a:462963,u:"kWh",hint:"E = P · t (80 000 kW × t en h)",sol:"E = 80 000 × 20 833/3 600 = <b>462 963 kWh</b>"},
+      {q:"Pourquoi faut-il 1,962 × 10¹² J pour remonter l’eau ?",open:true,sol:"Il faut redonner à l’eau <b>la même énergie potentielle</b> qu’elle a perdue en descendant : même masse, même hauteur."},
+      {q:"Durée du pompage.",a:38462,u:"s",hint:"t = volume / débit de pompage",sol:"t = 2 × 10⁶ / 52 = <b>38 462 s</b> = 10 h 41 min 2 s"},
+      {q:"Puissance hydraulique fournie par les pompes.",a:51.01,u:"MW",hint:"P = E / t",sol:"P = 1,962 × 10¹² / 38 462 = <b>51,0 MW</b>"},
+      {q:"Rendement global alternateurs/pompes.",a:63.8,u:"%",hint:"η = 51 / 80",sol:"η = 51,0 / 80 = <b>63,8 %</b>"},
+      {q:"Énergie électrique consommée lors du pompage.",a:854701,u:"kWh",hint:"80 000 kW × t en h",sol:"E = 80 000 × 38 462/3 600 = <b>854 700 kWh</b>"},
+      {q:"Comparer turbinage et pompage.",choices:["On récupère plus qu’on ne consomme","On consomme environ 1,85 fois plus au pompage qu’on ne récupère au turbinage","Les deux énergies sont égales"],a:1,sol:"854 700 kWh > 462 963 kWh : les pertes des deux conversions s’accumulent."},
+      {q:"Consommation au pompage pour récupérer 1 kWh au turbinage.",a:1.846,u:"kWh",hint:"854 700 / 462 963",sol:"<b>1,85 kWh</b> consommé pour 1 kWh restitué. C’est rentable car on pompe en heures creuses (électricité bon marché) et on turbine aux pics (électricité chère)."}]}
+]}
+];
+
+/* =================== ÉTAT =================== */
+const KEY="energie-td-v1";
+let st={xp:0,q:{}};
+try{const r=localStorage.getItem(KEY); if(r) st=JSON.parse(r);}catch(e){}
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(st));}catch(e){}};
+const qKey=(ex,i)=>ex.id+"-"+i;
+const status=(ex,i)=>(st.q[qKey(ex,i)]||{}).s;
+function exStats(ex){let ok=0,res=0; ex.qs.forEach((q,i)=>{const s=status(ex,i); if(s) res++; if(s==="ok"||s==="hint") ok++;}); return {ok,res,n:ex.qs.length};}
+function starsOf(ex){const {ok,res,n}=exStats(ex); if(res<n) return 0; const r=ok/n; return r>=.95?3:r>=.6?2:1;}
+const starHTML=k=>`<span class="stars" aria-label="${k} étoile${k>1?"s":""} sur 3">${[1,2,3].map(i=>i<=k?"★":`<span class="off">★</span>`).join("")}</span>`;
+function addXP(n){ if(!n) return; st.xp+=n; save(); const x=document.getElementById("xp"); document.getElementById("xpVal").textContent=st.xp; x.classList.remove("bump"); void x.offsetWidth; x.classList.add("bump"); }
+document.getElementById("xpVal").textContent=st.xp;
+
+/* nombre : accepte 1,5 / 1.5 / 1 500 / 1,962.10^12 / 1,962×10^12 / 2e9 */
+function parseNum(s){
+  s=String(s).replace(/[\s\u00a0\u202f]/g,"").replace(/−/g,"-").replace(/⁻/g,"-");
+  const sup={"⁰":0,"¹":1,"²":2,"³":3,"⁴":4,"⁵":5,"⁶":6,"⁷":7,"⁸":8,"⁹":9};
+  s=s.replace(/[⁰¹²³⁴⁵⁶⁷⁸⁹]+/g,m=>"^"+[...m].map(c=>sup[c]).join(""));
+  const m=s.match(/^([+-]?\d+(?:[.,]\d+)?)(?:(?:[x×*·.]10\^?|[eE])([+-]?\d+))?$/);
+  if(!m) return NaN;
+  return parseFloat(m[1].replace(",","."))*(m[2]!==undefined?Math.pow(10,+m[2]):1);
+}
+function checkNum(q,v){
+  const tol=q.tol===undefined?.03:q.tol;
+  let c=[q.a,...(q.alt||[])]; if(q.u==="%") c=c.concat(c.map(x=>x/100));
+  return c.some(t=>Math.abs(v-t)<=Math.abs(t)*tol+1e-9);
+}
+
+/* =================== VUES =================== */
+const app=document.getElementById("app");
+let curTD=0;
+function home(){
+  const td=TDS[curTD];
+  app.innerHTML=`<section class="hero"><h1>À vous de jouer.</h1>
+    <p>Chaque exercice est une mission : répondez, vérifiez, gagnez de l’XP. Un indice coûte quelques points, la correction n’en rapporte pas.</p>
+    <p>Écrivez les nombres comme vous voulez : <i>1,5</i>, <i>1 500</i>, <i>2e9</i> ou <i>1,962.10^12</i>.</p></section>
+    <div class="tabs" role="tablist">${TDS.map((t,i)=>`<button class="tab" role="tab" aria-selected="${i===curTD}" data-i="${i}">${t.name}<small>${t.sub}</small></button>`).join("")}</div>
+    <div class="tiles">${td.ex.map((ex,j)=>{const s=exStats(ex);return `<button class="tile" style="--c:var(${ex.c})" data-j="${j}">
+      <span class="ico">${ex.ico}</span><b>${ex.t}</b>
+      <span class="bar"><i style="width:${Math.round(s.res/s.n*100)}%"></i></span>
+      <span class="meta"><span>${s.res} / ${s.n} question${s.n>1?"s":""}</span>${starHTML(starsOf(ex))}</span></button>`}).join("")}</div>
+    <footer>D’après les TD « Énergétique, transmission de puissance » (TD 1, 2 et 3), Spé SI, séquence 1.</footer>`;
+  app.querySelectorAll(".tab").forEach(b=>b.addEventListener("click",()=>{curTD=+b.dataset.i;home();}));
+  app.querySelectorAll(".tile").forEach(b=>b.addEventListener("click",()=>openEx(TDS[curTD].ex[+b.dataset.j])));
+}
+
+function openEx(ex){
+  app.innerHTML=`<section class="ex">
+    <button class="ghost back">← Retour aux exercices</button>
+    <div class="ex-head"><span class="ico">${ex.ico}</span><div><h2>${ex.t}</h2><p>${TDS[curTD].name}</p></div></div>
+    <div class="ex-grid">
+      <div class="left">${ex.sc?`<div class="scene" id="scene">${SC[ex.sc](ex.so||{})}</div>`:""}
+        <div class="ctx"><p>${ex.ctx}</p>${ex.data.length?`<div class="data">${ex.data.map(([k,v])=>`<span><b>${k}</b>${v}</span>`).join("")}</div>`:""}</div></div>
+      <div><div class="qs" id="qs"></div><div class="done-banner" id="done"></div></div>
+    </div></section>`;
+  app.querySelector(".back").addEventListener("click",()=>{home(); scrollTo(0,0);});
+  if(ex.sc && INIT[ex.sc]) INIT[ex.sc](document.getElementById("scene"),ex.so||{});
+  renderQs(ex);
+  scrollTo(0,0);
+}
+
+function renderQs(ex,focusIdx){
+  const box=document.getElementById("qs"); box.innerHTML="";
+  let unlocked=true, lockShown=false;
+  ex.qs.forEach((q,i)=>{
+    const s=status(ex,i);
+    const d=document.createElement("div");
+    if(!unlocked){ if(!lockShown){ d.className="q locked"; d.textContent=`🔒 Encore ${ex.qs.length-i} question${ex.qs.length-i>1?"s":""} à débloquer`; box.appendChild(d); lockShown=true; } return; }
+    d.className="q"+(s==="ok"||s==="hint"?" ok":s==="shown"?" shown":"");
+    d.innerHTML=`<p class="qt"><span class="n">${i+1}</span>${q.type==="table"?"Complétez le tableau":q.q}</p>`;
+    box.appendChild(d);
+    if(q.type==="table") tableQ(ex,q,i,d,s);
+    else if(q.choices) choiceQ(ex,q,i,d,s);
+    else if(q.open) openQ(ex,q,i,d,s);
+    else numQ(ex,q,i,d,s);
+    if(!s) unlocked=false;
+  });
+  const {res,n}=exStats(ex), done=document.getElementById("done");
+  if(res===n){ const k=starsOf(ex); done.classList.add("on");
+    done.innerHTML=`${starHTML(k)}<span>Mission terminée !</span><button type="button">Exercice suivant</button>`;
+    done.querySelector("button").addEventListener("click",()=>{const list=TDS[curTD].ex, j=list.indexOf(ex); if(j<list.length-1) openEx(list[j+1]); else if(curTD<TDS.length-1){curTD++; openEx(TDS[curTD].ex[0]);} else {home();}});
+  } else done.classList.remove("on");
+  if(focusIdx!==undefined){ const nx=box.children[focusIdx+1]; const inp=nx&&nx.querySelector("input,button.choice,select,textarea"); if(inp) inp.focus({preventScroll:true}); if(nx) nx.scrollIntoView({block:"nearest",behavior:reduce?"auto":"smooth"}); }
+}
+function resolve(ex,i,s,xp){
+  const k=qKey(ex,i), rec=st.q[k]||{}; rec.s=s; st.q[k]=rec; save(); addXP(xp);
+  const before=exStats(ex);
+  renderQs(ex,i);
+  if(before.res===before.n) confetti();
+}
+function hintUsed(ex,i){return !!(st.q[qKey(ex,i)]||{}).h;}
+function setHint(ex,i){const k=qKey(ex,i), rec=st.q[k]||{}; rec.h=1; st.q[k]=rec; save();}
+
+function numQ(ex,q,i,d,s){
+  if(s){ d.insertAdjacentHTML("beforeend",`<div class="sol">${q.sol}</div>`); return; }
+  d.insertAdjacentHTML("beforeend",`<div class="row"><input type="text" inputmode="decimal" autocomplete="off" aria-label="Réponse${q.u?" en "+q.u:""}"><span class="u">${q.u||""}</span>
+    <button class="btn" type="button">Vérifier</button></div>
+    <div class="row" style="margin-top:4px">${q.hint?`<button class="lnk" data-a="hint" type="button">Indice (−4 XP)</button>`:""}<button class="lnk" data-a="show" type="button">Voir la correction</button></div>
+    <p class="fb" aria-live="polite"></p>`);
+  const inp=d.querySelector("input"), fb=d.querySelector(".fb");
+  if(hintUsed(ex,i)&&q.hint) showHint();
+  function showHint(){ if(d.querySelector(".hint")) return; fb.insertAdjacentHTML("beforebegin",`<div class="hint">💡 ${q.hint}</div>`); const b=d.querySelector('[data-a="hint"]'); if(b) b.remove(); }
+  const go=()=>{
+    const v=parseNum(inp.value);
+    if(!isFinite(v)){ fb.className="fb bad"; fb.textContent="Écrivez un nombre, par exemple 1,5 ou 2e9."; return; }
+    if(checkNum(q,v)){ resolve(ex,i,hintUsed(ex,i)?"hint":"ok",hintUsed(ex,i)?6:10); }
+    else { fb.className="fb bad"; fb.textContent=wrongMsg(q,v); d.classList.remove("shake"); void d.offsetWidth; d.classList.add("shake"); }
+  };
+  d.querySelector(".btn").addEventListener("click",go);
+  inp.addEventListener("keydown",e=>{if(e.key==="Enter") go();});
+  const hb=d.querySelector('[data-a="hint"]'); if(hb) hb.addEventListener("click",()=>{setHint(ex,i); showHint(); inp.focus();});
+  d.querySelector('[data-a="show"]').addEventListener("click",()=>resolve(ex,i,"shown",0));
+}
+function wrongMsg(q,v){
+  const r=v/q.a;
+  const p=[1e3,1e6,3600,3.6,60,100];
+  for(const k of p){ if(Math.abs(r*k-1)<.03||Math.abs(r/k-1)<.03) return "Presque : l’ordre de grandeur n’est pas le bon. Vérifiez vos unités.";}
+  return "Pas encore. Relisez les données et réessayez.";
+}
+function choiceQ(ex,q,i,d,s){
+  d.insertAdjacentHTML("beforeend",`<div class="choices">${q.choices.map((c,j)=>`<button class="choice" type="button" data-j="${j}">${c}</button>`).join("")}</div>`);
+  const btns=[...d.querySelectorAll(".choice")];
+  if(s){ btns.forEach(b=>{b.disabled=true; if(+b.dataset.j===q.a) b.classList.add("right");}); d.insertAdjacentHTML("beforeend",`<div class="sol">${q.sol}</div>`); return; }
+  let tries=0;
+  btns.forEach(b=>b.addEventListener("click",()=>{
+    if(+b.dataset.j===q.a) resolve(ex,i,tries?"hint":"ok",tries?4:10);
+    else { tries++; b.classList.add("wrong"); b.disabled=true; }
+  }));
+}
+function openQ(ex,q,i,d,s){
+  if(s){ d.insertAdjacentHTML("beforeend",`<div class="sol">${q.sol}</div>`); return; }
+  d.insertAdjacentHTML("beforeend",`<textarea placeholder="Rédigez votre réponse…"></textarea><button class="btn" type="button">Comparer avec la correction</button>`);
+  d.querySelector(".btn").addEventListener("click",()=>{ const t=d.querySelector("textarea").value.trim(); resolve(ex,i,t.length>10?"ok":"shown",t.length>10?5:0); });
+}
+function tableQ(ex,q,i,d,s){
+  const opts=v=>`<option value="">…</option>`+ENER.map(e=>`<option ${v===e?"selected":""}>${e}</option>`).join("");
+  d.insertAdjacentHTML("beforeend",`<div class="tbl"><table><thead><tr><th>Système</th><th>Énergie d’entrée</th><th>Énergie de sortie</th></tr></thead><tbody>
+    ${q.rows.map((r,k)=>`<tr><td>${r[0]}</td><td><select data-k="${k}" data-w="in" aria-label="Entrée ${r[0]}">${opts(s?r[1]:"")}</select><span class="comp" hidden>${r[3]}</span></td>
+      <td><select data-k="${k}" data-w="out" aria-label="Sortie ${r[0]}">${opts(s?r[2]:"")}</select><span class="comp" hidden>${r[4]}</span></td></tr>`).join("")}
+    </tbody></table></div>`);
+  if(s){ d.querySelectorAll(".comp").forEach(c=>c.hidden=false); d.querySelectorAll("select").forEach(x=>{x.disabled=true;x.classList.add("g");}); return; }
+  d.insertAdjacentHTML("beforeend",`<div class="row" style="margin-top:10px"><button class="btn" type="button">Vérifier le tableau</button><button class="lnk" data-a="show" type="button">Voir la correction</button></div><p class="fb" aria-live="polite"></p>`);
+  let tries=0;
+  d.querySelector(".btn").addEventListener("click",()=>{
+    tries++; let good=0;
+    q.rows.forEach((r,k)=>{
+      ["in","out"].forEach(w=>{const sel=d.querySelector(`select[data-k="${k}"][data-w="${w}"]`);
+        const ok=[w==="in"?r[1]:r[2],...(((q.alt||{})[k]||{})[w]||[])].includes(sel.value);
+        sel.classList.toggle("g",ok); sel.classList.toggle("b",!ok); sel.nextElementSibling.hidden=!ok; if(ok) good++;});
+    });
+    const fb=d.querySelector(".fb"), tot=q.rows.length*2;
+    if(good===tot) resolve(ex,i,tries>1?"hint":"ok",tries>1?15:30);
+    else { fb.className="fb bad"; fb.textContent=`${good} / ${tot} cases justes. Corrigez les cases en rouge.`; }
+  });
+  d.querySelector('[data-a="show"]').addEventListener("click",()=>resolve(ex,i,"shown",0));
+}
+
+function confetti(){
+  if(reduce) return;
+  const c=document.createElement("div"); c.className="conf";
+  const cols=["var(--meca)","var(--elec)","var(--chim)","var(--ther)"];
+  for(let k=0;k<60;k++){const s=document.createElement("i"); s.style.left=Math.random()*100+"vw"; s.style.background=cols[k%4]; s.style.animationDelay=(Math.random()*.4)+"s"; s.style.animationDuration=(1.2+Math.random()*.9)+"s"; c.appendChild(s);}
+  document.body.appendChild(c); setTimeout(()=>c.remove(),2600);
+}
+
+document.getElementById("openF").addEventListener("click",()=>document.getElementById("formDlg").showModal());
+document.getElementById("resetAll").addEventListener("click",()=>{ if(confirm("Effacer toute la progression et l’XP ?")){ st={xp:0,q:{}}; save(); document.getElementById("xpVal").textContent=0; home(); }});
+home();
+})();
+</script>
+<a href="../index.html" style="position:fixed;bottom:16px;left:16px;z-index:99999;background:#1e3a5f;color:#fff;padding:10px 16px;border-radius:24px;font:600 14px system-ui,sans-serif;text-decoration:none;box-shadow:0 2px 8px rgba(0,0,0,.25)">← Sommaire</a></body>
+</html>

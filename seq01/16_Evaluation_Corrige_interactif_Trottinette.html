@@ -1,0 +1,941 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Corrigé interactif – Trottinette électrique</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f6f8fc; --card:#ffffff; --ink:#1d2733; --soft:#5a6678; --line:#dbe2ec;
+  --blue:#2f7fe0; --blue-t:#e7f1fe; --orange:#ef8a17; --orange-t:#fff3e0; --green:#1f9d5c; --green-t:#e5f6ec;
+  --violet:#7c5cd6; --violet-t:#f3eefe; --red:#d64545; --red-t:#fdeaea; --yellow:#f2b01e; --yellow-t:#fff8e6;
+  --navy:#1b4f9c;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:70px}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Nunito,system-ui,-apple-system,"Segoe UI",Arial,sans-serif;font-size:16px;line-height:1.55}
+.mono{font-family:"JetBrains Mono",ui-monospace,Consolas,monospace}
+sub{font-size:.72em} sup{font-size:.72em}
+
+/* ---------- top bar ---------- */
+.top{position:sticky;top:0;z-index:20;background:rgba(255,255,255,.94);backdrop-filter:blur(6px);border-bottom:1px solid var(--line)}
+.top-in{max-width:1080px;margin:0 auto;display:flex;align-items:center;gap:10px;padding:8px 16px;flex-wrap:wrap}
+.brand{font-weight:800;color:var(--navy);margin-right:auto;display:flex;align-items:center;gap:8px}
+.nav a{display:inline-block;text-decoration:none;font-weight:700;font-size:.92rem;padding:5px 12px;border-radius:20px;color:#fff}
+.nav .na{background:var(--orange)} .nav .nb{background:var(--blue)} .nav .nc{background:var(--green)}
+.score{font-weight:800;background:var(--violet-t);color:var(--violet);border-radius:20px;padding:5px 12px;font-size:.92rem;white-space:nowrap}
+
+main{max-width:1080px;margin:0 auto;padding:18px 16px 60px}
+
+/* ---------- hero ---------- */
+.hero{background:linear-gradient(135deg,#eef5ff 0%,#f3eefe 100%);border:1.5px solid #c9dbf5;border-radius:18px;padding:22px 24px;display:grid;grid-template-columns:1fr 210px;gap:18px;align-items:center}
+.hero h1{margin:0 0 6px;font-size:1.75rem;line-height:1.15;color:var(--navy)}
+.hero p{margin:4px 0;color:#3e5878}
+.pill{display:inline-block;font-size:.78rem;font-weight:800;color:#fff;background:var(--navy);border-radius:20px;padding:2px 10px;margin-bottom:6px}
+.howto{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.howto span{background:#fff;border:1px solid var(--line);border-radius:10px;padding:4px 10px;font-size:.88rem}
+@media (max-width:720px){.hero{grid-template-columns:1fr}.hero svg{display:none}}
+
+/* ---------- parts ---------- */
+.part{margin-top:30px}
+.part-h{display:flex;align-items:center;justify-content:space-between;gap:10px;border-radius:14px;padding:10px 16px;border-left:8px solid}
+.part-h h2{margin:0;font-size:1.3rem}
+.part-h .tag{color:#fff;font-weight:800;border-radius:20px;padding:3px 12px;font-size:.9rem;white-space:nowrap}
+.pa .part-h{background:var(--orange-t);border-color:var(--orange)} .pa .tag{background:var(--orange)}
+.pb .part-h{background:var(--blue-t);border-color:var(--blue)} .pb .tag{background:var(--blue)}
+.pc .part-h{background:var(--green-t);border-color:var(--green)} .pc .tag{background:var(--green)}
+.intro{margin:10px 4px;color:var(--soft)}
+
+/* ---------- lab (animated figure) ---------- */
+.lab{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 16px;margin:14px 0;box-shadow:0 1px 3px rgba(20,40,80,.05)}
+.lab h3{margin:0 0 4px;font-size:1.05rem}
+.lab .sub{margin:0 0 8px;color:var(--soft);font-size:.92rem}
+.lab-grid{display:grid;grid-template-columns:1.25fr 1fr;gap:16px;align-items:center}
+@media (max-width:820px){.lab-grid{grid-template-columns:1fr}}
+.lab svg{width:100%;height:auto;display:block}
+.ctrl{display:flex;flex-direction:column;gap:10px}
+.ctrl label{font-weight:700;font-size:.92rem}
+input[type=range]{width:100%;accent-color:var(--blue)}
+.readout{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.ro{background:#f4f7fb;border-radius:10px;padding:6px 10px}
+.ro b{display:block;font-size:1.15rem}
+.ro span{font-size:.8rem;color:var(--soft)}
+.ro.neg b{color:var(--red)} .ro.ok b{color:var(--green)} .ro.bad b{color:var(--red)}
+.btns{display:flex;flex-wrap:wrap;gap:8px}
+button{font:inherit;cursor:pointer}
+.btn{border:1.5px solid var(--navy);background:#fff;color:var(--navy);font-weight:700;border-radius:10px;padding:6px 12px;font-size:.9rem;transition:transform .1s,background .2s}
+.btn:hover{background:#eef5ff}
+.btn:active{transform:scale(.97)}
+.btn.on{background:var(--navy);color:#fff}
+.msg{font-size:.92rem;border-radius:10px;padding:8px 10px;background:var(--yellow-t);border-left:4px solid var(--yellow)}
+
+/* ---------- question card ---------- */
+.q{background:var(--card);border:1px solid var(--line);border-radius:16px;margin:14px 0;overflow:hidden;box-shadow:0 1px 3px rgba(20,40,80,.05)}
+.q-h{display:flex;gap:12px;align-items:flex-start;padding:14px 16px;cursor:pointer;user-select:none}
+.q-n{flex:none;width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff}
+.pa .q-n{background:var(--orange)} .pb .q-n{background:var(--blue)} .pc .q-n{background:var(--green)}
+.q-t{flex:1}
+.q-t .ask{font-weight:600}
+.q-t .meta{margin-top:4px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.pts{font-size:.8rem;font-weight:800;background:#eef1f5;color:#5a6678;border-radius:20px;padding:1px 9px}
+.theme{font-size:.8rem;font-weight:700;color:var(--soft)}
+.chev{flex:none;font-size:1.3rem;color:var(--soft);transition:transform .25s;margin-top:8px}
+.q.open .chev{transform:rotate(90deg)}
+.q-b{display:none;padding:0 16px 16px 70px}
+.q.open .q-b{display:block}
+@media (max-width:600px){.q-b{padding:0 14px 14px 14px}}
+
+.steps{list-style:none;margin:0;padding:0;counter-reset:st}
+.step{position:relative;padding:10px 12px 10px 44px;border-radius:12px;background:#f8fafd;border:1px solid #e6ecf3;margin:8px 0;opacity:0;transform:translateY(10px);transition:opacity .45s ease,transform .45s ease;display:none}
+.step.show{display:block}
+.step.vis{opacity:1;transform:none}
+.step::before{counter-increment:st;content:counter(st);position:absolute;left:12px;top:10px;width:22px;height:22px;border-radius:50%;background:var(--navy);color:#fff;font-weight:800;font-size:.8rem;display:flex;align-items:center;justify-content:center}
+.step .lbl{font-size:.78rem;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:var(--soft);display:block;margin-bottom:2px}
+.eq{display:block;margin:6px 0;padding:8px 12px;background:#fff;border:1px dashed #c8d3e1;border-radius:10px;font-family:"JetBrains Mono",ui-monospace,Consolas,monospace;font-size:.92rem;overflow-x:auto;white-space:nowrap}
+.res{display:inline-block;margin-top:4px;font-weight:800;color:var(--green);background:var(--green-t);border-radius:8px;padding:2px 10px}
+.res.r{color:var(--red);background:var(--red-t)}
+.trap{margin:8px 0 0;padding:8px 12px;border-radius:10px;background:var(--red-t);border-left:4px solid var(--red);font-size:.92rem}
+.trap b{color:var(--red)}
+.why{margin:8px 0 0;padding:8px 12px;border-radius:10px;background:var(--violet-t);border-left:4px solid var(--violet);font-size:.92rem}
+.why b{color:var(--violet)}
+.bareme{margin:8px 0 0;padding:6px 12px;border-radius:10px;background:#eef1f5;font-size:.88rem;color:#3e4a5c}
+.q-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;align-items:center}
+.next{border:none;background:var(--navy);color:#fff;font-weight:800;border-radius:10px;padding:8px 14px}
+.next:disabled{opacity:.4;cursor:default}
+.all{border:none;background:transparent;color:var(--navy);font-weight:700;text-decoration:underline;padding:8px 6px}
+.self{margin-left:auto;display:flex;gap:6px;align-items:center;font-size:.85rem;color:var(--soft)}
+.self button{border:1.5px solid var(--line);background:#fff;border-radius:8px;padding:3px 9px;font-weight:800}
+.self button.sel.full{background:var(--green);border-color:var(--green);color:#fff}
+.self button.sel.half{background:var(--yellow);border-color:var(--yellow);color:#fff}
+.self button.sel.zero{background:var(--red);border-color:var(--red);color:#fff}
+
+table.t{border-collapse:collapse;width:100%;margin:6px 0;font-size:.92rem;background:#fff}
+table.t th,table.t td{border:1px solid #d5dde8;padding:5px 8px;text-align:left}
+table.t th{background:#eef3f9}
+
+.concl{background:linear-gradient(135deg,#e5f6ec,#e7f1fe);border:1.5px solid #bfe3cf;border-radius:16px;padding:16px 18px;margin-top:28px}
+.concl h2{margin:0 0 8px;color:var(--green)}
+.check{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+@media (max-width:720px){.check{grid-template-columns:1fr}}
+.check div{background:#fff;border-radius:12px;padding:10px 12px;border:1px solid var(--line)}
+.check b{display:block;font-size:1.1rem}
+.foot{text-align:center;color:var(--soft);font-size:.85rem;margin-top:30px}
+
+/* anim helpers */
+.flow{fill:none;stroke-linecap:round}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.step{transition:none}}
+</style>
+</head>
+<body>
+
+<div class="top"><div class="top-in">
+  <div class="brand">
+    <svg width="28" height="24" viewBox="0 0 60 52" aria-hidden="true"><circle cx="11" cy="42" r="8" fill="#fff" stroke="#1b4f9c" stroke-width="4"/><circle cx="49" cy="42" r="8" fill="#fff" stroke="#1b4f9c" stroke-width="4"/><path d="M11 42H44L40 6H34" fill="none" stroke="#1b4f9c" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M22 18l-4 9h5l-3 8 9-11h-5l3-6z" fill="#f2b01e"/></svg>
+    Corrigé interactif
+  </div>
+  <a href="../index.html#seq01" style="font-weight:700;color:#1b4f9c;text-decoration:none;font-size:.9rem">← Séquence 1</a>
+  <nav class="nav"><a class="na" href="#A">A · Électricité</a> <a class="nb" href="#B">B · Transmission</a> <a class="nc" href="#C">C · Énergie</a></nav>
+  <div class="score" id="score" title="Votre auto-évaluation">Mon score : 0 / 22,5</div>
+</div></div>
+
+<main>
+
+<section class="hero">
+  <div>
+    <span class="pill">SEQ 1 · Les nouvelles mobilités individuelles · 1re SI</span>
+    <h1>Mission : la trottinette électrique est-elle conforme ?</h1>
+    <p>Corrigé détaillé de l'évaluation (noté sur 22,5 points). Les schémas sont animés : changez les valeurs et regardez ce qui se passe.</p>
+    <div class="howto">
+      <span><b>1.</b> Cliquez sur une question</span>
+      <span><b>2.</b> « Étape suivante » pour avancer pas à pas</span>
+      <span><b>3.</b> Notez-vous : ✓ ½ ✗</span>
+    </div>
+  </div>
+  <svg viewBox="0 0 210 150" aria-hidden="true">
+    <g id="heroScoot">
+      <circle cx="40" cy="120" r="22" fill="#fff" stroke="#1b4f9c" stroke-width="6"/>
+      <circle cx="170" cy="120" r="22" fill="#fff" stroke="#1b4f9c" stroke-width="6"/>
+      <g id="heroW1"><line x1="40" y1="100" x2="40" y2="140" stroke="#1b4f9c" stroke-width="3"/><line x1="20" y1="120" x2="60" y2="120" stroke="#1b4f9c" stroke-width="3"/></g>
+      <g id="heroW2"><line x1="170" y1="100" x2="170" y2="140" stroke="#1b4f9c" stroke-width="3"/><line x1="150" y1="120" x2="190" y2="120" stroke="#1b4f9c" stroke-width="3"/></g>
+      <path d="M40 120H150L138 22H120" fill="none" stroke="#1b4f9c" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M142 50L170 120" stroke="#1b4f9c" stroke-width="7" stroke-linecap="round"/>
+      <path d="M78 52l-12 26h14l-9 24 26-32h-14l9-18z" fill="#f2b01e"/>
+    </g>
+  </svg>
+</section>
+
+<!-- =============================== PARTIE A =============================== -->
+<section class="part pa" id="A">
+  <div class="part-h"><h2>Partie A – Lois de Kirchhoff et théorème de Millman</h2><span class="tag">9 points</span></div>
+  <p class="intro">Circuit d'éclairage : E1 = 12 V, R1 = 2 Ω (convertisseur) · E2 = 6 V, R2 = 3 Ω (batterie de secours) · R3 = 6 Ω (les feux : R<sub>av</sub> = 9 Ω // R<sub>ar</sub> = 18 Ω) · V<sub>M</sub> = 0 V.</p>
+
+  <div class="lab">
+    <h3>Laboratoire 1 – Le circuit d'éclairage animé</h3>
+    <p class="sub">Les points lumineux montrent le <b>sens réel</b> des courants. Leur vitesse est proportionnelle à l'intensité. Faites varier E2 : à partir de quelle tension la batterie de secours devient-elle générateur ?</p>
+    <div class="lab-grid">
+      <svg id="circA" viewBox="0 0 360 230" font-family="Nunito, Arial" font-size="13">
+        <path d="M50 60V30H300V75M300 150V200H50V160M50 120V60M175 60V30M175 120V60M175 160V200" fill="none" stroke="#2b3a4e" stroke-width="2"/>
+        <rect x="40" y="60" width="20" height="46" rx="3" fill="#fff" stroke="#2b3a4e" stroke-width="2"/>
+        <rect x="165" y="60" width="20" height="46" rx="3" fill="#fff" stroke="#2b3a4e" stroke-width="2"/>
+        <rect x="290" y="75" width="20" height="75" rx="3" fill="#fff8e6" stroke="#2b3a4e" stroke-width="2" id="lampR3"/>
+        <circle cx="50" cy="140" r="20" fill="#fff" stroke="#2b3a4e" stroke-width="2"/><line x1="50" y1="120" x2="50" y2="160" stroke="#2b3a4e" stroke-width="1.5"/>
+        <circle cx="175" cy="140" r="20" fill="#fff" stroke="#2b3a4e" stroke-width="2"/><line x1="175" y1="120" x2="175" y2="160" stroke="#2b3a4e" stroke-width="1.5"/>
+        <text x="64" y="125" font-weight="800">+</text><text x="189" y="125" font-weight="800">+</text>
+        <!-- flows: paths drawn in conventional direction of the figure arrows -->
+        <path id="fl1" class="flow" d="M50 200V30H175" stroke="#ef8a17" stroke-width="4"/>
+        <path id="fl2" class="flow" d="M175 200V30" stroke="#2f7fe0" stroke-width="4"/>
+        <path id="fl3" class="flow" d="M175 30H300V200H175" stroke="#1f9d5c" stroke-width="4"/>
+        <text x="66" y="88">R1 = 2 Ω</text><text x="72" y="145">E1 = 12 V</text>
+        <text x="191" y="88">R2 = 3 Ω</text><text x="197" y="145" id="labE2">E2 = 6 V</text>
+        <text x="316" y="112">R3</text><text x="316" y="128">6 Ω</text>
+        <circle cx="175" cy="30" r="4.5" fill="#2b3a4e"/><circle cx="175" cy="200" r="4.5" fill="#2b3a4e"/>
+        <text x="175" y="20" text-anchor="middle" font-weight="800">A</text><text x="175" y="222" text-anchor="middle" font-weight="800">M</text>
+        <text x="14" y="98" fill="#ef8a17" font-weight="800">I1</text><text x="140" y="98" fill="#2f7fe0" font-weight="800">I2</text><text x="322" y="60" fill="#1f9d5c" font-weight="800">I3</text>
+      </svg>
+      <div class="ctrl">
+        <label for="e2">Tension de la batterie de secours : E2 = <span id="e2v">6</span> V</label>
+        <input type="range" id="e2" min="0" max="12" step="0.5" value="6">
+        <div class="readout">
+          <div class="ro"><span>Potentiel du nœud A</span><b id="roVA">8,00 V</b></div>
+          <div class="ro"><span>I1 (convertisseur)</span><b id="roI1">2,00 A</b></div>
+          <div class="ro" id="boxI2"><span>I2 (batterie de secours)</span><b id="roI2">−0,67 A</b></div>
+          <div class="ro"><span>I3 (feux)</span><b id="roI3">1,33 A</b></div>
+        </div>
+        <div class="msg" id="msgA">I2 &lt; 0 : la batterie de secours <b>reçoit</b> du courant, elle se recharge (récepteur).</div>
+        <div class="btns"><button class="btn" id="resetA">Revenir à E2 = 6 V (sujet)</button><button class="btn" id="pauseA">⏸ Pause</button></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- A1 -->
+  <div class="q" data-pts="1.5" data-id="A1">
+    <div class="q-h"><div class="q-n">A1</div><div class="q-t"><div class="ask">Énoncer le théorème de Millman au nœud A, puis calculer le potentiel V<sub>A</sub>.</div><div class="meta"><span class="pts">1,5 pt</span><span class="theme">Théorème de Millman</span></div></div><div class="chev">›</div></div>
+    <div class="q-b">
+      <ol class="steps">
+        <li class="step"><span class="lbl">Je repère le nœud et les branches</span>Le nœud A est relié à M (0 V) par <b>trois branches</b> : {E1, R1}, {E2, R2} et {R3} (sans générateur, donc E = 0 pour cette branche).</li>
+        <li class="step"><span class="lbl">J'énonce le théorème</span>Le potentiel d'un nœud est la « moyenne pondérée » des tensions de chaque branche, chaque branche pesant 1/R :
+          <span class="eq">V<sub>A</sub> = (E1/R1 + E2/R2 + 0/R3) / (1/R1 + 1/R2 + 1/R3)</span>
+          <div class="why"><b>Pourquoi ça marche ?</b> C'est la loi des nœuds écrite en A : (E1 − V<sub>A</sub>)/R1 + (E2 − V<sub>A</sub>)/R2 − V<sub>A</sub>/R3 = 0. On isole V<sub>A</sub> et on retrouve Millman.</div></li>
+        <li class="step"><span class="lbl">Je calcule le numérateur</span><span class="eq">E1/R1 = 12/2 = 6 A   ;   E2/R2 = 6/3 = 2 A   ;   0/R3 = 0   →   somme = 8 A</span></li>
+        <li class="step"><span class="lbl">Je calcule le dénominateur</span><span class="eq">1/R1 + 1/R2 + 1/R3 = 1/2 + 1/3 + 1/6 = 3/6 + 2/6 + 1/6 = 1 S</span></li>
+        <li class="step"><span class="lbl">Résultat</span><span class="eq">V<sub>A</sub> = 8 / 1 = 8 V</span><span class="res">V<sub>A</sub> = 8 V</span>
+          <div class="trap"><b>Erreur fréquente :</b> oublier la branche R3 au dénominateur (on trouverait 9,6 V). Toute branche reliée au nœud compte, même sans générateur.</div>
+          <div class="bareme">Barème : 0,5 pt pour l'énoncé (forme générale), 1 pt pour le calcul.</div></li>
+      </ol>
+      <div class="q-actions"><button class="next">Étape suivante ▸</button><button class="all">Tout afficher</button><div class="self">Je me note : <button data-v="full">✓</button><button data-v="half">½</button><button data-v="zero">✗</button></div></div>
+    </div>
+  </div>
+
+  <!-- A2 -->
+  <div class="q" data-pts="2" data-id="A2">
+    <div class="q-h"><div class="q-n">A2</div><div class="q-t"><div class="ask">En déduire I1, I2 et I3 avec les sens de la figure 1. Interpréter le signe de I2 : générateur ou récepteur ?</div><div class="meta"><span class="pts">2 pts</span><span class="theme">Loi d'Ohm · convention</span></div></div><div class="chev">›</div></div>
+    <div class="q-b">
+      <ol class="steps">
+        <li class="step"><span class="lbl">Méthode</span>Connaissant V<sub>A</sub>, on écrit la loi d'Ohm dans chaque branche. La tension aux bornes de R1 vaut E1 − V<sub>A</sub> (le générateur « monte » de 0 à E1, la résistance fait « redescendre » jusqu'à V<sub>A</sub>).</li>
+        <li class="step"><span class="lbl">Courant I1</span><span class="eq">I1 = (E1 − V<sub>A</sub>) / R1 = (12 − 8) / 2 = 4 / 2</span><span class="res">I1 = 2 A</span></li>
+        <li class="step"><span class="lbl">Courant I2</span><span class="eq">I2 = (E2 − V<sub>A</sub>) / R2 = (6 − 8) / 3 = −2 / 3</span><span class="res r">I2 = −0,67 A</span></li>
+        <li class="step"><span class="lbl">Courant I3</span><span class="eq">I3 = (V<sub>A</sub> − V<sub>M</sub>) / R3 = 8 / 6</span><span class="res">I3 = 1,33 A</span></li>
+        <li class="step"><span class="lbl">J'interprète le signe de I2</span>Un résultat négatif signifie que le courant réel circule <b>dans le sens contraire</b> de la flèche de la figure. Il entre donc dans E2 par sa borne + : la batterie de secours <b>reçoit</b> de l'énergie. Elle est <b>récepteur</b> : elle se recharge.
+          <div class="why"><b>À voir dans le laboratoire 1 :</b> avec E2 = 6 V, les points bleus descendent dans la branche 2. Montez E2 au-dessus de 8 V : ils remontent et la batterie devient générateur.</div>
+          <div class="trap"><b>Erreur fréquente :</b> écrire « I2 = 0,67 A » en oubliant le signe, ou dire que le signe moins est une erreur de calcul. Le signe est une information !</div></li>
+      </ol>
+      <div class="q-actions"><button class="next">Étape suivante ▸</button><button class="all">Tout afficher</button><div class="self">Je me note : <button data-v="full">✓</button><button data-v="half">½</button><button data-v="zero">✗</button></div></div>
+    </div>
+  </div>
+
+  <!-- A3 -->
+  <div class="q" data-pts="1" data-id="A3">
+    <div class="q-h"><div class="q-n">A3</div><div class="q-t"><div class="ask">Vérifier la loi des nœuds en A, puis la loi des mailles sur la maille {E1, R1, R2, E2}.</div><div class="meta"><span class="pts">1 pt</span><span class="theme">Lois de Kirchhoff</span></div></div><div class="chev">›</div></div>
+    <div class="q-b">
+      <ol class="steps">
+        <li class="step"><span class="lbl">Loi des nœuds en A</span>D'après les flèches de la figure, I1 et I2 arrivent en A, I3 en repart :
+          <span class="eq">I1 + I2 = I3   →   2 + (−0,67) = 1,33 A  ✔</span></li>
+        <li class="step"><span class="lbl">Loi des mailles</span>On parcourt la maille M → E1 → R1 → A → R2 → E2 → M. On compte + quand on « monte » en potentiel :
+          <span class="eq">E1 − R1·I1 + R2·I2 − E2 = 12 − 2×2 + 3×(−0,67) − 6</span>
+          <span class="eq">= 12 − 4 − 2 − 6 = 0  ✔</span>
+          <div class="why"><b>Astuce de vérification :</b> on doit retrouver V<sub>A</sub> par les deux chemins : E1 − R1·I1 = 12 − 4 = 8 V et E2 − R2·I2 = 6 + 2 = 8 V.</div></li>
+      </ol>
+      <div class="q-actions"><button class="next">Étape suivante ▸</button><button class="all">Tout afficher</button><div class="self">Je me note : <button data-v="full">✓</button><button data-v="half">½</button><button data-v="zero">✗</button></div></div>
+    </div>
+  </div>
+
+  <!-- A4 diviseur de courant -->
+  <div class="lab">
+    <h3>Laboratoire 2 – Le diviseur de courant</h3>
+    <p class="sub">Le courant I3 = 1,33 A se partage entre le phare avant (9 Ω) et le feu arrière (18 Ω). Plus une branche est facile à traverser (faible résistance), plus elle reçoit de courant.</p>
+    <div class="lab-grid">
+      <svg id="divI" viewBox="0 0 360 200" font-family="Nunito, Arial" font-size="13">
+        <path d="M20 100H110M110 40V160M110 40H250M110 160H250M250 40V160M250 100H340" fill="none" stroke="#2b3a4e" stroke-width="2"/>
+        <rect x="155" y="28" width="50" height="24" rx="4" fill="#fff8e6" stroke="#2b3a4e" stroke-width="2" id="lampAv"/>
+        <rect x="155" y="148" width="50" height="24" rx="4" fill="#fff8e6" stroke="#2b3a4e" stroke-width="2" id="lampAr"/>
+        <path id="fd0" class="flow" d="M20 100H110" stroke="#1f9d5c" stroke-width="4"/>
+        <path id="fdA" class="flow" d="M110 100V40H250V100" stroke="#ef8a17" stroke-width="4"/>
+        <path id="fdR" class="flow" d="M110 100V160H250V100" stroke="#2f7fe0" stroke-width="4"/>
+        <path id="fd1" class="flow" d="M250 100H340" stroke="#1f9d5c" stroke-width="4"/>
+        <text x="180" y="20" text-anchor="middle" font-weight="700">Phare avant R<tspan font-size="9" dy="3">av</tspan><tspan dy="-3"> = 9 Ω</tspan></text>
+        <text x="180" y="192" text-anchor="middle" font-weight="700">Feu arrière R<tspan font-size="9" dy="3">ar</tspan><tspan dy="-3"> = 18 Ω</tspan></text>
+        <text x="40" y="90" fill="#1f9d5c" font-weight="800">I3 = 1,33 A</text>
+        <text x="214" y="74" fill="#ef8a17" font-weight="800">I<tspan font-size="9" dy="3">av</tspan><tspan dy="-3"> = 0,89 A</tspan></text>
+        <text x="214" y="136" fill="#2f7fe0" font-weight="800">I<tspan font-size="9" dy="3">ar</tspan><tspan dy="-3"> = 0,44 A</tspan></text>
+      </svg>
+      <div class="ctrl">
+        <div class="readout">
+          <div class="ro"><span>Phare avant : I<sub>av</sub></span><b>0,89 A</b></div>
+          <div class="ro"><span>Feu arrière : I<sub>ar</sub></span><b>0,44 A</b></div>
+          <div class="ro"><span>Puissance phare avant</span><b>7,1 W</b></div>
+          <div class="ro"><span>Puissance feu arrière</span><b>3,6 W</b></div>
+        </div>
+        <div class="msg">Deux fois moins de résistance → deux fois plus de courant. Les points orange vont deux fois plus vite que les bleus.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="q" data-pts="1" data-id="A4">
+    <div class="q-h"><div class="q-n">A4</div><div class="q-t"><div class="ask">Diviseur de courant : vérifier que R<sub>av</sub> // R<sub>ar</sub> = R3, établir la formule, calculer I<sub>av</sub> et I<sub>ar</sub>. Quel feu est le plus lumineux ?</div><div class="meta"><span class="pts">1 pt</span><span class="theme">Résistance équivalente · diviseur de courant</span></div></div><div class="chev">›</div></div>
+    <div class="q-b">
+      <ol class="steps">
+        <li class="step"><span class="lbl">Résistance équivalente</span><span class="eq">R<sub>av</sub> // R<sub>ar</sub> = (R<sub>av</sub> × R<sub>ar</sub>) / (R<sub>av</sub> + R<sub>ar</sub>) = (9 × 18) / (9 + 18) = 162 / 27 = 6 Ω</span><span class="res">= R3 ✔</span></li>
+        <li class="step"><span class="lbl">J'établis la formule du diviseur de courant</span>Les deux feux sont en parallèle : ils ont la <b>même tension</b> U = R3 × I3. Donc I<sub>av</sub> = U / R<sub>av</sub> = I3 × R3 / R<sub>av</sub>. En remplaçant R3 par R<sub>av</sub>·R<sub>ar</sub>/(R<sub>av</sub> + R<sub>ar</sub>) :
+          <span class="eq">I<sub>av</sub> = I3 × R<sub>ar</sub> / (R<sub>av</sub> + R<sub>ar</sub>)        I<sub>ar</sub> = I3 × R<sub>av</sub> / (R<sub>av</sub> + R<sub>ar</sub>)</span>
+          <div class="trap"><b>Piège :</b> au numérateur, on met la résistance de <b>l'autre</b> branche (contrairement au diviseur de tension).</div></li>
+        <li class="step"><span class="lbl">Calculs</span><span class="eq">I<sub>av</sub> = 1,33 × 18 / 27 = 0,89 A        I<sub>ar</sub> = 1,33 × 9 / 27 = 0,44 A</span>
+          <span class="res">I<sub>av</sub> = 0,89 A · I<sub>ar</sub> = 0,44 A</span><br>Vérification par la loi des nœuds : 0,89 + 0,44 = 1,33 A ✔</li>
+        <li class="step"><span class="lbl">Quel feu éclaire le plus ?</span><span class="eq">P<sub>av</sub> = R<sub>av</sub>·I<sub>av</sub>² = 9 × 0,89² = 7,1 W      P<sub>ar</sub> = 18 × 0,44² = 3,6 W</span>Le <b>phare avant</b> (résistance la plus faible) reçoit le plus de courant et de puissance : il est le plus lumineux. C'est logique : il doit éclairer la route.</li>
+      </ol>
+      <div class="q-actions"><button class="next">Étape suivante ▸</button><button class="all">Tout afficher</button><div class="self">Je me note : <button data-v="full">✓</button><button data-v="half">½</button><button data-v="zero">✗</button></div></div>
+    </div>
+  </div>
+
+  <!-- A5 -->
+  <div class="q" data-pts="1.5" data-id="A5">
+    <div class="q-h"><div class="q-n">A5</div><div class="q-t"><div class="ask">Faire le bilan des puissances : fournie par E1, reçue par E2, dissipée dans R1, R2 et R3. Vérifier la conservation.</div><div class="meta"><span class="pts">1,5 pt</span><span class="theme">P = U·I = R·I²</span></div></div><div class="chev">›</div></div>
+    <div class="q-b">
+      <ol class="steps">
+        <li class="step"><span class="lbl">Puissance fournie</span>Seul E1 fournit de l'énergie (I1 sort par sa borne +) :<span class="eq">P<sub>E1</sub> = E1 × I1 = 12 × 2 = 24 W</span></li>
+        <li class="step"><span class="lbl">Puissances reçues</span>
+          <table class="t"><tr><th>Élément</th><th>Calcul</th><th>Puissance</th></tr>
+            <tr><td>E2 (se recharge)</td><td class="mono">E2 × |I2| = 6 × 0,67</td><td>4 W</td></tr>
+            <tr><td>R1</td><td class="mono">R1 × I1² = 2 × 2²</td><td>8 W</td></tr>
+            <tr><td>R2</td><td class="mono">R2 × I2² = 3 × 0,67²</td><td>1,33 W</td></tr>
+            <tr><td>R3 (feux)</td><td class="mono">R3 × I3² = 6 × 1,33²</td><td>10,67 W</td></tr>
+            <tr><th colspan="2">Total reçu</th><th>24 W</th></tr></table></li>
+        <li class="step"><span class="lbl">Conclusion</span>24 W fournis = 24 W reçus ✔ : <b>la puissance se conserve</b>. Remarque : sur 24 W, seuls 10,67 W servent à éclairer et 4 W rechargent la batterie de secours.
+          <div class="lab" style="margin:8px 0 0;padding:10px"><svg viewBox="0 0 520 70" font-family="Nunito, Arial" font-size="12" id="barP">
+            <rect x="0" y="8" width="0" height="26" fill="#ef8a17" data-w="173"/><rect x="173" y="8" width="0" height="26" fill="#9aa7b8" data-w="29"/><rect x="202" y="8" width="0" height="26" fill="#f2b01e" data-w="231"/><rect x="433" y="8" width="0" height="26" fill="#2f7fe0" data-w="87"/>
+            <text x="86" y="56" text-anchor="middle">R1 : 8 W</text><text x="187" y="56" text-anchor="middle">R2</text><text x="317" y="56" text-anchor="middle">Feux : 10,67 W</text><text x="476" y="56" text-anchor="middle">E2 : 4 W</text>
+          </svg></div></li>
+      </ol>
+      <div class="q-actions"><button class="next">Étape suivante ▸</button><button class="all">Tout afficher</button><div class="self">Je me note : <button data-v="full">✓</button><button data-v="half">½</button><button data-v="zero">✗</button></div></div>
+    </div>
+  </div>
+
+  <!-- Lab pont -->
+  <div class="lab">
+    <h3>Laboratoire 3 – Le pont diviseur de la carte de mesure</h3>
+    <p class="sub">U<sub>Bat</sub> = 42 V, Ra = 82 kΩ. Choisissez Rb, puis branchez la carte (R<sub>e</sub> = 100 kΩ). La ligne rouge marque la limite de 5 V.</p>
+    <div class="lab-grid">
+      <svg id="pont" viewBox="0 0 360 220" font-family="Nunito, Arial" font-size="13">
+        <path d="M50 120V30H170V45M170 105V125M170 185V200H50V160M170 115H260" fill="none" stroke="#2b3a4e" stroke-width="2"/>
+        <circle cx="50" cy="140" r="20" fill="#fff" stroke="#2b3a4e" stroke-width="2"/><line x1="50" y1="120" x2="50" y2="160" stroke="#2b3a4e" stroke-width="1.5"/>
+        <rect x="160" y="45" width="20" height="60" rx="3" fill="#fff" stroke="#2b3a4e" stroke-width="2"/>
+        <rect x="160" y="125" width="20" height="60" rx="3" fill="#fff" stroke="#2b3a4e" stroke-width="2"/>
+        <g id="carte" style="transition:opacity .4s">
+          <path d="M260 115V130M260 185V200H170" fill="none" stroke="#2b3a4e" stroke-width="2"/>
+          <rect x="250" y="130" width="20" height="55" rx="3" fill="#fff" stroke="#2b3a4e" stroke-width="2"/>
+          <rect x="232" y="100" width="110" height="112" rx="10" fill="none" stroke="#7c5cd6" stroke-dasharray="5 4" stroke-width="1.5"/>
+          <text x="287" y="95" text-anchor="middle" fill="#7c5cd6" font-weight="700">carte de mesure</text>
+          <text x="278" y="162">R<tspan font-size="9" dy="3">e</tspan></text><text x="278" y="178" font-size="11">100 kΩ</text>
+        </g>
+        <path id="u2arrow" d="M205 190V122" stroke="#2f7fe0" stroke-width="2.5"/><path d="M199 130L205 118L211 130z" fill="#2f7fe0"/>
+        <text x="64" y="125" font-weight="800">+</text><text x="70" y="146">42 V</text>
+        <text x="152" y="80" text-anchor="end">Ra = 82 kΩ</text><text x="152" y="160" text-anchor="end" id="labRb">Rb = 10 kΩ</text>
+        <circle cx="170" cy="115" r="4.5" fill="#2b3a4e"/><text x="178" y="108" font-weight="800">S</text>
+        <text x="212" y="160" fill="#2f7fe0" font-weight="800">U2</text>
+      </svg>
+      <div class="ctrl">
+        <label>Résistance Rb</label>
+        <div class="btns"><button class="btn on" data-rb="10">10 kΩ</button><button class="btn" data-rb="11.08">11,08 kΩ (théorique)</button><button class="btn" data-rb="12">12 kΩ</button></div>
+        <label>Carte de mesure</label>
+        <div class="btns"><button class="btn on" id="cartOff">Débranchée (à vide)</button><button class="btn" id="cartOn">Branchée</button></div>
+        <svg viewBox="0 0 300 60" font-family="Nunito, Arial" font-size="12">
+          <rect x="10" y="18" width="280" height="18" rx="9" fill="#eef1f5"/>
+          <rect id="gauge" x="10" y="18" width="0" height="18" rx="9" fill="#2f7fe0" style="transition:width .6s ease, fill .4s"/>
+          <line x1="243.3" y1="10" x2="243.3" y2="44" stroke="#d64545" stroke-width="2.5"/>
+          <text x="243.3" y="56" text-anchor="middle" fill="#d64545" font-weight="800">5 V</text>
+          <text x="10" y="56">0 V</text><text x="290" y="56" text-anchor="end">6 V</text>
+        </svg>
+        <div class="readout"><div class="ro" id="roU2box"><span>Tension U2 lue par la carte</span><b id="roU2">4,57 V</b></div><div class="ro"><span>Résistance vue en bas</span><b id="roRbas">10 kΩ</b></div></div>
+        <div class="msg" id="msgP">Pont à vide avec Rb = 10 kΩ : U2 = 4,57 V ≤ 5 V. La carte est protégée.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="q" data-pts="0.5" data-id="A6">
+    <div class="q-h"><div class="q-n">A6</div><div class="q-t"><div class="ask">Pont à vide : calculer Rb pour avoir exactement U2 = 5 V. Choisir entre 10 kΩ et 12 kΩ en calculant U2.</div><div class="meta"><span class="pts">0,5 pt</span><span class="theme">Diviseur de tension</span></div></div><div class="chev">›</div></div>
+    <div class="q-b">
+      <ol class="steps">
+        <li class="step"><span class="lbl">Formule du diviseur de tension (à vide)</span>Ra et Rb sont traversées par le même courant (la carte est débranchée) :<span class="eq">U2 = U<sub>Bat</sub> × Rb / (Ra + Rb)</span></li>
+        <li class="step"><span class="lbl">J'isole Rb</span><span class="eq">5 = 42 × Rb / (82 + Rb)  →  5 × (82 + Rb) = 42 Rb  →  410 = 37 Rb</span><span class="res">Rb = 11,08 kΩ</span></li>
+        <li class="step"><span class="lbl">Je teste les deux valeurs disponibles</span>
+          <span class="eq">Rb = 12 kΩ : U2 = 42 × 12 / 94 = 5,36 V  > 5 V  ✘ (carte en danger)</span>
+          <span class="eq">Rb = 10 kΩ : U2 = 42 × 10 / 92 = 4,57 V  ≤ 5 V  ✔</span>
+          <span class="res">On choisit Rb = 10 kΩ</span>
+          <div class="why"><b>Règle de sécurité :</b> on prend la valeur qui place la tension <b>en dessous</b> de la limite, même si elle est un peu plus loin de la valeur théorique. Testez-le dans le laboratoire 3 !</div></li>
+      </ol>
+      <div class="q-actions"><button class="next">Étape suivante ▸</button><button class="all">Tout afficher</button><div class="self">Je me note : <button data-v="full">✓</button><button data-v="half">½</button><button data-v="zero">✗</button></div></div>
+    </div>
+  </div>
+
+  <div class="q" data-pts="1.5" data-id="A7">
+    <div class="q-h"><div class="q-n">A7</div><div class="q-t"><div class="ask">Carte branchée (Rb = 10 kΩ) : appliquer Millman au point S, calculer U2 et l'écart relatif. L'exigence « ≤ 5 V » est-elle respectée ?</div><div class="meta"><span class="pts">1,5 pt</span><span class="theme">Millman · pont chargé</span></div></div><div class="chev">›</div></div>
+    <div class="q-b">
+      <ol class="steps">
+        <li class="step"><span class="lbl">Les branches reliées à S</span>Trois branches : {U<sub>Bat</sub>, Ra} vers le + de la batterie, {Rb} vers la masse, {R<sub>e</sub>} vers la masse.</li>
+        <li class="step"><span class="lbl">Millman au point S</span><span class="eq">V<sub>S</sub> = (U<sub>Bat</sub>/Ra + 0/Rb + 0/R<sub>e</sub>) / (1/Ra + 1/Rb + 1/R<sub>e</sub>)</span>
+          On travaille en kΩ : les rapports V/kΩ donnent des mA, c'est cohérent.
+          <span class="eq">numérateur = 42 / 82 = 0,5122 mA</span>
+          <span class="eq">dénominateur = 1/82 + 1/10 + 1/100 = 0,0122 + 0,1 + 0,01 = 0,1222 mS</span></li>
+        <li class="step"><span class="lbl">Résultat</span><span class="eq">U2 = V<sub>S</sub> = 0,5122 / 0,1222</span><span class="res">U2 = 4,19 V</span></li>
+        <li class="step"><span class="lbl">Écart relatif</span><span class="eq">écart = (4,57 − 4,19) / 4,57 = 0,082</span><span class="res">≈ 8 %</span><br>La carte « tire » un peu de courant : elle <b>charge</b> le pont et fait baisser la tension.</li>
+        <li class="step"><span class="lbl">Conclusion</span>U2 = 4,19 V ≤ 5 V : l'exigence est <b>respectée</b>.
+          <div class="why"><b>Autre méthode acceptée :</b> Rb // R<sub>e</sub> = 10 × 100 / 110 = 9,09 kΩ, puis diviseur de tension : U2 = 42 × 9,09 / (82 + 9,09) = 4,19 V.</div></li>
+      </ol>
+      <div class="q-actions"><button class="next">Étape suivante ▸</button><button class="all">Tout afficher</button><div class="self">Je me note : <button data-v="full">✓</button><button data-v="half">½</button><button data-v="zero">✗</button></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- =============================== PARTIE B =============================== -->
+<section class="part pb" id="B">
+  <div class="part-h"><h2>Partie B – Transmission de puissance</h2><span class="tag">7 points</span></div>
+  <p class="intro">Réducteur à deux étages : Z1 = 12 → Z2 = 36, puis Z3 = 15 → Z4 = 40. Moteur : 4 000 tr/min. Roue : D = 250 mm (R = 0,125 m).</p>
+
+  <div class="lab">
+    <h3>Laboratoire 4 – Le réducteur en mouvement</h3>
+    <p class="sub">Vue de face (ralentie). Z2 et Z3 sont sur le même arbre, Z4 est solidaire de la roue. Observez le sens de rotation de chaque arbre, puis modifiez Z4 pour régler la vitesse.</p>
+    <div class="lab-grid">
+      <svg id="gears" viewBox="0 0 440 300" font-family="Nunito, Arial" font-size="13">
+        <g id="gZ2"></g><g id="gZ1"></g><g id="gZ4"></g><g id="gZ3"></g>
+        <g id="gWheel"></g>
+        <text id="tZ1" font-weight="800" fill="#1b4f9c">Z1</text>
+        <text id="tZ2" font-weight="800" fill="#1b4f9c">Z2</text>
+        <text id="tZ3" font-weight="800" fill="#b5541b">Z3</text>
+        <text id="tZ4" font-weight="800" fill="#b5541b">Z4</text>
+        <text x="395" y="255" text-anchor="middle" font-weight="700">Roue</text><text x="395" y="272" text-anchor="middle" font-size="11" fill="#5a6678">(même arbre que Z4)</text>
+        <g id="rotArrows"></g>
+      </svg>
+      <div class="ctrl">
+        <label for="z4">Nombre de dents de Z4 : <span id="z4v">40</span></label>
+        <input type="range" id="z4" min="30" max="50" step="1" value="40">
+        <div class="readout">
+          <div class="ro"><span>Rapport global r</span><b id="roR">0,125</b></div>
+          <div class="ro"><span>N roue</span><b id="roN">500 tr/min</b></div>
+          <div class="ro"><span>ω roue</span><b id="roW">52,4 rad/s</b></div>
+          <div class="ro ok" id="roVbox"><span>Vitesse trottinette</span><b id="roV">23,6 km/h</b></div>
+        </div>
+        <div class="msg" id="msgG">Z4 = 40 : 23,6 km/h ≤ 25 km/h. Conforme.</div>
+        <div class="btns"><button class="btn" id="z4reset">Z4 = 40 (sujet)</button><button class="btn" id="z4best">Z4 = 38 (B4)</button><button class="btn" id="pauseG">⏸ Pause</button></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="q" data-pts="1.5" data-id="B1">
+    <div class="q-h"><div class="q-n">B1</div><div class="q-t"><div class="ask">Calculer r1, r2 puis le rapport global r. Vérifier avec r = (produit des Z menantes) / (produit des Z menées).</div><div class="meta"><span class="pts">1,5 pt</span><span class="theme">Rapport de transmission</span></div></div><div class="chev">›</div></div>
+    <div class="q-b">
+      <ol class="steps">
+        <li class="step"><span class="lbl">Menante ou menée ?</span>La roue <b>menante</b> entraîne, la roue <b>menée</b> est entraînée. Étage 1 : Z1 menante, Z2 menée. Étage 2 : Z3 menante, Z4 menée.</li>
+        <li class="step"><span class="lbl">Rapport de chaque étage</span><span class="eq">r1 = N<sub>Z2</sub> / N<sub>Z1</sub> = Z1 / Z2 = 12 / 36 = 1/3 ≈ 0,333</span><span class="eq">r2 = N<sub>Z4</sub> / N<sub>Z3</sub> = Z3 / Z4 = 15 / 40 = 0,375</span></li>
+        <li class="step"><span class="lbl">Rapport global</span>Les étages sont en série : les rapports se <b>multiplient</b>.<span class="eq">r = r1 × r2 = 0,333 × 0,375</span><span class="res">r = 0,125 = 1/8</span></li>
+        <li class="step"><span class="lbl">Vérification</span><span class="eq">r = (Z1 × Z3) / (Z2 × Z4) = (12 × 15) / (36 × 40) = 180 / 1 440 = 0,125  ✔</span>
+          <div class="why"><b>Ce que ça veut dire :</b> quand le moteur fait 8 tours, la roue n'en fait qu'un. r &lt; 1 : c'est un <b>réducteur</b>.</div>
+          <div class="trap"><b>Erreur fréquente :</b> écrire r1 = 36/12 = 3. Avec r = N<sub>sortie</sub>/N<sub>entrée</sub>, un réducteur a toujours r &lt; 1.</div></li>
+      </ol>
+      <div class="q-actions"><button class="next">Étape suivante ▸</button><button class="all">Tout afficher</button><div class="self">Je me note : <button data-v="full">✓</button><button data-v="half">½</button><button data-v="zero">✗</button></div></div>
+    </div>
+  </div>
+
+  <div class="q" data-pts="1.5" data-id="B2">
+    <div class="q-h"><div class="q-n">B2</div><div class="q-t"><div class="ask">Compléter le tableau : N<sub>int</sub>, N<sub>roue</sub>, ω<sub>roue</sub>, v (m/s puis km/h).</div><div class="meta"><span class="pts">1,5 pt</span><span class="theme">Cinématique</span></div></div><div class="chev">›</div></div>
+    <div class="q-b">
+      <ol class="steps">
+        <li class="step"><span class="lbl">Arbre intermédiaire</span><span class="eq">N<sub>int</sub> = r1 × N<sub>m</sub> = (1/3) × 4 000</span><span class="res">N<sub>int</sub> = 1 333 tr/min</span></li>
+        <li class="step"><span class="lbl">Roue</span><span class="eq">N<sub>roue</sub> = r × N<sub>m</sub> = 0,125 × 4 000</span><span class="res">N<sub>roue</sub> = 500 tr/min</span></li>
+        <li class="step"><span class="lbl">Vitesse angulaire</span>On passe des tr/min aux rad/s : 1 tour = 2π rad et 1 min = 60 s.<span class="eq">ω<sub>roue</sub> = 2π × N / 60 = 2π × 500 / 60</span><span class="res">ω<sub>roue</sub> = 52,4 rad/s</span></li>
+        <li class="step"><span class="lbl">Vitesse de la trottinette</span>Un point du bord de la roue avance à v = R × ω (le rayon, pas le diamètre !).<span class="eq">v = 0,125 × 52,4 = 6,54 m/s   →   × 3,6   →   23,6 km/h</span><span class="res">v = 6,54 m/s = 23,6 km/h</span>
+          <table class="t"><tr><th>Grandeur</th><th>Relation utilisée</th><th>Résultat</th></tr>
+            <tr><td>N<sub>int</sub></td><td class="mono">N = r1 × N<sub>m</sub></td><td>1 333 tr/min</td></tr>
+            <tr><td>N<sub>roue</sub></td><td class="mono">N = r × N<sub>m</sub></td><td>500 tr/min</td></tr>
+            <tr><td>ω<sub>roue</sub></td><td class="mono">ω = 2πN/60</td><td>52,4 rad/s</td></tr>
+            <tr><td>v</td><td class="mono">v = R × ω</td><td>6,54 m/s = 23,6 km/h</td></tr></table>
+          <div class="trap"><b>Erreur fréquente :</b> prendre D = 0,25 m au lieu de R = 0,125 m, ce qui donne une vitesse deux fois trop grande (47 km/h).</div>
+          <div class="bareme">Barème : 0,25 pt par ligne + 0,5 pt pour les relations.</div></li>
+      </ol>
+      <div class="q-actions"><button class="next">Étape suivante ▸</button><button class="all">Tout afficher</button><div class="self">Je me note : <button data-v="full">✓</button><button data-v="half">½</button><button data-v="zero">✗</button></div></div>
+    </div>
+  </div>
+
+  <div class="q" data-pts="1" data-id="B3">
+    <div class="q-h"><div class="q-n">B3</div><div class="q-t"><div class="ask">L'exigence de vitesse est-elle respectée ? Avec (−1)<sup>n</sup>, donner le sens de rotation de la roue.</div><div class="meta"><span class="pts">1 pt</span><span class="theme">Cahier des charges · sens de rotation</span></div></div><div class="chev">›</div></div>
+    <div class="q-b">
+      <ol class="steps">
+        <li class="step"><span class="lbl">Vitesse</span>23,6 km/h ≤ 25 km/h : l'exigence est <b>respectée</b>.</li>
+        <li class="step"><span class="lbl">Sens de rotation</span>À chaque contact extérieur entre deux engrenages, le sens s'inverse. Ici n = 2 contacts extérieurs (Z1/Z2 et Z3/Z4) :<span class="eq">(−1)<sup>n</sup> = (−1)² = +1</span>La roue tourne <b>dans le même sens que le moteur</b> (sens horaire). L'arbre intermédiaire, lui, tourne en sens inverse (antihoraire).
+          <div class="why"><b>À voir dans le laboratoire 4 :</b> les flèches courbes montrent les sens. Z1 et la roue tournent dans le même sens, Z2/Z3 dans l'autre.</div></li>
+      </ol>
+      <div class="q-actions"><button class="next">Étape suivante ▸</button><button class="all">Tout afficher</button><div class="self">Je me note : <button data-v="full">✓</button><button data-v="half">½</button><button data-v="zero">✗</button></div></div>
+    </div>
+  </div>
+
+  <div class="q" data-pts="1.5" data-id="B4">
+    <div class="q-h"><div class="q-n">B4</div><div class="q-t"><div class="ask">S'approcher au plus près de 25 km/h sans les dépasser en changeant seulement Z4.</div><div class="meta"><span class="pts">1,5 pt</span><span class="theme">Conception · calcul à rebours</span></div></div><div class="chev">›</div></div>
+    <div class="q-b">
+      <ol class="steps">
+        <li class="step"><span class="lbl">On part de la vitesse voulue</span><span class="eq">v = 25 km/h = 25 / 3,6 = 6,94 m/s</span></li>
+        <li class="step"><span class="lbl">On remonte vers la roue</span><span class="eq">ω<sub>roue</sub> = v / R = 6,94 / 0,125 = 55,6 rad/s</span><span class="eq">N<sub>roue</sub> = 60 ω / 2π = 530,5 tr/min</span></li>
+        <li class="step"><span class="lbl">On en déduit le rapport, puis Z4</span><span class="eq">r = N<sub>roue</sub> / N<sub>m</sub> = 530,5 / 4 000 = 0,1326</span><span class="eq">r2 = r / r1 = 3 × 0,1326 = 0,398   →   Z4 = Z3 / r2 = 15 / 0,398 = 37,7</span></li>
+        <li class="step"><span class="lbl">Un nombre de dents est entier : on teste 37 et 38</span>
+          <span class="eq">Z4 = 37 : v = 25,5 km/h  ✘ (dépasse)</span>
+          <span class="eq">Z4 = 38 : v = 24,8 km/h  ✔</span>
+          <span class="res">Z4 = 38 dents → 24,8 km/h</span>
+          <div class="why"><b>Logique :</b> plus Z4 a de dents, plus la roue tourne lentement. Arrondir à l'entier <b>supérieur</b> garantit de ne pas dépasser 25 km/h. Essayez avec le curseur du laboratoire 4.</div></li>
+      </ol>
+      <div class="q-actions"><button class="next">Étape suivante ▸</button><button class="all">Tout afficher</button><div class="self">Je me note : <button data-v="full">✓</button><button data-v="half">½</button><button data-v="zero">✗</button></div></div>
+    </div>
+  </div>
+
+  <div class="q" data-pts="0.5" data-id="B5">
+    <div class="q-h"><div class="q-n">B5</div><div class="q-t"><div class="ask">Le réducteur augmente-t-il ou diminue-t-il le couple transmis à la roue ? (sans calcul)</div><div class="meta"><span class="pts">0,5 pt</span><span class="theme">P = C × ω</span></div></div><div class="chev">›</div></div>
+    <div class="q-b">
+      <ol class="steps">
+        <li class="step"><span class="lbl">Raisonnement</span>La puissance traverse le réducteur en restant presque identique (pertes faibles) : P = C × ω ≈ constante.<br>Le réducteur <b>divise la vitesse</b> par 8 → il <b>multiplie le couple</b> (par environ 8 × 0,9 ≈ 7).
+          <span class="res">Le réducteur augmente le couple</span>
+          <div class="why"><b>Image :</b> c'est comme le petit plateau d'un vélo dans une côte : on pédale plus vite, mais on pousse moins fort.</div></li>
+      </ol>
+      <div class="q-actions"><button class="next">Étape suivante ▸</button><button class="all">Tout afficher</button><div class="self">Je me note : <button data-v="full">✓</button><button data-v="half">½</button><button data-v="zero">✗</button></div></div>
+    </div>
+  </div>
+
+  <div class="lab">
+    <h3>Laboratoire 5 – Roue et vis sans fin</h3>
+    <p class="sub">À chaque tour de vis, la roue avance de <b>2 dents</b> (vis à 2 filets). Il faut donc 8 tours de vis pour un tour de roue (16 dents). Essayez de « pousser » la roue : la vis ne bouge pas, c'est l'irréversibilité.</p>
+    <div class="lab-grid">
+      <svg id="worm" viewBox="0 0 360 220" font-family="Nunito, Arial" font-size="13">
+        <defs><clipPath id="wclip"><rect x="90" y="150" width="180" height="40" rx="8"/></clipPath></defs>
+        <g id="wWheel"></g>
+        <line x1="20" y1="170" x2="340" y2="170" stroke="#2b3a4e" stroke-width="5"/>
+        <rect x="90" y="150" width="180" height="40" rx="8" fill="#cfe0f5" stroke="#2b3a4e" stroke-width="2"/>
+        <g clip-path="url(#wclip)"><g id="wThreads"></g></g>
+        <text x="20" y="208" fill="#5a6678">arbre moteur</text>
+        <text x="270" y="208" text-anchor="middle" font-weight="800" fill="#1b4f9c">vis : 2 filets</text>
+        <text x="300" y="40" font-weight="800" fill="#b5541b">roue : 16 dents</text>
+        <text x="300" y="58" fill="#5a6678" font-size="12">(vers la roue)</text>
+        <text id="wCount" x="20" y="30" font-weight="800" fill="#1b4f9c">tours de vis : 0</text>
+        <text id="wCount2" x="20" y="50" font-weight="800" fill="#b5541b">tours de roue : 0</text>
+      </svg>
+      <div class="ctrl">
+        <div class="btns"><button class="btn on" id="wMotor">Le moteur entraîne la vis</button><button class="btn" id="wPush">On pousse la roue</button></div>
+        <div class="readout"><div class="ro"><span>Rapport r'</span><b>2/16 = 0,125</b></div><div class="ro"><span>Rendement</span><b>0,60</b></div><div class="ro"><span>P moteur (engrenages)</span><b>180 W</b></div><div class="ro bad"><span>P moteur (vis sans fin)</span><b>271 W</b></div></div>
+        <div class="msg" id="msgW">Le moteur fait tourner la vis, qui fait tourner lentement la roue.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="q" data-pts="1" data-id="B6">
+    <div class="q-h"><div class="q-n">B6</div><div class="q-t"><div class="ask">Réducteur roue et vis sans fin (vis 2 filets, roue 16 dents, η = 0,60) : rapport, avantage, puissance moteur, irréversibilité.</div><div class="meta"><span class="pts">1 pt</span><span class="theme">Roue et vis sans fin</span></div></div><div class="chev">›</div></div>
+    <div class="q-b">
+      <ol class="steps">
+        <li class="step"><span class="lbl">a) Rapport de transmission</span>Pour une roue et vis sans fin, on remplace « Z menante » par le <b>nombre de filets</b> de la vis :<span class="eq">r' = n<sub>filets</sub> / Z<sub>roue</sub> = 2 / 16 = 0,125</span><span class="res">r' = r : même vitesse de roue</span></li>
+        <li class="step"><span class="lbl">a) Avantages</span>Un grand rapport de réduction avec <b>un seul étage</b> → système compact, moins de pièces. Les axes sont à 90° (renvoi d'angle).</li>
+        <li class="step"><span class="lbl">b) Puissance moteur nécessaire</span><span class="eq">P<sub>mot</sub> = P<sub>roue</sub> / η<sub>vsf</sub> = 162,5 / 0,60</span><span class="res r">P<sub>mot</sub> = 271 W</span><br>Avec les engrenages : 162,5 / 0,9025 = 180 W. La vis sans fin demande <b>50 % de puissance en plus</b> : la batterie se vide plus vite.</li>
+        <li class="step"><span class="lbl">b) Irréversibilité</span>La roue ne peut pas entraîner la vis. Conséquences :
+          <ul><li>impossible de <b>pousser</b> la trottinette moteur arrêté (roue bloquée) ;</li><li>aucune <b>récupération d'énergie</b> en descente.</li></ul>
+          <span class="res r">Mauvais choix pour une trottinette</span>
+          <div class="why"><b>Où l'utiliser alors ?</b> Pour un système qui doit rester bloqué tout seul : barrière de parking, treuil, portail, monte-charge.</div></li>
+      </ol>
+      <div class="q-actions"><button class="next">Étape suivante ▸</button><button class="all">Tout afficher</button><div class="self">Je me note : <button data-v="full">✓</button><button data-v="half">½</button><button data-v="zero">✗</button></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- =============================== PARTIE C =============================== -->
+<section class="part pc" id="C">
+  <div class="part-h"><h2>Partie C – Énergie, puissance et autonomie</h2><span class="tag">6,5 points</span></div>
+  <p class="intro">Sur le plat : v = 6,5 m/s, F<sub>r</sub> = 25 N, R = 0,125 m, r = 1/8. Rendements : contrôleur 0,95 · moteur 0,85 · réducteur 0,95 × 0,95.</p>
+
+  <div class="lab">
+    <h3>Laboratoire 6 – La chaîne de puissance : effort, flux et pertes</h3>
+    <p class="sub">Cliquez sur une flèche pour voir la nature de l'énergie, l'effort et le flux. La hauteur des bandes est proportionnelle à la puissance. Les pertes partent vers le bas, en chaleur.</p>
+    <svg id="sankey" viewBox="0 0 900 300" font-family="Nunito, Arial" font-size="14"></svg>
+    <div class="msg" id="msgS" style="margin-top:8px">Cliquez sur une flèche (une bande colorée entre deux blocs).</div>
+  </div>
+
+  <div class="q" data-pts="1" data-id="C1">
+    <div class="q-h"><div class="q-n">C1</div><div class="q-t"><div class="ask">Effort et flux : compléter la chaîne de puissance (nature de l'énergie, effort, flux, unités, puissances).</div><div class="meta"><span class="pts">1 pt</span><span class="theme">P = effort × flux</span></div></div><div class="chev">›</div></div>
+    <div class="q-b">
+      <ol class="steps">
+        <li class="step"><span class="lbl">Le principe</span>Toute puissance est le produit d'une grandeur « <b>effort</b> » (ce qui pousse) par une grandeur « <b>flux</b> » (ce qui s'écoule) : <span class="eq">P = effort × flux</span></li>
+        <li class="step"><span class="lbl">Tableau complet</span>
+          <table class="t"><tr><th>Flèche</th><th>Énergie</th><th>Effort</th><th>Flux</th><th>Puissance</th></tr>
+            <tr><td>Batterie → contrôleur</td><td>électrique</td><td>tension U (V)</td><td>intensité I (A)</td><td>P<sub>Bat</sub> ≈ 223 W</td></tr>
+            <tr><td>Contrôleur → moteur</td><td>électrique</td><td>tension U (V)</td><td>intensité I (A)</td><td>P<sub>a</sub> ≈ 212 W</td></tr>
+            <tr><td>Moteur → réducteur</td><td>méca. de rotation</td><td>couple C (N·m)</td><td>vitesse angulaire ω (rad/s)</td><td>P<sub>mot</sub> ≈ 180 W</td></tr>
+            <tr><td>Réducteur → roue</td><td>méca. de rotation</td><td>couple C (N·m)</td><td>vitesse angulaire ω (rad/s)</td><td>P<sub>roue</sub> = 162,5 W</td></tr>
+            <tr><td>Sortie de la roue</td><td>méca. de translation</td><td>force F (N)</td><td>vitesse v (m/s)</td><td>162,5 W</td></tr></table>
+          <div class="trap"><b>Erreur fréquente :</b> inverser effort et flux. Moyen de s'en souvenir : le flux est toujours ce qui « circule » (électrons, rotation, déplacement).</div></li>
+      </ol>
+      <div class="q-actions"><button class="next">Étape suivante ▸</button><button class="all">Tout afficher</button><div class="self">Je me note : <button data-v="full">✓</button><button data-v="half">½</button><button data-v="zero">✗</button></div></div>
+    </div>
+  </div>
+
+  <div class="q" data-pts="1" data-id="C2">
+    <div class="q-h"><div class="q-n">C2</div><div class="q-t"><div class="ask">Calculer P<sub>roue</sub>, ω<sub>roue</sub> et C<sub>roue</sub>.</div><div class="meta"><span class="pts">1 pt</span><span class="theme">P = F·v = C·ω</span></div></div><div class="chev">›</div></div>
+    <div class="q-b">
+      <ol class="steps">
+        <li class="step"><span class="lbl">Puissance à la roue (translation)</span><span class="eq">P<sub>roue</sub> = F<sub>r</sub> × v = 25 × 6,5</span><span class="res">P<sub>roue</sub> = 162,5 W</span></li>
+        <li class="step"><span class="lbl">Vitesse angulaire</span><span class="eq">ω<sub>roue</sub> = v / R = 6,5 / 0,125</span><span class="res">ω<sub>roue</sub> = 52 rad/s</span></li>
+        <li class="step"><span class="lbl">Couple sur la roue (rotation)</span><span class="eq">C<sub>roue</sub> = P / ω = 162,5 / 52</span><span class="res">C<sub>roue</sub> = 3,13 N·m</span>
+          <div class="why"><b>Vérification :</b> C = F × R = 25 × 0,125 = 3,125 N·m. Même résultat !</div></li>
+      </ol>
+      <div class="q-actions"><button class="next">Étape suivante ▸</button><button class="all">Tout afficher</button><div class="self">Je me note : <button data-v="full">✓</button><button data-v="half">½</button><button data-v="zero">✗</button></div></div>
+    </div>
+  </div>
+
+  <div class="q" data-pts="1.5" data-id="C3">
+    <div class="q-h"><div class="q-n">C3</div><div class="q-t"><div class="ask">Calculer η<sub>r</sub>, P<sub>mot</sub>, ω<sub>m</sub> et C<sub>m</sub>. Vérifier que C<sub>m</sub> = C<sub>roue</sub> × r / η<sub>r</sub>.</div><div class="meta"><span class="pts">1,5 pt</span><span class="theme">Rendement · remonter la chaîne</span></div></div><div class="chev">›</div></div>
+    <div class="q-b">
+      <ol class="steps">
+        <li class="step"><span class="lbl">Rendement du réducteur</span>Deux étages en série : les rendements se multiplient.<span class="eq">η<sub>r</sub> = η<sub>1</sub> × η<sub>2</sub> = 0,95 × 0,95</span><span class="res">η<sub>r</sub> = 0,9025</span></li>
+        <li class="step"><span class="lbl">Puissance du moteur</span>On remonte la chaîne : on <b>divise</b> par le rendement (le moteur doit fournir plus que ce qui arrive à la roue).<span class="eq">P<sub>mot</sub> = P<sub>roue</sub> / η<sub>r</sub> = 162,5 / 0,9025</span><span class="res">P<sub>mot</sub> = 180 W</span></li>
+        <li class="step"><span class="lbl">Vitesse angulaire du moteur</span><span class="eq">ω<sub>m</sub> = ω<sub>roue</sub> / r = 52 × 8</span><span class="res">ω<sub>m</sub> = 416 rad/s (≈ 3 970 tr/min)</span></li>
+        <li class="step"><span class="lbl">Couple moteur et vérification</span><span class="eq">C<sub>m</sub> = P<sub>mot</sub> / ω<sub>m</sub> = 180 / 416 = 0,433 N·m</span><span class="eq">C<sub>roue</sub> × r / η<sub>r</sub> = 3,125 × 0,125 / 0,9025 = 0,433 N·m  ✔</span><span class="res">C<sub>m</sub> = 0,433 N·m</span>
+          <div class="trap"><b>Erreur fréquente :</b> multiplier par le rendement en remontant la chaîne (on trouverait 147 W &lt; 162,5 W : impossible, le moteur ne peut pas fournir moins que ce qui arrive à la roue).</div></li>
+      </ol>
+      <div class="q-actions"><button class="next">Étape suivante ▸</button><button class="all">Tout afficher</button><div class="self">Je me note : <button data-v="full">✓</button><button data-v="half">½</button><button data-v="zero">✗</button></div></div>
+    </div>
+  </div>
+
+  <div class="q" data-pts="1" data-id="C4">
+    <div class="q-h"><div class="q-n">C4</div><div class="q-t"><div class="ask">Calculer P<sub>a</sub>, P<sub>Bat</sub>, I<sub>Bat</sub> (U ≈ 36 V) et le rendement global. Forme des pertes ?</div><div class="meta"><span class="pts">1 pt</span><span class="theme">Bilan de puissance</span></div></div><div class="chev">›</div></div>
+    <div class="q-b">
+      <ol class="steps">
+        <li class="step"><span class="lbl">Puissance absorbée par le moteur</span><span class="eq">P<sub>a</sub> = P<sub>mot</sub> / η<sub>m</sub> = 180 / 0,85</span><span class="res">P<sub>a</sub> = 212 W</span></li>
+        <li class="step"><span class="lbl">Puissance fournie par la batterie</span><span class="eq">P<sub>Bat</sub> = P<sub>a</sub> / η<sub>c</sub> = 212 / 0,95</span><span class="res">P<sub>Bat</sub> = 223 W</span></li>
+        <li class="step"><span class="lbl">Courant de la batterie</span><span class="eq">I<sub>Bat</sub> = P<sub>Bat</sub> / U = 223 / 36</span><span class="res">I<sub>Bat</sub> = 6,2 A</span></li>
+        <li class="step"><span class="lbl">Rendement global et pertes</span><span class="eq">η<sub>g</sub> = P<sub>roue</sub> / P<sub>Bat</sub> = 162,5 / 223 = 0,73   (ou 0,95 × 0,85 × 0,9025 = 0,73)</span><span class="res">η<sub>g</sub> = 73 %</span><br>Pertes = 223 − 162,5 ≈ <b>60 W</b>, perdus surtout en <b>chaleur</b> : effet Joule dans le moteur et le contrôleur, frottements dans les engrenages.</li>
+      </ol>
+      <div class="q-actions"><button class="next">Étape suivante ▸</button><button class="all">Tout afficher</button><div class="self">Je me note : <button data-v="full">✓</button><button data-v="half">½</button><button data-v="zero">✗</button></div></div>
+    </div>
+  </div>
+
+  <div class="q" data-pts="0.5" data-id="C5">
+    <div class="q-h"><div class="q-n">C5</div><div class="q-t"><div class="ask">Modèle de la batterie (E en série avec R<sub>int</sub>) : loi des mailles, tension réelle U<sub>Bat</sub> pour I = 6,2 A, puissance perdue dans R<sub>int</sub>.</div><div class="meta"><span class="pts">0,5 pt</span><span class="theme">Loi des mailles · modèle de batterie</span></div></div><div class="chev">›</div></div>
+    <div class="q-b">
+      <ol class="steps">
+        <li class="step"><span class="lbl">Loi des mailles</span><svg viewBox="0 0 320 110" style="max-width:320px;display:block;margin:4px 0" font-family="Nunito, Arial" font-size="12"><path d="M40 70V20H140M180 20H280V90H40V100" fill="none" stroke="#2b3a4e" stroke-width="2"/><rect x="140" y="12" width="40" height="16" rx="3" fill="#fff" stroke="#2b3a4e" stroke-width="2"/><circle cx="40" cy="70" r="16" fill="#fff" stroke="#2b3a4e" stroke-width="2"/><line x1="40" y1="54" x2="40" y2="86" stroke="#2b3a4e"/><text x="62" y="74">E = 36 V</text><text x="160" y="46" text-anchor="middle">R<tspan font-size="9" dy="3">int</tspan><tspan dy="-3"> = 0,2 Ω</tspan></text><text x="250" y="60" text-anchor="end" font-weight="800" fill="#2f7fe0">U<tspan font-size="9" dy="3">Bat</tspan></text><path d="M262 84V30" stroke="#2f7fe0" stroke-width="2"/><path d="M257 36L262 26L267 36z" fill="#2f7fe0"/></svg>
+          <span class="eq">E − R<sub>int</sub> × I − U<sub>Bat</sub> = 0   →   U<sub>Bat</sub> = E − R<sub>int</sub> × I</span></li>
+        <li class="step"><span class="lbl">Calculs</span><span class="eq">U<sub>Bat</sub> = 36 − 0,2 × 6,2 = 36 − 1,24</span><span class="res">U<sub>Bat</sub> = 34,8 V</span><span class="eq">P<sub>int</sub> = R<sub>int</sub> × I² = 0,2 × 6,2²</span><span class="res">P<sub>int</sub> = 7,7 W</span><br>Cette puissance chauffe la batterie. Plus le courant est fort (côte !), plus la tension chute et plus la batterie chauffe.</li>
+      </ol>
+      <div class="q-actions"><button class="next">Étape suivante ▸</button><button class="all">Tout afficher</button><div class="self">Je me note : <button data-v="full">✓</button><button data-v="half">½</button><button data-v="zero">✗</button></div></div>
+    </div>
+  </div>
+
+  <div class="lab">
+    <h3>Laboratoire 7 – La batterie au fil des trajets</h3>
+    <p class="sub">8 Ah utilisables (80 % de 10 Ah). Lancez la simulation des trajets domicile – lycée pour voir la batterie se vider phase par phase.</p>
+    <div class="lab-grid">
+      <svg id="batt" viewBox="0 0 360 200" font-family="Nunito, Arial" font-size="13">
+        <rect x="30" y="30" width="250" height="110" rx="14" fill="#fff" stroke="#2b3a4e" stroke-width="3"/>
+        <rect x="280" y="65" width="16" height="40" rx="4" fill="#2b3a4e"/>
+        <rect id="bLevel" x="38" y="38" width="234" height="94" rx="9" fill="#1f9d5c" style="transition:width .9s ease, fill .5s"/>
+        <rect x="38" y="38" width="46.8" height="94" rx="9" fill="none" stroke="#d64545" stroke-dasharray="4 3" stroke-width="1.5" opacity=".6"/>
+        <text id="bTxt" x="155" y="93" text-anchor="middle" font-size="22" font-weight="800" fill="#fff">8,00 Ah</text>
+        <text x="40" y="160" fill="#5a6678" font-size="12">réserve conseillée (20 %) en pointillés rouges</text>
+        <text id="bPhase" x="30" y="186" font-weight="800" fill="#1b4f9c">Prêt à partir</text>
+      </svg>
+      <div class="ctrl">
+        <div class="btns"><button class="btn on" id="bPlay">▶ Lancer la simulation</button><button class="btn" id="bReset">↺ Recharger</button></div>
+        <table class="t"><tr><th>Phase (aller)</th><th>Calcul Q = I × t</th><th>Q</th></tr>
+          <tr><td>Montée 5 min, 15 A</td><td class="mono">15 × 5/60</td><td>1,25 Ah</td></tr>
+          <tr><td>Plat 20 min, 6,2 A</td><td class="mono">6,2 × 20/60</td><td>2,07 Ah</td></tr>
+          <tr><td>Descente 5 min, 0,5 A</td><td class="mono">0,5 × 5/60</td><td>0,04 Ah</td></tr>
+          <tr><th colspan="2">Aller / aller-retour</th><th>3,36 / 6,72 Ah</th></tr></table>
+        <div class="msg" id="msgB">Appuyez sur « Lancer ».</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="q" data-pts="1" data-id="C6">
+    <div class="q-h"><div class="q-n">C6</div><div class="q-t"><div class="ask">Autonomie : a) durée et distance sur le plat ; b) Q par phase, aller-retour, nombre de jours sans recharge.</div><div class="meta"><span class="pts">1 pt</span><span class="theme">Q = I × t · autonomie</span></div></div><div class="chev">›</div></div>
+    <div class="q-b">
+      <ol class="steps">
+        <li class="step"><span class="lbl">a) Capacité utilisable</span><span class="eq">Q<sub>utile</sub> = 0,8 × 10 = 8 Ah</span></li>
+        <li class="step"><span class="lbl">a) Durée et distance sur le plat</span><span class="eq">t = Q / I = 8 / 6,2 = 1,29 h  (= 1 h 17 min)</span><span class="eq">d = v × t = 6,5 × 1,29 × 3 600 = 30 200 m</span><span class="res">d = 30,2 km ≥ 25 km ✔</span>
+          <div class="trap"><b>Piège d'unités :</b> v est en m/s, t en heures. Il faut convertir t en secondes (× 3 600) avant de multiplier.</div></li>
+        <li class="step"><span class="lbl">b) Phase par phase</span>Les durées doivent être en heures (Q en Ah) :<span class="eq">montée : 15 × 5/60 = 1,25 Ah   plat : 6,2 × 20/60 = 2,07 Ah   descente : 0,5 × 5/60 = 0,04 Ah</span><span class="eq">aller = 3,36 Ah   →   aller-retour = 2 × 3,36 = 6,72 Ah</span></li>
+        <li class="step"><span class="lbl">b) Nombre de jours</span><span class="eq">8 / 6,72 = 1,19</span><span class="res">1 seul jour : recharge tous les soirs</span><br>La côte consomme plus du tiers de l'aller (1,25 sur 3,36 Ah) en seulement 5 minutes : c'est elle qui fait chuter l'autonomie réelle.</li>
+      </ol>
+      <div class="q-actions"><button class="next">Étape suivante ▸</button><button class="all">Tout afficher</button><div class="self">Je me note : <button data-v="full">✓</button><button data-v="half">½</button><button data-v="zero">✗</button></div></div>
+    </div>
+  </div>
+
+  <div class="q" data-pts="0.5" data-id="C7">
+    <div class="q-h"><div class="q-n">C7</div><div class="q-t"><div class="ask">Peut-on récupérer de l'énergie dans la descente (dénivelé 20 m, freinage récupératif à 60 %) ?</div><div class="meta"><span class="pts">0,5 pt</span><span class="theme">Énergie potentielle</span></div></div><div class="chev">›</div></div>
+    <div class="q-b">
+      <ol class="steps">
+        <li class="step"><span class="lbl">Énergie potentielle perdue</span><span class="eq">E<sub>p</sub> = m × g × h = 90 × 9,81 × 20 = 17 658 J</span><span class="eq">17 658 / 3 600 = 4,9 Wh</span><span class="res">E<sub>p</sub> = 17 658 J = 4,9 Wh</span></li>
+        <li class="step"><span class="lbl">Énergie récupérée et charge correspondante</span><span class="eq">E<sub>récup</sub> = 0,6 × 4,9 = 2,94 Wh   →   Q = E / U = 2,94 / 36 = 0,08 Ah</span><span class="res">Q ≈ 0,08 Ah</span></li>
+        <li class="step"><span class="lbl">Comparaison et conclusion</span>
+          <svg viewBox="0 0 420 80" style="max-width:460px;display:block;margin:6px 0" font-family="Nunito, Arial" font-size="12" class="growbars">
+            <rect x="130" y="10" width="0" height="22" rx="4" fill="#2f7fe0" data-w="270"/><text x="10" y="26">Aller-retour</text><text x="404" y="26" text-anchor="end" font-weight="800">6,72 Ah</text>
+            <rect x="130" y="44" width="0" height="22" rx="4" fill="#1f9d5c" data-w="3.2"/><text x="10" y="60">Récupérable</text><text x="142" y="60" font-weight="800" fill="#1f9d5c">0,08 Ah</text>
+          </svg>
+          0,08 / 6,72 ≈ 1 % seulement : gain <b>très faible</b>, la récupération ne change pas l'autonomie.</li>
+      </ol>
+      <div class="q-actions"><button class="next">Étape suivante ▸</button><button class="all">Tout afficher</button><div class="self">Je me note : <button data-v="full">✓</button><button data-v="half">½</button><button data-v="zero">✗</button></div></div>
+    </div>
+  </div>
+</section>
+
+<section class="concl">
+  <h2>Conclusion de la mission</h2>
+  <div class="check">
+    <div><b>✔ Vitesse</b>23,6 km/h ≤ 25 km/h (et 24,8 km/h avec Z4 = 38)</div>
+    <div><b>✔ Carte de mesure</b>U2 = 4,19 V ≤ 5 V avec Rb = 10 kΩ</div>
+    <div><b>⚠ Autonomie</b>30 km sur le plat ✔, mais avec la côte : 1 jour seulement → recharge chaque soir</div>
+  </div>
+  <p style="margin:10px 0 0">Conseil au lycéen : la trottinette convient, à condition de la <b>recharger tous les soirs</b>. Éviter les accélérations brutales dans la côte permet aussi de limiter la consommation.</p>
+</section>
+
+<p class="foot">SEQ 1 · Les nouvelles mobilités individuelles · Corrigé interactif · 1re SI</p>
+</main>
+
+<script>
+(function(){
+const $=s=>document.querySelector(s), $$=s=>Array.from(document.querySelectorAll(s));
+const fr=(x,d=2)=>x.toLocaleString('fr-FR',{minimumFractionDigits:d,maximumFractionDigits:d});
+const store={get(k){try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+const reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ---------------- questions: steps + self score ---------------- */
+const scores=store.get('trott-scores')||{};
+function updateScore(){
+  let t=0; $$('.q').forEach(q=>{const v=scores[q.dataset.id],p=parseFloat(q.dataset.pts); if(v==='full')t+=p; else if(v==='half')t+=p/2;});
+  $('#score').textContent='Mon score : '+fr(t,t%1?2:0).replace(/,?0+$/,m=>m.startsWith(',')?'':m)+' / 22,5';
+}
+$$('.q').forEach(q=>{
+  const steps=$$('.step').filter(s=>q.contains(s)), next=q.querySelector('.next'), all=q.querySelector('.all');
+  let shown=0;
+  function reveal(n){
+    while(shown<n&&shown<steps.length){const s=steps[shown]; s.classList.add('show'); requestAnimationFrame(()=>requestAnimationFrame(()=>s.classList.add('vis'))); onStep(s); shown++;}
+    next.disabled=shown>=steps.length; next.textContent=shown>=steps.length?'Correction complète ✔':'Étape suivante ▸';
+  }
+  q.querySelector('.q-h').addEventListener('click',()=>{q.classList.toggle('open'); if(q.classList.contains('open')&&shown===0) reveal(1);});
+  next.addEventListener('click',()=>reveal(shown+1));
+  all.addEventListener('click',()=>reveal(steps.length));
+  q.querySelectorAll('.self button').forEach(b=>{
+    if(scores[q.dataset.id]===b.dataset.v) b.classList.add('sel',b.dataset.v);
+    b.addEventListener('click',()=>{q.querySelectorAll('.self button').forEach(x=>x.classList.remove('sel','full','half','zero')); b.classList.add('sel',b.dataset.v); scores[q.dataset.id]=b.dataset.v; store.set('trott-scores',scores); updateScore();});
+  });
+});
+updateScore();
+function onStep(s){
+  s.querySelectorAll('rect[data-w]').forEach((r,i)=>{r.style.transition='width .8s ease '+(i*0.25)+'s'; setTimeout(()=>r.setAttribute('width',r.dataset.w),60);});
+}
+
+/* ---------------- flow animation helper ---------------- */
+// each flow: path element, speed (px/s, signed). Dashes move along path direction for +, backwards for -.
+const flows=[];
+function makeFlow(el){el.setAttribute('stroke-dasharray','2 16'); const f={el,speed:0,off:0}; flows.push(f); return f;}
+let last=performance.now(), runA=true, runG=true;
+function tick(now){
+  const dt=Math.min(.05,(now-last)/1000); last=now;
+  flows.forEach(f=>{ if(f.group==='A'&&!runA) return; f.off-=f.speed*dt; f.el.setAttribute('stroke-dashoffset',f.off.toFixed(1)); f.el.style.opacity=Math.abs(f.speed)<1?0.15:1; });
+  gearTick(dt); wormTick(dt); heroTick(dt);
+  requestAnimationFrame(tick);
+}
+
+/* ---------------- Lab 1 : Millman circuit ---------------- */
+const f1=makeFlow($('#fl1')), f2=makeFlow($('#fl2')), f3=makeFlow($('#fl3')); [f1,f2,f3].forEach(f=>f.group='A');
+const K=30; // px/s per ampere
+function calcA(){
+  const E1=12,R1=2,R2=3,R3=6,E2=parseFloat($('#e2').value);
+  const VA=(E1/R1+E2/R2)/(1/R1+1/R2+1/R3), I1=(E1-VA)/R1, I2=(E2-VA)/R2, I3=VA/R3;
+  $('#e2v').textContent=fr(E2,E2%1?1:0); $('#labE2').textContent='E2 = '+fr(E2,E2%1?1:0)+' V';
+  $('#roVA').textContent=fr(VA)+' V'; $('#roI1').textContent=fr(I1)+' A'; $('#roI2').textContent=fr(I2)+' A'; $('#roI3').textContent=fr(I3)+' A';
+  $('#boxI2').className='ro'+(I2<-0.005?' neg':(I2>0.005?' ok':''));
+  f1.speed=I1*K; f2.speed=I2*K; f3.speed=I3*K;
+  const m=$('#msgA');
+  if(I2<-0.005) m.innerHTML='I2 = '+fr(I2)+' A &lt; 0 : la batterie de secours <b>reçoit</b> du courant, elle se recharge (récepteur).';
+  else if(I2>0.005) m.innerHTML='I2 = '+fr(I2)+' A &gt; 0 : la batterie de secours <b>fournit</b> du courant (générateur).';
+  else m.innerHTML='E2 = V<sub>A</sub> = 8 V : aucun courant dans la batterie de secours (I2 = 0).';
+  const glow=Math.min(1,I3/2); $('#lampR3').setAttribute('fill',`rgba(242,176,30,${0.15+glow*0.75})`);
+}
+$('#e2').addEventListener('input',calcA); $('#resetA').addEventListener('click',()=>{$('#e2').value=6;calcA();});
+$('#pauseA').addEventListener('click',e=>{runA=!runA; e.target.textContent=runA?'⏸ Pause':'▶ Reprendre';});
+calcA();
+
+/* ---------------- Lab 2 : current divider ---------------- */
+const d0=makeFlow($('#fd0')), dA=makeFlow($('#fdA')), dR=makeFlow($('#fdR')), d1=makeFlow($('#fd1'));
+d0.speed=1.333*K; d1.speed=1.333*K; dA.speed=0.889*K; dR.speed=0.444*K;
+$('#lampAv').setAttribute('fill','rgba(242,176,30,.85)'); $('#lampAr').setAttribute('fill','rgba(242,176,30,.4)');
+
+/* ---------------- Lab 3 : bridge ---------------- */
+let rb=10, carte=false;
+function calcP(){
+  const Ra=82,U=42,Re=100; const rbas=carte?rb*Re/(rb+Re):rb; const U2=U*rbas/(Ra+rbas);
+  $('#roU2').textContent=fr(U2)+' V'; $('#roRbas').textContent=fr(rbas,rbas%1?2:0)+' kΩ';
+  $('#labRb').textContent='Rb = '+fr(rb,rb%1?2:0)+' kΩ';
+  $('#gauge').setAttribute('width',Math.min(280,U2/6*280)); $('#gauge').setAttribute('fill',U2>5.0001?'#d64545':'#2f7fe0');
+  $('#roU2box').className='ro '+(U2>5.0001?'bad':'ok');
+  $('#carte').style.opacity=carte?1:.18;
+  let t=(carte?'Carte branchée':'Pont à vide')+' avec Rb = '+fr(rb,rb%1?2:0)+' kΩ : U2 = '+fr(U2)+' V ';
+  t+=U2>5.0001?'&gt; 5 V. <b>Danger pour la carte !</b>':'≤ 5 V. La carte est protégée.';
+  if(carte) t+=' La carte « charge » le pont : la tension baisse.';
+  $('#msgP').innerHTML=t;
+}
+$$('[data-rb]').forEach(b=>b.addEventListener('click',()=>{$$('[data-rb]').forEach(x=>x.classList.remove('on'));b.classList.add('on');rb=parseFloat(b.dataset.rb);calcP();}));
+$('#cartOff').addEventListener('click',()=>{carte=false;$('#cartOff').classList.add('on');$('#cartOn').classList.remove('on');calcP();});
+$('#cartOn').addEventListener('click',()=>{carte=true;$('#cartOn').classList.add('on');$('#cartOff').classList.remove('on');calcP();});
+calcP();
+
+/* ---------------- Lab 4 : gears ---------------- */
+const NS='http://www.w3.org/2000/svg';
+function gearPath(z,r){ // r = pitch radius
+  const ro=r+4, ri=r-4, n=z, pts=[];
+  for(let i=0;i<n;i++){const a=i/n*2*Math.PI, s=Math.PI/n;
+    [[a-s*0.5,ri],[a-s*0.25,ro],[a+s*0.25,ro],[a+s*0.5,ri]].forEach(([t,rr])=>pts.push((rr*Math.cos(t)).toFixed(1)+' '+(rr*Math.sin(t)).toFixed(1)));}
+  return 'M'+pts.join('L')+'Z';
+}
+function buildGear(g,z,r,fill,stroke){
+  g.innerHTML='';
+  const p=document.createElementNS(NS,'path'); p.setAttribute('d',gearPath(z,r)); p.setAttribute('fill',fill); p.setAttribute('stroke',stroke); p.setAttribute('stroke-width','1.5'); g.appendChild(p);
+  const c=document.createElementNS(NS,'circle'); c.setAttribute('r',Math.max(5,r*0.18)); c.setAttribute('fill','#fff'); c.setAttribute('stroke',stroke); g.appendChild(c);
+  const l=document.createElementNS(NS,'line'); l.setAttribute('x1',0);l.setAttribute('y1',0);l.setAttribute('x2',0);l.setAttribute('y2',-(r-8)); l.setAttribute('stroke',stroke); l.setAttribute('stroke-width','3'); l.setAttribute('stroke-linecap','round'); g.appendChild(l);
+}
+const k=1.8; let Z4=40;
+const G={z1:{x:70,y:120},z2:{x:0,y:120}};
+G.z2.x=G.z1.x+(12+36)*k;
+let angle={m:0,i:0,w:0};
+function layoutGears(){
+  const rZ3=15*k, rZ4=Z4*k, d=(15+Z4)*k, ang=40*Math.PI/180;
+  G.z4={x:G.z2.x+d*Math.cos(ang), y:G.z2.y+d*Math.sin(ang)};
+  buildGear($('#gZ1'),12,12*k,'#cfe0f5','#1b4f9c');
+  buildGear($('#gZ2'),36,36*k,'#dbe8f8','#1b4f9c');
+  buildGear($('#gZ3'),15,rZ3,'#f6d2bd','#b5541b');
+  buildGear($('#gZ4'),Z4,rZ4,'rgba(246,210,189,.75)','#b5541b');
+  const w=$('#gWheel'); w.innerHTML='';
+  const c=document.createElementNS(NS,'circle'); c.setAttribute('r',38); c.setAttribute('fill','#fff'); c.setAttribute('stroke','#2b3a4e'); c.setAttribute('stroke-width','8'); w.appendChild(c);
+  for(let i=0;i<6;i++){const l=document.createElementNS(NS,'line'); const a=i*Math.PI/3; l.setAttribute('x2',(34*Math.cos(a)).toFixed(1)); l.setAttribute('y2',(34*Math.sin(a)).toFixed(1)); l.setAttribute('stroke','#2b3a4e'); l.setAttribute('stroke-width','2'); w.appendChild(l);}
+  const pos=(id,x,y)=>{$(id).setAttribute('x',x);$(id).setAttribute('y',y);};
+  pos('#tZ1',G.z1.x-8,G.z1.y-36); pos('#tZ2',G.z2.x-10,G.z2.y-72); pos('#tZ3',G.z2.x+36,G.z2.y-20); pos('#tZ4',G.z4.x+rZ4*0.4,G.z4.y+rZ4+18);
+  // rotation arrows
+  const ra=$('#rotArrows'); ra.innerHTML='';
+  const arc=(cx,cy,r,cw,col)=>{const a0=-2.4,a1=-0.8; const p=document.createElementNS(NS,'path');
+    const x0=cx+r*Math.cos(a0),y0=cy+r*Math.sin(a0),x1=cx+r*Math.cos(a1),y1=cy+r*Math.sin(a1);
+    p.setAttribute('d',cw?`M${x0} ${y0}A${r} ${r} 0 0 1 ${x1} ${y1}`:`M${x1} ${y1}A${r} ${r} 0 0 0 ${x0} ${y0}`); p.setAttribute('fill','none'); p.setAttribute('stroke',col); p.setAttribute('stroke-width','2.5'); p.setAttribute('marker-end','url(#arrG)'); ra.appendChild(p);};
+  if(!$('#arrG')){const d=document.createElementNS(NS,'defs'); d.innerHTML='<marker id="arrG" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10z" fill="#7c5cd6"/></marker>'; $('#gears').prepend(d);}
+  arc(G.z1.x,G.z1.y,40,true,'#7c5cd6'); arc(G.z2.x,G.z2.y,78,false,'#7c5cd6');
+  updateG();
+}
+function updateG(){
+  const r=(12/36)*(15/Z4), N=4000*r, w=2*Math.PI*N/60, v=w*0.125*3.6;
+  $('#z4v').textContent=Z4; $('#roR').textContent=fr(r,4); $('#roN').textContent=fr(N,1)+' tr/min'; $('#roW').textContent=fr(w,1)+' rad/s'; $('#roV').textContent=fr(v,1)+' km/h';
+  const ok=v<=25; $('#roVbox').className='ro '+(ok?'ok':'bad');
+  $('#msgG').innerHTML='Z4 = '+Z4+' : '+fr(v,1)+' km/h '+(ok?'≤ 25 km/h. Conforme.':'&gt; 25 km/h. <b>Non conforme !</b>')+(Z4===38?' C\'est la valeur la plus proche de 25 km/h sans les dépasser.':'');
+}
+function gearTick(dt){
+  if(!runG) return;
+  const wm=reduce?0:300; // deg/s motor (slowed)
+  angle.m+=wm*dt; angle.i-=wm*dt*(12/36); angle.w+=wm*dt*(12/36)*(15/Z4);
+  $('#gZ1').setAttribute('transform',`translate(${G.z1.x} ${G.z1.y}) rotate(${angle.m})`);
+  $('#gZ2').setAttribute('transform',`translate(${G.z2.x} ${G.z2.y}) rotate(${angle.i})`);
+  $('#gZ3').setAttribute('transform',`translate(${G.z2.x} ${G.z2.y}) rotate(${angle.i*1})`);
+  if(G.z4) $('#gZ4').setAttribute('transform',`translate(${G.z4.x} ${G.z4.y}) rotate(${angle.w})`);
+  $('#gWheel').setAttribute('transform',`translate(395 190) rotate(${angle.w})`);
+}
+$('#z4').addEventListener('input',e=>{Z4=parseInt(e.target.value);layoutGears();});
+$('#z4reset').addEventListener('click',()=>{Z4=40;$('#z4').value=40;layoutGears();});
+$('#z4best').addEventListener('click',()=>{Z4=38;$('#z4').value=38;layoutGears();});
+$('#pauseG').addEventListener('click',e=>{runG=!runG;e.target.textContent=runG?'⏸ Pause':'▶ Reprendre';});
+layoutGears();
+
+/* ---------------- Lab 5 : worm ---------------- */
+const wc={x:180,y:82,r:58};
+(function(){const g=$('#wWheel'); const p=document.createElementNS(NS,'path'); p.setAttribute('d',gearPath(16,wc.r)); p.setAttribute('fill','#f6d2bd'); p.setAttribute('stroke','#b5541b'); p.setAttribute('stroke-width','1.5'); g.appendChild(p);
+ const c=document.createElementNS(NS,'circle'); c.setAttribute('r',9); c.setAttribute('fill','#fff'); c.setAttribute('stroke','#b5541b'); g.appendChild(c);
+ const l=document.createElementNS(NS,'line'); l.setAttribute('y2',-48); l.setAttribute('stroke','#b5541b'); l.setAttribute('stroke-width','4'); l.setAttribute('stroke-linecap','round'); g.appendChild(l);
+ const th=$('#wThreads'); for(let i=-2;i<14;i++){const t=document.createElementNS(NS,'line'); t.setAttribute('x1',90+i*16); t.setAttribute('y1',150); t.setAttribute('x2',90+i*16+14); t.setAttribute('y2',190); t.setAttribute('stroke','#1b4f9c'); t.setAttribute('stroke-width','3'); th.appendChild(t);} })();
+let wMode='motor', wTurns=0, pushT=0;
+function wormTick(dt){
+  if(reduce) return;
+  if(wMode==='motor'){ wTurns+=dt*1.6; }
+  const shift=(wTurns%1)*32; // two threads per turn visually (16 px pitch * 2)
+  $('#wThreads').setAttribute('transform',`translate(${-shift%16} 0)`);
+  let wa=wTurns*(2/16)*360;
+  if(wMode==='push'){ pushT+=dt; wa+=Math.sin(pushT*18)*1.2; }
+  $('#wWheel').setAttribute('transform',`translate(${wc.x} ${wc.y}) rotate(${wa})`);
+  $('#wCount').textContent='tours de vis : '+Math.floor(wTurns);
+  $('#wCount2').textContent='tours de roue : '+fr(wTurns/8,2);
+}
+$('#wMotor').addEventListener('click',()=>{wMode='motor';$('#wMotor').classList.add('on');$('#wPush').classList.remove('on');$('#msgW').innerHTML='Le moteur fait tourner la vis, qui fait tourner lentement la roue : 8 tours de vis = 1 tour de roue.';});
+$('#wPush').addEventListener('click',()=>{wMode='push';$('#wPush').classList.add('on');$('#wMotor').classList.remove('on');$('#msgW').innerHTML='On force sur la roue : elle « tremble » mais <b>ne peut pas faire tourner la vis</b>. Système irréversible : impossible de pousser la trottinette ou de récupérer l\'énergie en descente.';});
+
+/* ---------------- Lab 6 : sankey power chain ---------------- */
+(function(){
+  const S=$('#sankey'); const sc=0.55; // px per W
+  const blocks=[{n:'ALIMENTER',s:'Batterie',x:10},{n:'DISTRIBUER',s:'Contrôleur',x:200},{n:'CONVERTIR',s:'Moteur',x:390},{n:'TRANSMETTRE',s:'Réducteur',x:580},{n:'AGIR',s:'Roue',x:770}];
+  const P=[223,212,180,162.5,162.5]; const bw=120, top=40;
+  const arrows=[
+    {from:0,p:223,e:'électrique',ef:'tension U = 36 V',fl:'intensité I = 6,2 A',c:'#f2b01e'},
+    {from:1,p:212,e:'électrique',ef:'tension U (V)',fl:'intensité I (A)',c:'#f2b01e'},
+    {from:2,p:180,e:'mécanique de rotation',ef:'couple C<sub>m</sub> = 0,433 N·m',fl:'vitesse angulaire ω<sub>m</sub> = 416 rad/s',c:'#2f7fe0'},
+    {from:3,p:162.5,e:'mécanique de rotation',ef:'couple C<sub>roue</sub> = 3,13 N·m',fl:'vitesse angulaire ω<sub>roue</sub> = 52 rad/s',c:'#2f7fe0'},
+  ];
+  const losses=[11,32,17.5];
+  let html='<defs><marker id="arS" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10z" fill="#d64545"/></marker></defs>';
+  blocks.forEach((b,i)=>{const h=P[i]*sc+20;
+    html+=`<rect x="${b.x}" y="${top}" width="${bw}" height="${Math.max(80,h)}" rx="12" fill="#f2faf5" stroke="#1f9d5c" stroke-width="2"/>`+
+    `<text x="${b.x+bw/2}" y="${top+24}" text-anchor="middle" font-weight="800">${b.n}</text><text x="${b.x+bw/2}" y="${top+44}" text-anchor="middle" fill="#5a6678">${b.s}</text>`;});
+  html+=`<text x="${770+bw/2}" y="${top+66}" text-anchor="middle" fill="#1f9d5c" font-weight="800">162,5 W</text>`;
+  arrows.forEach((a,i)=>{const x0=blocks[a.from].x+bw, x1=blocks[a.from+1].x, h=a.p*sc;
+    html+=`<g class="sk" data-i="${i}" style="cursor:pointer"><rect x="${x0}" y="${top+20}" width="0" height="${h}" fill="${a.c}" opacity=".85" data-w="${x1-x0}"><title>${a.e}</title></rect>`+
+    `<text x="${(x0+x1)/2}" y="${top+12}" text-anchor="middle" font-weight="800" font-size="13">${String(a.p).replace('.',',')} W</text></g>`;});
+  losses.forEach((l,i)=>{const b=blocks[i+1], x=b.x+bw/2, y0=top+P[i+1]*sc+30;
+    const yy=Math.max(top+80,y0)+6, hw=Math.max(3,l*sc/2);
+    html+=`<path d="M${x-hw} ${yy}V${yy+26}H${x-hw-6}L${x} ${yy+42}L${x+hw+6} ${yy+26}H${x+hw}V${yy}Z" fill="#d64545" opacity=".85"/><text x="${x+hw+12}" y="${yy+30}" fill="#d64545" font-weight="800" font-size="13">−${String(l).replace('.',',')} W (chaleur)</text>`;});
+  html+=`<text x="10" y="292" fill="#5a6678" font-size="13">Rendement global : 162,5 / 223 = 73 %. Total des pertes ≈ 60 W.</text>`;
+  S.innerHTML=html;
+  const io=new IntersectionObserver(es=>{es.forEach(en=>{if(en.isIntersecting){S.querySelectorAll('rect[data-w]').forEach((r,i)=>{r.style.transition='width .7s ease '+(i*0.35)+'s'; r.setAttribute('width',r.dataset.w);}); io.disconnect();}});},{threshold:.3});
+  io.observe(S);
+  S.querySelectorAll('.sk').forEach(g=>g.addEventListener('click',()=>{const a=arrows[g.dataset.i];
+    S.querySelectorAll('.sk rect').forEach(r=>r.setAttribute('opacity','.35')); g.querySelector('rect').setAttribute('opacity','1');
+    $('#msgS').innerHTML=`<b>Énergie ${a.e}</b> · effort : <b>${a.ef}</b> · flux : <b>${a.fl}</b> · P = effort × flux ≈ ${String(a.p).replace('.',',')} W`;}));
+})();
+
+/* ---------------- Lab 7 : battery ---------------- */
+(function(){
+  const full=8, W=234; let Q=full, timer=null;
+  const seq=[['Jour 1 · aller · montée',1.25],['Jour 1 · aller · plat',2.067],['Jour 1 · aller · descente',0.042],['Jour 1 · retour (même consommation)',3.358],['Jour 2 · aller · montée',1.25],['Jour 2 · aller · plat',2.067]];
+  function draw(label){const w=Math.max(0,Q/full*W); $('#bLevel').setAttribute('width',w); $('#bLevel').setAttribute('fill',Q/full>0.4?'#1f9d5c':(Q/full>0.2?'#f2b01e':'#d64545')); $('#bTxt').textContent=fr(Math.max(Q,0))+' Ah'; $('#bTxt').setAttribute('fill',Q/full>0.45?'#fff':'#1d2733'); $('#bPhase').textContent=label;}
+  function reset(){clearTimeout(timer);Q=full;draw('Prêt à partir');$('#msgB').innerHTML='Appuyez sur « Lancer ».';}
+  $('#bReset').addEventListener('click',reset);
+  $('#bPlay').addEventListener('click',()=>{reset(); let i=0;
+    const step=()=>{ if(i>=seq.length) return; const [lab,q]=seq[i];
+      if(Q-q<0){ draw(lab+' : batterie vide !'); $('#msgB').innerHTML='<b>Panne !</b> Il reste '+fr(Q)+' Ah, mais la phase « '+lab+' » demande '+fr(q)+' Ah. Le jour 2 est impossible sans recharge.'; return; }
+      Q-=q; draw(lab+'  (−'+fr(q)+' Ah)'); $('#msgB').innerHTML='Après « '+lab+' » : il reste <b>'+fr(Q)+' Ah</b>.'+(i===3?' Fin du jour 1 : 6,72 Ah consommés.':'');
+      i++; timer=setTimeout(step,1300);};
+    timer=setTimeout(step,400);});
+  draw('Prêt à partir');
+})();
+
+/* ---------------- hero + C7 bars when visible ---------------- */
+let heroA=0; function heroTick(dt){ if(reduce) return; heroA+=dt*200; $('#heroW1').setAttribute('transform',`rotate(${heroA} 40 120)`); $('#heroW2').setAttribute('transform',`rotate(${heroA} 170 120)`); }
+
+requestAnimationFrame(tick);
+})();
+</script>
+</body>
+</html>

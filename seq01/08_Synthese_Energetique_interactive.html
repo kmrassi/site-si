@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Énergétique — synthèse interactive</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wdth,wght@0,75..100,400..700;1,75..100,400..700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F5F8F8; --grid:#E2EAEA; --panel:#FFFFFF; --ink:#172430; --muted:#566573; --line:#CBD5D8;
+  --meca:#2A62CC; --elec:#C98C00; --chim:#1C8A5E; --ther:#CC3F2A;
+  --ok:#1C8A5E; --bad:#CC3F2A;
+  --sans:"Instrument Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --serif:"Instrument Serif","Times New Roman",Georgia,serif;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#10181F; --grid:#18232C; --panel:#16212A; --ink:#E4ECF1; --muted:#98A7B3; --line:#2B3A46;
+    --meca:#6C9BFF; --elec:#F2B92E; --chim:#3FC58B; --ther:#FF6F57; --ok:#3FC58B; --bad:#FF6F57;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#10181F; --grid:#18232C; --panel:#16212A; --ink:#E4ECF1; --muted:#98A7B3; --line:#2B3A46;
+  --meca:#6C9BFF; --elec:#F2B92E; --chim:#3FC58B; --ther:#FF6F57; --ok:#3FC58B; --bad:#FF6F57;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-behavior:smooth;scroll-padding-top:calc(env(safe-area-inset-top,0px) + 70px)}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{
+  margin:0;color:var(--ink);font-family:var(--sans);font-size:17px;line-height:1.55;
+  background-color:var(--paper);
+  background-image:
+    linear-gradient(var(--grid) 1px,transparent 1px),
+    linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:24px 24px;
+}
+img,svg{max-width:100%}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--meca);outline-offset:2px;border-radius:4px}
+
+/* navigation */
+.nav{
+  position:sticky;top:env(safe-area-inset-top,0px);z-index:10;
+  background:color-mix(in srgb,var(--paper) 92%,transparent);
+  backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+  border-bottom:1px solid var(--line);
+}
+.nav-in{max-width:1120px;margin:0 auto;display:flex;align-items:center;gap:18px;padding:10px 20px;overflow-x:auto}
+.brand{font-weight:700;font-stretch:80%;font-size:1.05rem;white-space:nowrap}
+.nav a{text-decoration:none;color:var(--muted);white-space:nowrap;font-size:.95rem;padding:4px 2px;border-bottom:2px solid transparent}
+.nav a:hover{color:var(--ink);border-color:var(--ink)}
+.nav .sp{flex:1}
+
+main{max-width:1120px;margin:0 auto;padding:0 20px 80px}
+
+/* hero */
+.hero{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:32px;align-items:center;padding:48px 0 28px}
+.hero h1{
+  font-size:clamp(2.6rem,6vw,4.4rem);line-height:.92;margin:0 0 18px;font-weight:700;font-stretch:75%;letter-spacing:-.01em;
+}
+.hero .seq{color:var(--muted);margin:0 0 6px;font-size:1rem}
+.hero p.lead{max-width:34ch;margin:0 0 18px}
+.forms{list-style:none;padding:0;margin:0;display:flex;flex-wrap:wrap;gap:6px 14px;font-size:.95rem;color:var(--muted)}
+.forms li::before{content:"";display:inline-block;width:.6em;height:.6em;border-radius:50%;background:var(--c,var(--muted));margin-right:.4em;vertical-align:.05em}
+.diagram-wrap{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:10px}
+#flow{width:100%;height:auto;display:block}
+#flow .node{cursor:pointer}
+#flow .node ellipse{stroke-width:2}
+#flow .node text{font:600 15px var(--sans);fill:#fff;pointer-events:none}
+#flow .lnk{transition:opacity .25s}
+#flow .lnk path{fill:none;stroke-width:2.2}
+#flow .lnk text{font:500 11.5px var(--sans);fill:var(--ink);paint-order:stroke;stroke:var(--panel);stroke-width:4px;stroke-linejoin:round}
+#flow.focus .lnk{opacity:.12}
+#flow.focus .lnk.on{opacity:1}
+#flow.focus .node{opacity:.45}
+#flow.focus .node.on{opacity:1}
+.flow-info{min-height:3.2em;font-size:.95rem;color:var(--muted);padding:6px 8px 2px}
+.flow-info b{color:var(--ink)}
+
+/* sections */
+section{padding:44px 0 8px;border-top:1px solid var(--line);margin-top:36px}
+.sec-head{display:grid;grid-template-columns:auto 1fr;gap:4px 18px;align-items:baseline;margin-bottom:22px}
+.sec-num{font:italic 400 3.4rem/1 var(--serif);color:var(--muted)}
+.sec-head h2{margin:0;font-size:clamp(1.7rem,3.6vw,2.4rem);font-weight:700;font-stretch:80%;line-height:1.1}
+.sec-head p{grid-column:2;margin:0;color:var(--muted);max-width:62ch}
+h3{font-size:1.2rem;margin:34px 0 10px;font-weight:650}
+p{max-width:70ch}
+
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:18px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px 20px}
+
+/* formulas */
+.fx{font-family:var(--serif);font-size:1.9rem;line-height:1.2;white-space:nowrap}
+.fx i{font-style:italic}
+.frac{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;font-size:.62em;line-height:1.05;margin:0 .12em}
+.frac>span:first-child{border-bottom:1.5px solid currentColor;padding:0 .15em .06em}
+.frac>span:last-child{padding-top:.06em}
+.key{
+  display:inline-block;border:2px solid var(--ink);border-radius:8px;padding:4px 16px;background:var(--panel);
+}
+
+/* units */
+.conv{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:12px}
+.conv input,.conv select,.fcard input,.stage input[type=text]{
+  font:inherit;color:var(--ink);background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:7px 10px;
+}
+.conv input{width:9em}
+.conv-out{display:grid;grid-template-columns:auto 1fr;gap:4px 16px;font-variant-numeric:tabular-nums}
+.conv-out dt{color:var(--muted)}
+.conv-out dd{margin:0;font-weight:600}
+.eq-list{margin:0;padding:0;list-style:none}
+.eq-list li{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px dashed var(--line)}
+.eq-list li:last-child{border:0}
+.eq-list span:last-child{font-weight:600;font-variant-numeric:tabular-nums}
+
+/* bulb split */
+.split{display:flex;height:46px;border-radius:8px;overflow:hidden;border:1px solid var(--line);margin:10px 0 6px}
+.split div{display:flex;align-items:center;justify-content:center;color:#fff;font-weight:600;font-size:.9rem;white-space:nowrap;overflow:hidden}
+.split .u{background:var(--elec);width:3%;min-width:34px}
+.split .p{background:var(--ther);flex:1}
+.legend{display:flex;justify-content:space-between;font-size:.9rem;color:var(--muted)}
+.block-diag{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:6px 0 14px;font-size:.95rem}
+.block-diag .sys{border:2px solid var(--ink);border-radius:6px;padding:6px 14px;font-weight:600}
+.arrowr::after{content:"⟶";margin:0 4px;color:var(--muted)}
+
+/* formula cards */
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 18px}
+.chip{font:inherit;font-size:.92rem;border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:999px;padding:6px 14px;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:16px}
+.fcard{
+  background:var(--panel);border:1px solid var(--line);border-top:5px solid var(--c,var(--ink));
+  border-radius:10px;padding:14px 16px 16px;display:flex;flex-direction:column;gap:10px
+}
+.fcard[hidden]{display:none}
+.fcard h4{margin:0;font-size:1.05rem;font-weight:650}
+.fcard .ex{margin:0;color:var(--muted);font-size:.88rem}
+.fcard .fx{color:var(--c,var(--ink))}
+.vars{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:6px 8px;align-items:center;font-size:.9rem}
+.vars label{font-family:var(--serif);font-style:italic;font-size:1.25rem;line-height:1}
+.vars input{width:100%;padding:5px 8px;font-variant-numeric:tabular-nums}
+.vars .u{color:var(--muted);font-size:.85rem}
+.vars .d{grid-column:1/-1;margin-top:-4px;color:var(--muted);font-size:.8rem}
+.fcard output{
+  display:block;margin-top:auto;padding:10px 12px;border-radius:8px;
+  background:color-mix(in srgb,var(--c,var(--ink)) 11%,transparent);font-variant-numeric:tabular-nums;font-size:.95rem
+}
+.fcard output b{font-size:1.15rem}
+.tag{font-size:.78rem;color:var(--muted)}
+
+/* chain */
+.chain{display:grid;grid-template-columns:minmax(0,4fr) minmax(0,7fr);gap:20px;align-items:start}
+.stage{display:grid;grid-template-columns:minmax(0,1fr) 90px 48px 32px;gap:8px;align-items:center;padding:8px 0;border-bottom:1px dashed var(--line)}
+.stage input[type=text]{width:100%;padding:5px 8px}
+.stage input[type=range]{width:100%;accent-color:var(--meca)}
+.stage .v{font-variant-numeric:tabular-nums;font-weight:600;text-align:right}
+.icon-btn{font:inherit;border:1px solid var(--line);background:transparent;color:var(--muted);border-radius:6px;width:30px;height:30px;cursor:pointer}
+.icon-btn:hover{color:var(--bad);border-color:var(--bad)}
+.btn{font:inherit;font-weight:600;border:1.5px solid var(--ink);background:transparent;color:var(--ink);border-radius:8px;padding:7px 14px;cursor:pointer}
+.btn:hover{background:var(--ink);color:var(--paper)}
+.pa{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:6px 0 10px}
+.pa input[type=range]{flex:1;min-width:140px;accent-color:var(--elec)}
+#sankey{width:100%;height:auto;display:block}
+#sankey text{font-family:var(--sans);fill:var(--ink)}
+.etag{font:600 1rem var(--sans)}
+.prod{font-family:var(--serif);font-size:1.35rem;overflow-x:auto;white-space:nowrap;padding:4px 0}
+
+/* quiz */
+.quiz{display:grid;gap:14px}
+.q{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px 16px}
+.q p{margin:0 0 10px;font-weight:600}
+.opts{display:flex;flex-wrap:wrap;gap:8px}
+.opt{font:inherit;border:1px solid var(--line);background:var(--paper);color:var(--ink);border-radius:8px;padding:6px 14px;cursor:pointer}
+.opt:disabled{cursor:default}
+.opt.right{background:var(--ok);border-color:var(--ok);color:#fff}
+.opt.wrong{background:var(--bad);border-color:var(--bad);color:#fff}
+.expl{margin:10px 0 0;color:var(--muted);font-size:.92rem}
+.score{font-weight:700;font-size:1.1rem}
+
+footer{max-width:1120px;margin:0 auto;padding:20px;color:var(--muted);font-size:.85rem}
+
+@media (max-width:860px){
+  .hero{grid-template-columns:1fr;padding-top:28px}
+  .chain{grid-template-columns:1fr}
+  .sec-num{font-size:2.6rem}
+}
+.scroll-x{overflow-x:auto}
+</style>
+</head>
+<body>
+
+<nav class="nav" aria-label="Sections">
+  <div class="nav-in">
+    <span class="brand">Énergétique</span>
+    <a href="#energies">1 Énergies</a>
+    <a href="#formulaire">Formulaire</a>
+    <a href="#puissances">2 Puissances</a>
+    <a href="#rendement">3 Rendement</a>
+    <a href="#quiz">Quiz</a>
+  </div>
+</nav>
+
+<main>
+  <header class="hero">
+    <div>
+      <p class="seq">Spé SI, séquence 1 : les nouvelles mobilités individuelles</p>
+      <h1>L’énergie se transforme</h1>
+      <p class="lead">Rien ne se perd, rien ne se crée. Touchez une forme d’énergie dans le schéma pour voir par quels convertisseurs elle passe.</p>
+      <ul class="forms">
+        <li style="--c:var(--elec)">électrique</li>
+        <li style="--c:var(--meca)">mécanique</li>
+        <li style="--c:var(--chim)">chimique</li>
+        <li style="--c:var(--ther)">thermique</li>
+        <li>nucléaire</li>
+        <li>électromagnétique (lumière, ondes radio)</li>
+      </ul>
+    </div>
+    <div class="diagram-wrap">
+      <svg id="flow" viewBox="0 0 600 470" role="img" aria-label="Schéma des conversions entre énergies électrique, mécanique, chimique et thermique"></svg>
+      <div class="flow-info" id="flowInfo" aria-live="polite">Touchez une bulle pour isoler ses conversions.</div>
+    </div>
+  </header>
+
+  <!-- 1 ÉNERGIES -->
+  <section id="energies">
+    <div class="sec-head">
+      <span class="sec-num">1</span>
+      <h2>Les énergies</h2>
+      <p>L’énergie est ce qui permet d’effectuer un travail, de produire de la chaleur, de la lumière, un mouvement.</p>
+    </div>
+
+    <div class="grid2">
+      <div class="panel">
+        <h3 style="margin-top:0">Unités de mesure</h3>
+        <p style="margin-top:0">L’unité du système international est le <b>joule (J)</b>. Deux unités hors S.I. reviennent souvent :</p>
+        <ul class="eq-list">
+          <li><span>1 calorie (cal)</span><span>4,185 J</span></li>
+          <li><span>1 wattheure (Wh)</span><span>3 600 J</span></li>
+          <li><span>1 kilowattheure (kWh)</span><span>3 600 000 J</span></li>
+        </ul>
+      </div>
+      <div class="panel">
+        <h3 style="margin-top:0">Convertisseur d’unités</h3>
+        <div class="conv">
+          <input id="cvVal" type="number" step="any" inputmode="decimal" value="360" aria-label="Valeur">
+          <select id="cvUnit" aria-label="Unité">
+            <option value="1">J</option>
+            <option value="1000">kJ</option>
+            <option value="3600" selected>Wh</option>
+            <option value="3600000">kWh</option>
+            <option value="4.185">cal</option>
+          </select>
+        </div>
+        <dl class="conv-out" id="cvOut"></dl>
+      </div>
+    </div>
+
+    <h3>1.1 Conservation de l’énergie</h3>
+    <div class="grid2">
+      <div class="panel">
+        <p style="margin-top:0">Quand un système est le siège d’une transformation, la somme des énergies disparues est égale à la somme des énergies apparues.</p>
+        <div class="block-diag"><span class="fx" style="font-size:1.4rem"><i>E</i><sub>e</sub></span><span class="arrowr"></span><span class="sys">Système</span><span class="arrowr"></span><span class="fx" style="font-size:1.4rem"><i>E</i><sub>s1</sub>, <i>E</i><sub>s2</sub>, <i>E</i><sub>s3</sub></span></div>
+        <div class="scroll-x"><span class="fx key"><i>E</i><sub>e</sub> = <i>E</i><sub>s1</sub> + <i>E</i><sub>s2</sub> + <i>E</i><sub>s3</sub></span></div>
+        <p style="margin-bottom:0">Autrement dit : Σ énergies entrantes = Σ énergies sortantes.</p>
+      </div>
+      <div class="panel">
+        <h3 style="margin-top:0">1.2 Énergie perdue</h3>
+        <p style="margin-top:0">Dans un système réel, une partie de l’énergie absorbée <i>E</i><sub>a</sub> part sous une forme non souhaitée, le plus souvent de la chaleur : c’est l’énergie perdue <i>E</i><sub>p</sub>.</p>
+        <p style="margin:0"><b>Exemple : une ampoule à incandescence</b> reçoit 100 J d’énergie électrique.</p>
+        <div class="split" aria-label="3 joules de lumière, 97 joules de chaleur">
+          <div class="u">3 J</div>
+          <div class="p">97 J de chaleur</div>
+        </div>
+        <div class="legend"><span>lumière (utile)</span><span>chaleur (perdue)</span></div>
+        <div class="scroll-x" style="margin-top:10px"><span class="fx" style="font-size:1.5rem"><i>E</i><sub>a</sub> = <i>E</i><sub>u</sub> + <i>E</i><sub>p</sub> &nbsp; soit &nbsp; 100 = 3 + 97</span></div>
+      </div>
+    </div>
+
+    <h3>Les énergies du cours, en formules</h3>
+    <div class="grid2">
+      <div class="panel">
+        <b>1.3 Énergie potentielle</b>
+        <p style="margin:4px 0 8px;font-size:.95rem">Une masse <i>m</i> soumise à la pesanteur <i>g</i> et pouvant descendre d’une hauteur <i>h</i>.</p>
+        <span class="fx"><i>E</i><sub>p</sub> = <i>m</i> · <i>g</i> · <i>h</i></span>
+      </div>
+      <div class="panel">
+        <b>1.4 Énergie cinétique de translation</b>
+        <p style="margin:4px 0 8px;font-size:.95rem">Une masse <i>m</i> (kg) en translation à la vitesse <i>V</i> (m/s).</p>
+        <span class="fx"><i>E</i><sub>c</sub> = <span class="frac"><span>1</span><span>2</span></span> <i>m</i> · <i>V</i>²</span>
+      </div>
+      <div class="panel">
+        <b>1.5 Énergie thermique</b>
+        <p style="margin:4px 0 8px;font-size:.95rem">Chaleur sensible échangée par un corps qui passe de <i>T</i><sub>1</sub> à <i>T</i><sub>2</sub> (<i>c</i> en J·kg⁻¹·K⁻¹).</p>
+        <span class="fx">Δ<i>E</i><sub>th</sub> = <i>m</i> · <i>c</i> · (<i>T</i><sub>2</sub> − <i>T</i><sub>1</sub>)</span>
+      </div>
+      <div class="panel">
+        <b>1.6 Énergie électrochimique</b>
+        <p style="margin:4px 0 8px;font-size:.95rem">Batterie ou pile : <i>Q</i> capacité en Ah, <i>U</i> tension en V. Le résultat est en Wh.</p>
+        <span class="fx"><i>E</i> = <i>Q</i> · <i>U</i></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- FORMULAIRE -->
+  <section id="formulaire">
+    <div class="sec-head">
+      <span class="sec-num">∑</span>
+      <h2>Formulaire des énergies stockées</h2>
+      <p>Chaque fiche calcule en direct. Les valeurs de départ correspondent à une trottinette électrique (100 kg avec le conducteur, 25 km/h, batterie 36 V).</p>
+    </div>
+    <div class="chips" role="group" aria-label="Filtrer par forme d’énergie">
+      <button class="chip" data-f="all" aria-pressed="true">Toutes</button>
+      <button class="chip" data-f="meca" aria-pressed="false">Mécanique</button>
+      <button class="chip" data-f="elec" aria-pressed="false">Électrique</button>
+      <button class="chip" data-f="ther" aria-pressed="false">Thermique</button>
+    </div>
+    <div class="cards" id="energyCards"></div>
+  </section>
+
+  <!-- 2 PUISSANCES -->
+  <section id="puissances">
+    <div class="sec-head">
+      <span class="sec-num">2</span>
+      <h2>Puissances</h2>
+      <p>La puissance est la quantité d’énergie fournie ou absorbée par unité de temps. Elle se mesure en watts (W).</p>
+    </div>
+    <div class="cards" id="powerCards"></div>
+  </section>
+
+  <!-- 3 RENDEMENT -->
+  <section id="rendement">
+    <div class="sec-head">
+      <span class="sec-num">3</span>
+      <h2>Rendement</h2>
+      <p>Le rendement est le rapport de ce qui sort d’utile sur ce qui est absorbé. Il est toujours inférieur à 1.</p>
+    </div>
+    <div class="grid2" style="margin-bottom:22px">
+      <div class="panel" style="display:flex;gap:28px;flex-wrap:wrap;align-items:center">
+        <span class="fx">η = <span class="frac"><span><i>P</i><sub>sortie</sub></span><span><i>P</i><sub>entrée</sub></span></span></span>
+        <span class="fx">η = <span class="frac"><span><i>E</i><sub>u</sub></span><span><i>E</i><sub>a</sub></span></span></span>
+        <p style="margin:0;font-size:.92rem;color:var(--muted);flex-basis:100%">Le rapport d’énergies s’utilise pour une même durée.</p>
+      </div>
+      <div class="panel">
+        <b>Rendement global d’une chaîne</b>
+        <p style="margin:4px 0 8px;font-size:.95rem">C’est le produit des rendements de chaque convertisseur.</p>
+        <span class="fx">η<sub>g</sub> = η<sub>1</sub> × η<sub>2</sub> × … × η<sub>n</sub></span>
+      </div>
+    </div>
+
+    <div class="panel chain">
+      <div>
+        <b>Construisez la chaîne</b>
+        <div class="pa">
+          <label for="paIn">Puissance absorbée</label>
+          <input id="paIn" type="range" min="100" max="2000" step="10" value="500">
+          <b id="paVal" style="font-variant-numeric:tabular-nums">500 W</b>
+        </div>
+        <div id="stages"></div>
+        <div style="margin-top:12px"><button class="btn" id="addStage">Ajouter un convertisseur</button></div>
+      </div>
+      <div>
+        <svg id="sankey" viewBox="0 0 720 320" role="img" aria-label="Flux de puissance à travers la chaîne"></svg>
+        <div class="prod" id="prod"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- QUIZ -->
+  <section id="quiz">
+    <div class="sec-head">
+      <span class="sec-num">?</span>
+      <h2>Vérifiez vos acquis</h2>
+      <p>Sept questions rapides. <span class="score" id="score"></span></p>
+    </div>
+    <div class="quiz" id="quizBox"></div>
+    <div style="margin-top:16px"><button class="btn" id="resetQuiz">Recommencer le quiz</button></div>
+  </section>
+</main>
+
+<footer>Synthèse d’après les fiches « Énergétique » et « Calcul des énergies », Spé SI, séquence 1.</footer>
+
+<script>
+(function(){
+const nf = (x, d=4) => {
+  if (!isFinite(x)) return "—";
+  return x.toLocaleString("fr-FR",{maximumSignificantDigits:d});
+};
+const $ = s => document.querySelector(s);
+const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+/* ---------- Schéma des conversions ---------- */
+const svgNS = "http://www.w3.org/2000/svg";
+const flow = $("#flow");
+const RX = 80, RY = 32;
+const nodes = {
+  elec:{x:300,y:62,label:"Électrique",c:"--elec"},
+  meca:{x:86,y:235,label:"Mécanique",c:"--meca"},
+  chim:{x:514,y:235,label:"Chimique",c:"--chim"},
+  ther:{x:300,y:408,label:"Thermique",c:"--ther"}
+};
+const links = [
+  ["meca","elec","Générateurs\nélectromécaniques"],
+  ["elec","meca","Moteurs\nélectriques"],
+  ["chim","elec","Piles,\naccumulateurs"],
+  ["elec","chim","Électrolyse"],
+  ["elec","ther","Effet Joule"],
+  ["ther","elec","Effet\nthermoélectrique"],
+  ["meca","ther","Frottements"],
+  ["ther","meca","Moteurs\nthermiques"],
+  ["chim","ther","Combustion"],
+  ["ther","chim","Réaction\nendothermique"]
+];
+const el = (t,a={},p) => { const e=document.createElementNS(svgNS,t); for(const k in a) e.setAttribute(k,a[k]); if(p) p.appendChild(e); return e; };
+const defs = el("defs",{},flow);
+Object.keys(nodes).forEach(k=>{
+  const m = el("marker",{id:"ar-"+k,viewBox:"0 0 10 10",refX:"8",refY:"5",markerWidth:"7",markerHeight:"7",orient:"auto-start-reverse"},defs);
+  el("path",{d:"M0,0 L10,5 L0,10 z",fill:`var(${nodes[k].c})`},m);
+});
+function trim(P,T){
+  const dx=T.x-P.x, dy=T.y-P.y, L=Math.hypot(dx,dy), ux=dx/L, uy=dy/L;
+  const t = 1/Math.sqrt((ux/RX)**2+(uy/RY)**2) + 6;
+  return {x:P.x+ux*t, y:P.y+uy*t};
+}
+const linkEls = [];
+links.forEach(([a,b,label],i)=>{
+  const A=nodes[a], B=nodes[b];
+  const dx=B.x-A.x, dy=B.y-A.y, L=Math.hypot(dx,dy);
+  const px=-dy/L, py=dx/L; // perpendiculaire
+  const off = 34;
+  const C = {x:(A.x+B.x)/2+px*off, y:(A.y+B.y)/2+py*off};
+  const S = trim(A,C), E = trim(B,C);
+  const g = el("g",{class:"lnk","data-a":a,"data-b":b},flow);
+  const id = "lp"+i;
+  el("path",{id, d:`M${S.x},${S.y} Q${C.x},${C.y} ${E.x},${E.y}`, stroke:`var(${A.c})`, "marker-end":`url(#ar-${b})`},g);
+  // étiquette
+  const mx = .25*S.x+.5*C.x+.25*E.x + px*14, my = .25*S.y+.5*C.y+.25*E.y + py*14;
+  let anchor = "middle";
+  if (Math.abs(px) > .9) anchor = px > 0 ? "start" : "end";
+  const lines = label.split("\n");
+  const tx = el("text",{x:mx, y:my - (lines.length-1)*6.5 + 4, "text-anchor":anchor},g);
+  lines.forEach((ln,j)=>{ const ts=el("tspan",{x:mx, dy: j?13:0},tx); ts.textContent=ln; });
+  // particules
+  if (!reduce){
+    for (let k=0;k<2;k++){
+      const dot = el("circle",{r:"3.4",fill:`var(${A.c})`},g);
+      const am = el("animateMotion",{dur:"2.6s",repeatCount:"indefinite",begin:`-${(i*0.37 + k*1.3).toFixed(2)}s`},dot);
+      el("mpath",{href:"#"+id},am);
+    }
+  }
+  linkEls.push({g,a,b,label:label.replace("\n"," ")});
+});
+const nodeEls = {};
+Object.entries(nodes).forEach(([k,n])=>{
+  const g = el("g",{class:"node",tabindex:"0",role:"button","aria-label":"Énergie "+n.label.toLowerCase()},flow);
+  el("ellipse",{cx:n.x,cy:n.y,rx:RX,ry:RY,fill:`var(${n.c})`,stroke:"var(--panel)"},g);
+  const t = el("text",{x:n.x,y:n.y+5,"text-anchor":"middle"},g); t.textContent=n.label;
+  nodeEls[k]=g;
+  const act = ()=>select(k);
+  g.addEventListener("click",act);
+  g.addEventListener("keydown",e=>{ if(e.key==="Enter"||e.key===" "){e.preventDefault();act();}});
+});
+let cur = null;
+const info = $("#flowInfo");
+function select(k){
+  if (cur===k){ cur=null; flow.classList.remove("focus"); info.textContent="Touchez une bulle pour isoler ses conversions."; return; }
+  cur=k; flow.classList.add("focus");
+  Object.entries(nodeEls).forEach(([n,g])=>g.classList.toggle("on",n===k));
+  const out=[], inn=[];
+  linkEls.forEach(l=>{
+    const on = l.a===k || l.b===k;
+    l.g.classList.toggle("on",on);
+    if (l.a===k){ out.push(`<b>${nodes[l.b].label.toLowerCase()}</b> (${l.label.toLowerCase()})`); nodeEls[l.b].classList.add("on"); }
+    if (l.b===k){ inn.push(`<b>${nodes[l.a].label.toLowerCase()}</b> (${l.label.toLowerCase()})`); nodeEls[l.a].classList.add("on"); }
+  });
+  info.innerHTML = `L’énergie ${nodes[k].label.toLowerCase()} devient ${out.join(", ")}.<br>On l’obtient à partir de ${inn.join(", ")}.`;
+}
+
+/* ---------- Convertisseur d’unités ---------- */
+function conv(){
+  const v = parseFloat($("#cvVal").value), f = parseFloat($("#cvUnit").value);
+  const j = v*f;
+  const rows = [["joules",j,"J"],["kilojoules",j/1000,"kJ"],["wattheures",j/3600,"Wh"],["kilowattheures",j/3.6e6,"kWh"],["calories",j/4.185,"cal"]];
+  $("#cvOut").innerHTML = rows.map(r=>`<dt>${r[0]}</dt><dd>${nf(r[1],6)} ${r[2]}</dd>`).join("");
+}
+$("#cvVal").addEventListener("input",conv); $("#cvUnit").addEventListener("change",conv); conv();
+
+/* ---------- Fiches calculatrices ---------- */
+const F = (n,d) => `<span class="frac"><span>${n}</span><span>${d}</span></span>`;
+const half = F(1,2);
+const energyOut = j => {
+  let s = `<b>E = ${nf(j)} J</b>`;
+  if (Math.abs(j)>=1000) s += ` = ${nf(j/1000)} kJ`;
+  s += `<br><span class="tag">soit ${nf(j/3600)} Wh</span>`;
+  return s;
+};
+const energies = [
+  {f:"meca",c:"--meca",t:"Cinétique de translation",ex:"Véhicule en translation",fx:`<i>E</i> = ${half} <i>m</i> · <i>v</i>²`,
+   v:[["m","masse","kg",100],["v","vitesse linéaire","m/s",6.94]], r:x=>energyOut(.5*x.m*x.v**2)},
+  {f:"meca",c:"--meca",t:"Cinétique de rotation",ex:"Volant d’inertie, roue",fx:`<i>E</i> = ${half} <i>J</i> · ω²`,
+   v:[["J","moment d’inertie","kg·m²",0.02],["ω","vitesse angulaire","rad/s",69]], r:x=>energyOut(.5*x.J*x["ω"]**2)},
+  {f:"meca",c:"--meca",t:"Potentielle de pesanteur",ex:"Solide en hauteur",fx:`<i>E</i> = <i>m</i> · <i>g</i> · <i>h</i>`,
+   v:[["m","masse","kg",100],["g","pesanteur","m/s²",9.81],["h","hauteur","m",3.5]], r:x=>energyOut(x.m*x.g*x.h)},
+  {f:"meca",c:"--meca",t:"Potentielle élastique",ex:"Ressort de traction-compression",fx:`<i>E</i> = ${half} <i>k</i> · <i>x</i>²`,
+   v:[["k","raideur","N/m",20000],["x","variation de longueur","m",0.02]], r:x=>energyOut(.5*x.k*x.x**2)},
+  {f:"meca",c:"--meca",t:"Potentielle élastique de torsion",ex:"Ressort de torsion",fx:`<i>E</i> = ${half} <i>k</i> · α²`,
+   v:[["k","raideur","N·m/rad",0.5],["α","variation angulaire","rad",3.14]], r:x=>energyOut(.5*x.k*x["α"]**2)},
+  {f:"elec",c:"--elec",t:"Électrostatique",ex:"Condensateur, supercondensateur",fx:`<i>E</i> = ${half} <i>C</i> · <i>U</i>²`,
+   v:[["C","capacité","F",3000],["U","tension","V",2.7]], r:x=>energyOut(.5*x.C*x.U**2)},
+  {f:"elec",c:"--elec",t:"Électromagnétique",ex:"Inductance (bobine)",fx:`<i>E</i> = ${half} <i>L</i> · <i>I</i>²`,
+   v:[["L","inductance","H",0.01],["I","intensité du courant","A",8]], r:x=>energyOut(.5*x.L*x.I**2)},
+  {f:"elec",c:"--elec",t:"Électrochimique",ex:"Batterie ou pile",fx:`<i>E</i> = <i>Q</i> · <i>U</i>`,
+   v:[["Q","capacité","Ah",10],["U","tension","V",36]], r:x=>{const wh=x.Q*x.U; return `<b>E = ${nf(wh)} Wh</b><br><span class="tag">soit ${nf(wh*3600)} J (1 Wh = 3 600 J)</span>`;}},
+  {f:"ther",c:"--ther",t:"Thermique",ex:"Chauffe-eau solaire",fx:`<i>E</i> = <i>m</i> · <i>c</i> · Δθ`,
+   v:[["m","masse","kg",200],["c","capacité thermique massique","J/(kg·K)",4185],["Δθ","variation de température","°C ou K",35]], r:x=>energyOut(x.m*x.c*x["Δθ"])}
+];
+const powers = [
+  {c:"--ink",t:"Puissance et énergie",ex:"Énergie fournie ou absorbée pendant une durée",fx:`<i>P</i> = ${F("<i>W</i>","<i>t</i>")}`,
+   v:[["W","énergie","J",18000],["t","temps","s",60]], r:x=>`<b>P = ${nf(x.W/x.t)} W</b>`},
+  {c:"--meca",t:"Translation",ex:"Force motrice et vitesse",fx:`<i>P</i> = <i>F</i> · <i>V</i>`,
+   v:[["F","force","N",40],["V","vitesse","m/s",6.94]], r:x=>`<b>P = ${nf(x.F*x.V)} W</b>`},
+  {c:"--meca",t:"Rotation",ex:"Couple et vitesse angulaire",fx:`<i>P</i> = <i>C</i> · ω`,
+   v:[["C","couple","N·m",4],["ω","vitesse angulaire","rad/s",69]], r:x=>`<b>P = ${nf(x.C*x["ω"])} W</b>`},
+  {c:"--elec",t:"Électrique en continu",ex:"Tension et courant",fx:`<i>P</i> = <i>U</i> · <i>I</i>`,
+   v:[["U","tension","V",36],["I","courant","A",8]], r:x=>`<b>P = ${nf(x.U*x.I)} W</b>`},
+  {c:"--elec",t:"Charge électrique",ex:"Stockage dans une batterie",fx:`<i>Q</i> = <i>I</i> · <i>t</i>`,
+   v:[["I","courant","A",8],["t","temps","s",4500]], r:x=>{const q=x.I*x.t; return `<b>Q = ${nf(q)} C</b><br><span class="tag">soit ${nf(q/3600)} Ah (1 Ah = 3 600 C)</span>`;}},
+  {c:"--ink",t:"Chevaux et watts",ex:"Puissance mécanique exprimée en ch",fx:`1 ch = 736 W`,
+   v:[["P","puissance","W",736]], r:x=>`<b>${nf(x.P/736)} ch</b>`},
+  {c:"--meca",t:"Vitesse angulaire",ex:"Roue de rayon R tournant à N tr/min",fx:`ω = <i>N</i> · ${F("2π","60")} &nbsp; <i>V</i> = ω · <i>R</i>`,
+   v:[["N","fréquence de rotation","tr/min",660],["R","rayon","m",0.1]], r:x=>{const w=x.N*2*Math.PI/60; const v=w*x.R; return `<b>ω = ${nf(w)} rad/s</b><br><b>V = ${nf(v)} m/s</b> <span class="tag">soit ${nf(v*3.6)} km/h</span>`;}}
+];
+function buildCards(list, host){
+  list.forEach((d,i)=>{
+    const art = document.createElement("article");
+    art.className="fcard"; art.style.setProperty("--c",`var(${d.c})`); if(d.f) art.dataset.f=d.f;
+    const uid = host.id+i;
+    art.innerHTML = `<div><h4>${d.t}</h4><p class="ex">${d.ex}</p></div>
+      <div class="fx" style="overflow-x:auto">${d.fx}</div>
+      <div class="vars">${d.v.map(([k,lab,u,def],j)=>`
+        <label for="${uid}-${j}">${k}</label>
+        <input id="${uid}-${j}" data-k="${k}" type="number" step="any" inputmode="decimal" value="${def}">
+        <span class="u">${u}</span><span class="d">${lab}</span>`).join("")}</div>
+      <output aria-live="polite"></output>`;
+    const out = art.querySelector("output");
+    const calc = ()=>{
+      const x={}; art.querySelectorAll("input").forEach(inp=>x[inp.dataset.k]=parseFloat(String(inp.value).replace(",",".")));
+      out.innerHTML = Object.values(x).some(v=>!isFinite(v)) ? "Saisissez toutes les valeurs." : d.r(x);
+    };
+    art.addEventListener("input",calc); calc();
+    host.appendChild(art);
+  });
+}
+buildCards(energies,$("#energyCards"));
+buildCards(powers,$("#powerCards"));
+document.querySelectorAll(".chip").forEach(b=>b.addEventListener("click",()=>{
+  document.querySelectorAll(".chip").forEach(c=>c.setAttribute("aria-pressed",c===b));
+  const f=b.dataset.f;
+  document.querySelectorAll("#energyCards .fcard").forEach(c=>c.hidden = !(f==="all"||c.dataset.f===f));
+}));
+
+/* ---------- Chaîne de rendement ---------- */
+let stages = [{n:"Batterie",e:.95},{n:"Variateur",e:.93},{n:"Moteur",e:.85}];
+const stHost = $("#stages");
+function renderStages(){
+  stHost.innerHTML = "";
+  stages.forEach((s,i)=>{
+    const row = document.createElement("div"); row.className="stage";
+    row.innerHTML = `<input type="text" value="${s.n}" aria-label="Nom du convertisseur ${i+1}">
+      <input type="range" min="0.3" max="1" step="0.01" value="${s.e}" aria-label="Rendement η${i+1}">
+      <span class="v">${nf(s.e,3)}</span>
+      <button class="icon-btn" aria-label="Retirer ${s.n}" ${stages.length<2?"disabled":""}>✕</button>`;
+    const [txt,rng] = row.querySelectorAll("input");
+    txt.addEventListener("input",()=>{s.n=txt.value; drawSankey();});
+    rng.addEventListener("input",()=>{s.e=parseFloat(rng.value); row.querySelector(".v").textContent=nf(s.e,3); drawSankey();});
+    row.querySelector("button").addEventListener("click",()=>{ if(stages.length>1){stages.splice(i,1); renderStages();}});
+    stHost.appendChild(row);
+  });
+  $("#addStage").disabled = stages.length>=5;
+  drawSankey();
+}
+$("#addStage").addEventListener("click",()=>{ if(stages.length<5){ stages.push({n:"Transmission",e:.9}); renderStages(); }});
+$("#paIn").addEventListener("input",()=>{ $("#paVal").textContent=$("#paIn").value+" W"; drawSankey(); });
+const esc = s => s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function drawSankey(){
+  const sv = $("#sankey"); sv.innerHTML="";
+  const Pa = parseFloat($("#paIn").value);
+  const W=720, y0=215, left=78, right=90, bw=88, bh=130;
+  const n=stages.length, span=(W-left-right);
+  const gap = (span - n*bw)/(n+1);
+  const scale = 100/Pa*(Pa/2000*0.55+0.45); // épaisseur lisible quelle que soit Pa
+  let p = Pa, x = left;
+  el("text",{x:8,y:y0-bh/2-18,"font-size":"13"},sv).textContent="Absorbée";
+  el("text",{x:8,y:y0-bh/2-2,class:"etag"},sv).textContent=nf(p,4)+" W";
+  stages.forEach((s,i)=>{
+    const bx = x+gap;
+    el("line",{x1:x,y1:y0,x2:bx,y2:y0,stroke:"var(--elec)","stroke-width":Math.max(1.5,p*scale),"stroke-linecap":"butt"},sv);
+    const loss = p*(1-s.e), out = p*s.e;
+    const lw = Math.max(1.2,loss*scale);
+    el("path",{d:`M${bx+bw/2},${y0-bh/2} C${bx+bw/2},${y0-bh/2-40} ${bx+bw/2+20},62 ${bx+bw/2+34},58`,fill:"none",stroke:"var(--ther)","stroke-width":lw,opacity:".85"},sv);
+    const lt = el("text",{x:bx+bw/2+40,y:52,"font-size":"12.5"},sv); lt.textContent = "−"+nf(loss,3)+" W";
+    el("rect",{x:bx,y:y0-bh/2,width:bw,height:bh,rx:6,fill:"var(--panel)",stroke:"var(--ink)","stroke-width":1.8},sv);
+    const nm = el("text",{x:bx+bw/2,y:y0-8,"text-anchor":"middle","font-size":"12.5","font-weight":"600"},sv); nm.textContent = s.n.length>12 ? s.n.slice(0,11)+"…" : s.n;
+    const et = el("text",{x:bx+bw/2,y:y0+14,"text-anchor":"middle","font-size":"13"},sv); et.textContent = "η"+(i+1)+" = "+nf(s.e,3);
+    p = out; x = bx+bw;
+  });
+  el("line",{x1:x,y1:y0,x2:W-right+30,y2:y0,stroke:"var(--elec)","stroke-width":Math.max(1.5,p*scale)},sv);
+  el("path",{d:`M${W-right+30},${y0-Math.max(6,p*scale/2+6)} L${W-right+50},${y0} L${W-right+30},${y0+Math.max(6,p*scale/2+6)} z`,fill:"var(--elec)"},sv);
+  el("text",{x:W-4,y:y0+bh/2+16,"text-anchor":"end","font-size":"13"},sv).textContent="Utile";
+  el("text",{x:W-4,y:y0+bh/2+34,"text-anchor":"end",class:"etag"},sv).textContent=nf(p,4)+" W";
+  const eg = stages.reduce((a,s)=>a*s.e,1);
+  $("#prod").innerHTML = `η<sub>g</sub> = ${stages.map(s=>nf(s.e,3)).join(" × ")} = <b>${nf(eg,3)}</b> &nbsp;(${nf(eg*100,3)} %)`;
+  sv.setAttribute("aria-label",`Puissance absorbée ${Pa} W, puissance utile ${nf(p)} W, rendement global ${nf(eg,3)}`);
+}
+renderStages();
+
+/* ---------- Quiz ---------- */
+const Q = [
+  ["Quelle est l’unité d’énergie du système international ?",["le watt","le joule","le wattheure"],1,"Le joule (J). Le watt est une unité de puissance, le wattheure une unité d’énergie hors S.I."],
+  ["1 Wh vaut…",["60 J","1 000 J","3 600 J"],2,"1 W pendant 3 600 s : 1 Wh = 3 600 J."],
+  ["Une trottinette et son conducteur (100 kg) roulent à 10 m/s. Énergie cinétique ?",["1 000 J","5 000 J","10 000 J"],1,"E = ½ × 100 × 10² = 5 000 J."],
+  ["Une batterie de 10 Ah sous 36 V stocke…",["360 Wh","3,6 Wh","46 Wh"],0,"E = Q × U = 10 × 36 = 360 Wh."],
+  ["Une ampoule reçoit 100 J et restitue 3 J de lumière. Son rendement ?",["97 %","3 %","33 %"],1,"η = Eu / Ea = 3 / 100 = 0,03."],
+  ["Deux convertisseurs en série : η1 = 0,9 et η2 = 0,8. Rendement global ?",["1,7","0,85","0,72"],2,"ηg = η1 × η2 = 0,9 × 0,8 = 0,72."],
+  ["Dans P = C × ω, ω s’exprime en…",["tr/min","rad/s","m/s"],1,"En rad/s. Depuis N en tr/min : ω = N × 2π / 60."]
+];
+let answered=0, good=0;
+function buildQuiz(){
+  answered=0; good=0; $("#score").textContent="";
+  const box=$("#quizBox"); box.innerHTML="";
+  Q.forEach(([q,opts,ok,ex],i)=>{
+    const d=document.createElement("div"); d.className="q";
+    d.innerHTML=`<p>${i+1}. ${q}</p><div class="opts">${opts.map((o,j)=>`<button class="opt" data-j="${j}">${o}</button>`).join("")}</div>`;
+    d.querySelectorAll(".opt").forEach(b=>b.addEventListener("click",()=>{
+      const j=+b.dataset.j;
+      d.querySelectorAll(".opt").forEach(x=>{x.disabled=true; if(+x.dataset.j===ok) x.classList.add("right");});
+      if(j!==ok) b.classList.add("wrong"); else good++;
+      answered++;
+      const e=document.createElement("p"); e.className="expl"; e.textContent=ex; d.appendChild(e);
+      $("#score").textContent = answered===Q.length ? `Score : ${good} / ${Q.length}` : `${good} / ${answered}`;
+    }));
+    box.appendChild(d);
+  });
+}
+$("#resetQuiz").addEventListener("click",buildQuiz);
+buildQuiz();
+})();
+</script>
+<a href="../index.html" style="position:fixed;bottom:16px;left:16px;z-index:99999;background:#1e3a5f;color:#fff;padding:10px 16px;border-radius:24px;font:600 14px system-ui,sans-serif;text-decoration:none;box-shadow:0 2px 8px rgba(0,0,0,.25)">← Sommaire</a></body>
+</html>

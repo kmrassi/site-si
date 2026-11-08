@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Moment d'une force : bras de levier, produit vectoriel, torseur – Terminale SI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Barlow+Condensed:wght@500;600;700&family=STIX+Two+Text:ital,wght@0,400;0,600;1,400;1,600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F4F6F9; --sheet:#FFFFFF; --ink:#172131; --muted:#566174; --rule:#D2D8E1;
+  --force:#C3272E; --lev:#9C5A05; --vec:#1B5CC0; --tor:#6A3D9E;
+  --soft-lev:#FBF1E2; --soft-vec:#E7EFFB; --soft-tor:#F0E8F8; --ok:#1E7A4F;
+  --sans:"Atkinson Hyperlegible", "Segoe UI", Arial, sans-serif;
+  --head:"Barlow Condensed", "Arial Narrow", "Segoe UI", sans-serif;
+  --math:"STIX Two Text", "Cambria Math", "Times New Roman", serif;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#0F141B; --sheet:#161D27; --ink:#E5E9EF; --muted:#9BA6B6; --rule:#2B3542;
+    --force:#FF6B6B; --lev:#E4A44C; --vec:#74A6F5; --tor:#B996E8;
+    --soft-lev:#2A2013; --soft-vec:#15233A; --soft-tor:#241B33; --ok:#5FD39B;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#0F141B; --sheet:#161D27; --ink:#E5E9EF; --muted:#9BA6B6; --rule:#2B3542;
+  --force:#FF6B6B; --lev:#E4A44C; --vec:#74A6F5; --tor:#B996E8;
+  --soft-lev:#2A2013; --soft-vec:#15233A; --soft-tor:#241B33; --ok:#5FD39B;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:1.03rem;line-height:1.6}
+main{max-width:52rem;margin:0 auto;padding:1.5rem 1.1rem 4rem}
+h1,h2,h3{font-family:var(--head);line-height:1.1;margin:0}
+h1{font-size:clamp(2.2rem,6vw,3.4rem);font-weight:700;letter-spacing:-.01em}
+h2{font-size:clamp(1.7rem,4.5vw,2.3rem);font-weight:700;margin-bottom:.6rem}
+h3{font-size:1.35rem;font-weight:600;margin:1.8rem 0 .5rem}
+p{margin:.6rem 0}
+.lede{font-size:1.12rem;color:var(--muted);max-width:40rem}
+a{color:var(--vec)}
+:focus-visible{outline:3px solid var(--vec);outline-offset:2px}
+
+/* Notation mathématique */
+.m{font-family:var(--math);font-style:italic;font-size:1.08em;white-space:nowrap}
+.m .up{font-style:normal}
+.v{position:relative;display:inline-block;padding-top:.32em;line-height:1;font-family:var(--math);font-style:italic}
+.v::before{content:"";position:absolute;left:.08em;right:.22em;top:.2em;border-top:1.3px solid currentColor}
+.v::after{content:"";position:absolute;right:0;top:.07em;border-left:.3em solid currentColor;border-top:.14em solid transparent;border-bottom:.14em solid transparent}
+.formula{font-family:var(--math);font-size:1.35rem;padding:.9rem 1.1rem;margin:1rem 0;background:var(--sheet);border:1px solid var(--rule);border-radius:6px;overflow-x:auto;white-space:nowrap}
+.formula small{display:block;font-family:var(--sans);font-size:.85rem;color:var(--muted);white-space:normal;margin-top:.4rem}
+.colv{display:inline-grid;grid-auto-rows:auto;vertical-align:middle;text-align:center;border-left:1.6px solid currentColor;border-right:1.6px solid currentColor;border-radius:.55em;padding:.05em .45em;margin:0 .15em;font-style:normal;line-height:1.25}
+.tor{display:inline-flex;align-items:flex-end;vertical-align:middle;font-family:var(--math)}
+.tor .body{display:grid;grid-template-columns:auto auto;column-gap:1.1em;border-left:2px solid currentColor;border-right:2px solid currentColor;border-radius:.8em;padding:.15em .6em;line-height:1.3;font-size:.95em}
+.tor sub{font-size:.7em;margin-left:.15em}
+
+/* Guide de décision */
+.chooser{display:grid;grid-template-columns:repeat(3,1fr);gap:0;margin:1.8rem 0 .5rem;border:1px solid var(--rule);border-radius:8px;overflow:hidden;background:var(--sheet)}
+.route{padding:1.1rem 1rem 1.2rem;border-top:6px solid var(--c);display:flex;flex-direction:column;gap:.5rem}
+.route+.route{border-left:1px solid var(--rule)}
+.route .q{font-size:.95rem;color:var(--muted)}
+.route .tool{font-family:var(--head);font-size:1.5rem;font-weight:700;color:var(--c)}
+.route .f{font-family:var(--math);font-size:1.15rem;margin-top:auto;padding-top:.5rem;border-top:1px dashed var(--rule)}
+.route a{font-size:.92rem}
+.lev{--c:var(--lev);--s:var(--soft-lev)} .vec{--c:var(--vec);--s:var(--soft-vec)} .torc{--c:var(--tor);--s:var(--soft-tor)}
+@media (max-width:680px){.chooser{grid-template-columns:1fr}.route+.route{border-left:0;border-top:6px solid var(--c)}}
+
+/* Sections de méthode */
+section{margin-top:3.2rem}
+.method{border-left:5px solid var(--c);padding-left:1.1rem}
+.method>h2{color:var(--c)}
+.when{background:var(--s);border-radius:6px;padding:.8rem 1rem;margin:1rem 0}
+.when strong{color:var(--c)}
+.when ul{margin:.3rem 0 0;padding-left:1.2rem}
+.trap{border:1px solid var(--force);border-radius:6px;padding:.7rem 1rem;margin:1rem 0}
+.trap b{color:var(--force)}
+figure{margin:1.2rem 0;background:var(--sheet);border:1px solid var(--rule);border-radius:6px;padding:.8rem;overflow-x:auto}
+figure svg{display:block;width:100%;height:auto;max-width:100%}
+figcaption{font-size:.88rem;color:var(--muted);margin-top:.4rem}
+svg text{font-family:var(--math);font-style:italic;fill:var(--ink)}
+svg .lbl{font-family:var(--sans);font-style:normal;font-size:13px;fill:var(--muted)}
+.exo{background:var(--sheet);border:1px solid var(--rule);border-radius:8px;padding:1rem 1.2rem;margin:1.4rem 0}
+.exo h3{margin-top:0}
+.exo ol{padding-left:1.3rem}
+.exo li{margin:.35rem 0}
+details{margin-top:.9rem;border-top:1px solid var(--rule);padding-top:.7rem}
+summary{cursor:pointer;font-weight:700;color:var(--c)}
+details[open] summary{margin-bottom:.4rem}
+.res{color:var(--ok);font-weight:700}
+.slider{display:flex;align-items:center;gap:.8rem;flex-wrap:wrap;margin:.6rem 0 0}
+.slider input{flex:1;min-width:10rem;accent-color:var(--lev)}
+.readout{font-family:var(--math);font-size:1.05rem}
+.tablewrap{overflow-x:auto;margin:1rem 0}
+table{border-collapse:collapse;width:100%;font-size:.95rem;background:var(--sheet)}
+th,td{border:1px solid var(--rule);padding:.5rem .6rem;text-align:left;vertical-align:top}
+th{font-family:var(--head);font-size:1.05rem;font-weight:600}
+td .tor{font-size:.92em}
+.steps{counter-reset:s;list-style:none;padding:0;margin:1rem 0}
+.steps li{counter-increment:s;position:relative;padding:.5rem 0 .5rem 2.6rem;border-bottom:1px solid var(--rule)}
+.steps li::before{content:counter(s);position:absolute;left:0;top:.45rem;width:1.8rem;height:1.8rem;border-radius:50%;background:var(--ink);color:var(--paper);font-family:var(--head);font-weight:700;display:grid;place-items:center}
+.tag{display:inline-block;font-size:.8rem;font-weight:700;padding:.05rem .45rem;border-radius:3px;background:var(--s);color:var(--c)}
+footer{margin-top:3rem;font-size:.85rem;color:var(--muted);border-top:1px solid var(--rule);padding-top:1rem}
+/* Force ou moment */
+.fmgrid{display:grid;grid-template-columns:1fr 1fr;gap:.8rem;margin:1rem 0}
+.fmcard{background:var(--sheet);border:1px solid var(--rule);border-top:5px solid var(--c);border-radius:6px;padding:.8rem 1rem}
+.fmcard h3{margin:0 0 .3rem;color:var(--c)}
+.fmcard p{margin:.25rem 0}
+@media (max-width:600px){.fmgrid{grid-template-columns:1fr}}
+.panel{background:var(--sheet);border:1px solid var(--rule);border-radius:8px;padding:.8rem 1rem;margin:1rem 0}
+.panel figure{border:0;padding:0;margin:.2rem 0;background:none}
+.ctl{display:grid;grid-template-columns:auto 1fr auto;gap:.45rem .9rem;align-items:center;margin-top:.5rem}
+.ctl input[type=range]{width:100%;accent-color:var(--tor)}
+.ctl select{font:inherit;padding:.25rem .4rem;border:1px solid var(--rule);border-radius:4px;background:var(--sheet);color:var(--ink)}
+.ctl b{min-width:4.5rem;text-align:right}
+@media (max-width:560px){.ctl{grid-template-columns:1fr}.ctl b{text-align:left}}
+.btns{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.8rem}
+.btns button{font:inherit;cursor:pointer;font-weight:700;border-radius:4px;padding:.4rem .9rem}
+.go{background:var(--ink);color:var(--paper);border:1.5px solid var(--ink)}
+.go:disabled{opacity:.45;cursor:default}
+.ghost{background:transparent;color:var(--ink);border:1.5px solid var(--rule)}
+.ros{display:grid;grid-template-columns:repeat(auto-fit,minmax(9rem,1fr));gap:.5rem;margin-top:.8rem}
+.ro{border:1px solid var(--rule);border-radius:6px;padding:.35rem .6rem}
+.ro span{display:block;font-size:.8rem;color:var(--muted)}
+.ro b{font-family:var(--math);font-size:1.12rem;font-weight:600}
+.msg{min-height:1.6em;font-weight:700;margin:.7rem 0 0}
+.fmquiz{margin-top:1.4rem}
+.qq{background:var(--sheet);border:1px solid var(--rule);border-radius:8px;padding:.7rem 1rem;margin:.7rem 0}
+.qq p{margin:.2rem 0}
+.cc{display:flex;flex-wrap:wrap;gap:.45rem;margin:.5rem 0 .2rem}
+.cc button{font:inherit;cursor:pointer;background:var(--paper);color:var(--ink);border:1.5px solid var(--rule);border-radius:4px;padding:.35rem .75rem;text-align:left}
+.cc button.good{border-color:var(--ok);color:var(--ok);font-weight:700}
+.cc button.wrong{border-color:var(--force);color:var(--force)}
+.qfb{font-size:.95rem;font-weight:700}
+.qfb.good{color:var(--ok)}.qfb.wrong{color:var(--force)}
+@media print{details{display:block}details>*{display:block}.slider{display:none}}
+
+.anim-box{border:1.5px solid var(--vec);border-radius:10px;padding:10px 14px 4px;margin:20px 0;background:var(--soft-vec);}
+.anim-box h3{margin:4px 0 10px;color:var(--vec);font-family:var(--head);}
+.anim{display:flex;flex-wrap:wrap;align-items:center;gap:10px;border:1px solid var(--rule);border-radius:8px;background:var(--sheet);padding:9px 12px;margin:0 0 10px;}
+.anim-ico{font-size:22px}.anim-bd{flex:1 1 220px}.anim-bd b{display:block}
+.anim-kind{font-size:.75rem;color:var(--muted)}
+.anim-go{font-weight:700;font-size:.9rem;text-decoration:none;background:var(--vec);color:#fff;padding:8px 12px;border-radius:6px}
+.anim-show{font:inherit;font-size:.85rem;border:1.5px solid var(--vec);background:var(--sheet);color:var(--vec);padding:7px 10px;border-radius:6px;cursor:pointer}
+.anim-frame{flex-basis:100%}.anim-frame iframe{width:100%;aspect-ratio:16/9;border:1px solid var(--rule);border-radius:6px;display:block}
+</style>
+</head>
+<body>
+<main>
+
+<header>
+<h1>Le moment d'une force : quel outil, à quel moment ?</h1>
+<p class="lede">Bras de levier, produit vectoriel et torseur calculent tous la même chose : l'aptitude d'une action mécanique à faire tourner un solide. Ce qui change, c'est la situation. Avant tout calcul, posez-vous la question de la bonne porte. Si la différence entre force et moment n'est pas encore claire, commencez par la <a href="#force-moment">section Force ou moment</a> avec ses deux animations.</p>
+
+<div class="chooser" role="list">
+  <div class="route lev" role="listitem">
+    <span class="q">Problème plan, une force, et la distance perpendiculaire se lit (ou se calcule) facilement sur le schéma</span>
+    <span class="tool">Bras de levier</span>
+    <span class="f">M<sub>O</sub> = ± F · d</span>
+    <a href="#levier">Aller à la méthode</a>
+  </div>
+  <div class="route vec" role="listitem">
+    <span class="q">Force inclinée, géométrie tordue, coordonnées données, ou problème en 3D</span>
+    <span class="tool">Produit vectoriel</span>
+    <span class="f"><span class="v">M</span><sub>A</sub> = <span class="v">AB</span> ∧ <span class="v">F</span></span>
+    <a href="#vectoriel">Aller à la méthode</a>
+  </div>
+  <div class="route torc" role="listitem">
+    <span class="q">Plusieurs actions (liaisons, efforts, couples) à additionner pour appliquer le PFS</span>
+    <span class="tool">Torseurs au même point</span>
+    <span class="f"><span class="v">M</span><sub>A</sub> = <span class="v">M</span><sub>B</sub> + <span class="v">AB</span> ∧ <span class="v">R</span></span>
+    <a href="#torseur">Aller à la méthode</a>
+  </div>
+</div>
+<p style="font-size:.92rem;color:var(--muted)">Les trois sont liés : ‖<span class="v">AB</span> ∧ <span class="v">F</span>‖ = F · d, et le transport d'un torseur utilise le produit vectoriel. Unité du moment : le newton-mètre (N·m).</p>
+<p style="margin-top:10px"><a href="#animations" style="display:inline-block;background:var(--vec);color:#fff;padding:8px 14px;border-radius:6px;text-decoration:none;font-weight:700">🎬 Voir les 7 animations du cours</a></p>
+</header>
+
+<!-- ============ FORCE OU MOMENT ============ -->
+<section id="force-moment">
+<h2>Avant tout : force ou moment, quelle différence ?</h2>
+<p>Une <b>force</b> pousse ou tire : elle tend à <b>déplacer</b> un objet en ligne droite (translation). Un <b>moment</b> mesure la capacité de cette force à faire <b>tourner</b> l'objet autour d'un point ou d'un axe. Il dépend de la force <em>et</em> de l'endroit où elle agit.</p>
+
+<div class="fmgrid">
+  <div class="fmcard" style="--c:var(--force)"><h3>Force</h3><p><span class="m"><span class="v">F</span></span>, en newtons (N)</p><p>Effet : fait translater (ou déformer).</p><p>Se mesure avec un <b>dynamomètre</b>.</p></div>
+  <div class="fmcard" style="--c:var(--tor)"><h3>Moment</h3><p><span class="m">M = F × d</span>, en newtons-mètres (N·m)</p><p>Effet : fait tourner autour d'un axe.</p><p>Se règle avec une <b>clé dynamométrique</b> (serrage des roues de voiture).</p></div>
+</div>
+
+<h3>Expérience 1 : ouvrir une porte</h3>
+<p>Vue de dessus. Réglez la force, l'endroit où vous poussez et la direction de la poussée, puis poussez. Les gonds freinent un peu la rotation : il faut un moment d'au moins 3 N·m pour que la porte bouge.</p>
+<div class="panel">
+<figure>
+<svg id="door" viewBox="0 0 600 380" role="img" aria-label="Porte vue de dessus, tournant autour des gonds sous l'effet d'une poussée"></svg>
+</figure>
+<div class="ctl">
+  <label for="dF">Force F</label><input type="range" id="dF" min="0" max="40" step="1" value="20"><b class="m" id="dFo"></b>
+  <label for="dD">Distance aux gonds</label><input type="range" id="dD" min="0" max="0.85" step="0.05" value="0.8"><b class="m" id="dDo"></b>
+  <label for="dB">Direction</label>
+  <select id="dB"><option value="90">perpendiculaire à la porte</option><option value="45">inclinée à 45°</option><option value="0">vers les gonds</option></select><span></span>
+</div>
+<div class="btns"><button type="button" class="go" id="dPush">Pousser</button><button type="button" class="ghost" id="dClose">Refermer</button></div>
+<div class="ros">
+  <div class="ro"><span>Force appliquée</span><b id="rF"></b></div>
+  <div class="ro"><span>Bras de levier d</span><b id="rD"></b></div>
+  <div class="ro"><span>Moment M = F × d</span><b id="rM"></b></div>
+  <div class="ro"><span>Angle d'ouverture</span><b id="rA"></b></div>
+</div>
+<p id="dMsg" class="msg"></p>
+</div>
+<p><b>Défi :</b> avec F = 20 N, trouvez la distance minimale qui ouvre la porte. Puis obtenez un moment de 12 N·m de deux façons différentes.</p>
+
+<h3>Expérience 2 : pousser un livre sur une table</h3>
+<p>Vue de dessus, le livre glisse librement. La même force de 10 N est appliquée à des endroits différents. Observez le trajet du centre G (pointillés) et la rotation du livre.</p>
+<div class="panel">
+<figure>
+<svg id="book" viewBox="0 0 600 340" role="img" aria-label="Livre vu de dessus, poussé au centre, sur un coin, ou tourné par un couple"></svg>
+</figure>
+<div class="btns">
+  <button type="button" class="go" data-push="c">Pousser au centre</button>
+  <button type="button" class="go" data-push="e">Pousser sur un coin</button>
+  <button type="button" class="go" data-push="k">Tourner à deux mains (couple)</button>
+  <button type="button" class="ghost" id="bReset">Replacer le livre</button>
+</div>
+<div class="ros">
+  <div class="ro"><span>Résultante des forces</span><b id="bR">—</b></div>
+  <div class="ro"><span>Moment en G</span><b id="bM">—</b></div>
+  <div class="ro"><span>Effet observé</span><b id="bE">—</b></div>
+</div>
+<p id="bMsg" class="msg"></p>
+</div>
+
+<h3>À retenir</h3>
+<div class="tablewrap"><table>
+<thead><tr><th></th><th>Force</th><th>Moment</th></tr></thead>
+<tbody>
+<tr><td>C'est…</td><td>une action qui pousse ou tire</td><td>l'effet de rotation d'une force autour d'un point</td></tr>
+<tr><td>Unité</td><td>newton (N)</td><td>newton-mètre (N·m)</td></tr>
+<tr><td>Effet</td><td>translation</td><td>rotation</td></tr>
+<tr><td>Dépend du point choisi ?</td><td>non</td><td>oui : M = F × d, d mesurée depuis ce point</td></tr>
+<tr><td>Exemple</td><td>pousser un chariot</td><td>ouvrir une porte, serrer un écrou, tourner un volant</td></tr>
+</tbody></table></div>
+<div class="trap"><b>Deux phrases à retenir :</b> une force peut ne produire aucun moment (pousser vers les gonds : d = 0). Et un moment peut exister sans force résultante : c'est un couple, comme vos deux mains sur un volant.</div>
+
+<div class="fmquiz">
+<div class="qq"><p><b>1.</b> Vous poussez une porte avec 30 N au milieu, puis avec 30 N à la poignée. Qu'est-ce qui change ?</p>
+<div class="cc" data-correct="b" data-fb="La force est identique (30 N). Le bras de levier est plus grand à la poignée, donc le moment aussi."><button data-v="a">La force</button><button data-v="b">Le moment</button><button data-v="c">Les deux</button></div><p class="qfb"></p></div>
+<div class="qq"><p><b>2.</b> Le garagiste règle sa clé dynamométrique sur 110 N·m pour serrer une roue. Il règle :</p>
+<div class="cc" data-correct="b" data-fb="L'unité N·m est celle d'un moment : c'est le couple de serrage de l'écrou."><button data-v="a">une force</button><button data-v="b">un moment (couple de serrage)</button><button data-v="c">une vitesse</button></div><p class="qfb"></p></div>
+<div class="qq"><p><b>3.</b> Pourquoi la poignée d'une porte est-elle placée loin des gonds ?</p>
+<div class="cc" data-correct="a" data-fb="Grand bras de levier : on obtient le moment nécessaire avec une petite force."><button data-v="a">Pour augmenter le bras de levier, donc le moment</button><button data-v="b">Pour augmenter la force</button><button data-v="c">Pour l'esthétique</button></div><p class="qfb"></p></div>
+<div class="qq"><p><b>4.</b> En tournant un volant à deux mains (forces égales et opposées), la résultante des forces est :</p>
+<div class="cc" data-correct="c" data-fb="Les deux forces s'annulent : résultante nulle, mais leurs moments s'ajoutent. C'est un couple, il fait tourner sans déplacer."><button data-v="a">le double de chaque force</button><button data-v="b">égale à une force</button><button data-v="c">nulle, mais il y a un moment</button></div><p class="qfb"></p></div>
+</div>
+
+<div class="anim-box"><h3>🎬 Animations à voir</h3><div class="anim"><span class="anim-ico">🎞️</span><div class="anim-bd"><span class="anim-kind">Diaporama animé</span><b>Les actions mécaniques entre pièces</b></div><a class="anim-go" href="https://docs.google.com/presentation/d/e/2PACX-1vRRAjyGTU7Fb23706Kf1jwYKiIdjtdLmEK-jWhrIKpW6PCVGQiSv7K94SGf-MVYsIlYJiS7EGqdF4EX/pub?start=false&loop=false&delayms=60000&slide=id.gc64186f0b0_0_67" target="_blank" rel="noopener">▶ Ouvrir l'animation</a><button type="button" class="anim-show" data-embed="https://docs.google.com/presentation/d/e/2PACX-1vRRAjyGTU7Fb23706Kf1jwYKiIdjtdLmEK-jWhrIKpW6PCVGQiSv7K94SGf-MVYsIlYJiS7EGqdF4EX/embed?start=false&loop=false&delayms=60000&slide=id.gc64186f0b0_0_67">Afficher ici ▾</button><div class="anim-frame"></div></div><div class="anim"><span class="anim-ico">🎞️</span><div class="anim-bd"><span class="anim-kind">Diaporama animé</span><b>Les différents types d'actions mécaniques</b></div><a class="anim-go" href="https://docs.google.com/presentation/d/e/2PACX-1vRdz72wg-wqkGGICus_pfwYNDwsJTx4gEzPoXgPsjdA5HgsWsYQi8CGO5Ki0nzo14191k7ZZ75Kkcxh/pub?start=false&loop=false&delayms=60000&slide=id.p" target="_blank" rel="noopener">▶ Ouvrir l'animation</a><button type="button" class="anim-show" data-embed="https://docs.google.com/presentation/d/e/2PACX-1vRdz72wg-wqkGGICus_pfwYNDwsJTx4gEzPoXgPsjdA5HgsWsYQi8CGO5Ki0nzo14191k7ZZ75Kkcxh/embed?start=false&loop=false&delayms=60000&slide=id.p">Afficher ici ▾</button><div class="anim-frame"></div></div><div class="anim"><span class="anim-ico">🎮</span><div class="anim-bd"><span class="anim-kind">Exercice en ligne (V. Geneau)</span><b>Exercice animé : types d'actions mécaniques</b></div><a class="anim-go" href="http://vincent.geneau.free.fr/NewCligne/4_statique_type_am_exo2.html" target="_blank" rel="noopener">▶ Ouvrir l'animation</a><div class="anim-frame"></div></div></div>
+</section>
+
+<!-- ============ BRAS DE LEVIER ============ -->
+<section id="levier" class="method lev">
+<h2>Le bras de levier</h2>
+
+<div class="when"><strong>Quand l'utiliser ?</strong>
+<ul>
+<li>Le problème est plan (toutes les forces dans un même plan, rotation autour d'un axe perpendiculaire).</li>
+<li>On cherche un moment autour d'un axe de rotation évident (articulation, pivot, axe moteur).</li>
+<li>La droite d'action de la force est simple : horizontale, verticale ou perpendiculaire à une pièce.</li>
+</ul></div>
+
+<div class="formula">M<sub>O</sub>(<span class="v">F</span>) = ± F × d
+<small>d : distance entre le point O et la droite d'action de F, mesurée perpendiculairement à cette droite (en m). Signe + si la force fait tourner dans le sens trigonométrique, − dans le sens horaire.</small></div>
+
+<div class="trap"><b>Piège classique :</b> d n'est pas la longueur de la pièce. Si la force est inclinée d'un angle α par rapport à la pièce de longueur L, alors d = L · sin α. Si la pièce tourne, le bras de levier change avec la position.</div>
+
+<div class="exo">
+<h3>Exercice : barrière levante de parking</h3>
+<p>La lisse d'une barrière automatique est articulée en O sur le motoréducteur. Longueur L = 4 m, masse m = 6 kg, centre de gravité G tel que OG = 2 m. On prend g = 9,81 m/s². Mouvement lent : on raisonne en statique, frottements négligés.</p>
+
+<figure>
+<svg viewBox="0 0 520 300" role="img" aria-label="Barrière levante : lisse articulée en O, poids P appliqué en G, bras de levier d horizontal">
+  <defs>
+    <marker id="arF" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--force)"/></marker>
+    <marker id="arD" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--lev)"/></marker>
+  </defs>
+  <rect x="85" y="222" width="50" height="60" rx="3" fill="none" stroke="var(--muted)" stroke-width="2"/>
+  <line x1="60" y1="282" x2="500" y2="282" stroke="var(--muted)" stroke-width="1.5"/>
+  <g id="lisse" transform="rotate(0 110 220)">
+    <rect x="110" y="214" width="340" height="12" rx="3" fill="var(--sheet)" stroke="var(--ink)" stroke-width="2"/>
+    <line x1="160" y1="220" x2="440" y2="220" stroke="var(--force)" stroke-width="1" stroke-dasharray="14 14" opacity=".6"/>
+  </g>
+  <circle cx="110" cy="220" r="6" fill="var(--sheet)" stroke="var(--ink)" stroke-width="2"/>
+  <text x="92" y="208">O</text>
+  <line id="vdash" x1="280" y1="220" x2="280" y2="262" stroke="var(--lev)" stroke-dasharray="4 4"/>
+  <line id="dim" x1="110" y1="262" x2="280" y2="262" stroke="var(--lev)" stroke-width="2" marker-start="url(#arD)" marker-end="url(#arD)"/>
+  <text id="dlab" x="190" y="256" style="fill:var(--lev)">d</text>
+  <line id="pArrow" x1="280" y1="220" x2="280" y2="190" stroke="var(--force)" stroke-width="3" marker-end="url(#arF)"/>
+  <circle id="gPt" cx="280" cy="220" r="4" fill="var(--force)"/>
+  <text id="gLab" x="286" y="212">G</text>
+  <text id="pLab" x="290" y="200" style="fill:var(--force)">P</text>
+  <text class="lbl" x="92" y="298">motoréducteur</text>
+</svg>
+<div class="slider">
+  <label for="theta">Angle de la lisse θ</label>
+  <input type="range" id="theta" min="0" max="90" value="0" step="1">
+  <span class="readout" id="out">θ = 0°</span>
+</div>
+<figcaption>Faites monter la lisse : le poids ne change pas, mais son bras de levier par rapport à O diminue.</figcaption>
+</figure>
+
+<ol>
+<li>Exprimer le bras de levier d du poids <span class="v">P</span> par rapport à O en fonction de θ.</li>
+<li>Calculer M<sub>O</sub>(<span class="v">P</span>) pour θ = 0° et pour θ = 60°. Préciser le signe.</li>
+<li>Le motoréducteur a un rapport de réduction k = 1/100 et un rendement η = 0,8. Calculer le couple que doit fournir le moteur pour maintenir la lisse horizontale.</li>
+<li>Les barrières réelles possèdent un ressort de compensation. Justifier.</li>
+</ol>
+
+<details>
+<summary>Voir la correction</summary>
+<p><b>1.</b> Le poids est vertical, sa droite d'action passe par G. La distance perpendiculaire entre O et cette verticale est la distance horizontale : <span class="m">d = OG · cos θ</span>.</p>
+<p><b>2.</b> P = m·g = 6 × 9,81 = 58,9 N. Le poids fait tourner la lisse dans le sens horaire, donc le moment est négatif.</p>
+<p>θ = 0° : d = 2 m, <span class="res">M<sub>O</sub>(P) = −58,9 × 2 = −117,7 N·m</span>.<br>
+θ = 60° : d = 2 × cos 60° = 1 m, <span class="res">M<sub>O</sub>(P) = −58,9 N·m</span>.</p>
+<p><b>3.</b> On isole la lisse. Équation des moments en O : C<sub>réd</sub> + M<sub>O</sub>(P) = 0, donc C<sub>réd</sub> = 117,7 N·m en sortie de réducteur.<br>
+Côté moteur, le réducteur divise le couple par 100 mais consomme des pertes : C<sub>m</sub> = C<sub>réd</sub> × k / η = 117,7 / (100 × 0,8) ≈ <span class="res">1,47 N·m</span>.</p>
+<p><b>4.</b> Le couple résistant varie de 117,7 N·m (horizontale) à 0 (verticale). Un ressort fournit un couple qui compense le poids : on choisit un moteur plus petit, on économise de l'énergie, et la lisse ne retombe pas brutalement en cas de coupure.</p>
+</details>
+</div>
+
+<div class="anim-box"><h3>🎬 Animations à voir</h3><div class="anim"><span class="anim-ico">🎮</span><div class="anim-bd"><span class="anim-kind">Exercice en ligne (V. Geneau)</span><b>Exercice animé : calcul de moments</b></div><a class="anim-go" href="http://vincent.geneau.free.fr/NewCligne/2_calcul_moment_exo.html" target="_blank" rel="noopener">▶ Ouvrir l'animation</a><div class="anim-frame"></div></div></div>
+</section>
+
+<!-- ============ PRODUIT VECTORIEL ============ -->
+<section id="vectoriel" class="method vec">
+<h2>La formule du moment : le produit vectoriel</h2>
+
+<div class="when"><strong>Quand l'utiliser ?</strong>
+<ul>
+<li>La force est inclinée et la distance perpendiculaire n'est pas lisible sur le schéma.</li>
+<li>Le sujet donne des coordonnées de points et des composantes de forces dans un repère.</li>
+<li>Le problème est en 3D : le moment a alors trois composantes, et le bras de levier ne suffit plus.</li>
+</ul></div>
+
+<div class="formula"><span class="v">M</span><sub>A</sub>(<span class="v">F</span>) = <span class="v">AB</span> ∧ <span class="v">F</span>
+<small>B est n'importe quel point de la droite d'action de F (souvent son point d'application). Le résultat est un vecteur perpendiculaire à <span class="v">AB</span> et à <span class="v">F</span>.</small></div>
+
+<h3>Calcul en composantes</h3>
+<div class="formula" style="font-size:1.2rem">
+<span class="colv"><span>a</span><span>b</span><span>c</span></span> ∧
+<span class="colv"><span>X</span><span>Y</span><span>Z</span></span> =
+<span class="colv"><span>b·Z − c·Y</span><span>c·X − a·Z</span><span>a·Y − b·X</span></span>
+<small>Astuce de mémorisation : pour la ligne x, on cache la ligne x et on fait « produit en croix » des lignes y et z (bas-droite moins haut-droite). En problème plan (c = 0 et Z = 0), il ne reste que la composante sur z : M<sub>Az</sub> = a·Y − b·X.</small>
+</div>
+
+<div class="trap"><b>Pièges classiques :</b> l'ordre compte, <span class="v">AB</span> ∧ <span class="v">F</span> = −<span class="v">F</span> ∧ <span class="v">AB</span>. Le vecteur commence au point où l'on calcule le moment (A) et va vers la force (B). Convertir les mm en m avant de calculer.</div>
+
+<div class="exo">
+<h3>Système simple : clé coudée sur un écrou</h3>
+<p>On desserre un écrou de centre A avec une clé coudée. La main agit en B avec :
+<span class="m"><span class="v">AB</span> = (0,20 ; 0,05 ; 0) m</span> et <span class="m"><span class="v">F</span> = (10 ; 40 ; 0) N</span>.</p>
+
+<figure>
+<svg viewBox="0 0 400 290" role="img" aria-label="Clé coudée : écrou en A, main en B, force F inclinée, distance d perpendiculaire à la droite d'action">
+  <defs>
+    <marker id="arF2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="var(--force)"/></marker>
+  </defs>
+  <polygon points="90,184 104,192 104,208 90,216 76,208 76,192" fill="none" stroke="var(--ink)" stroke-width="2"/>
+  <path d="M90,200 L240,200 Q250,200 250,190 L250,160" fill="none" stroke="var(--ink)" stroke-width="9" stroke-linecap="round" opacity=".25"/>
+  <path d="M90,200 L240,200 Q250,200 250,190 L250,160" fill="none" stroke="var(--ink)" stroke-width="2"/>
+  <line x1="223" y1="267" x2="275" y2="58" stroke="var(--force)" stroke-dasharray="5 5" opacity=".7"/>
+  <line x1="250" y1="160" x2="271.5" y2="73" stroke="var(--force)" stroke-width="3" marker-end="url(#arF2)"/>
+  <line x1="90" y1="200" x2="231.2" y2="235.3" stroke="var(--vec)" stroke-width="2"/>
+  <polyline points="221.5,232.9 223.9,223.2 233.6,225.6" fill="none" stroke="var(--vec)" stroke-width="1.5"/>
+  <circle cx="90" cy="200" r="3.5" fill="var(--ink)"/><circle cx="250" cy="160" r="3.5" fill="var(--ink)"/>
+  <text x="70" y="178">A</text><text x="258" y="165">B</text>
+  <text x="278" y="80" style="fill:var(--force)">F</text>
+  <text x="150" y="236" style="fill:var(--vec)">d</text>
+  <line x1="30" y1="270" x2="70" y2="270" stroke="var(--muted)" stroke-width="1.5"/><line x1="30" y1="270" x2="30" y2="230" stroke="var(--muted)" stroke-width="1.5"/>
+  <text x="74" y="274" style="font-size:13px">x</text><text x="26" y="224" style="font-size:13px">y</text>
+</svg>
+<figcaption>Trouver d géométriquement demande du calcul d'angles. Le produit vectoriel évite cette étape.</figcaption>
+</figure>
+
+<p>Calculer M<sub>A</sub>(<span class="v">F</span>), puis en déduire le bras de levier d.</p>
+
+<details>
+<summary>Voir la correction</summary>
+<p>Problème plan : seule la composante sur z existe.</p>
+<div class="formula" style="font-size:1.1rem">
+<span class="colv"><span>0,20</span><span>0,05</span><span>0</span></span> ∧
+<span class="colv"><span>10</span><span>40</span><span>0</span></span> =
+<span class="colv"><span>0</span><span>0</span><span>0,20×40 − 0,05×10</span></span> =
+<span class="colv"><span>0</span><span>0</span><span>7,5</span></span></div>
+<p><span class="res">M<sub>A</sub>(F) = +7,5 N·m</span> sur z : sens trigonométrique.</p>
+<p>Vérification par le bras de levier : F = √(10² + 40²) = 41,2 N, donc d = 7,5 / 41,2 = <b>0,182 m</b>.</p>
+<p>Lecture « composante par composante » (théorème de Varignon) : F<sub>y</sub> = 40 N a un bras de levier de 0,20 m et fait tourner dans le sens trigo (+8 N·m) ; F<sub>x</sub> = 10 N a un bras de levier de 0,05 m et fait tourner dans le sens horaire (−0,5 N·m). Total : 7,5 N·m. C'est exactement ce que calcule a·Y − b·X.</p>
+</details>
+</div>
+
+<div class="exo">
+<h3>Système complexe : pédalier de vélo à assistance électrique (3D)</h3>
+<p>Repère (O, x, y, z) : O centre du pédalier, x vers l'avant, y vers le haut, z selon l'axe du pédalier (vers la droite du cycliste). La manivelle est à 45° et la pédale est décalée de 6 cm sur l'axe z.</p>
+<p><span class="m"><span class="v">OB</span> = (0,12 ; 0,12 ; 0,06) m</span> et l'action du pied sur la pédale vaut <span class="m"><span class="v">F</span> = (20 ; −600 ; −30) N</span>.</p>
+
+<figure>
+<svg viewBox="0 0 420 300" role="img" aria-label="Pédalier en perspective : axe z du pédalier, manivelle OB, force du pied F vers le bas">
+  <defs>
+    <marker id="arF3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="var(--force)"/></marker>
+    <marker id="arA" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="var(--muted)"/></marker>
+  </defs>
+  <line x1="170" y1="170" x2="270" y2="170" stroke="var(--muted)" marker-end="url(#arA)"/>
+  <line x1="170" y1="170" x2="170" y2="60" stroke="var(--muted)" marker-end="url(#arA)"/>
+  <line x1="170" y1="170" x2="110" y2="230" stroke="var(--muted)" marker-end="url(#arA)"/>
+  <text x="275" y="175">x</text><text x="165" y="52">y</text><text x="96" y="244">z</text>
+  <ellipse cx="170" cy="170" rx="46" ry="46" fill="none" stroke="var(--ink)" stroke-width="1" stroke-dasharray="3 5" opacity=".5"/>
+  <line x1="170" y1="170" x2="242" y2="98" stroke="var(--ink)" stroke-width="6" stroke-linecap="round" opacity=".3"/>
+  <line x1="170" y1="170" x2="242" y2="98" stroke="var(--ink)" stroke-width="2"/>
+  <line x1="242" y1="98" x2="217" y2="123" stroke="var(--ink)" stroke-width="2"/>
+  <rect x="198" y="117" width="38" height="12" rx="2" transform="rotate(-10 217 123)" fill="var(--sheet)" stroke="var(--ink)" stroke-width="2"/>
+  <line x1="170" y1="170" x2="217" y2="123" stroke="var(--vec)" stroke-width="2" stroke-dasharray="6 4"/>
+  <line x1="217" y1="123" x2="228" y2="255" stroke="var(--force)" stroke-width="3" marker-end="url(#arF3)"/>
+  <circle cx="170" cy="170" r="4" fill="var(--ink)"/><circle cx="217" cy="123" r="3.5" fill="var(--ink)"/>
+  <text x="150" y="186">O</text><text x="224" y="146">B</text>
+  <text x="236" y="250" style="fill:var(--force)">F</text>
+  <text x="182" y="138" style="fill:var(--vec);font-size:14px">OB</text>
+  <text class="lbl" x="250" y="95">manivelle à 45°</text>
+</svg>
+<figcaption>La pédale est décalée hors du plan de la manivelle : le moment a trois composantes.</figcaption>
+</figure>
+
+<ol>
+<li>Calculer <span class="v">M</span><sub>O</sub>(<span class="v">F</span>).</li>
+<li>Quelle composante fait tourner le pédalier ? Dans quel sens ?</li>
+<li>Que deviennent les deux autres composantes ?</li>
+<li>À 60 tr/min, quelle puissance le cycliste fournit-il dans cette position ?</li>
+</ol>
+
+<details>
+<summary>Voir la correction</summary>
+<div class="formula" style="font-size:1.05rem">
+<span class="colv"><span>0,12</span><span>0,12</span><span>0,06</span></span> ∧
+<span class="colv"><span>20</span><span>−600</span><span>−30</span></span> =
+<span class="colv"><span>0,12×(−30) − 0,06×(−600)</span><span>0,06×20 − 0,12×(−30)</span><span>0,12×(−600) − 0,12×20</span></span> =
+<span class="colv"><span>32,4</span><span>4,8</span><span>−74,4</span></span></div>
+<p><b>1.</b> <span class="res"><span class="v">M</span><sub>O</sub>(F) = (32,4 ; 4,8 ; −74,4) N·m</span>.</p>
+<p><b>2.</b> Seule la projection sur l'axe de rotation fait tourner : M<sub>Oz</sub> = −74,4 N·m. Le signe négatif indique une rotation horaire vue depuis +z, c'est-à-dire le sens de pédalage vers l'avant. C'est le « moment par rapport à l'axe » : <span class="m">M<sub>Oz</sub> = <span class="v">M</span><sub>O</sub> · <span class="v">z</span></span>.</p>
+<p><b>3.</b> M<sub>Ox</sub> et M<sub>Oy</sub> tendent à faire fléchir l'axe du pédalier. Ils ne produisent aucun mouvement : ils sont repris par les roulements du boîtier de pédalier et servent à les dimensionner.</p>
+<p><b>4.</b> ω = 2π × 60 / 60 = 6,28 rad/s, donc P = C · ω = 74,4 × 6,28 ≈ <span class="res">467 W</span>. Valeur instantanée : l'effort du pied varie au cours du tour.</p>
+</details>
+</div>
+
+<div class="anim-box"><h3>🎬 Animations à voir</h3><div class="anim"><span class="anim-ico">🎞️</span><div class="anim-bd"><span class="anim-kind">Diaporama animé</span><b>Calcul d'un moment avec le produit vectoriel</b></div><a class="anim-go" href="https://docs.google.com/presentation/d/e/2PACX-1vSdOlu3uD3cpubkIIzkUkX_9zqdsMFQ0SBPCyK-B0A-dl-FvI3KoMMynLvG7gGyRdueSqx2WnO1LRWl/pub?start=false&loop=false&delayms=60000&slide=id.g789b23e246_0_1" target="_blank" rel="noopener">▶ Ouvrir l'animation</a><button type="button" class="anim-show" data-embed="https://docs.google.com/presentation/d/e/2PACX-1vSdOlu3uD3cpubkIIzkUkX_9zqdsMFQ0SBPCyK-B0A-dl-FvI3KoMMynLvG7gGyRdueSqx2WnO1LRWl/embed?start=false&loop=false&delayms=60000&slide=id.g789b23e246_0_1">Afficher ici ▾</button><div class="anim-frame"></div></div></div>
+</section>
+
+<!-- ============ TORSEUR ============ -->
+<section id="torseur" class="method torc">
+<h2>Le torseur et le transport au même point</h2>
+
+<div class="when"><strong>Quand l'utiliser ?</strong>
+<ul>
+<li>On applique le principe fondamental de la statique (PFS) à un solide soumis à plusieurs actions : liaisons, efforts extérieurs, couples moteurs.</li>
+<li>Les actions sont données chacune en un point différent (centre de liaison, point de contact).</li>
+<li>Règle d'or : on ne peut additionner des moments que s'ils sont exprimés au même point.</li>
+</ul></div>
+
+<p>Un torseur regroupe en un seul objet la résultante (qui tend à faire translater) et le moment en un point (qui tend à faire tourner) :</p>
+<div class="formula">
+{𝒯<sub>ext→1</sub>} =
+<span class="tor"><span class="body"><span><span class="v">R</span></span><span><span class="v">M</span><sub>A</sub></span></span><sub>A</sub></span>
+=
+<span class="tor"><span class="body"><span>X</span><span>L</span><span>Y</span><span>M</span><span>Z</span><span>N</span></span><sub>A</sub></span>
+<small>Colonne de gauche : composantes de la résultante (N). Colonne de droite : composantes du moment en A (N·m). La résultante est la même en tout point ; seul le moment change.</small>
+</div>
+
+<h3>Formule de transport (relation de Varignon, « BABAR »)</h3>
+<div class="formula"><span class="v">M</span><sub>B</sub> = <span class="v">M</span><sub>A</sub> + <span class="v">BA</span> ∧ <span class="v">R</span>
+<small>Moyen mnémotechnique : M<sub>B</sub> = M<sub>A</sub> + <b>BA</b> ∧ <b>R</b>. Le vecteur part du point d'arrivée B vers le point de départ A. Un couple pur (<span class="v">R</span> = 0) a le même moment en tout point.</small></div>
+
+<div class="trap"><b>Choix du point de réduction :</b> transporter tout au point où il y a le plus d'inconnues (souvent le centre d'une liaison). Leurs moments y sont nuls, les équations de moments deviennent plus simples, souvent à une seule inconnue.</div>
+
+<h3>Torseurs des liaisons utiles ici (liaisons parfaites)</h3>
+<div class="tablewrap"><table>
+<thead><tr><th>Liaison</th><th>Torseur transmissible au centre</th><th>Inconnues</th></tr></thead>
+<tbody>
+<tr><td>Sphérique (rotule) de centre A</td><td><span class="tor"><span class="body"><span>X<sub>A</sub></span><span>0</span><span>Y<sub>A</sub></span><span>0</span><span>Z<sub>A</sub></span><span>0</span></span><sub>A</sub></span></td><td>3</td></tr>
+<tr><td>Linéaire annulaire d'axe (B, x)</td><td><span class="tor"><span class="body"><span>0</span><span>0</span><span>Y<sub>B</sub></span><span>0</span><span>Z<sub>B</sub></span><span>0</span></span><sub>B</sub></span></td><td>2</td></tr>
+<tr><td>Pivot d'axe (A, x)</td><td><span class="tor"><span class="body"><span>X<sub>A</sub></span><span>0</span><span>Y<sub>A</sub></span><span>M<sub>A</sub></span><span>Z<sub>A</sub></span><span>N<sub>A</sub></span></span><sub>A</sub></span></td><td>5</td></tr>
+</tbody></table></div>
+
+<div class="exo">
+<h3>Exemple concret : arbre de sortie du motoréducteur d'un portail coulissant</h3>
+<p>L'arbre (1) porte en bout le pignon qui engrène sur la crémaillère du portail. Il est guidé dans le carter (0) par une rotule en A et une linéaire annulaire d'axe (A, x) en B. Le pignon est en porte-à-faux.</p>
+<ul>
+<li><span class="m"><span class="v">AB</span> = (0,10 ; 0 ; 0) m</span> et <span class="m"><span class="v">AD</span> = (0,15 ; 0,04 ; 0) m</span> (D : point de contact pignon–crémaillère, rayon du pignon 0,04 m).</li>
+<li>Action de la crémaillère sur le pignon en D : <span class="m"><span class="v">F</span> = (0 ; −146 ; 400) N</span> (effort tangentiel 400 N, effort radial 146 N).</li>
+<li>Le moteur exerce sur l'arbre un couple C<sub>m</sub> <span class="v">x</span>. Poids négligé, liaisons parfaites.</li>
+</ul>
+
+<figure>
+<svg viewBox="0 0 480 240" role="img" aria-label="Arbre guidé par une rotule en A et une linéaire annulaire en B, pignon en porte-à-faux, effort de la crémaillère en D">
+  <defs>
+    <marker id="arF4" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="var(--force)"/></marker>
+    <marker id="arT" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="var(--tor)"/></marker>
+    <marker id="arA2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="var(--muted)"/></marker>
+  </defs>
+  <line x1="30" y1="150" x2="440" y2="150" stroke="var(--muted)" stroke-dasharray="12 4 2 4"/>
+  <rect x="40" y="144" width="370" height="12" fill="var(--sheet)" stroke="var(--ink)" stroke-width="2"/>
+  <circle cx="100" cy="150" r="14" fill="none" stroke="var(--ink)" stroke-width="2"/>
+  <path d="M82,130 A24,24 0 0 0 82,170" fill="none" stroke="var(--ink)" stroke-width="2"/>
+  <text x="94" y="190">A</text><text class="lbl" x="66" y="206">rotule</text>
+  <circle cx="300" cy="150" r="14" fill="none" stroke="var(--ink)" stroke-width="2"/>
+  <line x1="284" y1="128" x2="316" y2="128" stroke="var(--ink)" stroke-width="2"/>
+  <line x1="284" y1="172" x2="316" y2="172" stroke="var(--ink)" stroke-width="2"/>
+  <text x="294" y="190">B</text><text class="lbl" x="258" y="206">lin. annulaire</text>
+  <rect x="384" y="70" width="20" height="160" rx="2" fill="var(--sheet)" stroke="var(--ink)" stroke-width="2"/>
+  <text class="lbl" x="412" y="232">pignon</text>
+  <circle cx="394" cy="70" r="4" fill="var(--force)"/>
+  <text x="402" y="66">D</text>
+  <line x1="394" y1="30" x2="394" y2="62" stroke="var(--force)" stroke-width="3" marker-end="url(#arF4)"/>
+  <text x="402" y="40" style="fill:var(--force);font-size:13px">F<tspan dy="4" font-size="10">y</tspan></text>
+  <circle cx="366" cy="70" r="8" fill="none" stroke="var(--force)" stroke-width="2"/><circle cx="366" cy="70" r="2.5" fill="var(--force)"/>
+  <text x="330" y="58" style="fill:var(--force);font-size:13px">F<tspan dy="4" font-size="10">z</tspan></text>
+  <path d="M58,120 A22,30 0 1 0 58,180" fill="none" stroke="var(--tor)" stroke-width="2" marker-end="url(#arT)"/>
+  <text x="16" y="116" style="fill:var(--tor)">C<tspan dy="4" font-size="11">m</tspan></text>
+  <line x1="160" y1="60" x2="200" y2="60" stroke="var(--muted)" marker-end="url(#arA2)"/>
+  <line x1="160" y1="60" x2="160" y2="22" stroke="var(--muted)" marker-end="url(#arA2)"/>
+  <circle cx="160" cy="60" r="5" fill="none" stroke="var(--muted)"/><circle cx="160" cy="60" r="1.5" fill="var(--muted)"/>
+  <text x="204" y="64" style="font-size:13px">x</text><text x="154" y="16" style="font-size:13px">y</text><text x="140" y="76" style="font-size:13px">z</text>
+</svg>
+<figcaption>Vue dans le plan (x, y). La composante F<sub>z</sub> sort de la feuille (⊙), comme l'axe z.</figcaption>
+</figure>
+
+<p>Déterminer C<sub>m</sub> et les actions dans les liaisons en A et en B.</p>
+
+<details open>
+<summary>Résolution guidée</summary>
+<p><b>Isolement et bilan.</b> On isole l'arbre (1). Quatre actions extérieures : rotule en A (3 inconnues), linéaire annulaire en B (2 inconnues), crémaillère en D (connue), couple moteur (1 inconnue). Total 6 inconnues, 6 équations en 3D : le problème se résout.</p>
+<p><b>Choix du point.</b> On ramène tout en A : la rotule y a un moment nul, donc ses 3 inconnues disparaissent des équations de moments.</p>
+<p><b>Transport de l'action en B vers A</b> (moment nul en B) :</p>
+<div class="formula" style="font-size:1.05rem"><span class="v">M</span><sub>A</sub> = <span class="v">M</span><sub>B</sub> + <span class="v">AB</span> ∧ <span class="v">R</span><sub>B</sub> =
+<span class="colv"><span>0,1</span><span>0</span><span>0</span></span> ∧
+<span class="colv"><span>0</span><span>Y<sub>B</sub></span><span>Z<sub>B</sub></span></span> =
+<span class="colv"><span>0</span><span>−0,1 Z<sub>B</sub></span><span>0,1 Y<sub>B</sub></span></span></div>
+<p><b>Transport de l'action en D vers A</b> :</p>
+<div class="formula" style="font-size:1.05rem"><span class="v">M</span><sub>A</sub> = <span class="v">AD</span> ∧ <span class="v">F</span> =
+<span class="colv"><span>0,15</span><span>0,04</span><span>0</span></span> ∧
+<span class="colv"><span>0</span><span>−146</span><span>400</span></span> =
+<span class="colv"><span>0,04×400 − 0</span><span>0 − 0,15×400</span><span>0,15×(−146) − 0</span></span> =
+<span class="colv"><span>16</span><span>−60</span><span>−21,9</span></span></div>
+
+<div class="tablewrap"><table>
+<thead><tr><th>Action sur (1)</th><th>Torseur à son point</th><th>Torseur ramené en A</th></tr></thead>
+<tbody>
+<tr><td>0 → 1 en A (rotule)</td><td><span class="tor"><span class="body"><span>X<sub>A</sub></span><span>0</span><span>Y<sub>A</sub></span><span>0</span><span>Z<sub>A</sub></span><span>0</span></span><sub>A</sub></span></td><td><span class="tor"><span class="body"><span>X<sub>A</sub></span><span>0</span><span>Y<sub>A</sub></span><span>0</span><span>Z<sub>A</sub></span><span>0</span></span><sub>A</sub></span></td></tr>
+<tr><td>0 → 1 en B (lin. annulaire)</td><td><span class="tor"><span class="body"><span>0</span><span>0</span><span>Y<sub>B</sub></span><span>0</span><span>Z<sub>B</sub></span><span>0</span></span><sub>B</sub></span></td><td><span class="tor"><span class="body"><span>0</span><span>0</span><span>Y<sub>B</sub></span><span>−0,1 Z<sub>B</sub></span><span>Z<sub>B</sub></span><span>0,1 Y<sub>B</sub></span></span><sub>A</sub></span></td></tr>
+<tr><td>Crémaillère → 1 en D</td><td><span class="tor"><span class="body"><span>0</span><span>0</span><span>−146</span><span>0</span><span>400</span><span>0</span></span><sub>D</sub></span></td><td><span class="tor"><span class="body"><span>0</span><span>16</span><span>−146</span><span>−60</span><span>400</span><span>−21,9</span></span><sub>A</sub></span></td></tr>
+<tr><td>Moteur → 1 (couple)</td><td><span class="tor"><span class="body"><span>0</span><span>C<sub>m</sub></span><span>0</span><span>0</span><span>0</span><span>0</span></span><sub>∀P</sub></span></td><td>identique (un couple ne se transporte pas)</td></tr>
+</tbody></table></div>
+
+<p><b>PFS en A</b> : la somme des torseurs est nulle.</p>
+<div class="tablewrap"><table>
+<thead><tr><th>Théorème de la résultante</th><th>Théorème du moment en A</th></tr></thead>
+<tbody><tr>
+<td>x : X<sub>A</sub> = 0<br>y : Y<sub>A</sub> + Y<sub>B</sub> − 146 = 0<br>z : Z<sub>A</sub> + Z<sub>B</sub> + 400 = 0</td>
+<td>x : C<sub>m</sub> + 16 = 0<br>y : −0,1 Z<sub>B</sub> − 60 = 0<br>z : 0,1 Y<sub>B</sub> − 21,9 = 0</td>
+</tr></tbody></table></div>
+<p>Chaque équation de moment n'a qu'une inconnue : c'est l'intérêt du point A.</p>
+<p class="res">C<sub>m</sub> = −16 N·m ; Z<sub>B</sub> = −600 N ; Y<sub>B</sub> = 219 N ; X<sub>A</sub> = 0 ; Y<sub>A</sub> = −73 N ; Z<sub>A</sub> = 200 N.</p>
+<p><b>Commentaires attendus au bac.</b> C<sub>m</sub> est négatif : le couple moteur s'oppose au moment de l'effort tangentiel. Vérification par le bras de levier : 400 N × 0,04 m = 16 N·m, c'est cohérent. La liaison en B supporte ‖<span class="v">R</span><sub>B</sub>‖ = √(219² + 600²) ≈ 639 N, plus que l'effort sur le pignon (≈ 426 N) : c'est l'effet du porte-à-faux, à prendre en compte pour choisir le roulement.</p>
+</details>
+</div>
+
+<div class="anim-box"><h3>🎬 Animations à voir</h3><div class="anim"><span class="anim-ico">🎞️</span><div class="anim-bd"><span class="anim-kind">Diaporama animé</span><b>B.A.M.E. — Bilan des actions mécaniques extérieures</b></div><a class="anim-go" href="https://docs.google.com/presentation/d/e/2PACX-1vS4ncNxGMgMp-faHVbKZITWtLSJKiohwtpsmrA1HTH1k34-e-vwNVTQXGEWjO77PGkS07pBV4DsmM2U/pub?start=false&loop=false&delayms=60000&slide=id.p" target="_blank" rel="noopener">▶ Ouvrir l'animation</a><button type="button" class="anim-show" data-embed="https://docs.google.com/presentation/d/e/2PACX-1vS4ncNxGMgMp-faHVbKZITWtLSJKiohwtpsmrA1HTH1k34-e-vwNVTQXGEWjO77PGkS07pBV4DsmM2U/embed?start=false&loop=false&delayms=60000&slide=id.p">Afficher ici ▾</button><div class="anim-frame"></div></div><div class="anim"><span class="anim-ico">🎮</span><div class="anim-bd"><span class="anim-kind">Exercice en ligne (V. Geneau)</span><b>Exercice animé : statique de base</b></div><a class="anim-go" href="http://vincent.geneau.free.fr/NewCligne/2_statique_base_exo.html" target="_blank" rel="noopener">▶ Ouvrir l'animation</a><div class="anim-frame"></div></div></div>
+</section>
+
+<!-- ============ ANIMATIONS ============ -->
+<section id="animations">
+<h2>🎬 Toutes les animations du cours</h2>
+<p>Les animations de la page « Animations : moments » du site. Les diaporamas peuvent s'afficher dans la page ; les exercices s'ouvrent dans un nouvel onglet.</p>
+<div class="anim-box"><h3>🎞️ Diaporamas animés</h3><div class="anim"><span class="anim-ico">🎞️</span><div class="anim-bd"><span class="anim-kind">Diaporama animé</span><b>Les actions mécaniques entre pièces</b></div><a class="anim-go" href="https://docs.google.com/presentation/d/e/2PACX-1vRRAjyGTU7Fb23706Kf1jwYKiIdjtdLmEK-jWhrIKpW6PCVGQiSv7K94SGf-MVYsIlYJiS7EGqdF4EX/pub?start=false&loop=false&delayms=60000&slide=id.gc64186f0b0_0_67" target="_blank" rel="noopener">▶ Ouvrir l'animation</a><button type="button" class="anim-show" data-embed="https://docs.google.com/presentation/d/e/2PACX-1vRRAjyGTU7Fb23706Kf1jwYKiIdjtdLmEK-jWhrIKpW6PCVGQiSv7K94SGf-MVYsIlYJiS7EGqdF4EX/embed?start=false&loop=false&delayms=60000&slide=id.gc64186f0b0_0_67">Afficher ici ▾</button><div class="anim-frame"></div></div><div class="anim"><span class="anim-ico">🎞️</span><div class="anim-bd"><span class="anim-kind">Diaporama animé</span><b>Les différents types d'actions mécaniques</b></div><a class="anim-go" href="https://docs.google.com/presentation/d/e/2PACX-1vRdz72wg-wqkGGICus_pfwYNDwsJTx4gEzPoXgPsjdA5HgsWsYQi8CGO5Ki0nzo14191k7ZZ75Kkcxh/pub?start=false&loop=false&delayms=60000&slide=id.p" target="_blank" rel="noopener">▶ Ouvrir l'animation</a><button type="button" class="anim-show" data-embed="https://docs.google.com/presentation/d/e/2PACX-1vRdz72wg-wqkGGICus_pfwYNDwsJTx4gEzPoXgPsjdA5HgsWsYQi8CGO5Ki0nzo14191k7ZZ75Kkcxh/embed?start=false&loop=false&delayms=60000&slide=id.p">Afficher ici ▾</button><div class="anim-frame"></div></div><div class="anim"><span class="anim-ico">🎞️</span><div class="anim-bd"><span class="anim-kind">Diaporama animé</span><b>B.A.M.E. — Bilan des actions mécaniques extérieures</b></div><a class="anim-go" href="https://docs.google.com/presentation/d/e/2PACX-1vS4ncNxGMgMp-faHVbKZITWtLSJKiohwtpsmrA1HTH1k34-e-vwNVTQXGEWjO77PGkS07pBV4DsmM2U/pub?start=false&loop=false&delayms=60000&slide=id.p" target="_blank" rel="noopener">▶ Ouvrir l'animation</a><button type="button" class="anim-show" data-embed="https://docs.google.com/presentation/d/e/2PACX-1vS4ncNxGMgMp-faHVbKZITWtLSJKiohwtpsmrA1HTH1k34-e-vwNVTQXGEWjO77PGkS07pBV4DsmM2U/embed?start=false&loop=false&delayms=60000&slide=id.p">Afficher ici ▾</button><div class="anim-frame"></div></div><div class="anim"><span class="anim-ico">🎞️</span><div class="anim-bd"><span class="anim-kind">Diaporama animé</span><b>Calcul d'un moment avec le produit vectoriel</b></div><a class="anim-go" href="https://docs.google.com/presentation/d/e/2PACX-1vSdOlu3uD3cpubkIIzkUkX_9zqdsMFQ0SBPCyK-B0A-dl-FvI3KoMMynLvG7gGyRdueSqx2WnO1LRWl/pub?start=false&loop=false&delayms=60000&slide=id.g789b23e246_0_1" target="_blank" rel="noopener">▶ Ouvrir l'animation</a><button type="button" class="anim-show" data-embed="https://docs.google.com/presentation/d/e/2PACX-1vSdOlu3uD3cpubkIIzkUkX_9zqdsMFQ0SBPCyK-B0A-dl-FvI3KoMMynLvG7gGyRdueSqx2WnO1LRWl/embed?start=false&loop=false&delayms=60000&slide=id.g789b23e246_0_1">Afficher ici ▾</button><div class="anim-frame"></div></div></div>
+
+<div class="anim-box"><h3>🎮 Exercices animés en ligne</h3><div class="anim"><span class="anim-ico">🎮</span><div class="anim-bd"><span class="anim-kind">Exercice en ligne (V. Geneau)</span><b>Exercice animé : calcul de moments</b></div><a class="anim-go" href="http://vincent.geneau.free.fr/NewCligne/2_calcul_moment_exo.html" target="_blank" rel="noopener">▶ Ouvrir l'animation</a><div class="anim-frame"></div></div><div class="anim"><span class="anim-ico">🎮</span><div class="anim-bd"><span class="anim-kind">Exercice en ligne (V. Geneau)</span><b>Exercice animé : types d'actions mécaniques</b></div><a class="anim-go" href="http://vincent.geneau.free.fr/NewCligne/4_statique_type_am_exo2.html" target="_blank" rel="noopener">▶ Ouvrir l'animation</a><div class="anim-frame"></div></div><div class="anim"><span class="anim-ico">🎮</span><div class="anim-bd"><span class="anim-kind">Exercice en ligne (V. Geneau)</span><b>Exercice animé : statique de base</b></div><a class="anim-go" href="http://vincent.geneau.free.fr/NewCligne/2_statique_base_exo.html" target="_blank" rel="noopener">▶ Ouvrir l'animation</a><div class="anim-frame"></div></div></div>
+</section>
+
+<!-- ============ SYNTHÈSE ============ -->
+<section id="synthese">
+<h2>Synthèse pour l'épreuve</h2>
+
+<div class="tablewrap"><table>
+<thead><tr><th>Outil</th><th>Situation dans le sujet</th><th>Écriture</th><th>Erreur fréquente</th></tr></thead>
+<tbody>
+<tr class="lev"><td><span class="tag">Bras de levier</span></td><td>Problème plan, axe de rotation évident, force verticale ou horizontale (poids, vérin perpendiculaire)</td><td class="m">M = ± F · d</td><td>Prendre la longueur de la pièce au lieu de la distance perpendiculaire ; oublier le signe</td></tr>
+<tr class="vec"><td><span class="tag">Produit vectoriel</span></td><td>Coordonnées données, force inclinée, géométrie en 3D, question « calculer le moment en O »</td><td class="m"><span class="v">M</span><sub>A</sub> = <span class="v">AB</span> ∧ <span class="v">F</span></td><td>Inverser l'ordre des vecteurs ; laisser des mm ; oublier que seule la projection sur l'axe fait tourner</td></tr>
+<tr class="torc"><td><span class="tag">Torseur + transport</span></td><td>« Isoler… », « appliquer le PFS », « déterminer les actions dans les liaisons », plusieurs actions à des points différents</td><td class="m"><span class="v">M</span><sub>B</sub> = <span class="v">M</span><sub>A</sub> + <span class="v">BA</span> ∧ <span class="v">R</span></td><td>Additionner des moments exprimés en des points différents ; transporter un couple pur</td></tr>
+</tbody></table></div>
+
+<h3>Démarche type d'une question de statique au bac</h3>
+<ol class="steps">
+<li><b>Isoler</b> le solide ou l'ensemble de solides demandé.</li>
+<li><b>Faire le bilan</b> des actions mécaniques extérieures : pour chaque liaison, écrire son torseur (nature de la liaison, inconnues) ; ajouter efforts connus et couples.</li>
+<li><b>Choisir le point</b> de réduction : celui où se concentrent le plus d'inconnues.</li>
+<li><b>Transporter</b> chaque torseur en ce point avec le produit vectoriel (ou le bras de levier en problème plan).</li>
+<li><b>Écrire le PFS</b> : somme des résultantes nulle, somme des moments nulle. En problème plan (x, y), il reste 3 équations : X, Y et le moment sur z.</li>
+<li><b>Résoudre, puis conclure</b> : interpréter les signes, vérifier un ordre de grandeur, comparer au cahier des charges (couple moteur disponible, charge admissible d'un roulement).</li>
+</ol>
+
+<div class="trap"><b>À vérifier avant de rendre :</b> les unités (N, m, N·m), le signe et son interprétation physique, le nombre d'inconnues égal au nombre d'équations, et une phrase de conclusion qui répond à la question posée (le moteur convient-il ? le composant résiste-t-il ?).</div>
+</section>
+
+<footer>Terminale Sciences de l'Ingénieur. Mécanique : actions mécaniques, moments et principe fondamental de la statique.</footer>
+</main>
+
+<script>
+(function(){
+  var s=document.getElementById('theta'); if(!s) return;
+  var O={x:110,y:220}, OG=170, P=6*9.81;
+  function upd(){
+    var t=+s.value, r=t*Math.PI/180;
+    var gx=O.x+OG*Math.cos(r), gy=O.y-OG*Math.sin(r);
+    document.getElementById('lisse').setAttribute('transform','rotate('+(-t)+' 110 220)');
+    var g=document.getElementById('gPt'); g.setAttribute('cx',gx); g.setAttribute('cy',gy);
+    var a=document.getElementById('pArrow'); a.setAttribute('x1',gx); a.setAttribute('y1',gy); a.setAttribute('x2',gx); a.setAttribute('y2',gy+55);
+    var v=document.getElementById('vdash'); v.setAttribute('x1',gx); v.setAttribute('y1',gy); v.setAttribute('x2',gx); v.setAttribute('y2',262);
+    var dm=document.getElementById('dim'); dm.setAttribute('x2',Math.max(gx,O.x+1)); dm.style.opacity=(t>=89?0:1);
+    document.getElementById('dlab').setAttribute('x',(O.x+gx)/2-4);
+    var gl=document.getElementById('gLab'); gl.setAttribute('x',gx-18); gl.setAttribute('y',gy-8);
+    var pl=document.getElementById('pLab'); pl.setAttribute('x',gx+8); pl.setAttribute('y',gy+50);
+    var d=2*Math.cos(r); if(Math.abs(d)<1e-3) d=0;
+    var M=P*d;
+    document.getElementById('out').textContent='θ = '+t+'°   d = '+d.toFixed(2).replace('.',',')+' m   M\u2092(P) = −'+M.toFixed(1).replace('.',',')+' N·m';
+  }
+  s.addEventListener('input',upd); upd();
+})();
+</script>
+<script>
+(function(){
+  function fr(x,d){return x.toFixed(d).replace('.',',');}
+  var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function mk(id,col){return '<marker id="'+id+'" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0L10,5L0,10z" fill="'+col+'"/></marker>';}
+  function line(a,b,col,w,extra){return '<line x1="'+a[0].toFixed(1)+'" y1="'+a[1].toFixed(1)+'" x2="'+b[0].toFixed(1)+'" y2="'+b[1].toFixed(1)+'" stroke="'+col+'" stroke-width="'+(w||2)+'" '+(extra||'')+'/>';}
+
+  /* ================= PORTE ================= */
+  var dsvg=document.getElementById('door');
+  if(dsvg){
+    var sF=document.getElementById('dF'), sD=document.getElementById('dD'), sB=document.getElementById('dB');
+    var H=[110,330], PX=333.3, LEN=0.9, J=5.4, CFR=3, PUSH=0.5, MAXA=100*Math.PI/180;
+    var st={th:0,w:0,push:0,closing:false,flash:0,lastM:0};
+    function geom(){
+      var F=+sF.value, d=+sD.value, b=+sB.value*Math.PI/180;
+      var u=[Math.cos(st.th),-Math.sin(st.th)], n=[-Math.sin(st.th),-Math.cos(st.th)];
+      var dir=[Math.sin(b)*n[0]-Math.cos(b)*u[0], Math.sin(b)*n[1]-Math.cos(b)*u[1]];
+      var dperp=d*Math.sin(b); if(Math.abs(dperp)<1e-6) dperp=0;
+      return {F:F,d:d,b:b,u:u,n:n,dir:dir,dperp:dperp,M:F*dperp};
+    }
+    function drawDoor(){
+      var g=geom(), h='<defs>'+mk('dmF','var(--force)')+mk('dmM','var(--tor)')+mk('dmL','var(--lev)')+'</defs>';
+      h+=line([30,H[1]],[H[0]-6,H[1]],'var(--ink)',8)+line([H[0]+LEN*PX+6,H[1]],[590,H[1]],'var(--ink)',8);
+      h+='<path d="M'+(H[0]+LEN*PX)+','+H[1]+' A'+(LEN*PX)+','+(LEN*PX)+' 0 0 0 '+H[0]+','+(H[1]-LEN*PX)+'" fill="none" stroke="var(--rule)" stroke-dasharray="5 6"/>';
+      h+='<text class="lbl" x="440" y="360">vue de dessus</text><text class="lbl" x="40" y="316">mur</text>';
+      var deg=st.th*180/Math.PI;
+      h+='<g transform="rotate('+(-deg).toFixed(2)+' '+H[0]+' '+H[1]+')">'+
+         '<rect x="'+H[0]+'" y="'+(H[1]-7)+'" width="'+(LEN*PX)+'" height="14" rx="2" fill="var(--sheet)" stroke="var(--ink)" stroke-width="2"/>'+
+         '<circle cx="'+(H[0]+0.8*PX)+'" cy="'+(H[1]+11)+'" r="4" fill="var(--muted)"/>'+
+         '<text class="lbl" x="'+(H[0]+0.8*PX-22)+'" y="'+(H[1]-14)+'">poignée</text></g>';
+      h+='<circle cx="'+H[0]+'" cy="'+H[1]+'" r="7" fill="var(--sheet)" stroke="var(--ink)" stroke-width="2.5"/>';
+      h+='<text class="lbl" x="'+(H[0]-80)+'" y="'+(H[1]+30)+'">gonds (axe)</text>';
+      var P=[H[0]+g.d*PX*g.u[0], H[1]+g.d*PX*g.u[1]];
+      if(g.F>0){
+        var L=24+g.F*3.2, S=[P[0]-L*g.dir[0], P[1]-L*g.dir[1]];
+        // support et bras de levier
+        var far=[P[0]-420*g.dir[0],P[1]-420*g.dir[1]], near=[P[0]+60*g.dir[0],P[1]+60*g.dir[1]];
+        h+=line(far,near,'var(--force)',1,'stroke-dasharray="4 5" opacity=".55"');
+        var hp=[H[0]-P[0],H[1]-P[1]], k=hp[0]*g.dir[0]+hp[1]*g.dir[1], foot=[P[0]+k*g.dir[0],P[1]+k*g.dir[1]];
+        if(g.dperp>0.001){
+          h+=line(H,foot,'var(--lev)',3,'stroke-linecap="round"');
+          var mid=[(H[0]+foot[0])/2,(H[1]+foot[1])/2];
+          h+='<text x="'+(mid[0]+8)+'" y="'+(mid[1]+18)+'" style="fill:var(--lev)">d</text>';
+        }
+        h+=line(S,P,'var(--force)',4,'marker-end="url(#dmF)"');
+        h+='<text x="'+(S[0]-6)+'" y="'+(S[1]+22)+'" style="fill:var(--force)">F</text>';
+        h+='<circle cx="'+P[0]+'" cy="'+P[1]+'" r="3.5" fill="var(--force)"/>';
+      }
+      // indicateur de moment autour des gonds
+      if(g.M>0.01){
+        var r=34, a0=0.5, a1=0.5+Math.min(2.6,0.12*g.M), op=(st.push>0?1:0.55);
+        var p0=[H[0]+r*Math.cos(a0),H[1]-r*Math.sin(a0)], p1=[H[0]+r*Math.cos(a1),H[1]-r*Math.sin(a1)];
+        h+='<path d="M'+p0[0].toFixed(1)+','+p0[1].toFixed(1)+' A'+r+','+r+' 0 '+(a1-a0>Math.PI?1:0)+' 0 '+p1[0].toFixed(1)+','+p1[1].toFixed(1)+'" fill="none" stroke="var(--tor)" stroke-width="'+(2+g.M*0.18).toFixed(1)+'" marker-end="url(#dmM)" opacity="'+op+'"/>';
+        h+='<text x="'+(H[0]+40)+'" y="'+(H[1]-44)+'" style="fill:var(--tor)">M</text>';
+      }
+      dsvg.innerHTML=h;
+      document.getElementById('dFo').textContent=g.F+' N';
+      document.getElementById('dDo').textContent=fr(g.d,2)+' m';
+      document.getElementById('rF').textContent=g.F+' N';
+      document.getElementById('rD').textContent=fr(g.dperp,2)+' m';
+      document.getElementById('rM').textContent=fr(g.M,1)+' N·m';
+      document.getElementById('rA').textContent=Math.round(st.th*180/Math.PI)+'°';
+    }
+    var msg=document.getElementById('dMsg');
+    function say(t,col){msg.textContent=t;msg.style.color=col||'var(--ink)';}
+    document.getElementById('dPush').addEventListener('click',function(){
+      var g=geom(); st.closing=false;
+      if(g.F===0){say('Aucune force : rien ne se passe.','var(--muted)');return;}
+      if(g.dperp===0){say('La force existe bien ('+g.F+' N), mais elle passe par l\'axe des gonds : bras de levier nul, moment nul. La porte ne tourne pas, ce sont les gonds qui encaissent la poussée.','var(--force)');return;}
+      if(g.M<=CFR){say('Moment de '+fr(g.M,1)+' N·m, inférieur au frottement des gonds (3 N·m) : la porte ne bouge pas. Poussez plus fort ou plus loin des gonds.','var(--force)');return;}
+      if(st.th>=MAXA-0.01){say('La porte est déjà grande ouverte : refermez-la.','var(--muted)');return;}
+      st.push=PUSH; st.lastM=g.M;
+      say('Moment de '+fr(g.M,1)+' N·m : la porte tourne. Même force, plus loin des gonds = plus de moment.','var(--ok)');
+    });
+    document.getElementById('dClose').addEventListener('click',function(){st.closing=true;st.push=0;st.w=0;say('');});
+    [sF,sD,sB].forEach(function(e){e.addEventListener('input',drawDoor);e.addEventListener('change',drawDoor);});
+    var last=null;
+    function loopD(ts){
+      var dt=last===null?0:Math.min(.05,(ts-last)/1000); last=ts;
+      if(st.closing){ st.th=Math.max(0,st.th-(reduce?10:1.6)*dt); if(st.th===0) st.closing=false; }
+      else if(st.push>0){ var g=geom(); st.w+=((g.M-CFR)/J)*dt; st.push-=dt; }
+      else if(st.w>0){ st.w=Math.max(0,st.w-(CFR/J)*dt); }
+      if(!st.closing){ st.th+=st.w*dt; if(st.th>=MAXA){st.th=MAXA;st.w=0;st.push=0;} }
+      drawDoor(); requestAnimationFrame(loopD);
+    }
+    drawDoor(); requestAnimationFrame(loopD);
+  }
+
+  /* ================= LIVRE ================= */
+  var bsvg=document.getElementById('book');
+  if(bsvg){
+    var W=150,Hh=100, st2, CASES={
+      c:{f:[[[-75,0],[1,0]]],R:'10 N',M:'0 N·m',E:'translation seule',v:260,w:0,
+         t:'La force passe par G : pas de moment en G. Le livre avance sans tourner.'},
+      e:{f:[[[-75,-50],[1,0]]],R:'10 N',M:'1 N·m',E:'translation + rotation',v:260,w:1.6,
+         t:'Même force, mais décalée de G : elle crée un moment. G avance de la même distance qu\'au centre, et le livre tourne en plus.'},
+      k:{f:[[[-75,-50],[1,0]],[[75,50],[-1,0]]],R:'0 N',M:'2 N·m',E:'rotation seule',v:0,w:3.2,
+         t:'Deux forces égales et opposées : leur résultante est nulle, G ne bouge pas. Leurs moments s\'additionnent : c\'est un couple, comme sur un volant.'}};
+    function init(){st2={x:170,y:170,a:0,v:0,w:0,dir:[1,0],show:0,cur:null,trail:[[170,170]]};}
+    init();
+    function tr(p){var c=Math.cos(st2.a),s=Math.sin(st2.a);return [st2.x+p[0]*c-p[1]*s, st2.y+p[0]*s+p[1]*c];}
+    function rot(v){var c=Math.cos(st2.a),s=Math.sin(st2.a);return [v[0]*c-v[1]*s, v[0]*s+v[1]*c];}
+    function drawBook(){
+      var h='<defs>'+mk('bmF','var(--force)')+'</defs>';
+      for(var gx=0;gx<=600;gx+=50) h+=line([gx,0],[gx,340],'var(--rule)',1,'opacity=".5"');
+      for(var gy=0;gy<=340;gy+=50) h+=line([0,gy],[600,gy],'var(--rule)',1,'opacity=".5"');
+      var deg=st2.a*180/Math.PI;
+      h+='<g transform="translate('+st2.x.toFixed(1)+' '+st2.y.toFixed(1)+') rotate('+deg.toFixed(2)+')">'+
+        '<rect x="-75" y="-50" width="150" height="100" rx="4" fill="var(--soft-vec)" stroke="var(--ink)" stroke-width="2"/>'+
+        '<rect x="-75" y="-50" width="16" height="100" fill="var(--vec)" opacity=".6"/>'+
+        '<line x1="-40" y1="-20" x2="50" y2="-20" stroke="var(--muted)" stroke-width="3"/><line x1="-40" y1="-4" x2="30" y2="-4" stroke="var(--muted)" stroke-width="2"/></g>';
+      if(st2.trail.length>1) h+='<polyline points="'+st2.trail.map(function(p){return p[0].toFixed(1)+','+p[1].toFixed(1);}).join(' ')+'" fill="none" stroke="var(--vec)" stroke-width="2" stroke-dasharray="5 5"/>';
+      h+='<circle cx="'+st2.x.toFixed(1)+'" cy="'+st2.y.toFixed(1)+'" r="4.5" fill="var(--vec)"/><text x="'+(st2.x+8).toFixed(1)+'" y="'+(st2.y+20).toFixed(1)+'" style="fill:var(--vec)">G</text>';
+      if(st2.show>0&&st2.cur){
+        CASES[st2.cur].f.forEach(function(fp){
+          var P=tr(fp[0]), d=rot(fp[1]), S=[P[0]-70*d[0],P[1]-70*d[1]];
+          h+=line(S,P,'var(--force)',4,'marker-end="url(#bmF)" opacity="'+Math.min(1,st2.show*2).toFixed(2)+'"');
+          h+='<text x="'+(S[0]-4).toFixed(1)+'" y="'+(S[1]-8).toFixed(1)+'" style="fill:var(--force)" opacity="'+Math.min(1,st2.show*2).toFixed(2)+'">10 N</text>';
+        });
+      }
+      bsvg.innerHTML=h;
+    }
+    document.querySelectorAll('[data-push]').forEach(function(b){
+      b.addEventListener('click',function(){
+        var k=b.getAttribute('data-push'), c=CASES[k];
+        if(st2.x>470||st2.x<60||st2.y<50||st2.y>290){init();}
+        st2.cur=k; st2.show=0.9; st2.v=c.v; st2.w=c.w; st2.dir=rot([1,0]);
+        document.getElementById('bR').textContent=c.R;
+        document.getElementById('bM').textContent=c.M;
+        document.getElementById('bE').textContent=c.E;
+        document.getElementById('bMsg').textContent=c.t;
+      });
+    });
+    document.getElementById('bReset').addEventListener('click',function(){init();['bR','bM','bE'].forEach(function(i){document.getElementById(i).textContent='—';});document.getElementById('bMsg').textContent='';});
+    var lb=null;
+    function loopB(ts){
+      var dt=lb===null?0:Math.min(.05,(ts-lb)/1000); lb=ts;
+      if(st2.v>0){ st2.x+=st2.dir[0]*st2.v*dt; st2.y+=st2.dir[1]*st2.v*dt; st2.v=Math.max(0,st2.v-300*dt);
+        var lt=st2.trail[st2.trail.length-1]; if(Math.hypot(st2.x-lt[0],st2.y-lt[1])>3) st2.trail.push([st2.x,st2.y]); }
+      if(st2.w>0){ st2.a+=st2.w*dt; st2.w=Math.max(0,st2.w-2.6*dt); }
+      if(st2.show>0) st2.show=Math.max(0,st2.show-dt*0.8);
+      drawBook(); requestAnimationFrame(loopB);
+    }
+    drawBook(); requestAnimationFrame(loopB);
+  }
+
+  /* ================= QUIZ ================= */
+  document.querySelectorAll('.cc').forEach(function(g){
+    var fb=g.nextElementSibling;
+    g.querySelectorAll('button').forEach(function(b){
+      b.addEventListener('click',function(){
+        g.querySelectorAll('button').forEach(function(x){x.classList.remove('good','wrong');});
+        if(b.dataset.v===g.dataset.correct){b.classList.add('good');fb.className='qfb good';fb.textContent='Juste. '+g.dataset.fb;}
+        else{b.classList.add('wrong');fb.className='qfb wrong';fb.textContent='Pas tout à fait, réessayez.';}
+      });
+    });
+  });
+})();
+</script>
+<script>
+document.querySelectorAll('.anim-show').forEach(function(b){b.addEventListener('click',function(){
+  var f=b.parentElement.querySelector('.anim-frame');
+  if(f.innerHTML){f.innerHTML='';b.textContent='Afficher ici ▾';return;}
+  f.innerHTML='<iframe src="'+b.dataset.embed+'" allowfullscreen loading="lazy"></iframe>';b.textContent='Masquer ▴';});});
+</script>
+<a href="../index.html" style="position:fixed;bottom:16px;left:16px;z-index:99999;background:#1e3a5f;color:#fff;padding:10px 16px;border-radius:24px;font:600 14px system-ui,sans-serif;text-decoration:none;box-shadow:0 2px 8px rgba(0,0,0,.25)">← Sommaire</a></body>
+</html>

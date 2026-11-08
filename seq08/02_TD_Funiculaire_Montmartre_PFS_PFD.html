@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Funiculaire de Montmartre – Dynamique</title>
+<style>
+:root{--bg:#f4f6fa;--card:#fff;--ink:#1b2333;--muted:#5d6678;--pri:#1f4e8c;--pri2:#163a69;--acc:#e8702a;--ok:#1d8a4a;--ko:#c0392b;--line:#dfe4ee;--soft:#eef3fb}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+.wrap{max-width:1000px;margin:0 auto;padding:16px}
+.hero{background:linear-gradient(135deg,#2c6e49,#163a2a);color:#fff;border-radius:16px;padding:22px 24px}
+.hero h1{margin:.15em 0;font-size:1.6em;line-height:1.2}
+.hero .sub{opacity:.85;margin:0}
+.chips span{display:inline-block;background:rgba(255,255,255,.15);border-radius:99px;padding:2px 10px;margin:8px 6px 0 0;font-size:.85em}
+.sticky{position:sticky;top:0;z-index:5;background:var(--bg);padding:10px 0 4px}
+.scorebox{display:flex;align-items:center;gap:12px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:8px 12px;flex-wrap:wrap}
+.prog{flex:1;min-width:120px;height:10px;background:var(--soft);border-radius:99px;overflow:hidden}
+.prog i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--ok),#4cc27f);transition:width .4s}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 20px;margin:16px 0;box-shadow:0 1px 2px rgba(20,40,80,.04)}
+h2{margin:0 0 .6em;font-size:1.25em;color:var(--pri2);display:flex;align-items:center;gap:8px}
+h2 .num{background:var(--pri);color:#fff;border-radius:8px;padding:0 9px;font-size:.85em}
+h3{margin:18px 0 0;font-size:1.05em;color:var(--pri2);border-bottom:2px solid var(--soft);padding-bottom:4px}
+.muted{color:var(--muted)}
+.data{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:12px}
+.data div{background:var(--soft);border-radius:10px;padding:10px 12px}
+.data b{display:block;font-size:1.12em;color:var(--pri2)}
+.data span{font-size:.85em;color:var(--muted)}
+.q{border-top:1px solid var(--line);padding:18px 0 10px}
+.qh{display:flex;gap:10px;align-items:baseline;font-weight:600}
+.tag{background:var(--acc);color:#fff;font-weight:700;border-radius:8px;padding:1px 9px;font-size:.9em;flex:none}
+.answer{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:10px 0}
+.answer label{font-weight:600;min-width:64px}
+input[type=text],textarea{font:inherit;width:150px;padding:6px 10px;border:1.5px solid var(--line);border-radius:8px}
+textarea{width:100%;min-height:70px}
+.answer.ok input{border-color:var(--ok);background:#effaf3}
+.answer.ko input{border-color:var(--ko);background:#fdf1ef}
+.fb{font-size:.92em}
+.answer.ok .fb,.okc{color:var(--ok)}
+.answer.ko .fb,.koc{color:var(--ko)}
+button{font:inherit;font-size:.95em;cursor:pointer;border:1.5px solid var(--pri);border-radius:8px;padding:6px 12px;background:var(--pri);color:#fff}
+button:hover{background:var(--pri2)}
+button.ghost{background:#fff;color:var(--pri)}
+button.ghost:hover{background:var(--soft)}
+button:disabled{opacity:.5;cursor:default}
+.qbtns{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:6px}
+details.hint{margin:6px 0;color:var(--muted)}
+details.hint summary{cursor:pointer;color:var(--acc);font-weight:600}
+.corr{margin-top:10px;border-left:4px solid var(--acc);background:#fff8f2;border-radius:0 10px 10px 0;padding:10px 14px}
+.step{display:none;padding:7px 0;border-bottom:1px dashed #f0d9c6}
+.step.show{display:block;animation:fi .35s}
+@keyframes fi{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+.corr .bar{display:flex;gap:8px;margin-top:8px}
+.res{font-weight:700;color:var(--acc)}
+.f{font-family:"Cambria Math",Cambria,"Times New Roman",serif;font-size:1.08em;background:#fff;border:1px solid #f1e2d5;border-radius:6px;padding:1px 7px;display:inline-block;margin:2px 0}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:12px}
+@media(max-width:760px){.grid3{grid-template-columns:1fr}}
+canvas{width:100%;height:170px;display:block;background:#fbfcfe;border:1px solid var(--line);border-radius:10px}
+.scene{width:100%;height:auto;display:block;border:1px solid var(--line);border-radius:12px;background:linear-gradient(#eaf3fb,#f8fbfe)}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(118px,1fr));gap:8px;margin:12px 0}
+.kpi{background:var(--soft);border-radius:10px;padding:7px 10px}
+.kpi span{font-size:.8em;color:var(--muted);display:block}
+.kpi b{font-size:1.02em;font-variant-numeric:tabular-nums}
+.kpi.hl{background:#fff1e6}
+.controls{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center}
+.ctl{flex:1;min-width:190px}
+input[type=range]{width:100%;accent-color:var(--acc)}
+.sw{display:flex;gap:6px;align-items:center;cursor:pointer}
+.posbar{height:8px;background:var(--soft);border-radius:99px;overflow:hidden;margin-top:4px}
+.posbar i{display:block;height:100%;width:0;background:#2c6e49}
+select{font:inherit;font-size:.9em;padding:4px 6px;border-radius:7px;border:1.5px solid var(--line);background:#fff}
+select.good{border-color:var(--ok);background:#effaf3}
+select.bad{border-color:var(--ko);background:#fdf1ef}
+.vec{margin:6px 0;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.vec .vn{font-family:"Cambria Math",Cambria,serif;font-weight:700;min-width:150px}
+.multi label,.mcq .opt{display:flex;gap:8px;align-items:center;border:1.5px solid var(--line);border-radius:8px;padding:6px 10px;margin:6px 0;cursor:pointer;background:#fff;color:var(--ink);width:100%;text-align:left}
+.multi label.good,.opt.good{border-color:var(--ok);background:#effaf3}
+.multi label.bad,.opt.bad{border-color:var(--ko);background:#fdf1ef}
+.mcq .opt:hover{background:var(--soft)}
+.note{background:var(--soft);border-radius:10px;padding:10px 14px;font-size:.95em;margin-top:8px}
+.barcmp{display:grid;grid-template-columns:150px 1fr 110px;gap:6px 10px;align-items:center;margin-top:10px;font-size:.92em}
+.barcmp .bb{height:16px;background:var(--soft);border-radius:6px;overflow:hidden}
+.barcmp .bb i{display:block;height:100%;transition:width .25s}
+.recap{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+.recap div{background:var(--soft);border-radius:10px;padding:10px 12px}
+.vc{position:relative;display:inline-block}.vc::after{content:"";position:absolute;left:5%;right:5%;top:-.12em;height:.3em;background:no-repeat center/100% 100% url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 20 6%27%3E%3Cpath d=%27M0 3H17M14 0.5L19 3L14 5.5%27 stroke=%27black%27 fill=%27none%27 stroke-width=%271.4%27/%3E%3C/svg%3E")}
+footer{text-align:center;color:var(--muted);font-size:.85em;padding:10px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="hero">
+  <div style="font-size:.85em;opacity:.8">Terminale SI · Séquence 10 · Activité dirigée</div>
+  <h1>Funiculaire de Montmartre</h1>
+  <p class="sub">Déterminer l'action mécanique à générer dans le câble pour assurer le bon fonctionnement du funiculaire.</p>
+  <div class="chips"><span>PFS</span><span>PFD en translation</span><span>Plan incliné</span><span>Puissance</span></div>
+</header>
+
+<div class="sticky">
+  <div class="scorebox">
+    <b>Progression</b><div class="prog"><i id="bar"></i></div><span id="score">0 / 0</span>
+    <button class="ghost" id="reset">Recommencer</button>
+    <button class="ghost" id="revealAll" title="Pour la projection en classe">Tout dévoiler</button>
+  </div>
+</div>
+
+<section class="card">
+  <h2><span class="num">1</span> Contexte et données</h2>
+  <p>Le funiculaire est un transport en commun guidé sur des rails rectilignes, pour des trajets courts mais très raides. Un <b>treuil</b> situé dans la gare supérieure enroule un <b>câble</b> attaché à la cabine : il la tire pour gravir la pente depuis le point bas.</p>
+  <div class="data">
+    <div><b>600 kg</b><span>masse du véhicule</span></div>
+    <div><b>60 × 90 kg</b><span>passagers max. (masse max. chacun)</span></div>
+    <div><b>φ = 20°</b><span>inclinaison de la pente</span></div>
+    <div><b>36 m</b><span>dénivellation totale</span></div>
+    <div><b>0,35 m/s²</b><span>accélération maximale (confort)</span></div>
+    <div><b>15 km/h</b><span>vitesse maximale</span></div>
+    <div><b>g = 9,81 m/s²</b><span>pesanteur</span></div>
+    <div><b>a = 4 m · b = 7,9 m</b><span>c = 1,4 m · d = 0,3 m</span></div>
+  </div>
+</section>
+
+<section class="card">
+  <h2><span class="num">▶</span> Simulateur</h2>
+  <svg class="scene" id="scene" viewBox="0 0 760 390" aria-label="Cabine du funiculaire sur la pente"></svg>
+  <div class="posbar"><i id="pos"></i></div>
+  <div class="muted" style="font-size:.85em" id="posLab"></div>
+  <div class="kpis">
+    <div class="kpi"><span>Situation</span><b id="kPh">–</b></div>
+    <div class="kpi"><span>Vitesse</span><b id="kV">–</b></div>
+    <div class="kpi"><span>Accélération</span><b id="kA">–</b></div>
+    <div class="kpi hl"><span>Câble X<sub>C</sub></span><b id="kT">–</b></div>
+    <div class="kpi"><span>Rail Y<sub>A</sub></span><b id="kYA">–</b></div>
+    <div class="kpi"><span>Rail Y<sub>B</sub></span><b id="kYB">–</b></div>
+    <div class="kpi hl"><span>Puissance X<sub>C</sub>·v</span><b id="kP">–</b></div>
+  </div>
+  <div class="controls">
+    <button id="play">▶ Lancer l'ascension</button>
+    <button class="ghost" id="stop">■ À l'arrêt</button>
+    <div class="ctl">Temps t = <b id="tLab">0 s</b><input type="range" id="t" min="0" max="40" step="0.1" value="0"></div>
+  </div>
+  <div class="controls" style="margin-top:8px">
+    <div class="ctl">Passagers : <b id="nLab"></b><input type="range" id="n" min="0" max="60" step="1" value="60"></div>
+    <div class="ctl">Accélération : <b id="aLab"></b><input type="range" id="a" min="0.1" max="0.6" step="0.05" value="0.35"></div>
+    <label class="sw"><input type="checkbox" id="showF"> Afficher les actions mécaniques</label>
+  </div>
+  <div class="grid3"><canvas id="cV"></canvas><canvas id="cT"></canvas><canvas id="cP"></canvas></div>
+</section>
+
+<section class="card">
+  <h2><span class="num">2</span> Travail demandé</h2>
+
+  <h3>Étude préliminaire</h3>
+  <div class="q">
+    <div class="qh"><span class="tag">Q1-1</span><span>Calculer la masse maximale en charge du système (en kg).</span></div>
+    <div class="answer" data-key="q11" data-answer="6000" data-tol="0.001"><label>m =</label><input type="text" inputmode="decimal"><span>kg</span><button class="check">Vérifier</button><span class="fb"></span></div>
+    <details class="hint"><summary>Indice</summary>Masse du véhicule + masse de tous les passagers.</details>
+    <div class="qbtns"><button class="ghost reveal">Voir la correction</button></div>
+    <div class="corr" hidden>
+      <div class="step"><span class="f">m = 600 + 60 × 90</span> → <span class="res">m = 6 000 kg</span></div>
+    </div>
+  </div>
+  <div class="q">
+    <div class="qh"><span class="tag">Q1-2</span><span>Calculer la norme du vecteur poids correspondant à cette masse (en N).</span></div>
+    <div class="answer" data-key="q12" data-answer="58860" data-tol="0.002"><label>P =</label><input type="text" inputmode="decimal"><span>N</span><button class="check">Vérifier</button><span class="fb"></span></div>
+    <div class="qbtns"><button class="ghost reveal">Voir la correction</button></div>
+    <div class="corr" hidden>
+      <div class="step"><span class="f">P = m × g = 6 000 × 9,81</span> → <span class="res">P = 58 860 N</span></div>
+    </div>
+  </div>
+
+  <h3>Le funiculaire est à l'arrêt</h3>
+  <div class="note"><b>Hypothèses :</b> liaisons en A et B ponctuelles sans frottement ; liaisons parfaites ; action du câble appliquée en C et parallèle à <span class="vc">x</span><sub>1</sub> ; pièces indéformables ; étude dans le plan (O, <span class="vc">x</span><sub>1</sub>, <span class="vc">y</span><sub>1</sub>).</div>
+
+  <div class="q">
+    <div class="qh"><span class="tag">Q2-1</span><span>Faire le bilan des actions mécaniques extérieures appliquées à la cabine isolée. Coche toutes celles qui conviennent.</span></div>
+    <div class="multi" data-key="q21" id="multi21">
+      <label data-ok="1"><input type="checkbox"> Action du rail sur la cabine en A</label>
+      <label data-ok="1"><input type="checkbox"> Action du rail sur la cabine en B</label>
+      <label data-ok="1"><input type="checkbox"> Action du câble sur la cabine en C</label>
+      <label data-ok="1"><input type="checkbox"> Poids de la cabine chargée (en G)</label>
+      <label data-ok="0" data-why="Les liaisons en A et B sont sans frottement : pas d'effort tangentiel du rail."><input type="checkbox"> Frottement du rail sur les roues</label>
+      <label data-ok="0" data-why="Le treuil agit sur le câble, pas directement sur la cabine : il n'appartient pas au système isolé."><input type="checkbox"> Action du treuil sur la cabine</label>
+      <label data-ok="0" data-why="Les passagers font partie du système isolé : leur masse est déjà dans le poids."><input type="checkbox"> Action des passagers sur le plancher</label>
+      <div class="qbtns"><button class="check">Vérifier mon bilan</button><span class="fb"></span></div>
+    </div>
+    <div class="qbtns"><button class="ghost reveal">Voir la correction</button></div>
+    <div class="corr" hidden>
+      <div class="step">4 actions extérieures : rail en A, rail en B, câble en C, poids en G.</div>
+      <div class="step">Elles sont tracées en rouge sur le schéma du simulateur (case « Afficher les actions mécaniques »). Les actions du rail sont perpendiculaires au rail (pas de frottement), celle du câble est parallèle à <span class="vc">x</span><sub>1</sub>, le poids est vertical.</div>
+    </div>
+  </div>
+
+  <div class="q">
+    <div class="qh"><span class="tag">Q2-2</span><span>Déterminer les coordonnées de chaque vecteur effort dans le repère R<sub>1</sub> (<span class="vc">x</span><sub>1</sub>, <span class="vc">y</span><sub>1</sub>, <span class="vc">z</span><sub>1</sub>).</span></div>
+    <div class="selq" data-key="q22">
+      <div class="vec" data-label="A sol→cabine" data-correct="0,Y"></div>
+      <div class="vec" data-label="B sol→cabine" data-correct="0,Y"></div>
+      <div class="vec" data-label="C câble→cabine" data-correct="X,0"></div>
+      <div class="vec" data-label="P (poids)" data-correct="mPs,mPc"></div>
+      <div class="qbtns"><button class="check">Vérifier mes coordonnées</button><span class="fb"></span></div>
+    </div>
+    <details class="hint"><summary>Indice</summary>Le poids est vertical alors que le repère R<sub>1</sub> est incliné de φ : projette-le sur <span class="vc">x</span><sub>1</sub> et sur <span class="vc">y</span><sub>1</sub>. Il est dirigé vers le bas de la pente.</details>
+    <div class="qbtns"><button class="ghost reveal">Voir la correction</button></div>
+    <div class="corr" hidden>
+      <div class="step"><span class="f"><span class="vc">A</span><sub>sol→cabine</sub> (0 ; Y<sub>A</sub> ; 0)</span> &nbsp; <span class="f"><span class="vc">B</span><sub>sol→cabine</sub> (0 ; Y<sub>B</sub> ; 0)</span></div>
+      <div class="step"><span class="f"><span class="vc">C</span><sub>câble→cabine</sub> (X<sub>C</sub> ; 0 ; 0)</span></div>
+      <div class="step"><span class="f"><span class="vc">P</span><sub>cabine</sub> (−P·sin φ ; −P·cos φ ; 0)</span></div>
+    </div>
+  </div>
+
+  <div class="q">
+    <div class="qh"><span class="tag">Q2-3</span><span>En appliquant le PFS à l'ensemble isolé, déterminer les normes des actions mécaniques.</span></div>
+    <div class="answer" data-key="q23a" data-answer="30108.2" data-tol="0.003"><label>Y<sub>A</sub> =</label><input type="text" inputmode="decimal"><span>N</span><button class="check">Vérifier</button><span class="fb"></span></div>
+    <div class="answer" data-key="q23b" data-answer="25202.1" data-tol="0.003"><label>Y<sub>B</sub> =</label><input type="text" inputmode="decimal"><span>N</span><button class="check">Vérifier</button><span class="fb"></span></div>
+    <div class="answer" data-key="q23c" data-answer="20131" data-tol="0.003"><label>X<sub>C</sub> =</label><input type="text" inputmode="decimal"><span>N</span><button class="check">Vérifier</button><span class="fb"></span></div>
+    <details class="hint"><summary>Indice</summary>Commence par l'équation de résultante sur <span class="vc">x</span><sub>1</sub> (une seule inconnue). Pour séparer Y<sub>A</sub> et Y<sub>B</sub>, écris l'équation de moment en A sur <span class="vc">z</span><sub>1</sub>.</details>
+    <div class="qbtns"><button class="ghost reveal">Voir la correction</button></div>
+    <div class="corr" hidden>
+      <div class="step">① Résultante sur <span class="vc">x</span><sub>1</sub> : <span class="f">X<sub>C</sub> − P·sin φ = 0</span> → <span class="f">X<sub>C</sub> = 58 860 × sin 20°</span> = <span class="res">20 131 N</span></div>
+      <div class="step">② Résultante sur <span class="vc">y</span><sub>1</sub> : <span class="f">Y<sub>A</sub> + Y<sub>B</sub> − P·cos φ = 0</span> → Y<sub>A</sub> + Y<sub>B</sub> = 55 310,3 N</div>
+      <div class="step">③ Moment en A sur <span class="vc">z</span><sub>1</sub> : <span class="f">b·Y<sub>B</sub> − a·P·cos φ + c·P·sin φ − d·X<sub>C</sub> = 0</span></div>
+      <div class="step">④ <span class="f">Y<sub>B</sub> = (4 × 55 310,3 − 1,4 × 20 131 + 0,3 × 20 131) / 7,9</span> = <span class="res">25 202,1 N</span></div>
+      <div class="step">⑤ <span class="f">Y<sub>A</sub> = 55 310,3 − 25 202,1</span> = <span class="res">30 108,2 N</span></div>
+    </div>
+  </div>
+
+  <h3>Le funiculaire démarre son ascension</h3>
+  <div class="q">
+    <div class="qh"><span class="tag">Q3-1</span><span>Sur quel axe se déplace le funiculaire ? Dans quel sens ?</span></div>
+    <div class="mcq" data-key="q31">
+      <button class="opt" data-ok="1">Axe <span class="vc">x</span><sub>1</sub>, sens positif</button>
+      <button class="opt" data-why="Le funiculaire monte : regarde l'orientation de x₁ sur le schéma.">Axe <span class="vc">x</span><sub>1</sub>, sens négatif</button>
+      <button class="opt" data-why="Le funiculaire est guidé par les rails, parallèles à x₁.">Axe <span class="vc">y</span><sub>1</sub>, sens positif</button>
+      <button class="opt" data-why="Il se déplace le long de la pente, pas à l'horizontale.">Axe <span class="vc">x</span><sub>0</sub>, sens positif</button>
+      <span class="fb"></span>
+    </div>
+  </div>
+
+  <div class="q">
+    <div class="qh"><span class="tag">Q3-2</span><span>Donner les coordonnées de l'accélération de G appartenant au funiculaire par rapport à R<sub>1</sub> (galiléen), pendant le démarrage.</span></div>
+    <div class="answer" data-key="q32x" data-answer="0.35" data-tol="0.001"><label>sur <span class="vc">x</span><sub>1</sub></label><input type="text" inputmode="decimal"><span>m/s²</span><button class="check">Vérifier</button><span class="fb"></span></div>
+    <div class="answer" data-key="q32y" data-answer="0" data-abs="0.0001"><label>sur <span class="vc">y</span><sub>1</sub></label><input type="text" inputmode="decimal"><span>m/s²</span><button class="check">Vérifier</button><span class="fb"></span></div>
+    <div class="qbtns"><button class="ghost reveal">Voir la correction</button></div>
+    <div class="corr" hidden>
+      <div class="step">Le mouvement est une translation rectiligne selon <span class="vc">x</span><sub>1</sub> avec l'accélération maximale du cahier des charges : <span class="res"><span class="vc">a</span><sub>G, funiculaire/R1</sub> (0,35 ; 0 ; 0)</span> en m/s².</div>
+    </div>
+  </div>
+
+  <div class="q">
+    <div class="qh"><span class="tag">Q3-3</span><span>Avec le PFD (résultante dynamique projetée sur <span class="vc">x</span><sub>1</sub>), déterminer la tension dans le câble.</span></div>
+    <div class="answer" data-key="q33" data-answer="22231.3" data-tol="0.002"><label>X<sub>C</sub> =</label><input type="text" inputmode="decimal"><span>N</span><button class="check">Vérifier</button><span class="fb"></span></div>
+    <details class="hint"><summary>Indice</summary>Même bilan qu'en statique, mais la somme des forces sur <span class="vc">x</span><sub>1</sub> n'est plus nulle : elle vaut m × a.</details>
+    <div class="qbtns"><button class="ghost reveal">Voir la correction</button></div>
+    <div class="corr" hidden>
+      <div class="step">① PFD sur <span class="vc">x</span><sub>1</sub> : <span class="f">−P·sin φ + X<sub>C</sub> = m · a<sub>G, funiculaire/R1</sub></span></div>
+      <div class="step">② <span class="f">X<sub>C</sub> = 6 000 × 0,35 + 58 860 × sin 20°</span> = <span class="res">22 231,3 N</span></div>
+      <div class="step"><div class="note">Comparaison : à l'arrêt X<sub>C</sub> = 20 131 N. Le démarrage demande 2 100 N de plus (= m·a) pour accélérer la cabine.</div></div>
+    </div>
+  </div>
+
+  <div class="q">
+    <div class="qh"><span class="tag">Q3-4</span><span>Déterminer la puissance maximale nécessaire pour déplacer le funiculaire.</span></div>
+    <div class="answer" data-key="q34" data-answer="92630" data-tol="0.006"><label>P<sub>max</sub> =</label><input type="text" inputmode="decimal"><span>W</span><button class="check">Vérifier</button><span class="fb"></span></div>
+    <details class="hint"><summary>Indice</summary>P = F × v, avec v en m/s. La puissance est maximale quand l'effort est encore le plus grand et la vitesse déjà maximale : fin du démarrage.</details>
+    <div class="qbtns"><button class="ghost reveal">Voir la correction</button></div>
+    <div class="corr" hidden>
+      <div class="step">① <span class="f">v<sub>max</sub> = 15 / 3,6 ≈ 4,17 m/s</span></div>
+      <div class="step">② <span class="f">P = X<sub>C</sub> × v<sub>max</sub> = 22 231,3 × 15 / 3,6</span> → <span class="res">P<sub>max</sub> ≈ 92 631 W ≈ 92,6 kW</span></div>
+    </div>
+  </div>
+
+  <div class="q">
+    <div class="qh"><span class="tag">Q3-5</span><span>Conclure quant au fonctionnement avec deux véhicules en sens inverse sur ce funiculaire.</span></div>
+    <textarea placeholder="Rédige ta conclusion ici, puis compare avec la proposition."></textarea>
+    <div class="note">
+      <b>Expérimente :</b> les deux cabines sont reliées par le même câble passant par le treuil. Effort moteur : <span class="f">F = (m<sub>1</sub> − m<sub>2</sub>)·g·sin φ + (m<sub>1</sub> + m<sub>2</sub>)·a</span>
+      <div class="controls" style="margin-top:8px">
+        <div class="ctl">Passagers dans la cabine qui monte : <b id="n1Lab"></b><input type="range" id="n1" min="0" max="60" value="60"></div>
+        <div class="ctl">Passagers dans la cabine qui descend : <b id="n2Lab"></b><input type="range" id="n2" min="0" max="60" value="0"></div>
+      </div>
+      <div class="barcmp">
+        <span>Une seule cabine</span><div class="bb"><i id="b1" style="background:#c0392b"></i></div><b id="v1"></b>
+        <span>Deux cabines liées</span><div class="bb"><i id="b2" style="background:#2c6e49"></i></div><b id="v2"></b>
+      </div>
+      <div id="duoMsg" style="margin-top:8px"></div>
+    </div>
+    <div class="qbtns"><button class="ghost reveal">Voir une proposition de réponse</button></div>
+    <div class="corr" hidden>
+      <div class="step">Avec deux cabines reliées par le câble, le <b>poids de la cabine qui descend compense</b> en grande partie celui de la cabine qui monte (principe du contrepoids).</div>
+      <div class="step">Le treuil ne fournit plus que la <b>différence de poids</b> projetée sur la pente, plus l'effort pour accélérer les deux cabines : l'effort et la puissance demandés au moteur diminuent fortement, surtout si les charges sont proches.</div>
+      <div class="step">Si la cabine qui descend est plus chargée, l'effort devient négatif : le moteur doit <b>retenir</b> le système (et peut récupérer de l'énergie). Conclusion : fonctionnement plus économe en énergie et moteur moins puissant.</div>
+    </div>
+  </div>
+</section>
+
+<section class="card">
+  <h2><span class="num">★</span> À retenir</h2>
+  <div class="recap">
+    <div><b>Poids</b><br><span class="f">P = m × g</span></div>
+    <div><b>Projection sur la pente</b><br><span class="f"><span class="vc">P</span> (−P·sin φ ; −P·cos φ)</span></div>
+    <div><b>PFS</b><br><span class="f">Σ <span class="vc">F</span><sub>ext</sub> = <span class="vc">0</span> et Σ <span class="vc">M</span><sub>ext</sub> = <span class="vc">0</span></span></div>
+    <div><b>PFD (translation)</b><br><span class="f">Σ <span class="vc">F</span><sub>ext</sub> = m · <span class="vc">a</span><sub>G</sub></span></div>
+    <div><b>Puissance</b><br><span class="f">P = F × v</span> <span class="muted">(v en m/s)</span></div>
+  </div>
+</section>
+<footer>TD Funiculaire de Montmartre – version interactive</footer>
+</div>
+
+<script>
+const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
+const fmt=(v,d=2)=>{if(Math.abs(v)<1e-9)v=0;return v.toLocaleString('fr-FR',{minimumFractionDigits:d,maximumFractionDigits:d});};
+const parseNum=s=>{s=(s||'').trim().replace(/[\s\u202f\u00a0]/g,'').replace(',','.');return s===''?NaN:Number(s);};
+
+/* ---------- score ---------- */
+const keys=new Set(), done=new Set();
+function register(k){keys.add(k);updScore();}
+function pass(k){done.add(k);updScore();}
+function updScore(){const n=keys.size,d=done.size;$('#score').textContent=d+' / '+n+' réussies';$('#bar').style.width=(n?100*d/n:0)+'%';}
+
+const FACTORS=[[1e6,'Vérifie l’unité (MW ? W ?).'],[1000,'Vérifie l’unité (facteur 1 000 : kN, kW, kg… ?).'],[3.6,'Pense à convertir les km/h en m/s (÷ 3,6).'],[9.81,'Masse ou poids ? Pense au facteur g = 9,81 m/s².'],[2*Math.PI,'Il manque peut-être le facteur 2π.']];
+function diagnose(v,ans){
+  if(ans!==0&&Math.abs(v+ans)<=Math.abs(ans)*0.02)return 'Attention au signe !';
+  if(ans===0||v===0)return '';
+  const r=Math.abs(v/ans);
+  for(const[f,m]of FACTORS){if(Math.abs(r/f-1)<0.04||Math.abs(r*f-1)<0.04)return m;}
+  if(Math.abs(r-0.342)<0.01||Math.abs(r-1/0.342)<0.03||Math.abs(r-0.9397)<0.005||Math.abs(r-1/0.9397)<0.005)return 'Vérifie la projection : sin φ ou cos φ ?';
+  return '';
+}
+function initAnswers(){
+  $$('.answer').forEach(row=>{
+    const k=row.dataset.key;register(k);
+    const inp=$('input',row),fb=$('.fb',row),ans=+row.dataset.answer,tol=+(row.dataset.tol||0.02),abs=+(row.dataset.abs||0);
+    const go=()=>{
+      const v=parseNum(inp.value);row.classList.remove('ok','ko');
+      if(isNaN(v)){fb.textContent='Entre une valeur numérique.';row.classList.add('ko');return;}
+      const ok=Math.abs(v-ans)<=Math.max(abs,Math.abs(ans)*tol);
+      if(ok){fb.textContent='✔ Correct !';row.classList.add('ok');pass(k);}
+      else{const d=diagnose(v,ans);fb.textContent='✘ Pas encore. '+(d||(Math.abs(v)>Math.abs(ans)?'Ta valeur est trop grande.':'Ta valeur est trop petite.'));row.classList.add('ko');}
+    };
+    $('.check',row).addEventListener('click',go);
+    inp.addEventListener('keydown',e=>{if(e.key==='Enter')go();});
+  });
+}
+/* vecteurs à compléter */
+const OPTS=[['0','0'],['X','X (inconnue)'],['Y','Y (inconnue)'],['mPs','−P·sin φ'],['mPc','−P·cos φ'],['Ps','+P·sin φ'],['Pc','+P·cos φ']];
+function buildVec(){
+  $$('.vec[data-correct]').forEach(v=>{
+    const cor=v.dataset.correct.split(',');
+    const sel=c=>`<select data-correct="${c}"><option value="">?</option>${OPTS.map(o=>`<option value="${o[0]}">${o[1]}</option>`).join('')}</select>`;
+    v.innerHTML=`<span class="vn">${v.dataset.label.replace(/^(\S)/,'<span class="vc">$1</span>')}</span> ( ${sel(cor[0])} ; ${sel(cor[1])} ; 0 )`;
+  });
+}
+function initSelects(){
+  $$('.selq').forEach(box=>{
+    const k=box.dataset.key;register(k);const fb=$('.fb',box);
+    $('.check',box).addEventListener('click',()=>{
+      let ok=true;
+      $$('select',box).forEach(s=>{const g=s.value===s.dataset.correct;s.classList.toggle('good',g);s.classList.toggle('bad',!g);if(!g)ok=false;});
+      fb.textContent=ok?'✔ Tout est juste !':'✘ Les cases en rouge sont à revoir.';fb.className='fb '+(ok?'okc':'koc');
+      if(ok)pass(k);
+    });
+  });
+}
+function initMCQ(){
+  $$('.mcq').forEach(box=>{
+    const k=box.dataset.key;register(k);const fb=$('.fb',box);
+    $$('.opt',box).forEach(b=>b.addEventListener('click',()=>{
+      $$('.opt',box).forEach(o=>o.classList.remove('good','bad'));
+      const ok=b.dataset.ok==='1';b.classList.add(ok?'good':'bad');
+      fb.textContent=ok?'✔ Correct : le funiculaire monte le long de la pente.':'✘ '+(b.dataset.why||'Non, réessaie.');
+      fb.className='fb '+(ok?'okc':'koc');if(ok)pass(k);
+    }));
+  });
+}
+function initMulti(){
+  $$('.multi').forEach(box=>{
+    const k=box.dataset.key;register(k);const fb=$('.fb',box);
+    $('.check',box).addEventListener('click',()=>{
+      let ok=true;const why=[];
+      $$('label',box).forEach(l=>{
+        const c=$('input',l),good=l.dataset.ok==='1';l.classList.remove('good','bad');
+        if(c.checked!==good){ok=false;l.classList.add('bad');if(c.checked&&l.dataset.why)why.push(l.dataset.why);}
+        else if(good)l.classList.add('good');
+      });
+      fb.textContent=ok?'✔ Bravo ! Les 4 actions extérieures sont maintenant tracées sur le schéma.':'✘ '+(why.length?why.join(' '):'Il manque au moins une action extérieure.');
+      fb.className='fb '+(ok?'okc':'koc');
+      if(ok){pass(k);$('#showF').checked=true;update();}
+    });
+  });
+}
+/* corrections */
+function showStep(corr){
+  const st=$$('.step',corr);let i=+(corr.dataset.i||0);
+  if(i<st.length){st[i].classList.add('show');i++;corr.dataset.i=i;}
+  $$('.next,.all',corr).forEach(b=>b.hidden=i>=st.length);
+}
+function openCorr(q,all){
+  const rb=$('.reveal',q),corr=$('.corr',q);if(!rb||!corr)return;
+  corr.hidden=false;rb.textContent='Masquer la correction';
+  if(all){while(+(corr.dataset.i||0)<$$('.step',corr).length)showStep(corr);}
+  else if(!+(corr.dataset.i||0))showStep(corr);
+}
+function initReveal(){
+  $$('.q').forEach(q=>{
+    const rb=$('.reveal',q),corr=$('.corr',q);if(!rb||!corr)return;
+    rb.dataset.label=rb.textContent;
+    const bar=document.createElement('div');bar.className='bar';
+    bar.innerHTML='<button class="ghost next">Étape suivante ▸</button><button class="ghost all">Tout afficher</button>';
+    corr.appendChild(bar);
+    rb.addEventListener('click',()=>{if(corr.hidden)openCorr(q,false);else{corr.hidden=true;rb.textContent=rb.dataset.label;}});
+    $('.next',corr).addEventListener('click',()=>showStep(corr));
+    $('.all',corr).addEventListener('click',()=>openCorr(q,true));
+  });
+  $('#revealAll').addEventListener('click',()=>{$$('.q').forEach(q=>openCorr(q,true));$('#showF').checked=true;update();});
+  $('#reset').addEventListener('click',()=>{
+    done.clear();updScore();
+    $$('input[type=text],textarea').forEach(i=>i.value='');
+    $$('.answer').forEach(r=>{r.classList.remove('ok','ko');$('.fb',r).textContent='';});
+    $$('select').forEach(s=>{s.value='';s.classList.remove('good','bad');});
+    $$('.opt,.multi label').forEach(o=>o.classList.remove('good','bad'));
+    $$('.multi input').forEach(c=>c.checked=false);
+    $$('.selq .fb,.mcq .fb,.multi .fb').forEach(f=>f.textContent='');
+    $$('.corr').forEach(c=>{c.hidden=true;c.dataset.i=0;$$('.step',c).forEach(s=>s.classList.remove('show'));$$('.next,.all',c).forEach(b=>b.hidden=false);});
+    $$('.reveal').forEach(b=>b.textContent=b.dataset.label);
+    $('#showF').checked=false;update();
+  });
+}
+
+/* ---------- graphiques ---------- */
+function niceTicks(a,b,n){const span=b-a,s0=span/n,mag=10**Math.floor(Math.log10(s0)),r=s0/mag,step=(r<1.5?1:r<3?2:r<7?5:10)*mag,out=[];for(let v=Math.ceil(a/step)*step;v<=b+1e-9;v+=step)out.push(+v.toFixed(10));return out;}
+function chart(cv,o){
+  const{f,t0=0,t1,n=600,color,ylab,cursor,fmtY=v=>fmt(v,0)}=o;
+  const dpr=window.devicePixelRatio||1,W=cv.clientWidth,H=cv.clientHeight;if(!W)return;
+  cv.width=W*dpr;cv.height=H*dpr;const c=cv.getContext('2d');c.setTransform(dpr,0,0,dpr,0,0);c.clearRect(0,0,W,H);
+  const pad={l:46,r:12,t:24,b:26},pts=[];let ymin=0,ymax=0;
+  for(let i=0;i<=n;i++){const t=t0+(t1-t0)*i/n,y=f(t);pts.push([t,y]);ymin=Math.min(ymin,y);ymax=Math.max(ymax,y);}
+  if(ymax-ymin<1e-9)ymax=ymin+1;const sp=ymax-ymin;ymax+=sp*.1;if(ymin<0)ymin-=sp*.1;
+  const X=t=>pad.l+(t-t0)/(t1-t0)*(W-pad.l-pad.r),Y=y=>H-pad.b-(y-ymin)/(ymax-ymin)*(H-pad.t-pad.b);
+  c.font='11px system-ui';c.strokeStyle='#e4e8f0';c.lineWidth=1;c.fillStyle='#5d6678';c.textAlign='right';c.textBaseline='middle';
+  niceTicks(ymin,ymax,4).forEach(v=>{c.beginPath();c.moveTo(pad.l,Y(v));c.lineTo(W-pad.r,Y(v));c.stroke();c.fillText(fmtY(v),pad.l-6,Y(v));});
+  c.textAlign='center';c.textBaseline='top';niceTicks(t0,t1,5).forEach(t=>c.fillText(fmt(t,0),X(t),H-pad.b+5));
+  c.textAlign='right';c.textBaseline='bottom';c.fillText('t (s)',W-pad.r,H-pad.b-2);
+  if(ymin<0){c.strokeStyle='#9aa3b5';c.beginPath();c.moveTo(pad.l,Y(0));c.lineTo(W-pad.r,Y(0));c.stroke();}
+  c.beginPath();pts.forEach(([t,y],i)=>i?c.lineTo(X(t),Y(y)):c.moveTo(X(t),Y(y)));c.strokeStyle=color;c.lineWidth=2.5;c.stroke();
+  c.lineTo(X(t1),Y(0));c.lineTo(X(t0),Y(0));c.closePath();c.globalAlpha=.1;c.fillStyle=color;c.fill();c.globalAlpha=1;
+  c.fillStyle='#1b2333';c.font='600 12px system-ui';c.textAlign='left';c.textBaseline='top';c.fillText(ylab,8,5);
+  if(cursor!=null){const cx=X(cursor),cy=Y(f(cursor));c.strokeStyle='#e8702a';c.setLineDash([4,4]);c.beginPath();c.moveTo(cx,pad.t);c.lineTo(cx,H-pad.b);c.stroke();c.setLineDash([]);c.fillStyle='#e8702a';c.beginPath();c.arc(cx,cy,5,0,7);c.fill();}
+}
+
+/* ---------- modèle du funiculaire ---------- */
+const g=9.81,mc=600,mp=90,phi=20*Math.PI/180,sn=Math.sin(phi),cs=Math.cos(phi),L=36/sn;
+const F={n:60,a:0.35,vmax:15/3.6,mode:'arret',t:0,play:false};
+const mass=()=>mc+F.n*mp;
+function prof(){let vp=F.vmax,ta=vp/F.a,da=vp*vp/(2*F.a);if(2*da>L){vp=Math.sqrt(F.a*L);ta=vp/F.a;da=L/2;}const tc=(L-2*da)/vp;return{ta,tc,vp,da,T:2*ta+tc};}
+function state(t){
+  const p=prof();
+  if(t<=0)return{x:0,v:0,acc:F.a};
+  if(t<=p.ta)return{x:.5*F.a*t*t,v:F.a*t,acc:F.a};
+  if(t<=p.ta+p.tc)return{x:p.da+p.vp*(t-p.ta),v:p.vp,acc:0};
+  if(t<p.T){const u=t-p.ta-p.tc;return{x:p.da+p.vp*p.tc+p.vp*u-.5*F.a*u*u,v:p.vp-F.a*u,acc:-F.a};}
+  return{x:L,v:0,acc:0};
+}
+function forces(st){
+  const M=mass(),W=M*g,T=M*st.acc+W*sn;
+  const YB=(4*W*cs-1.4*W*sn+0.3*T-1.4*M*st.acc)/7.9;
+  return{M,W,T,YB,YA:W*cs-YB,P:T*st.v};
+}
+function phaseLab(st,t){if(F.mode==='arret')return 'À l\'arrêt';const p=prof();if(t<=p.ta)return 'Démarrage';if(t<=p.ta+p.tc)return 'Vitesse constante';if(t<p.T)return 'Freinage';return 'Arrivée';}
+
+/* ---------- dessin de la scène ---------- */
+const SC=30,O={x:250,y:292};
+const P2=(u,v)=>[O.x+SC*(u*cs-v*sn),O.y-SC*(u*sn+v*cs)];
+const pt=(u,v)=>P2(u,v).map(n=>n.toFixed(1)).join(',');
+const UX=[cs,-sn],UY=[-sn,-cs];
+function arrow(p,dir,len,col,lab,dx=6,dy=0){
+  const x2=p[0]+dir[0]*len,y2=p[1]+dir[1]*len;
+  return `<line x1="${p[0].toFixed(1)}" y1="${p[1].toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="${col}" stroke-width="3.2" marker-end="url(#mk${col==='#d0312d'?'R':'G'})"/>`+
+    `<text x="${(x2+dx).toFixed(1)}" y="${(y2+dy).toFixed(1)}" font-size="12.5" font-weight="700" fill="${col}">${lab}</text>`;
+}
+function scene(st,fo){
+  let s=`<defs><marker id="mkR" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#d0312d"/></marker><marker id="mkG" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#2c6e49"/></marker><marker id="mkK" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1b2333"/></marker></defs>`;
+  const r0=P2(-9,0),r1=P2(17.5,0);
+  s+=`<polygon points="${r0} ${r1} 760,${r1[1].toFixed(1)} 760,390 0,390 0,${r0[1].toFixed(1)}" fill="#c9dcb8"/>`;
+  s+=`<polygon points="${pt(-9,0)} ${pt(17.5,0)} ${pt(17.5,-.45)} ${pt(-9,-.45)}" fill="#b9b1a2"/>`;
+  const off=st.x%1.2;
+  for(let u=-9-off+1.2;u<17.5;u+=1.2)s+=`<polygon points="${pt(u,-.05)} ${pt(u+.35,-.05)} ${pt(u+.35,-.4)} ${pt(u,-.4)}" fill="#7a6a55"/>`;
+  s+=`<line x1="${r0[0]}" y1="${r0[1]}" x2="${r1[0]}" y2="${r1[1]}" stroke="#4b5563" stroke-width="4"/>`;
+  // angle φ
+  const q=P2(-6.5,0);
+  s+=`<line x1="${q[0]}" y1="${q[1]}" x2="${q[0]+90}" y2="${q[1]}" stroke="#1b2333" stroke-dasharray="5 4"/><path d="M${q[0]+60},${q[1]} A60,60 0 0,0 ${(q[0]+60*cs).toFixed(1)},${(q[1]-60*sn).toFixed(1)}" fill="none" stroke="#1b2333"/><text x="${q[0]+66}" y="${q[1]-6}" font-size="14" font-style="italic">φ = 20°</text><text x="${q[0]+92}" y="${q[1]+4}" font-size="12">x₀</text>`;
+  // repère
+  const o1=P2(-7.5,0.4);
+  s+=`<line x1="${o1[0]}" y1="${o1[1]}" x2="${(o1[0]+UX[0]*55).toFixed(1)}" y2="${(o1[1]+UX[1]*55).toFixed(1)}" stroke="#1b2333" stroke-width="1.6" marker-end="url(#mkK)"/><text x="${(o1[0]+UX[0]*60).toFixed(1)}" y="${(o1[1]+UX[1]*60-4).toFixed(1)}" font-size="13">x₁</text>`;
+  s+=`<line x1="${o1[0]}" y1="${o1[1]}" x2="${(o1[0]+UY[0]*55).toFixed(1)}" y2="${(o1[1]+UY[1]*55).toFixed(1)}" stroke="#1b2333" stroke-width="1.6" marker-end="url(#mkK)"/><text x="${(o1[0]+UY[0]*60-14).toFixed(1)}" y="${(o1[1]+UY[1]*60).toFixed(1)}" font-size="13">y₁</text>`;
+  // câble
+  const c0=P2(9.3,.3),c1=P2(17.5,.3);
+  s+=`<line x1="${c0[0]}" y1="${c0[1]}" x2="${c1[0]}" y2="${c1[1]}" stroke="#374151" stroke-width="2" stroke-dasharray="${st.v>0?'7 3':'none'}" stroke-dashoffset="${(-st.x*SC).toFixed(1)}"/>`;
+  s+=`<text x="${(c1[0]-70).toFixed(1)}" y="${(c1[1]-10).toFixed(1)}" font-size="12" fill="#374151">vers le treuil ↗</text>`;
+  // cabine
+  s+=`<line x1="${P2(9.3,.75)[0]}" y1="${P2(9.3,.75)[1]}" x2="${c0[0]}" y2="${c0[1]}" stroke="#374151" stroke-width="3"/>`;
+  s+=`<polygon points="${pt(-1.4,.75)} ${pt(9.3,.75)} ${pt(9.3,3.6)} ${pt(-1.4,3.6)}" fill="#e5e9ef" stroke="#4b5563" stroke-width="2"/>`;
+  s+=`<polygon points="${pt(-1.4,.75)} ${pt(9.3,.75)} ${pt(9.3,1.15)} ${pt(-1.4,1.15)}" fill="#9aa4b2"/>`;
+  for(const u of[-.9,1.2,3.3,5.4,7.4])s+=`<polygon points="${pt(u,1.75)} ${pt(u+1.6,1.75)} ${pt(u+1.6,3.15)} ${pt(u,3.15)}" fill="#9cc3e6" stroke="#4b5563" stroke-width="1"/>`;
+  for(const u of[0,7.9]){const w=P2(u,.4);s+=`<circle cx="${w[0].toFixed(1)}" cy="${w[1].toFixed(1)}" r="${.4*SC}" fill="#374151"/><circle cx="${w[0].toFixed(1)}" cy="${w[1].toFixed(1)}" r="4" fill="#d1d5db"/>`;}
+  // points
+  const pts={A:[0,0],B:[7.9,0],C:[9.3,.3],G:[4,1.4]};
+  for(const k in pts){const p=P2(...pts[k]);s+=`<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="4.5" fill="#1f4e8c" stroke="#fff" stroke-width="1.5"/><text x="${(p[0]+(k==='C'?8:-16)).toFixed(1)}" y="${(p[1]+(k==='G'?-8:18)).toFixed(1)}" font-size="14" font-weight="700" fill="#1f4e8c">${k}</text>`;}
+  // forces
+  if($('#showF').checked){
+    const k=0.0022,R='#d0312d';
+    s+=arrow(P2(0,0),UY,fo.YA*k,R,`A = ${fmt(fo.YA,0)} N`,-150,-4);
+    s+=arrow(P2(7.9,0),UY,fo.YB*k,R,`B = ${fmt(fo.YB,0)} N`,-118,-6);
+    s+=arrow(P2(9.3,.3),UX,fo.T*k,R,`C = ${fmt(fo.T,0)} N`,4,30);
+    s+=arrow(P2(4,1.4),[0,1],fo.W*k,R,`P = ${fmt(fo.W,0)} N`,-120,10);
+    if(Math.abs(st.acc)>1e-6)s+=arrow(P2(4,1.4),st.acc>0?UX:[-UX[0],-UX[1]],60,'#2c6e49',`a = ${fmt(Math.abs(st.acc),2)} m/s²`,4,-8);
+  }
+  $('#scene').innerHTML=s;
+}
+
+/* ---------- mise à jour ---------- */
+const set=(s,v)=>{$(s).textContent=v;};
+const tIn=$('#t'),playB=$('#play');
+function update(){
+  const p=prof();tIn.max=p.T.toFixed(1);if(F.t>p.T)F.t=p.T;
+  const st=F.mode==='arret'?{x:0,v:0,acc:0}:state(F.t),fo=forces(st);
+  set('#tLab',fmt(F.mode==='arret'?0:F.t,1)+' s');
+  set('#kPh',phaseLab(st,F.t));set('#kV',fmt(st.v*3.6,1)+' km/h');set('#kA',fmt(st.acc,2)+' m/s²');
+  set('#kT',fmt(fo.T,0)+' N');set('#kYA',fmt(fo.YA,0)+' N');set('#kYB',fmt(fo.YB,0)+' N');set('#kP',fmt(fo.P/1000,1)+' kW');
+  $('#pos').style.width=(100*st.x/L)+'%';
+  set('#posLab',`Position : ${fmt(st.x,1)} m sur ${fmt(L,1)} m de voie · altitude gagnée : ${fmt(st.x*sn,1)} m / 36 m`);
+  scene(st,fo);
+  const cur=F.mode==='arret'?null:F.t;
+  chart($('#cV'),{f:t=>state(t).v*3.6,t1:p.T,color:'#2c6e49',ylab:'Vitesse (km/h)',cursor:cur});
+  chart($('#cT'),{f:t=>forces(state(t)).T/1000,t1:p.T,color:'#d0312d',ylab:'Câble X_C (kN)',cursor:cur,fmtY:v=>fmt(v,0)});
+  chart($('#cP'),{f:t=>{const s=state(t);return forces(s).T*s.v/1000;},t1:p.T,color:'#e8702a',ylab:'Puissance (kW)',cursor:cur});
+}
+function labels(){set('#nLab',F.n+' (m = '+fmt(mass(),0)+' kg)');set('#aLab',fmt(F.a,2)+' m/s²');}
+function updPlay(){playB.textContent=F.play?'⏸ Pause':(F.mode==='asc'&&F.t>=prof().T?'↺ Rejouer':'▶ Lancer l\'ascension');}
+playB.addEventListener('click',()=>{if(F.mode==='arret'){F.mode='asc';F.t=0;}else if(!F.play&&F.t>=prof().T)F.t=0;F.play=!F.play;updPlay();update();});
+$('#stop').addEventListener('click',()=>{F.mode='arret';F.t=0;F.play=false;tIn.value=0;updPlay();update();});
+tIn.addEventListener('input',()=>{F.mode='asc';F.t=+tIn.value;F.play=false;updPlay();update();});
+$('#n').addEventListener('input',e=>{F.n=+e.target.value;labels();update();});
+$('#a').addEventListener('input',e=>{F.a=+e.target.value;labels();update();});
+$('#showF').addEventListener('change',update);
+window.addEventListener('resize',update);
+let last=performance.now();
+function loop(now){
+  const dt=Math.min(.05,(now-last)/1000);last=now;
+  if(F.play){const T=prof().T;F.t=Math.min(T,F.t+dt*2);if(F.t>=T){F.play=false;updPlay();}tIn.value=F.t;update();}
+  requestAnimationFrame(loop);
+}
+
+/* ---------- deux cabines ---------- */
+function duo(){
+  const n1=+$('#n1').value,n2=+$('#n2').value,m1=mc+n1*mp,m2=mc+n2*mp,a=0.35,v=15/3.6;
+  const Fs=m1*(a+g*sn),Fd=(m1-m2)*g*sn+(m1+m2)*a,mx=Math.max(Fs,Math.abs(Fd));
+  set('#n1Lab',n1);set('#n2Lab',n2);
+  $('#b1').style.width=(100*Fs/mx)+'%';$('#b2').style.width=(100*Math.abs(Fd)/mx)+'%';
+  set('#v1',fmt(Fs*v/1000,1)+' kW');set('#v2',fmt(Fd*v/1000,1)+' kW');
+  $('#duoMsg').innerHTML=Fd<0?`Effort moteur : <b>${fmt(Fd,0)} N</b> → négatif : la cabine qui descend entraîne l'autre, le moteur doit <b>freiner</b>.`
+    :`Effort moteur : <b>${fmt(Fd,0)} N</b> au lieu de ${fmt(Fs,0)} N → puissance réduite de <b>${fmt(100*(1-Fd/Fs),0)} %</b> (fin du démarrage).`;
+}
+$('#n1').addEventListener('input',duo);$('#n2').addEventListener('input',duo);
+
+buildVec();initAnswers();initSelects();initMCQ();initMulti();initReveal();labels();update();duo();requestAnimationFrame(loop);
+</script>
+<a href="../index.html" style="position:fixed;bottom:16px;left:16px;z-index:99999;background:#1e3a5f;color:#fff;padding:10px 16px;border-radius:24px;font:600 14px system-ui,sans-serif;text-decoration:none;box-shadow:0 2px 8px rgba(0,0,0,.25)">← Sommaire</a></body>
+</html>

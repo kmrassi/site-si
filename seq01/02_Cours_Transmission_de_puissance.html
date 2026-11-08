@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Transmission de puissance &amp; Mécanique des corps — Cours interactif</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#eef1f0; --paper-raised:#ffffff; --ink:#152238; --ink-soft:#4a5568; --line:#c9d0d3;
+  --copper:#b5652f; --copper-dim:#e7cdb2; --tension:#b8433a; --courant:#2f6690;
+  --ok:#2f7a4f; --ok-bg:#e3f2e8; --bad:#b8433a; --bad-bg:#fbeae8; --radius:3px;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background:
+    linear-gradient(rgba(21,34,56,.06) 1px, transparent 1px) 0 0/28px 28px,
+    linear-gradient(90deg, rgba(21,34,56,.06) 1px, transparent 1px) 0 0/28px 28px,
+    var(--paper);
+  color:var(--ink); font-family:'Source Serif 4', Georgia, serif; font-size:16.5px; line-height:1.65;
+}
+h1,h2,h3,h4,.mono,button,.pill{font-family:'Space Grotesk', sans-serif;}
+
+.shell{display:grid; grid-template-columns: 250px minmax(0,1fr); gap:0; max-width:1180px; margin:0 auto;}
+@media (max-width:860px){ .shell{grid-template-columns:1fr;} }
+
+nav.side{position:sticky; top:0; align-self:start; height:100vh; overflow-y:auto; padding:28px 18px 40px 24px; border-right:1px solid var(--line);}
+@media (max-width:860px){ nav.side{position:static; height:auto; border-right:none; border-bottom:1px solid var(--line);} }
+.brand{display:flex; align-items:center; gap:10px; margin-bottom:22px;}
+.brand-mark{width:30px;height:30px;flex:none;}
+.brand-text{font-weight:700; font-size:.88rem; line-height:1.15;}
+.brand-text span{display:block; font-family:'Source Serif 4',serif; font-weight:400; font-style:italic; color:var(--ink-soft); font-size:.8rem;}
+nav.side ol{list-style:none; margin:0; padding:0; counter-reset:sec;}
+nav.side li{counter-increment:sec; margin-bottom:2px;}
+nav.side a{display:flex; gap:10px; align-items:baseline; text-decoration:none; color:var(--ink-soft); font-size:.83rem; padding:7px 8px; border-radius:var(--radius); cursor:pointer;}
+nav.side a::before{content:counter(sec,decimal-leading-zero); color:var(--copper); font-weight:600; font-size:.76rem; flex:none;}
+nav.side a:hover{background:var(--paper-raised); color:var(--ink);}
+nav.side a.active{background:var(--copper-dim); color:var(--ink); font-weight:600;}
+.score-widget{margin-top:26px; padding:14px; border:1px dashed var(--line); border-radius:var(--radius); font-size:.8rem; color:var(--ink-soft);}
+.score-widget .n{font-size:1.6rem; font-weight:700; color:var(--ink); font-family:'Space Grotesk';}
+
+main{padding:0 0 90px;}
+.hero{padding:50px 44px 36px; border-bottom:1px solid var(--line);}
+.hero .eyebrow{color:var(--copper); font-size:.8rem; font-weight:600; margin-bottom:10px;}
+.hero h1{font-size:2.1rem; margin:0 0 12px; line-height:1.1; font-weight:700; max-width:20ch;}
+.hero p{max-width:62ch; color:var(--ink-soft); font-size:1.02rem; margin:0;}
+
+section.chapter{padding:0 44px; border-bottom:1px solid var(--line);}
+@media (max-width:640px){section.chapter, .hero{padding-left:22px; padding-right:22px;}}
+.chapter-head{display:flex; align-items:center; gap:14px; cursor:pointer; padding:24px 0 16px; user-select:none;}
+.chapter-head .num{font-family:'Space Grotesk'; font-weight:700; color:var(--copper); font-size:.95rem; border:1px solid var(--copper); border-radius:50%; width:32px; height:32px; display:flex; align-items:center; justify-content:center; flex:none;}
+.chapter-head h2{margin:0; font-size:1.3rem; flex:1;}
+.chapter-head .chev{transition:transform .2s; color:var(--ink-soft); font-size:1.05rem;}
+.chapter.open .chapter-head .chev{transform:rotate(90deg);}
+.chapter-body{max-height:0; overflow:hidden; transition:max-height .3s ease;}
+.chapter.open .chapter-body{max-height:none;}
+.chapter-inner{padding-bottom:34px;}
+
+.callout{background:var(--paper-raised); border:1px solid var(--line); border-left:3px solid var(--copper); padding:14px 18px; border-radius:var(--radius); margin:16px 0; font-size:.95rem;}
+.callout b.tag{display:block; font-family:'Space Grotesk'; font-size:.7rem; letter-spacing:.04em; text-transform:uppercase; color:var(--copper); margin-bottom:6px;}
+.callout.def{border-left-color:var(--courant);}
+.callout.def b.tag{color:var(--courant);}
+
+.formula{background:var(--paper-raised); border:1px solid var(--line); border-radius:var(--radius); padding:14px 18px; text-align:center; font-family:'Space Grotesk', Arial, 'Segoe UI', sans-serif; font-size:1.08rem; font-weight:600; margin:14px 0;}
+.formula small{display:block; font-size:.6em; font-weight:400; color:var(--ink-soft); margin-top:4px;}
+
+table.reftable{width:100%; border-collapse:collapse; margin:16px 0; font-size:.88rem; background:var(--paper-raised);}
+table.reftable th, table.reftable td{border:1px solid var(--line); padding:9px 11px; text-align:left; vertical-align:top;}
+table.reftable th{background:var(--copper-dim); font-family:'Space Grotesk'; font-weight:600; font-size:.74rem; text-transform:uppercase; letter-spacing:.02em;}
+table.reftable td.name{font-weight:600; white-space:nowrap;}
+
+.grid2{display:grid; grid-template-columns:1fr 1fr; gap:18px;}
+@media (max-width:640px){.grid2{grid-template-columns:1fr;}}
+
+.diagram{display:flex; justify-content:center; margin:18px 0;}
+.diagram svg{max-width:100%; height:auto;}
+
+.exo{background:var(--paper-raised); border:1px solid var(--line); border-radius:var(--radius); margin:20px 0; overflow:hidden;}
+.exo-head{display:flex; align-items:center; justify-content:space-between; padding:11px 18px; background:var(--copper-dim); border-bottom:1px solid var(--line);}
+.exo-head span{font-family:'Space Grotesk'; font-weight:600; font-size:.84rem;}
+.exo-body{padding:16px 20px;}
+.q{margin-bottom:14px;}
+.q label{display:block; font-size:.93rem; margin-bottom:6px;}
+.answer-row{display:flex; align-items:center; gap:10px; flex-wrap:wrap;}
+.answer-row input[type=text]{width:110px; padding:7px 10px; border:1px solid var(--line); border-radius:var(--radius); font-family:'Space Grotesk'; font-size:.92rem; background:var(--paper); color:var(--ink);}
+.unit-lbl{font-size:.83rem; color:var(--ink-soft);}
+.check-btn{border:1px solid var(--ink); background:var(--ink); color:var(--paper); padding:6px 15px; border-radius:var(--radius); font-size:.78rem; font-weight:600; cursor:pointer;}
+.check-btn:hover{opacity:.85;}
+.feedback{font-size:.82rem; margin-top:5px; min-height:1.1em;}
+.feedback.ok{color:var(--ok);}
+.feedback.bad{color:var(--bad);}
+.exo-footer{padding:8px 20px 16px;}
+.reveal-btn{background:none; border:none; color:var(--courant); font-size:.8rem; cursor:pointer; text-decoration:underline; padding:0;}
+.solution{display:none; margin-top:8px; padding:11px 13px; background:var(--ok-bg); border-radius:var(--radius); font-size:.87rem;}
+.solution.show{display:block;}
+
+.quiz-q{background:var(--paper-raised); border:1px solid var(--line); border-radius:var(--radius); padding:15px 18px; margin:14px 0;}
+.quiz-q p.stem{font-weight:600; margin:0 0 11px; font-size:.98rem;}
+.opt{display:flex; align-items:center; gap:10px; padding:9px 12px; border:1px solid var(--line); border-radius:var(--radius); margin-bottom:6px; cursor:pointer; font-size:.9rem;}
+.opt:hover{background:var(--copper-dim);}
+.opt.correct{background:var(--ok-bg); border-color:var(--ok);}
+.opt.wrong{background:var(--bad-bg); border-color:var(--bad);}
+.quiz-explain{display:none; margin-top:7px; font-size:.85rem; color:var(--ink-soft); border-top:1px dashed var(--line); padding-top:7px;}
+.quiz-explain.show{display:block;}
+
+.final-bar{position:sticky; bottom:0; margin-top:26px; background:var(--paper-raised); border-top:1px solid var(--line); padding:14px 44px; display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap;}
+.final-bar b{font-family:'Space Grotesk'; font-size:1rem;}
+.progress-track{flex:1; height:8px; background:var(--line); border-radius:6px; min-width:120px; overflow:hidden;}
+.progress-fill{height:100%; width:0%; background:var(--copper); transition:width .4s ease;}
+.pill{display:inline-block; font-size:.68rem; padding:2px 9px; border-radius:20px; background:var(--copper-dim); color:var(--ink); margin-left:8px; font-weight:600;}
+.note{font-size:.78rem; color:var(--ink-soft); font-style:italic; margin-top:6px;}
+footer.end{padding:28px 44px 60px; color:var(--ink-soft); font-size:.84rem;}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<nav class="side" id="sidenav">
+  <div class="brand">
+    <svg class="brand-mark" viewBox="0 0 40 40"><circle cx="20" cy="20" r="16" fill="none" stroke="#b5652f" stroke-width="2"/><circle cx="20" cy="20" r="4" fill="#b5652f"/><path d="M20 4 V10 M20 30 V36 M4 20 H10 M30 20 H36" stroke="#b5652f" stroke-width="2"/></svg>
+    <div class="brand-text">Mécanique &amp; Transmissions<span>Cours interactif — Spé SI</span></div>
+  </div>
+  <ol>
+    <li><a href="#c1">Cinématique de rotation</a></li>
+    <li><a href="#c2">Moment de force &amp; équilibre</a></li>
+    <li><a href="#c3">Transformation du mouvement</a></li>
+    <li><a href="#c4">Transmission de puissance</a></li>
+    <li><a href="#c5">Engrenages</a></li>
+    <li><a href="#c6">Autres systèmes de transmission</a></li>
+    <li><a href="#c7">Exercices — cinématique</a></li>
+    <li><a href="#c8">Quiz de synthèse</a></li>
+  </ol>
+  <div class="score-widget"><div class="n" id="scoreDisplay">0 / 0</div>bonnes réponses au premier essai</div>
+</nav>
+
+<main>
+  <header class="hero">
+    <div class="eyebrow">SEQ 1 — Nouvelles mobilités individuelles</div>
+    <h1>Transmission de puissance &amp; mécanique des corps</h1>
+    <p>De la rotation d'une roue à la boîte de vitesses d'un véhicule : cinématique, équilibre statique, transformation du mouvement et transmission de puissance, avec des exercices corrigés automatiquement.</p>
+  </header>
+
+  <!-- ===================== CHAPITRE 1 ===================== -->
+  <section class="chapter open" id="c1">
+    <div class="chapter-head" onclick="toggleChapter(this)"><div class="num">1</div><h2>Cinématique de rotation</h2><div class="chev">›</div></div>
+    <div class="chapter-body"><div class="chapter-inner">
+      <p>De nombreuses machines contiennent des roues et des engrenages dont le mouvement est lié : la rotation d'une roue entraîne la rotation d'une autre.</p>
+      <div class="grid2">
+        <div class="formula">ω = dθ/dt<br>α = dω/dt<small>vitesse et accélération angulaires</small></div>
+        <div class="formula">ω = ω₀ + αt<br>θ = θ₀ + ω₀t + ½αt²<small>équations horaires (α constant)</small></div>
+      </div>
+      <div class="formula">θ = θ₀ + ((ω₀+ω)/2)·t &nbsp;&nbsp; ω² = ω₀² + 2α(θ−θ₀)<small>relations complémentaires</small></div>
+
+      <div class="callout def">
+        <b class="tag">Roues solidaires</b>
+        Deux roues qui partagent le même essieu (soudées, même axe) tournent ensemble : elles possèdent le même déplacement angulaire, la même vitesse angulaire ω et la même accélération angulaire α.
+      </div>
+      <div class="callout def">
+        <b class="tag">Roues en contact ou reliées par une courroie</b>
+        Sans glissement, un point du bord de chaque roue a la même vitesse linéaire v. Cela relie les vitesses angulaires : <b>r<sub>A</sub>ω<sub>A</sub> = r<sub>B</sub>ω<sub>B</sub></b>.
+      </div>
+      <div class="diagram">
+        <svg viewBox="0 0 300 130" width="340">
+          <circle cx="90" cy="65" r="45" fill="none" stroke="#152238" stroke-width="2"/>
+          <circle cx="90" cy="65" r="3" fill="#152238"/>
+          <text x="90" y="20" text-anchor="middle" font-size="11" font-family="Space Grotesk">A</text>
+          <circle cx="220" cy="65" r="22" fill="none" stroke="#2f6690" stroke-width="2"/>
+          <circle cx="220" cy="65" r="3" fill="#2f6690"/>
+          <text x="220" y="36" text-anchor="middle" font-size="11" font-family="Space Grotesk" fill="#2f6690">B</text>
+          <line x1="112" y1="65" x2="198" y2="65" stroke="#b8433a" stroke-width="2" stroke-dasharray="4 3"/>
+          <text x="155" y="58" text-anchor="middle" font-size="9" fill="#b8433a">contact / courroie</text>
+        </svg>
+      </div>
+    </div></div>
+  </section>
+
+  <!-- ===================== CHAPITRE 2 ===================== -->
+  <section class="chapter" id="c2">
+    <div class="chapter-head" onclick="toggleChapter(this)"><div class="num">2</div><h2>Moment de force, équilibre statique &amp; centre de masse</h2><div class="chev">›</div></div>
+    <div class="chapter-body"><div class="chapter-inner">
+      <div class="formula">τ = ± r F<sub>perp</sub> = ± r F sin φ<small>moment de force (F<sub>perp</sub> = composante de F perpendiculaire au bras de levier r)</small></div>
+      <div class="grid2">
+        <div class="formula">Σ F<sup style="font-size:.65em;">→</sup> = 0<small>équilibre de translation</small></div>
+        <div class="formula">Σ τ = 0<small>équilibre de rotation</small></div>
+      </div>
+      <p style="font-size:.92rem; color:var(--ink-soft);">Sur une balance à levier, le côté qui exerce le plus grand moment (force × distance à l'axe) l'emporte : l'équilibre n'est atteint que si les moments des deux côtés sont égaux et opposés.</p>
+      <div class="callout def">
+        <b class="tag">Centre de masse</b>
+        <div class="formula" style="margin:8px 0 0;">r<sup style="font-size:.65em;">→</sup><sub>CM</sub> = (Σ m<sub>i</sub>·r<sup style="font-size:.65em;">→</sup><sub>i</sub>) / (Σ m<sub>i</sub>)</div>
+        Position moyenne de la masse d'un système, pondérée par chaque masse élémentaire — utile pour prévoir le comportement global d'un corps composé de plusieurs morceaux.
+      </div>
+
+      <div class="quiz-q" data-quiz="c2q1">
+        <p class="stem">Une balance à levier porte une masse de 2 kg à 30 cm à gauche du pivot, et une masse de 3 kg à 20 cm à droite. Est-elle à l'équilibre ?</p>
+        <div class="opt" data-correct="true">Oui : les deux moments valent 0,6 kg·m de chaque côté</div>
+        <div class="opt" data-correct="false">Non : le côté de 3 kg l'emporte car la masse est plus grande</div>
+        <div class="quiz-explain">Moment = masse × distance (à g près) : 2×0,30 = 0,6 et 3×0,20 = 0,6. Les deux moments sont égaux : la balance est à l'équilibre.</div>
+      </div>
+    </div></div>
+  </section>
+
+  <!-- ===================== CHAPITRE 3 ===================== -->
+  <section class="chapter" id="c3">
+    <div class="chapter-head" onclick="toggleChapter(this)"><div class="num">3</div><h2>Transformation du mouvement</h2><div class="chev">›</div></div>
+    <div class="chapter-body"><div class="chapter-inner">
+      <p>Ces systèmes transforment un mouvement de rotation en translation, ou inversement. Un système est <b>réversible</b> si le mouvement de sortie peut entraîner le mouvement d'entrée.</p>
+      <table class="reftable">
+        <tr><th>Système</th><th>Fonction</th><th>Relation</th><th>Réversibilité</th></tr>
+        <tr><td class="name">Vis-écrou</td><td>La vis tourne, l'écrou avance en translation.</td><td>V = (pas / 2π) × ω</td><td>Souvent <b>irréversible</b></td></tr>
+        <tr><td class="name">Pignon-crémaillère</td><td>Roulement sans glissement entre les dents.</td><td>V = R<sub>pignon</sub> × ω<sub>pignon</sub></td><td><b>Réversible</b></td></tr>
+        <tr><td class="name">Bielle-manivelle</td><td>Rotation continue ⇄ translation alternative (ex : moteur à explosion).</td><td>Course = 2 × OA</td><td><b>Réversible</b></td></tr>
+        <tr><td class="name">Came</td><td>Pièce non circulaire qui met en mouvement une tige : rotation → translation alternative.</td><td>—</td><td><b>Irréversible</b></td></tr>
+      </table>
+      <div class="quiz-q" data-quiz="c3q1">
+        <p class="stem">Quel système transforme une rotation continue en une translation alternative (aller-retour), de façon irréversible ?</p>
+        <div class="opt" data-correct="false">Le système pignon-crémaillère</div>
+        <div class="opt" data-correct="true">Le système à came</div>
+        <div class="opt" data-correct="false">Le système bielle-manivelle</div>
+        <div class="quiz-explain">La came transforme la rotation en translation alternative mais, contrairement à la bielle-manivelle, ce système est irréversible : la tige ne peut pas faire tourner la came.</div>
+      </div>
+    </div></div>
+  </section>
+
+  <!-- ===================== CHAPITRE 4 ===================== -->
+  <section class="chapter" id="c4">
+    <div class="chapter-head" onclick="toggleChapter(this)"><div class="num">4</div><h2>Transmission de puissance</h2><div class="chev">›</div></div>
+    <div class="chapter-body"><div class="chapter-inner">
+      <p>La fonction TRANSMETTRE / ADAPTER permet de changer la direction du mouvement, l'intensité de l'effort disponible, la vitesse, ou de rendre un système irréversible.</p>
+      <div class="grid2">
+        <div class="formula">P = F · V<small>puissance en translation (W)</small></div>
+        <div class="formula">P = C · ω<small>puissance en rotation (W)</small></div>
+      </div>
+      <div class="formula">η = P<sub>sortie</sub> / P<sub>entrée</sub><small>rendement</small></div>
+
+      <div class="callout def">
+        <b class="tag">Les accouplements</b>
+        Liaison entre deux arbres pour transmettre un couple. <b>Permanents</b> : rigide, semi-élastique/élastique, articulé (ex : joint de cardan, tolère un défaut d'alignement). <b>Temporaire</b> : l'embrayage.
+      </div>
+
+      <div class="formula">r = N<sub>sortie</sub>/N<sub>entrée</sub> = ω<sub>sortie</sub>/ω<sub>entrée</sub> = D<sub>entrée</sub>/D<sub>sortie</sub> = Z<sub>entrée</sub>/Z<sub>sortie</sub><small>rapport de transmission</small></div>
+      <div class="grid2">
+        <div class="callout"><b class="tag">r &lt; 1</b>Réducteur : la vitesse de sortie est plus faible que celle d'entrée (le couple augmente).</div>
+        <div class="callout"><b class="tag">r &gt; 1</b>Multiplicateur : la vitesse de sortie est plus grande que celle d'entrée.</div>
+      </div>
+      <div class="formula">r<sub>global</sub> = r<sub>1</sub> × r<sub>2</sub> × … × r<sub>n</sub><small>rapport global d'une chaîne de transmissions</small></div>
+    </div></div>
+  </section>
+
+  <!-- ===================== CHAPITRE 5 : ENGRENAGES ===================== -->
+  <section class="chapter" id="c5">
+    <div class="chapter-head" onclick="toggleChapter(this)"><div class="num">5</div><h2>Engrenages</h2><div class="chev">›</div></div>
+    <div class="chapter-body"><div class="chapter-inner">
+      <p><b>Fonction :</b> transmettre, sans glissement, un mouvement de rotation continu entre deux arbres rapprochés, et adapter les fréquences de rotation (donc les couples).</p>
+      <table class="reftable">
+        <tr><th>Grandeur</th><th>Symbole</th><th>Relation</th></tr>
+        <tr><td class="name">Nombre de dents</td><td>Z</td><td>—</td></tr>
+        <tr><td class="name">Module (mm)</td><td>m</td><td>caractéristique dimensionnelle des dents</td></tr>
+        <tr><td class="name">Diamètre primitif</td><td>d</td><td>d = m × Z</td></tr>
+        <tr><td class="name">Pas primitif</td><td>p</td><td>p = π × m</td></tr>
+      </table>
+      <div class="callout def"><b class="tag">Condition d'engrènement</b>Deux roues ne peuvent s'engrener que si elles ont le <b>même module</b> (donc le même pas).</div>
+      <div class="formula">a (entraxe) = r₁ + r₂ = m × (Z₁ + Z₂) / 2</div>
+      <div class="formula">R = N<sub>2</sub>/N<sub>1</sub> = Z<sub>1</sub>/Z<sub>2</sub> = d<sub>1</sub>/d<sub>2</sub><small>rapport de transmission d'un engrenage (1 = pignon moteur, 2 = roue menée)</small></div>
+
+      <div class="exo">
+        <div class="exo-head"><span>Exemple guidé</span><span class="pill">calcul</span></div>
+        <div class="exo-body">
+          <p style="margin-top:0; font-size:.92rem; color:var(--ink-soft);">Un engrenage a pour données : module m = 2 mm, pignon 1 : Z₁ = 12 dents, roue 2 : Z₂ = 26 dents, fréquence de rotation du pignon (moteur) N₁ = 1000 tr/min.</p>
+          <div class="q"><label>1. Rapport de transmission R = Z₁/Z₂ ?</label>
+            <div class="answer-row"><input type="text" id="eg_r"><button class="check-btn" onclick="checkNum('eg_r',0.4615,3)">Vérifier</button><span class="feedback" id="fb_eg_r"></span></div></div>
+          <div class="q"><label>2. Fréquence de rotation N₂ = R × N₁ ?</label>
+            <div class="answer-row"><input type="text" id="eg_n2"><span class="unit-lbl">tr/min</span><button class="check-btn" onclick="checkNum('eg_n2',461.5,3)">Vérifier</button><span class="feedback" id="fb_eg_n2"></span></div></div>
+          <div class="q"><label>3. Diamètre primitif d₁ = m × Z₁ ?</label>
+            <div class="answer-row"><input type="text" id="eg_d1"><span class="unit-lbl">mm</span><button class="check-btn" onclick="checkNum('eg_d1',24,2)">Vérifier</button><span class="feedback" id="fb_eg_d1"></span></div></div>
+          <div class="q"><label>4. Diamètre primitif d₂ = m × Z₂ ?</label>
+            <div class="answer-row"><input type="text" id="eg_d2"><span class="unit-lbl">mm</span><button class="check-btn" onclick="checkNum('eg_d2',52,2)">Vérifier</button><span class="feedback" id="fb_eg_d2"></span></div></div>
+        </div>
+        <div class="exo-footer"><button class="reveal-btn" onclick="toggleSol(this)">Voir la méthode</button>
+        <div class="solution">R = 12/26 ≈ 0,4615 · N₂ = 0,4615 × 1000 ≈ 461,5 tr/min · d₁ = 2×12 = 24 mm · d₂ = 2×26 = 52 mm.</div></div>
+      </div>
+    </div></div>
+  </section>
+
+  <!-- ===================== CHAPITRE 6 : AUTRES SYSTEMES ===================== -->
+  <section class="chapter" id="c6">
+    <div class="chapter-head" onclick="toggleChapter(this)"><div class="num">6</div><h2>Autres systèmes de transmission</h2><div class="chev">›</div></div>
+    <div class="chapter-body"><div class="chapter-inner">
+      <table class="reftable">
+        <tr><th>Système</th><th>Fonction</th><th>Relation clé</th></tr>
+        <tr><td class="name">Train d'engrenages</td><td>Rapport global d'une chaîne d'engrenages.</td><td>R = (produit Z menantes) / (produit Z menées)</td></tr>
+        <tr><td class="name">Roue - vis sans fin</td><td>Très grand rapport de réduction, encombrement réduit. Généralement irréversible.</td><td>R = ω₂/ω₁ = Z₁/Z₂ (Z₁ = nb de filets de la vis)</td></tr>
+        <tr><td class="name">Poulies - courroie (lisse)</td><td>Transmission par adhérence : glissement possible (sécurité).</td><td>R = ω₂/ω₁ = d₁/d₂</td></tr>
+        <tr><td class="name">Poulies - courroie crantée</td><td>Transmission par obstacle, sans glissement, comme un engrenage.</td><td>V<sub>courroie</sub> = d₁ω₁/2 = d₂ω₂/2</td></tr>
+        <tr><td class="name">Pignons - chaîne</td><td>Comme les poulies crantées, mais transmet une puissance plus élevée (vitesse max plus faible).</td><td>mêmes relations que poulies-courroie crantées</td></tr>
+        <tr><td class="name">Système articulé</td><td>Barres (bielles) et liaisons pivot : convertit souvent une rotation continue en mouvement alternatif.</td><td>loi entrée-sortie spécifique à la géométrie</td></tr>
+        <tr><td class="name">Train épicycloïdal</td><td>Planétaire + couronne + satellites + porte-satellite : grands rapports de réduction, très compact (boîtes automatiques, hybrides).</td><td>—</td></tr>
+        <tr><td class="name">Croix de Malte</td><td>Transforme une rotation continue en rotation saccadée (indexation).</td><td>—</td></tr>
+      </table>
+      <div class="quiz-q" data-quiz="c6q1">
+        <p class="stem">Deux poulies lisses (non crantées) reliées par une courroie plate transmettent le mouvement…</p>
+        <div class="opt" data-correct="true">par adhérence, avec un risque de glissement</div>
+        <div class="opt" data-correct="false">par obstacle, sans aucun glissement possible</div>
+        <div class="quiz-explain">Contrairement aux poulies crantées ou aux engrenages (transmission par obstacle), les poulies lisses transmettent par adhérence : un glissement reste possible, ce qui peut servir de sécurité.</div>
+      </div>
+    </div></div>
+  </section>
+
+  <!-- ===================== CHAPITRE 7 : EXERCICES ===================== -->
+  <section class="chapter" id="c7">
+    <div class="chapter-head" onclick="toggleChapter(this)"><div class="num">7</div><h2>Exercices — cinématique de rotation</h2><div class="chev">›</div></div>
+    <div class="chapter-body"><div class="chapter-inner">
+
+      <div class="exo">
+        <div class="exo-head"><span>Situation 5 — Quatre roues et une courroie</span><span class="pill">calcul</span></div>
+        <div class="exo-body">
+          <p style="margin-top:0; font-size:.92rem; color:var(--ink-soft);">Rayons : r<sub>A</sub>=50 cm, r<sub>B</sub>=20 cm, r<sub>C</sub>=30 cm, r<sub>D</sub>=15 cm. A et B sont reliées par une courroie sans glissement ; B et C sont solidaires ; D est entraînée par C sans glisser. La roue A tourne à 210 tr/min.</p>
+          <div class="q"><label>1. Vitesse linéaire de la courroie A-B (v = ω<sub>A</sub>(rad/s) × r<sub>A</sub>) ?</label>
+            <div class="answer-row"><input type="text" id="s5_v"><span class="unit-lbl">m/s</span><button class="check-btn" onclick="checkNum('s5_v',11.0,3)">Vérifier</button><span class="feedback" id="fb_s5_v"></span></div></div>
+          <div class="q"><label>2. Vitesse angulaire de B (ω<sub>B</sub> = ω<sub>A</sub> × r<sub>A</sub>/r<sub>B</sub>) ?</label>
+            <div class="answer-row"><input type="text" id="s5_b"><span class="unit-lbl">tr/min</span><button class="check-btn" onclick="checkNum('s5_b',525,2)">Vérifier</button><span class="feedback" id="fb_s5_b"></span></div></div>
+          <div class="q"><label>3. Vitesse angulaire de C (solidaire de B) ?</label>
+            <div class="answer-row"><input type="text" id="s5_c"><span class="unit-lbl">tr/min</span><button class="check-btn" onclick="checkNum('s5_c',525,2)">Vérifier</button><span class="feedback" id="fb_s5_c"></span></div></div>
+          <div class="q"><label>4. Vitesse angulaire de D (ω<sub>D</sub> = ω<sub>C</sub> × r<sub>C</sub>/r<sub>D</sub>) ?</label>
+            <div class="answer-row"><input type="text" id="s5_d"><span class="unit-lbl">tr/min</span><button class="check-btn" onclick="checkNum('s5_d',1050,2)">Vérifier</button><span class="feedback" id="fb_s5_d"></span></div></div>
+        </div>
+        <div class="exo-footer"><button class="reveal-btn" onclick="toggleSol(this)">Voir la méthode</button>
+        <div class="solution">ω<sub>A</sub> = 210×2π/60 ≈ 21,99 rad/s ⇒ v = 21,99×0,5 ≈ 11,0 m/s. ω<sub>B</sub> = 210×50/20 = 525 tr/min. ω<sub>C</sub> = ω<sub>B</sub> = 525 tr/min (solidaires). ω<sub>D</sub> = 525×30/15 = 1050 tr/min.</div></div>
+      </div>
+
+      <div class="exo">
+        <div class="exo-head"><span>Situation 6 — La cinématique de la bicyclette</span><span class="pill">calcul</span></div>
+        <div class="exo-body">
+          <p style="margin-top:0; font-size:.92rem; color:var(--ink-soft);">Pédalier A : 20 dents, relié par une chaîne à un engrenage B de 12 dents solidaire de la roue arrière C (rayon 40 cm). Le pédalier tourne à 18 rad/s.</p>
+          <div class="q"><label>1. Vitesse angulaire de B (ω<sub>B</sub> = ω<sub>A</sub>×Z<sub>A</sub>/Z<sub>B</sub>) ?</label>
+            <div class="answer-row"><input type="text" id="s6_b"><span class="unit-lbl">rad/s</span><button class="check-btn" onclick="checkNum('s6_b',30,2)">Vérifier</button><span class="feedback" id="fb_s6_b"></span></div></div>
+          <div class="q"><label>2. Vitesse de la bicyclette (v = r<sub>C</sub> × ω<sub>C</sub>) ?</label>
+            <div class="answer-row"><input type="text" id="s6_v"><span class="unit-lbl">m/s</span><button class="check-btn" onclick="checkNum('s6_v',12,2)">Vérifier</button><span class="feedback" id="fb_s6_v"></span></div></div>
+        </div>
+        <div class="exo-footer"><button class="reveal-btn" onclick="toggleSol(this)">Voir la méthode</button>
+        <div class="solution">ω<sub>B</sub> = 18×20/12 = 30 rad/s. C solidaire de B : ω<sub>C</sub>=30 rad/s. v = 0,40×30 = 12 m/s.</div></div>
+      </div>
+
+      <div class="exo">
+        <div class="exo-head"><span>Situation 7 — La puissance de la manivelle</span><span class="pill">calcul</span></div>
+        <div class="exo-body">
+          <p style="margin-top:0; font-size:.92rem; color:var(--ink-soft);">Une roue A (158 dents) est en contact avec une roue B (29 dents), solidaire d'une roue C (108 dents) elle-même en contact avec une roue D (26 dents). La roue A fait 1 tour dans le sens antihoraire.</p>
+          <div class="q"><label>1. Nombre de tours de B (N<sub>B</sub> = N<sub>A</sub>×Z<sub>A</sub>/Z<sub>B</sub>) ?</label>
+            <div class="answer-row"><input type="text" id="s7_b"><span class="unit-lbl">tours</span><button class="check-btn" onclick="checkNum('s7_b',5.448,4)">Vérifier</button><span class="feedback" id="fb_s7_b"></span></div></div>
+          <div class="q"><label>2. Nombre de tours de D (N<sub>D</sub> = N<sub>C</sub>×Z<sub>C</sub>/Z<sub>D</sub>, avec N<sub>C</sub>=N<sub>B</sub>) ?</label>
+            <div class="answer-row"><input type="text" id="s7_d"><span class="unit-lbl">tours</span><button class="check-btn" onclick="checkNum('s7_d',22.63,4)">Vérifier</button><span class="feedback" id="fb_s7_d"></span></div></div>
+        </div>
+        <div class="exo-footer"><button class="reveal-btn" onclick="toggleSol(this)">Voir la méthode</button>
+        <div class="solution">Pour deux roues en contact (engrenage), N×Z est constant : N<sub>B</sub> = 1×158/29 ≈ 5,448 tours. C solidaire de B : N<sub>C</sub>=5,448. N<sub>D</sub> = 5,448×108/26 ≈ 22,63 tours.
+          Chaque contact externe inverse le sens : A antihoraire → B horaire → C (solidaire) horaire → D antihoraire. <b>D tourne donc dans le même sens que A</b>, soit environ 22,6 tours.</div></div>
+      </div>
+
+      <div class="exo">
+        <div class="exo-head"><span>Situation 8 — Une bicyclette (suite)</span><span class="pill">calcul</span></div>
+        <div class="exo-body">
+          <p style="margin-top:0; font-size:.92rem; color:var(--ink-soft);">Roue du pédalier : 20 dents, rayon 14 cm. Engrenage arrière : 12 dents, solidaire de la roue arrière de 40 cm de rayon. Pédales à 25 cm de l'axe du pédalier. On veut une vitesse de 10 m/s sans glissement.</p>
+          <div class="q"><label>a) Rayon de l'engrenage arrière (r<sub>B</sub> = r<sub>A</sub>×Z<sub>B</sub>/Z<sub>A</sub>, chaîne = même pas) ?</label>
+            <div class="answer-row"><input type="text" id="s8_r"><span class="unit-lbl">cm</span><button class="check-btn" onclick="checkNum('s8_r',8.4,3)">Vérifier</button><span class="feedback" id="fb_s8_r"></span></div></div>
+          <div class="q"><label>b) Vitesse linéaire nécessaire des pédales ?</label>
+            <div class="answer-row"><input type="text" id="s8_v"><span class="unit-lbl">m/s</span><button class="check-btn" onclick="checkNum('s8_v',3.75,3)">Vérifier</button><span class="feedback" id="fb_s8_v"></span></div></div>
+        </div>
+        <div class="exo-footer"><button class="reveal-btn" onclick="toggleSol(this)">Voir la méthode</button>
+        <div class="solution">a) r<sub>B</sub> = 14×12/20 = 8,4 cm. b) ω<sub>roue</sub> = v/r<sub>roue</sub> = 10/0,40 = 25 rad/s ; ω<sub>pédalier</sub> = ω<sub>roue</sub>×Z<sub>B</sub>/Z<sub>A</sub> = 25×12/20 = 15 rad/s ; v<sub>pédale</sub> = 0,25×15 = 3,75 m/s.</div></div>
+      </div>
+
+      <div class="exo">
+        <div class="exo-head"><span>Situation 9 — Un remonte-bloc</span><span class="pill">calculateur</span></div>
+        <div class="exo-body">
+          <p style="margin-top:0; font-size:.92rem; color:var(--ink-soft);">Roue A (20 dents) en contact avec roue B (12 dents), solidaire d'une roue C sur laquelle s'enroule le câble du bloc D. La poignée est à 25 cm du centre de A. Renseignez le rayon de la roue C lu sur votre schéma pour calculer la vitesse de poignée nécessaire à une montée à 0,3 m/s.</p>
+          <div class="answer-row" style="margin-bottom:10px;"><label>Rayon de C <input type="text" id="s9_rc" value="10" style="width:70px;"> cm</label></div>
+          <div class="answer-row"><label>Vitesse de la poignée nécessaire =</label><input type="text" id="s9_out" readonly style="background:var(--copper-dim); width:110px;"><span class="unit-lbl">m/s</span>
+            <button class="check-btn" onclick="calcRemonteBloc()">Calculer</button></div>
+          <div class="note">Le sens de rotation de A dépend de la disposition exacte de votre schéma (sens d'enroulement du câble sur C) : orientez A de façon à enrouler le câble et faire monter le bloc.</div>
+        </div>
+        <div class="exo-footer"><button class="reveal-btn" onclick="toggleSol(this)">Voir la méthode</button>
+        <div class="solution">A et B sont en contact (engrenage) : ω<sub>B</sub> = ω<sub>A</sub>×Z<sub>A</sub>/Z<sub>B</sub>. C solidaire de B : ω<sub>C</sub>=ω<sub>B</sub>. v<sub>bloc</sub> = r<sub>C</sub>×ω<sub>C</sub>. En inversant : ω<sub>A</sub> = (v<sub>bloc</sub>/r<sub>C</sub>) × (Z<sub>B</sub>/Z<sub>A</sub>), puis v<sub>poignée</sub> = 0,25 × ω<sub>A</sub>.</div></div>
+      </div>
+
+    </div></div>
+  </section>
+
+  <!-- ===================== CHAPITRE 8 : QUIZ ===================== -->
+  <section class="chapter" id="c8">
+    <div class="chapter-head" onclick="toggleChapter(this)"><div class="num">8</div><h2>Quiz de synthèse</h2><div class="chev">›</div></div>
+    <div class="chapter-body"><div class="chapter-inner">
+
+      <div class="quiz-q" data-quiz="f1"><p class="stem">1. Un rapport de transmission r &lt; 1 correspond à…</p>
+        <div class="opt" data-correct="true">un réducteur (la vitesse de sortie est plus faible)</div>
+        <div class="opt" data-correct="false">un multiplicateur (la vitesse de sortie est plus grande)</div>
+        <div class="quiz-explain">r = vitesse de sortie / vitesse d'entrée. Si r &lt; 1, la sortie est plus lente que l'entrée : c'est un réducteur, qui augmente le couple disponible.</div>
+      </div>
+
+      <div class="quiz-q" data-quiz="f2"><p class="stem">2. Deux roues dentées en contact direct (engrenage) tournent…</p>
+        <div class="opt" data-correct="true">dans des sens opposés</div>
+        <div class="opt" data-correct="false">toujours dans le même sens</div>
+        <div class="quiz-explain">Le contact externe entre deux roues dentées inverse le sens de rotation, contrairement à une transmission par courroie (poulies) ou par chaîne, qui conservent le même sens.</div>
+      </div>
+
+      <div class="quiz-q" data-quiz="f3"><p class="stem">3. Pour que deux roues dentées puissent s'engrener, elles doivent avoir…</p>
+        <div class="opt" data-correct="false">le même diamètre</div>
+        <div class="opt" data-correct="true">le même module (donc le même pas)</div>
+        <div class="opt" data-correct="false">le même nombre de dents</div>
+        <div class="quiz-explain">Le module définit la taille des dents ; deux roues ne peuvent s'engrener que si leurs dents ont la même taille, donc le même module (et le même pas).</div>
+      </div>
+
+      <div class="quiz-q" data-quiz="f4"><p class="stem">4. Quel système de transmission par lien flexible permet de transmettre une puissance plus élevée, mais avec une vitesse maximale plus faible que les poulies-courroie ?</p>
+        <div class="opt" data-correct="true">Le système pignons-chaîne</div>
+        <div class="opt" data-correct="false">Le système poulies-courroie lisse</div>
+        <div class="quiz-explain">La chaîne, constituée de maillons articulés, transmet des efforts plus importants que la courroie mais tolère une vitesse maximale plus faible.</div>
+      </div>
+
+      <div class="quiz-q" data-quiz="f5"><p class="stem">5. Le système vis-écrou est le plus souvent…</p>
+        <div class="opt" data-correct="true">irréversible : l'écrou ne peut pas faire tourner la vis</div>
+        <div class="opt" data-correct="false">réversible, comme le système bielle-manivelle</div>
+        <div class="quiz-explain">Le frottement dans le filetage rend généralement ce système irréversible, ce qui est recherché pour certains mécanismes de levage ou de serrage.</div>
+      </div>
+
+      <div class="quiz-q" data-quiz="f6"><p class="stem">6. Un train épicycloïdal est particulièrement utilisé pour…</p>
+        <div class="opt" data-correct="true">obtenir de grands rapports de réduction dans un encombrement réduit</div>
+        <div class="opt" data-correct="false">transmettre un mouvement de rotation en translation</div>
+        <div class="quiz-explain">Sa structure compacte (planétaire, couronne, satellites, porte-satellite) permet de grands rapports de réduction à volume égal, ce qui explique son usage dans les boîtes automatiques et les moteurs hybrides.</div>
+      </div>
+
+      <div class="quiz-q" data-quiz="f7"><p class="stem">7. À l'équilibre statique, que doit vérifier la somme des moments de force autour d'un point ?</p>
+        <div class="opt" data-correct="true">Elle doit être nulle</div>
+        <div class="opt" data-correct="false">Elle doit être égale à la somme des forces</div>
+        <div class="quiz-explain">La condition d'équilibre de rotation impose Στ = 0, en plus de la condition d'équilibre de translation ΣF = 0.</div>
+      </div>
+
+      <div class="quiz-q" data-quiz="f8"><p class="stem">8. Quel dispositif transforme une rotation continue en une rotation saccadée (indexation) ?</p>
+        <div class="opt" data-correct="false">Le système à came</div>
+        <div class="opt" data-correct="true">La croix de Malte</div>
+        <div class="quiz-explain">La croix de Malte utilise une came entraînée par un « suiveur » pour transformer une rotation continue en rotation saccadée, utile pour l'indexation (avance pas à pas).</div>
+      </div>
+
+    </div></div>
+  </section>
+
+  <footer class="end">Cours « Mécanique des corps », « Transformation du mouvement », « Transmission de puissance », « Engrenages - Transmissions » et « Synthèse : Transmission de puissance des systèmes motorisés ». Les tolérances de correction couvrent les arrondis usuels de calcul.</footer>
+</main>
+</div>
+
+<div class="final-bar">
+  <b id="scoreDisplayBar">Score : 0 / 0</b>
+  <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+</div>
+
+<script>
+let correctFirstTry = 0;
+const seenTried = new Set();
+
+function toggleChapter(head){ head.parentElement.classList.toggle('open'); }
+function toggleSol(btn){ const sol = btn.nextElementSibling; sol.classList.toggle('show'); btn.textContent = sol.classList.contains('show') ? 'Masquer la méthode' : 'Voir la méthode'; }
+
+function updateScore(){
+  document.getElementById('scoreDisplay').textContent = correctFirstTry + ' / ' + seenTried.size;
+  document.getElementById('scoreDisplayBar').textContent = 'Score : ' + correctFirstTry + ' / ' + seenTried.size;
+  const pct = seenTried.size ? Math.round(100*correctFirstTry/seenTried.size) : 0;
+  document.getElementById('progressFill').style.width = pct + '%';
+}
+
+function checkNum(id, expected, tolPct){
+  const inp = document.getElementById(id);
+  const fb = document.getElementById('fb_' + id);
+  const val = parseFloat(inp.value.replace(',', '.').trim());
+  if(isNaN(val)){ fb.textContent = 'Entrez un nombre.'; fb.className='feedback bad'; return; }
+  const tol = Math.abs(expected) * (tolPct/100) + 0.01;
+  const ok = Math.abs(val - expected) <= tol;
+  if(!seenTried.has(id)){ seenTried.add(id); if(ok) correctFirstTry++; updateScore(); }
+  fb.textContent = ok ? '✓ correct' : '✗ à revoir (attendu ≈ ' + expected + ')';
+  fb.className = 'feedback ' + (ok ? 'ok' : 'bad');
+}
+
+function calcRemonteBloc(){
+  const rc = parseFloat(document.getElementById('s9_rc').value.replace(',','.')) / 100; // cm -> m
+  if(isNaN(rc) || rc<=0){ return; }
+  const ZA=20, ZB=12, rPoignee=0.25, vBloc=0.3;
+  const omegaA = (vBloc/rc) * (ZB/ZA);
+  const vPoignee = rPoignee * omegaA;
+  document.getElementById('s9_out').value = vPoignee.toFixed(3);
+}
+
+document.querySelectorAll('.quiz-q').forEach(q=>{
+  const key = q.getAttribute('data-quiz');
+  let answered = false;
+  q.querySelectorAll('.opt').forEach(opt=>{
+    opt.addEventListener('click', ()=>{
+      if(answered) return; answered = true;
+      const isCorrect = opt.getAttribute('data-correct') === 'true';
+      q.querySelectorAll('.opt').forEach(o=>{
+        if(o.getAttribute('data-correct') === 'true') o.classList.add('correct');
+        else if(o === opt) o.classList.add('wrong');
+      });
+      const expl = q.querySelector('.quiz-explain'); if(expl) expl.classList.add('show');
+      if(!seenTried.has(key)){ seenTried.add(key); if(isCorrect) correctFirstTry++; updateScore(); }
+    });
+  });
+});
+
+const navLinks = document.querySelectorAll('nav.side a');
+const sections = document.querySelectorAll('section.chapter');
+const io = new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      navLinks.forEach(l=>l.classList.remove('active'));
+      const link = document.querySelector('nav.side a[href="#'+e.target.id+'"]');
+      if(link) link.classList.add('active');
+    }
+  });
+}, {rootMargin:'-20% 0px -70% 0px'});
+sections.forEach(s=>io.observe(s));
+
+navLinks.forEach(l=>{
+  l.addEventListener('click', (e)=>{
+    e.preventDefault();
+    const id = l.getAttribute('href').slice(1);
+    const target = document.getElementById(id);
+    target.classList.add('open');
+    const headerOffset = 10;
+    const top = target.getBoundingClientRect().top + window.pageYOffset - headerOffset;
+    window.scrollTo({top, behavior:'smooth'});
+  });
+});
+
+updateScore();
+</script>
+<a href="../index.html" style="position:fixed;bottom:16px;left:16px;z-index:99999;background:#1e3a5f;color:#fff;padding:10px 16px;border-radius:24px;font:600 14px system-ui,sans-serif;text-decoration:none;box-shadow:0 2px 8px rgba(0,0,0,.25)">← Sommaire</a></body>
+</html>

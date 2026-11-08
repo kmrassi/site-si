@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TAMIYA H-Cell — Corrigés interactifs</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#eef1f0; --paper-raised:#ffffff; --ink:#152238; --ink-soft:#4a5568; --line:#c9d0d3;
+  --copper:#b5652f; --copper-dim:#e7cdb2; --ok:#2f7a4f; --ok-bg:#e3f2e8; --bad:#b8433a; --bad-bg:#fbeae8; --radius:3px;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background:
+    linear-gradient(rgba(21,34,56,.06) 1px, transparent 1px) 0 0/28px 28px,
+    linear-gradient(90deg, rgba(21,34,56,.06) 1px, transparent 1px) 0 0/28px 28px,
+    var(--paper);
+  color:var(--ink); font-family:'Source Serif 4', Georgia, serif; font-size:16.5px; line-height:1.62;
+}
+h1,h2,h3,h4,.mono,button,.pill{font-family:'Space Grotesk', Arial, 'Segoe UI', sans-serif;}
+
+.shell{display:grid; grid-template-columns:240px minmax(0,1fr); max-width:1180px; margin:0 auto;}
+@media (max-width:860px){.shell{grid-template-columns:1fr;}}
+nav.side{position:sticky; top:0; align-self:start; height:100vh; overflow-y:auto; padding:26px 16px 40px 22px; border-right:1px solid var(--line);}
+@media (max-width:860px){nav.side{position:static; height:auto; border-right:none; border-bottom:1px solid var(--line);}}
+.brand{font-weight:700; font-size:.9rem; margin-bottom:18px;}
+.brand span{display:block; font-family:'Source Serif 4'; font-weight:400; font-style:italic; color:var(--ink-soft); font-size:.78rem;}
+nav.side ol{list-style:none; margin:0; padding:0; counter-reset:sec;}
+nav.side li{counter-increment:sec; margin-bottom:2px;}
+nav.side a{display:flex; gap:8px; text-decoration:none; color:var(--ink-soft); font-size:.79rem; padding:6px 7px; border-radius:var(--radius); cursor:pointer;}
+nav.side a::before{content:counter(sec,decimal-leading-zero); color:var(--copper); font-weight:600; font-size:.72rem;}
+nav.side a:hover{background:var(--paper-raised); color:var(--ink);}
+nav.side a.active{background:var(--copper-dim); color:var(--ink); font-weight:600;}
+.score-widget{margin-top:22px; padding:12px; border:1px dashed var(--line); border-radius:var(--radius); font-size:.78rem; color:var(--ink-soft);}
+.score-widget .n{font-size:1.5rem; font-weight:700; color:var(--ink);}
+
+main{padding:0 0 90px;}
+.hero{padding:44px 40px 30px; border-bottom:1px solid var(--line);}
+.hero .eyebrow{color:var(--copper); font-size:.78rem; font-weight:600; margin-bottom:8px;}
+.hero h1{font-size:1.8rem; margin:0 0 10px; max-width:24ch;}
+.hero p{max-width:66ch; color:var(--ink-soft); margin:0;}
+
+section.doc{padding:0 40px; border-bottom:1px solid var(--line);}
+@media (max-width:620px){section.doc, .hero{padding-left:20px; padding-right:20px;}}
+.dhead{display:flex; align-items:center; gap:12px; cursor:pointer; padding:22px 0 14px;}
+.dhead .num{font-weight:700; color:var(--copper); font-size:.9rem; border:1px solid var(--copper); border-radius:50%; width:30px; height:30px; display:flex; align-items:center; justify-content:center; flex:none;}
+.dhead h2{margin:0; font-size:1.18rem; flex:1;}
+.dhead .src{font-size:.72rem; color:var(--ink-soft); font-weight:400; display:block; margin-top:2px;}
+.dhead .chev{color:var(--ink-soft); transition:transform .2s;}
+.doc.open .dhead .chev{transform:rotate(90deg);}
+.dbody{max-height:0; overflow:hidden;}
+.doc.open .dbody{max-height:none;}
+.dinner{padding-bottom:30px;}
+
+.exo{background:var(--paper-raised); border:1px solid var(--line); border-radius:var(--radius); margin:16px 0; overflow:hidden;}
+.exo-head{display:flex; align-items:center; justify-content:space-between; padding:10px 16px; background:var(--copper-dim); border-bottom:1px solid var(--line);}
+.exo-head span{font-weight:600; font-size:.82rem;}
+.exo-body{padding:14px 18px;}
+.exo-body p.data{margin:0 0 10px; font-size:.9rem; color:var(--ink-soft);}
+.q{margin-bottom:10px;}
+.q label{display:block; font-size:.9rem; margin-bottom:5px;}
+.answer-row{display:flex; align-items:center; gap:8px; flex-wrap:wrap;}
+.answer-row input[type=text]{width:105px; padding:6px 9px; border:1px solid var(--line); border-radius:var(--radius); font-family:'Space Grotesk'; font-size:.88rem; background:var(--paper); color:var(--ink);}
+.unit-lbl{font-size:.8rem; color:var(--ink-soft);}
+.check-btn{border:1px solid var(--ink); background:var(--ink); color:var(--paper); padding:5px 13px; border-radius:var(--radius); font-size:.76rem; font-weight:600; cursor:pointer;}
+.check-btn:hover{opacity:.85;}
+.feedback{font-size:.8rem; margin-top:4px; min-height:1.1em;}
+.feedback.ok{color:var(--ok);}
+.feedback.bad{color:var(--bad);}
+.exo-footer{padding:6px 18px 14px;}
+.reveal-btn{background:none; border:none; color:#2f6690; font-size:.78rem; cursor:pointer; text-decoration:underline; padding:0;}
+.solution{display:none; margin-top:8px; padding:10px 12px; background:var(--ok-bg); border-radius:var(--radius); font-size:.85rem;}
+.solution.show{display:block;}
+.guided{border-left:3px solid var(--copper);}
+.guided .exo-head{background:#fdf3ea;}
+.pill{display:inline-block; font-size:.65rem; padding:2px 8px; border-radius:20px; background:var(--copper-dim); color:var(--ink); margin-left:6px; font-weight:600;}
+.pill.guide{background:#fdf3ea; color:var(--copper); border:1px solid var(--copper-dim);}
+.note{font-size:.76rem; color:var(--ink-soft); font-style:italic; margin-top:6px;}
+table.grid{width:100%; border-collapse:collapse; font-size:.85rem; margin:10px 0;}
+table.grid th, table.grid td{border:1px solid var(--line); padding:7px 9px; text-align:center;}
+table.grid th{background:var(--copper-dim); font-size:.72rem;}
+table.grid td.lbl{text-align:left; font-weight:600;}
+input[type=checkbox]{transform:scale(1.1);}
+.final-bar{position:sticky; bottom:0; background:var(--paper-raised); border-top:1px solid var(--line); padding:12px 40px; display:flex; align-items:center; gap:14px; justify-content:space-between; flex-wrap:wrap;}
+footer.end{padding:26px 40px 60px; color:var(--ink-soft); font-size:.82rem;}
+</style>
+</head>
+<body>
+<div class="shell">
+<nav class="side" id="sidenav">
+  <div class="brand">TAMIYA H-Cell<span>Corrigés interactifs — Spé SI</span></div>
+  <ol>
+    <li><a href="#d1">1.2 — Système énergétique</a></li>
+    <li><a href="#d2">1.3 — Système de transmission</a></li>
+    <li><a href="#d3">1.5 — Flux d'énergie (hybride)</a></li>
+  </ol>
+  <div class="score-widget"><div class="n" id="scoreDisplay">0 / 0</div>bonnes réponses au premier essai</div>
+</nav>
+<main>
+  <header class="hero">
+    <div class="eyebrow">Voiture TAMIYA TT-01 H-Cell — TP SI, niveau Première</div>
+    <h1>Corrigés interactifs — les trois dossiers d'étude</h1>
+    <p>Les questions purement expérimentales (relevés au tachymètre, lecture d'étiquette de batterie, essais réels) sont proposées sous forme de calculateurs à alimenter avec tes propres mesures. Les questions à données fournies dans le sujet sont corrigées automatiquement.</p>
+  </header>
+
+  <!-- ============ DOC 1 : SYSTEME ENERGETIQUE (1.2) ============ -->
+  <section class="doc open" id="d1">
+    <div class="dhead" onclick="toggleDoc(this)"><div class="num">1</div><h2>1.2 — Analyse du système énergétique</h2><div class="chev">›</div></div>
+    <div class="dbody"><div class="dinner">
+
+      <div class="exo">
+        <div class="exo-head"><span>1.2.2 — Forme d'énergie stockée</span><span class="pill">calcul</span></div>
+        <div class="exo-body">
+          <p class="data">Cochez la forme d'énergie réellement <b>stockée</b> (pas celle produite ou transportée) dans chaque élément.</p>
+          <table class="grid">
+            <tr><th></th><th>Pack Accumulateur</th><th>Cartouches Hydrostik</th></tr>
+            <tr><td class="lbl">Énergie électrique</td><td><input type="checkbox" id="c1_acc_e"></td><td><input type="checkbox" id="c1_hy_e"></td></tr>
+            <tr><td class="lbl">Énergie thermique</td><td><input type="checkbox" id="c1_acc_t"></td><td><input type="checkbox" id="c1_hy_t"></td></tr>
+            <tr><td class="lbl">Énergie cinétique</td><td><input type="checkbox" id="c1_acc_c"></td><td><input type="checkbox" id="c1_hy_c"></td></tr>
+            <tr><td class="lbl">Énergie chimique</td><td><input type="checkbox" id="c1_acc_ch"></td><td><input type="checkbox" id="c1_hy_ch"></td></tr>
+          </table>
+          <div class="answer-row"><button class="check-btn" onclick="checkTable122()">Vérifier</button><span class="feedback" id="fb_122"></span></div>
+        </div>
+        <div class="exo-footer"><button class="reveal-btn" onclick="toggleSol(this)">Voir la méthode</button>
+        <div class="solution">Les deux réservoirs stockent en réalité une <b>énergie chimique</b> : l'accumulateur via une réaction électrochimique réversible (charge/décharge), et l'Hydrostik via l'hydrogène absorbé dans l'hydrure métallique. L'énergie électrique n'apparaît qu'à la sortie, une fois cette énergie chimique convertie.</div></div>
+      </div>
+
+      <div class="exo">
+        <div class="exo-head"><span>1.2.4 — Origine et forme de l'énergie stockée</span><span class="pill">réponse modèle</span></div>
+        <div class="exo-body">
+          <table class="grid">
+            <tr><th></th><th>Batterie</th><th>Cartouche</th></tr>
+            <tr><td class="lbl">Où est prélevée l'énergie ?</td><td>Réaction électrochimique interne (charge/décharge des électrodes)</td><td>Hydrogène absorbé dans l'hydrure métallique</td></tr>
+            <tr><td class="lbl">Sous quelle forme est-elle stockée ?</td><td>Chimique</td><td>Chimique</td></tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="exo">
+        <div class="exo-head"><span>1.2.5 — Moyens de transport de l'énergie</span><span class="pill">réponse modèle</span></div>
+        <div class="exo-body">
+          <p><b>A (sortie batterie)</b> : câbles / fils électriques (transport d'énergie électrique).<br>
+          <b>B (sortie cartouche)</b> : tuyau / canalisation de gaz (transport de l'hydrogène jusqu'à la pile à combustible).</p>
+        </div>
+      </div>
+
+      <div class="exo">
+        <div class="exo-head"><span>1.2.6 — Transformation finale de l'énergie</span><span class="pill">réponse modèle</span></div>
+        <div class="exo-body">
+          <p><b>A</b> : l'énergie électrique se transforme en <b>énergie mécanique</b> (cinétique), mesurable au niveau de la rotation des roues / de la vitesse du véhicule.<br>
+          <b>B</b> : la voiture étant à l'arrêt au début et à la fin, son énergie cinétique nette est nulle. Toute l'énergie consommée a donc été <b>dissipée sous forme de chaleur</b> (frottements internes, résistance de l'air, résistance au roulement).</p>
+        </div>
+      </div>
+
+      <div class="exo">
+        <div class="exo-head"><span>1.2.7 — Calculateur puissance / énergie</span><span class="pill">interactif</span></div>
+        <div class="exo-body">
+          <p class="data">Formules : E<sub>consommée</sub> = P<sub>moyenne</sub> × t, et P<sub>moyenne</sub> = U × I. Entrez vos relevés réels du tableau de bord.</p>
+          <div class="answer-row" style="margin-bottom:8px;"><label>U <input type="text" id="c127_u" value="7.2"> V</label><label>I <input type="text" id="c127_i" value="3"> A</label><label>t <input type="text" id="c127_t" value="60"> s</label><button class="check-btn" onclick="calc127()">Calculer</button></div>
+          <div class="answer-row"><label>P<sub>moyenne</sub> =</label><input type="text" id="c127_p" readonly style="background:var(--copper-dim);"><span class="unit-lbl">W</span>
+          <label>E<sub>consommée</sub> =</label><input type="text" id="c127_e" readonly style="background:var(--copper-dim);"><span class="unit-lbl">J</span></div>
+        </div>
+      </div>
+
+      <div class="exo">
+        <div class="exo-head"><span>1.2.8 — Énergie stockée dans une cartouche</span><span class="pill">calcul</span></div>
+        <div class="exo-body">
+          <p class="data">Densité énergétique de l'hydrogène : 10 000 J/litre. Une cartouche contient 1 gramme d'hydrogène, soit 10 litres.</p>
+          <div class="q"><label>Quantité d'énergie chimique totale stockée dans une cartouche (10000 × 10) ?</label>
+            <div class="answer-row"><input type="text" id="c128_cart"><span class="unit-lbl">J</span><button class="check-btn" onclick="checkNum('c128_cart',100000,2)">Vérifier</button><span class="feedback" id="fb_c128_cart"></span></div></div>
+          <div class="note">Rappel : seuls 40% de cette énergie seront réellement convertis en électricité par la pile, soit 4000 J/L utilisables (voir 1.2.9).</div>
+        </div>
+        <div class="exo-footer"><button class="reveal-btn" onclick="toggleSol(this)">Voir la méthode</button>
+        <div class="solution">1J = 1 J/litre × 1 litre ⇒ Énergie = 10000 × 10 = <b>100 000 J</b> (100 kJ) par cartouche.</div></div>
+      </div>
+
+      <div class="exo">
+        <div class="exo-head"><span>1.2.8 (suite) — Calculateur énergie batterie</span><span class="pill">interactif</span></div>
+        <div class="exo-body">
+          <p class="data">Lisez la tension (V) et la capacité (mAh) inscrites sur votre accumulateur, puis calculez l'énergie stockée (E = V × I × t, avec la capacité convertie en A·s).</p>
+          <div class="answer-row" style="margin-bottom:8px;"><label>Tension <input type="text" id="c128_v" value="7.2"> V</label><label>Capacité <input type="text" id="c128_mah" value="3000"> mA·h</label><button class="check-btn" onclick="calcBatt()">Calculer</button></div>
+          <div class="answer-row"><label>Énergie stockée =</label><input type="text" id="c128_out" readonly style="background:var(--copper-dim);"><span class="unit-lbl">J</span></div>
+        </div>
+      </div>
+
+      <div class="exo">
+        <div class="exo-head"><span>1.2.9 — Puissance et autonomie théorique</span><span class="pill">calcul</span></div>
+        <div class="exo-body">
+          <p class="data">Effort de propulsion F=8 N, vitesse V=20 km/h=5,5 m/s.</p>
+          <div class="q"><label>A. Puissance nécessaire (P = F × V) ?</label>
+            <div class="answer-row"><input type="text" id="c129_p"><span class="unit-lbl">W</span><button class="check-btn" onclick="checkNum('c129_p',44,2)">Vérifier</button><span class="feedback" id="fb_c129_p"></span></div></div>
+
+          <p class="data" style="margin-top:14px;">B. Autonomie pour 2 cartouches (énergie utilisable 4000 J/L × 10L = 40 000 J par cartouche, soit 80 000 J pour deux).</p>
+          <div class="q"><label>Cas parfait (aucune perte), en minutes (partie entière) ?</label>
+            <div class="answer-row"><input type="text" id="c129_parfait"><span class="unit-lbl">min</span><button class="check-btn" onclick="checkNum('c129_parfait',30,5)">Vérifier</button><span class="feedback" id="fb_c129_parfait"></span></div></div>
+          <div class="q"><label>Cas réel (40% de pertes supplémentaires en route), en minutes (partie entière) ?</label>
+            <div class="answer-row"><input type="text" id="c129_reel"><span class="unit-lbl">min</span><button class="check-btn" onclick="checkNum('c129_reel',18,5)">Vérifier</button><span class="feedback" id="fb_c129_reel"></span></div></div>
+        </div>
+        <div class="exo-footer"><button class="reveal-btn" onclick="toggleSol(this)">Voir la méthode</button>
+        <div class="solution">P=8×5,5=44W. Pour 2 cartouches : énergie utilisable=80 000J. Cas parfait : t=80000/44≈1818s≈30,3min→<b>30 min</b>. Cas réel (perte de 40% en plus) : énergie effective=80000×0,6=48000J ⇒ t=48000/44≈1091s≈18,2min→<b>18 min</b>.
+        <div class="note">Pour l'autonomie de la batterie seule, réutilisez votre calcul du calculateur précédent (1.2.8) avec P=44W : Autonomie = Énergie batterie (J) / 44.</div></div></div>
+      </div>
+    </div></div>
+  </section>
+
+  <!-- ============ DOC 2 : TRANSMISSION (1.3) ============ -->
+  <section class="doc" id="d2">
+    <div class="dhead" onclick="toggleDoc(this)"><div class="num">2</div><h2>1.3 — Analyse du système de transmission</h2><div class="chev">›</div></div>
+    <div class="dbody"><div class="dinner">
+
+      <div class="exo">
+        <div class="exo-head"><span>1.3.2 — Calculateur de ratio arbre / roue</span><span class="pill">interactif</span></div>
+        <div class="exo-body">
+          <p class="data">Entrez vos relevés au tachymètre pour obtenir le ratio N<sub>arbre</sub>/N<sub>roue</sub>.</p>
+          <div class="answer-row" style="margin-bottom:8px;"><label>N roue <input type="text" id="c132_nr" value="3000"> tr/min</label><label>N arbre <input type="text" id="c132_na" value="9000"> tr/min</label><button class="check-btn" onclick="calc132()">Calculer</button></div>
+          <div class="answer-row"><label>Ratio N<sub>arbre</sub>/N<sub>roue</sub> =</label><input type="text" id="c132_out" readonly style="background:var(--copper-dim);"></div>
+          <div class="note">Ce ratio doit rester constant que l'amortisseur soit détendu ou comprimé (la réduction de vitesse ne dépend pas de la charge sur la suspension) : c'est la conclusion attendue en C.</div>
+        </div>
+      </div>
+
+      <div class="exo">
+        <div class="exo-head"><span>1.3.3 — Zones de réduction et joints d'accouplement</span><span class="pill">réponse modèle</span></div>
+        <div class="exo-body">
+          <p><b>Type de transmission</b> dans les zones de réduction : <b>par engrenage</b> (boîte de réduction / différentiel), et non par joint d'accouplement.<br>
+          <b>Rôle des joints d'accouplement</b> : transmettre le mouvement de rotation à la roue tout en tolérant le débattement de la suspension (la roue se déplace verticalement par rapport au châssis, l'arbre doit rester capable de transmettre le couple malgré ce mouvement).</p>
+        </div>
+      </div>
+
+      <div class="exo">
+        <div class="exo-head"><span>1.3.4 — Ligne droite vs virage (différentiel)</span><span class="pill">réponse modèle</span></div>
+        <div class="exo-body">
+          <table class="grid">
+            <tr><th>Configuration</th><th>Vitesses des roues gauche/droite</th></tr>
+            <tr><td class="lbl">En ligne droite</td><td>Identiques</td></tr>
+            <tr><td class="lbl">En virage</td><td>Différentes (la roue extérieure au virage tourne plus vite que la roue intérieure)</td></tr>
+          </table>
+          <p style="font-size:.9rem;"><b>Pourquoi ?</b> En virage, la roue extérieure parcourt un arc de cercle plus grand que la roue intérieure dans le même temps : sans différentiel, l'une des deux roues serait forcée de glisser sur le sol, ce qui userait les pneus et gênerait la manœuvre. Le différentiel autorise cette différence de vitesse entre les deux roues motrices.</p>
+        </div>
+      </div>
+
+      <div class="exo">
+        <div class="exo-head"><span>1.3.5 — Rapport de transmission (formulaire)</span><span class="pill">calcul</span></div>
+        <div class="exo-body">
+          <p class="data">Engrenage a : Z1=19, Z2=61. Engrenage b : Z3=15, Z4=39. Avec ω2=ω3 (même arbre).</p>
+          <div class="q"><label>i<sub>a</sub> = Z2/Z1 ?</label>
+            <div class="answer-row"><input type="text" id="c135_ia"><button class="check-btn" onclick="checkNum('c135_ia',3.2105,3)">Vérifier</button><span class="feedback" id="fb_c135_ia"></span></div></div>
+          <div class="q"><label>i<sub>b</sub> = Z4/Z3 ?</label>
+            <div class="answer-row"><input type="text" id="c135_ib"><button class="check-btn" onclick="checkNum('c135_ib',2.6,3)">Vérifier</button><span class="feedback" id="fb_c135_ib"></span></div></div>
+          <div class="q"><label>i<sub>global</sub> = i<sub>a</sub> × i<sub>b</sub> (moteur → roue) ?</label>
+            <div class="answer-row"><input type="text" id="c135_ig"><button class="check-btn" onclick="checkNum('c135_ig',8.347,3)">Vérifier</button><span class="feedback" id="fb_c135_ig"></span></div></div>
+        </div>
+        <div class="exo-footer"><button class="reveal-btn" onclick="toggleSol(this)">Voir la méthode et conclure</button>
+        <div class="solution">i<sub>a</sub>=61/19≈3,21. i<sub>b</sub>=39/15=2,6. i<sub>global</sub>=3,21×2,6≈8,35. Cette même chaîne de réduction alimentant l'avant et l'arrière (transmission intégrale par arbre de transmission), les rapports avant et arrière sont <b>identiques</b> — ce qui est cohérent : un écart entre les deux aurait provoqué un « bridage » du train (les roues avant et arrière se contrariant mutuellement).</div></div>
+      </div>
+
+      <div class="exo">
+        <div class="exo-head"><span>1.3.6 — Vitesse de pointe théorique</span><span class="pill">calcul</span></div>
+        <div class="exo-body">
+          <p class="data">N<sub>moteur</sub>=16500 tr/min (à vide). i<sub>global</sub>≈8,347. Diamètre de roue=65mm (R=32,5mm). Masse en translation=1,5 kg.</p>
+          <div class="q"><label>A1. ω<sub>moteur</sub> = π×N/30 ?</label>
+            <div class="answer-row"><input type="text" id="c136_wm"><span class="unit-lbl">rad/s</span><button class="check-btn" onclick="checkNum('c136_wm',1727.9,2)">Vérifier</button><span class="feedback" id="fb_c136_wm"></span></div></div>
+          <div class="q"><label>A2. ω<sub>roue</sub> = ω<sub>moteur</sub> / i<sub>global</sub> ?</label>
+            <div class="answer-row"><input type="text" id="c136_wr"><span class="unit-lbl">rad/s</span><button class="check-btn" onclick="checkNum('c136_wr',207.0,2)">Vérifier</button><span class="feedback" id="fb_c136_wr"></span></div></div>
+          <div class="q"><label>A3. V<sub>voiture</sub> = ω<sub>roue</sub> × R ?</label>
+            <div class="answer-row"><input type="text" id="c136_v"><span class="unit-lbl">m/s</span><button class="check-btn" onclick="checkNum('c136_v',6.727,2)">Vérifier</button><span class="feedback" id="fb_c136_v"></span></div></div>
+          <div class="q"><label>A4. E<sub>c</sub> = 0,5×m×V² ?</label>
+            <div class="answer-row"><input type="text" id="c136_ec"><span class="unit-lbl">J</span><button class="check-btn" onclick="checkNum('c136_ec',33.94,3)">Vérifier</button><span class="feedback" id="fb_c136_ec"></span></div></div>
+          <div class="q"><label>B. V<sub>voiture</sub> avec −10% de régime moteur ?</label>
+            <div class="answer-row"><input type="text" id="c136_vb"><span class="unit-lbl">m/s</span><button class="check-btn" onclick="checkNum('c136_vb',6.054,2)">Vérifier</button><span class="feedback" id="fb_c136_vb"></span></div></div>
+          <div class="q"><label>B. E<sub>c</sub> correspondante ?</label>
+            <div class="answer-row"><input type="text" id="c136_ecb"><span class="unit-lbl">J</span><button class="check-btn" onclick="checkNum('c136_ecb',27.49,3)">Vérifier</button><span class="feedback" id="fb_c136_ecb"></span></div></div>
+        </div>
+        <div class="exo-footer"><button class="reveal-btn" onclick="toggleSol(this)">Voir la méthode</button>
+        <div class="solution">ω<sub>moteur</sub>=π×16500/30≈1727,9 rad/s. ω<sub>roue</sub>=1727,9/8,347≈207,0 rad/s. V=0,0325×207,0≈6,73 m/s. E<sub>c</sub>=0,5×1,5×6,73²≈33,9 J.
+        Avec −10% sur N (donc sur ω et V, tout étant proportionnel) : V<sub>réel</sub>=6,73×0,9≈6,05 m/s. E<sub>c</sub> étant proportionnelle à V², elle est multipliée par 0,9²=0,81 : E<sub>c</sub>≈33,9×0,81≈27,5 J.</div></div>
+      </div>
+    </div></div>
+  </section>
+
+  <!-- ============ DOC 3 : FLUX D'ENERGIE (1.5) ============ -->
+  <section class="doc" id="d3">
+    <div class="dhead" onclick="toggleDoc(this)"><div class="num">3</div><h2>1.5 — Le flux d'énergie (système hybride)</h2><div class="chev">›</div></div>
+    <div class="dbody"><div class="dinner">
+
+      <div class="exo">
+        <div class="exo-head"><span>1.5.1 — Calculateur accumulateur seul</span><span class="pill">interactif</span></div>
+        <div class="exo-body">
+          <p class="data">Relevez sur l'accumulateur sa tension et sa capacité (données constructeur, variables selon le modèle utilisé).</p>
+          <div class="answer-row"><label>Tension <input type="text" id="c151_v"> V</label><label>Capacité <input type="text" id="c151_c"> mA·h</label></div>
+          <div class="note">Pas de valeur unique à vérifier ici : ces données dépendent du modèle d'accumulateur réellement monté sur ta voiture.</div>
+        </div>
+      </div>
+
+      <div class="exo">
+        <div class="exo-head"><span>1.5.2 — Repères d'énergie sur le graphe</span><span class="pill">réponse modèle</span></div>
+        <div class="exo-body">
+          <p style="font-size:.9rem;">D'après le schéma bloc (Batterie / Pile à combustible → Variateur → Moteur) :</p>
+          <table class="grid">
+            <tr><th>Grandeur du graphe</th><th>Repère</th></tr>
+            <tr><td class="lbl">Énergie consommée (moteur)</td><td>E1 + E2</td></tr>
+            <tr><td class="lbl">Énergie fournie au moteur ou à la batterie (pile)</td><td>E2 (+ E3 si recharge)</td></tr>
+            <tr><td class="lbl">Énergie fournie au moteur de propulsion (batterie)</td><td>E1</td></tr>
+            <tr><td class="lbl">Énergie reçue par la batterie pour recharge</td><td>E3</td></tr>
+          </table>
+          <p style="font-size:.88rem; color:var(--ink-soft); margin-top:10px;"><b>Modèle de comportement suggéré</b> (à confirmer avec votre propre relevé sur la carte d'acquisitions) :</p>
+          <table class="grid">
+            <tr><th></th><th>1→2 (arrêt)</th><th>2→3 (démarre)</th><th>3→4 (vitesse cst)</th><th>4→5 / 5→6 (vitesse ↓)</th><th>après 6 (arrêt)</th></tr>
+            <tr><td class="lbl">Pile à combustible</td><td>Recharge la batterie (E3)</td><td>Fournit son maximum (E2)</td><td>Fournit l'essentiel de la demande</td><td>Fournit plus que nécessaire, surplus → recharge (E3)</td><td>Recharge la batterie (E3)</td></tr>
+            <tr><td class="lbl">Batterie</td><td>Se recharge</td><td>Complète la pile (pic de demande), se décharge (E1)</td><td>Peu sollicitée</td><td>Se recharge (E3)</td><td>Se recharge jusqu'à charge complète</td></tr>
+          </table>
+          <div class="note">Ce tableau est un modèle de raisonnement : la forme exacte des courbes dépend de votre relevé réel sur la carte d'acquisitions (bilan des énergies).</div>
+        </div>
+      </div>
+
+      <div class="exo">
+        <div class="exo-head"><span>1.5.3 — Diagramme SysML (blocs internes)</span><span class="pill">réponse modèle</span></div>
+        <div class="exo-body">
+          <p style="font-size:.9rem;">Sur le diagramme de blocs internes : le port <b>U/i</b> de la <b>Batterie</b> échange <b>E1 ou E3</b> (flux à double sens ⇄, puisque la batterie peut fournir de l'énergie ou en recevoir pour se recharger) avec le bloc <b>Gestion énergie</b>. Le port <b>U/i</b> de la <b>Pile à combustible</b> fournit <b>E2</b> (flux à sens unique →, la pile ne fait que produire) vers <b>Gestion énergie</b>. En sortie de <b>Gestion énergie</b>, le port fournit <b>E1+E2</b> (flux → unique, vers le moteur).</p>
+        </div>
+      </div>
+
+      <div class="exo">
+        <div class="exo-head"><span>1.5.4 / 1.5.5 — Essais réels</span><span class="pill">guide</span></div>
+        <div class="exo-body">
+          <p style="font-size:.9rem;">Ces deux questions demandent un essai physique sur la maquette (accumulateur partiellement déchargé, puis pleinement chargé) : il n'y a pas de valeur numérique à vérifier ici, mais voici ce qu'on attend de constater :</p>
+          <ul style="font-size:.9rem;">
+            <li>Avec un accumulateur <b>partiellement déchargé</b> : la pile à combustible travaille davantage pour compléter la propulsion et recharger la batterie simultanément.</li>
+            <li>Avec un accumulateur <b>pleinement chargé</b> : la pile peut se contenter d'alimenter la propulsion, sans avoir besoin de recharger la batterie (voire la batterie participe davantage à la propulsion lors des pics de puissance).</li>
+          </ul>
+        </div>
+      </div>
+    </div></div>
+  </section>
+
+  <footer class="end">Corrigés construits à partir des trois dossiers d'étude TAMIYA H-Cell (1.2, 1.3, 1.5). Les questions nécessitant une mesure physique réelle (tachymètre, carte d'acquisitions, étiquette de batterie) sont proposées sous forme de calculateurs à alimenter avec vos propres relevés plutôt que corrigées avec une valeur imposée.</footer>
+</main>
+</div>
+
+<div class="final-bar">
+  <b id="scoreDisplayBar">Score : 0 / 0</b>
+  <div class="progress-track" style="flex:1; height:8px; background:var(--line); border-radius:6px; min-width:100px; overflow:hidden; max-width:260px;"><div class="progress-fill" id="progressFill" style="height:100%; width:0%; background:var(--copper); transition:width .4s ease;"></div></div>
+</div>
+
+<script>
+let correctFirstTry = 0;
+const seenTried = new Set();
+
+function toggleDoc(head){ head.parentElement.classList.toggle('open'); }
+function toggleSol(btn){ const sol=btn.nextElementSibling; sol.classList.toggle('show'); btn.textContent = sol.classList.contains('show') ? 'Masquer la méthode' : 'Voir la méthode'; }
+
+function updateScore(){
+  document.getElementById('scoreDisplay').textContent = correctFirstTry + ' / ' + seenTried.size;
+  document.getElementById('scoreDisplayBar').textContent = 'Score : ' + correctFirstTry + ' / ' + seenTried.size;
+  const pct = seenTried.size ? Math.round(100*correctFirstTry/seenTried.size) : 0;
+  document.getElementById('progressFill').style.width = pct + '%';
+}
+function registerResult(key, ok){
+  if(!seenTried.has(key)){ seenTried.add(key); if(ok) correctFirstTry++; updateScore(); }
+}
+function checkNum(id, expected, tolPct){
+  const inp = document.getElementById(id);
+  const fb = document.getElementById('fb_' + id);
+  const val = parseFloat(inp.value.replace(',', '.').trim());
+  if(isNaN(val)){ fb.textContent='Entrez un nombre.'; fb.className='feedback bad'; return; }
+  const tol = Math.abs(expected)*(tolPct/100)+0.01;
+  const ok = Math.abs(val-expected)<=tol;
+  registerResult(id, ok);
+  fb.textContent = ok ? '✓ correct' : '✗ à revoir (attendu ≈ '+expected+')';
+  fb.className = 'feedback ' + (ok?'ok':'bad');
+}
+
+function checkTable122(){
+  const expected = {acc_e:false, acc_t:false, acc_c:false, acc_ch:true, hy_e:false, hy_t:false, hy_c:false, hy_ch:true};
+  let correct=0, total=0;
+  Object.keys(expected).forEach(k=>{
+    total++;
+    const val = document.getElementById('c1_'+k).checked;
+    if(val===expected[k]) correct++;
+  });
+  const ok = correct===total;
+  registerResult('122', ok);
+  const fb=document.getElementById('fb_122');
+  fb.textContent = correct+' / '+total+' cases correctes';
+  fb.className='feedback '+(ok?'ok':'bad');
+}
+
+function calc127(){
+  const u=parseFloat(document.getElementById('c127_u').value.replace(',','.'));
+  const i=parseFloat(document.getElementById('c127_i').value.replace(',','.'));
+  const t=parseFloat(document.getElementById('c127_t').value.replace(',','.'));
+  if(isNaN(u)||isNaN(i)||isNaN(t)) return;
+  const p=u*i;
+  document.getElementById('c127_p').value=p.toFixed(2);
+  document.getElementById('c127_e').value=(p*t).toFixed(1);
+}
+
+function calcBatt(){
+  const v=parseFloat(document.getElementById('c128_v').value.replace(',','.'));
+  const mah=parseFloat(document.getElementById('c128_mah').value.replace(',','.'));
+  if(isNaN(v)||isNaN(mah)) return;
+  const As = (mah/1000)*3600;
+  document.getElementById('c128_out').value=(v*As).toFixed(1);
+}
+
+function calc132(){
+  const nr=parseFloat(document.getElementById('c132_nr').value.replace(',','.'));
+  const na=parseFloat(document.getElementById('c132_na').value.replace(',','.'));
+  if(isNaN(nr)||isNaN(na)||nr===0) return;
+  document.getElementById('c132_out').value=(na/nr).toFixed(3);
+}
+
+calc127(); calcBatt(); calc132();
+
+const navLinks = document.querySelectorAll('nav.side a');
+const sections = document.querySelectorAll('section.doc');
+const io = new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      navLinks.forEach(l=>l.classList.remove('active'));
+      const link = document.querySelector('nav.side a[href="#'+e.target.id+'"]');
+      if(link) link.classList.add('active');
+    }
+  });
+}, {rootMargin:'-20% 0px -70% 0px'});
+sections.forEach(s=>io.observe(s));
+
+navLinks.forEach(l=>{
+  l.addEventListener('click', (e)=>{
+    e.preventDefault();
+    const id = l.getAttribute('href').slice(1);
+    const target = document.getElementById(id);
+    target.classList.add('open');
+    const top = target.getBoundingClientRect().top + window.pageYOffset - 10;
+    window.scrollTo({top, behavior:'smooth'});
+  });
+});
+
+updateScore();
+</script>
+<a href="../index.html" style="position:fixed;bottom:16px;left:16px;z-index:99999;background:#1e3a5f;color:#fff;padding:10px 16px;border-radius:24px;font:600 14px system-ui,sans-serif;text-decoration:none;box-shadow:0 2px 8px rgba(0,0,0,.25)">← Sommaire</a></body>
+</html>

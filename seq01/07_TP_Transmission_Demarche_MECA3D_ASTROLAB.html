@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Démarche MECA3D — TP ASTROLAB</title>
+<style>
+  :root{
+    --bg:#f7f8fb; --panel:#ffffff; --ink:#1c2430; --sub:#5b6472;
+    --accent:#2b5fb8; --accent-light:#e8f0fe; --line:#e1e5ec;
+    --ok:#1f8a4c; --warn:#b8560f; --warn-bg:#fff3e6;
+    --step-num:#2b5fb8;
+    --font: "Segoe UI", -apple-system, "Helvetica Neue", Arial, sans-serif;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#14171d; --panel:#1c212b; --ink:#e7ebf2; --sub:#9aa4b3;
+      --accent:#6fa2ff; --accent-light:#1c2b47; --line:#2b3240;
+      --ok:#4fd18a; --warn:#ffb26b; --warn-bg:#332310;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#14171d; --panel:#1c212b; --ink:#e7ebf2; --sub:#9aa4b3;
+    --accent:#6fa2ff; --accent-light:#1c2b47; --line:#2b3240;
+    --ok:#4fd18a; --warn:#ffb26b; --warn-bg:#332310;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; background:var(--bg); color:var(--ink); font-family:var(--font);
+    line-height:1.55;
+  }
+  .wrap{max-width:920px; margin:0 auto; padding:28px 20px 80px;}
+  header.hero{
+    background:linear-gradient(135deg,var(--accent),#7aa8f2);
+    color:#fff; border-radius:16px; padding:28px 26px; margin-bottom:26px;
+  }
+  header.hero h1{margin:0 0 6px; font-size:1.55rem;}
+  header.hero p{margin:0; opacity:.92; font-size:.97rem;}
+  .badges{display:flex; gap:8px; flex-wrap:wrap; margin-top:14px;}
+  .badge{background:rgba(255,255,255,.18); border:1px solid rgba(255,255,255,.35);
+    padding:4px 11px; border-radius:999px; font-size:.78rem;}
+
+  h2.section-title{
+    font-size:1.15rem; margin:34px 0 12px; padding-bottom:8px;
+    border-bottom:2px solid var(--accent); color:var(--ink);
+  }
+  h3{font-size:1rem; margin:0 0 6px;}
+
+  .card{
+    background:var(--panel); border:1px solid var(--line); border-radius:12px;
+    padding:18px 20px; margin-bottom:14px;
+  }
+
+  .step{
+    display:grid; grid-template-columns:38px 1fr; gap:14px;
+    background:var(--panel); border:1px solid var(--line); border-radius:12px;
+    padding:16px 18px; margin-bottom:12px;
+  }
+  .step .num{
+    width:34px; height:34px; border-radius:50%; background:var(--step-num);
+    color:#fff; display:flex; align-items:center; justify-content:center;
+    font-weight:700; font-size:.95rem;
+  }
+  .step .content p{margin:6px 0;}
+  .step .content ul{margin:6px 0 0; padding-left:20px;}
+  .step .content li{margin-bottom:4px;}
+  .meca-path{
+    display:inline-block; background:var(--accent-light); color:var(--accent);
+    padding:2px 8px; border-radius:6px; font-family:"Consolas","Menlo",monospace;
+    font-size:.85rem;
+  }
+  .tip{
+    background:var(--accent-light); border-left:4px solid var(--accent);
+    padding:10px 14px; border-radius:8px; font-size:.9rem; margin-top:10px;
+  }
+  .warn{
+    background:var(--warn-bg); border-left:4px solid var(--warn);
+    padding:10px 14px; border-radius:8px; font-size:.9rem; margin-top:10px; color:var(--ink);
+  }
+
+  details.adv{
+    background:var(--panel); border:1px solid var(--line); border-radius:12px;
+    padding:4px 18px; margin-bottom:12px;
+  }
+  details.adv summary{
+    cursor:pointer; font-weight:600; padding:12px 0; list-style:none;
+    display:flex; align-items:center; gap:8px;
+  }
+  details.adv summary::-webkit-details-marker{display:none;}
+  details.adv summary:before{content:"▸"; color:var(--accent); transition:transform .15s;}
+  details.adv[open] summary:before{transform:rotate(90deg);}
+  details.adv .inner{padding-bottom:14px;}
+
+  table{width:100%; border-collapse:collapse; margin:10px 0 4px; font-size:.92rem;}
+  th,td{border:1px solid var(--line); padding:8px 10px; text-align:left;}
+  th{background:var(--accent-light); color:var(--ink);}
+  .fill{color:var(--sub); font-style:italic;}
+
+  .svg-wrap{
+    background:var(--panel); border:1px solid var(--line); border-radius:12px;
+    padding:14px; margin:14px 0; overflow-x:auto;
+  }
+  svg text{font-family:var(--font);}
+
+  .corr-block{
+    background:var(--panel); border:1px solid var(--line); border-left:4px solid var(--ok);
+    border-radius:10px; padding:14px 18px; margin-bottom:14px;
+  }
+  .corr-block h4{margin:0 0 6px; color:var(--ok); font-size:.95rem;}
+  .missing-block{
+    background:var(--panel); border:1px solid var(--line); border-left:4px solid var(--warn);
+    border-radius:10px; padding:14px 18px; margin-bottom:14px;
+  }
+  .missing-block h4{margin:0 0 6px; color:var(--warn); font-size:.95rem;}
+
+  code{font-family:"Consolas","Menlo",monospace; background:var(--accent-light); padding:1px 5px; border-radius:4px;}
+
+  footer{margin-top:36px; font-size:.8rem; color:var(--sub); text-align:center;}
+
+  @media print{
+    body{background:#fff;}
+    header.hero{background:#2b5fb8 !important; -webkit-print-color-adjust:exact; print-color-adjust:exact;}
+    details.adv{page-break-inside:avoid;}
+    .step,.card,.corr-block,.missing-block{page-break-inside:avoid;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="hero">
+    <h1>Démarche MECA3D appliquée au TP ASTROLAB</h1>
+    <p>Réglage de la maquette numérique du réducteur d'embase pour répondre aux questions Q9 et Q10, avec le corrigé des calculs qui peuvent être établis à partir des données de l'énoncé.</p>
+    <div class="badges">
+      <span class="badge">Spé SI</span>
+      <span class="badge">Chaîne d'énergie</span>
+      <span class="badge">MECA3D / SOLIDWORKS</span>
+    </div>
+  </header>
+
+  <h2 class="section-title">0. Ce qu'il faut avoir en tête avant de commencer</h2>
+  <div class="card">
+    <p>Dans le TP, la fiche générique <em>fiche-aide-meca3d</em> décrit la méthode en 5 étapes (pièces → liaisons → efforts → simulation → résultats). Pour l'ASTROLAB, la seule chose demandée (Q9) est de <strong>faire tourner le moteur à la vitesse correspondant à la touche 6</strong> et de <strong>relever la vitesse de rotation de la fourche</strong>. On adapte donc la méthode générale au cas particulier d'un réducteur (train d'engrenages + vis sans fin / roue tangente) au lieu du mécanisme de la pince Schrader utilisé en exemple.</p>
+    <div class="tip">Le moteur (à courant continu) n'est pas modélisé comme un solide déformable dans MECA3D : c'est une <strong>liaison pivot motorisée</strong> entre l'arbre moteur et le bâti, à laquelle on impose une loi de vitesse.</div>
+  </div>
+
+  <div class="svg-wrap">
+    <svg viewBox="0 0 760 190" width="100%">
+      <defs>
+        <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 z" fill="#2b5fb8"/>
+        </marker>
+      </defs>
+      <style>
+        .box{fill:#e8f0fe; stroke:#2b5fb8; stroke-width:1.5;}
+        .lbl{font-size:12px; fill:#1c2430; text-anchor:middle;}
+        .sub{font-size:10px; fill:#5b6472; text-anchor:middle;}
+      </style>
+      <rect class="box" x="10" y="60" width="110" height="60" rx="8"/>
+      <text class="lbl" x="65" y="88">Moteur CC</text>
+      <text class="sub" x="65" y="103">liaison pivot motorisée</text>
+
+      <line x1="120" y1="90" x2="185" y2="90" stroke="#2b5fb8" stroke-width="2" marker-end="url(#arrow)"/>
+
+      <rect class="box" x="185" y="60" width="150" height="60" rx="8"/>
+      <text class="lbl" x="260" y="82">Train d'engrenages</text>
+      <text class="sub" x="260" y="97">Z1…Z13</text>
+      <text class="sub" x="260" y="110">liaisons pivot + engrenages</text>
+
+      <line x1="335" y1="90" x2="400" y2="90" stroke="#2b5fb8" stroke-width="2" marker-end="url(#arrow)"/>
+
+      <rect class="box" x="400" y="60" width="150" height="60" rx="8"/>
+      <text class="lbl" x="475" y="82">Vis sans fin (14)</text>
+      <text class="sub" x="475" y="97">+ Roue tangente (15)</text>
+      <text class="sub" x="475" y="110">liaison "roue et vis"</text>
+
+      <line x1="550" y1="90" x2="615" y2="90" stroke="#2b5fb8" stroke-width="2" marker-end="url(#arrow)"/>
+
+      <rect class="box" x="615" y="60" width="135" height="60" rx="8"/>
+      <text class="lbl" x="682" y="88">Fourche</text>
+      <text class="sub" x="682" y="103">solide de sortie</text>
+    </svg>
+  </div>
+
+  <h2 class="section-title">1. Déclaration des pièces</h2>
+  <div class="step">
+    <div class="num">1</div>
+    <div class="content">
+      <p>Comme dans la fiche générale, ouvrir <span class="meca-path">Meca3D / Ajout des composants / Pièces…</span>, ou clic droit sur <em>Pièces</em> dans l'arbre MECA3D → <em>Ajouter</em>.</p>
+      <ul>
+        <li>Déclarer en premier le <strong>Corps (bâti)</strong> — obligatoire, c'est la pièce fixe.</li>
+        <li>Déclarer ensuite chaque solide mobile du réducteur : l'arbre du moteur, chaque roue/pignon du train (celles qui tournent de façon solidaire sur un même arbre peuvent être un seul et même solide MECA3D si elles sont fixées rigidement, par exemple les couples 2-3, 4-5, 6-7, 8-9, 12-13), la vis sans fin (14), la roue tangente (15), puis la fourche.</li>
+      </ul>
+      <div class="tip">Utilisez de préférence <strong>Conversion automatique</strong> (clic droit sur <em>Pièces</em> → <em>Conversion automatique</em>) : c'est beaucoup plus rapide qu'une déclaration pièce par pièce sur un mécanisme à autant de composants, et cela évite d'en oublier un.</div>
+    </div>
+  </div>
+
+  <h2 class="section-title">2. Déclaration des liaisons</h2>
+  <div class="step">
+    <div class="num">2</div>
+    <div class="content">
+      <p>Ouvrir <span class="meca-path">Meca3D / Ajout des composants / Liaison…</span> pour chaque liaison. Pour un réducteur, il y a deux familles de liaisons à créer :</p>
+      <ul>
+        <li><strong>Liaisons pivot</strong> entre chaque arbre et le bâti (une par axe de rotation : arbre moteur, chaque axe intermédiaire du train, l'axe de la vis, l'axe de la roue tangente, l'axe de la fourche).</li>
+        <li><strong>Liaisons "engrenage"</strong> entre chaque couple de roues dentées en prise (ex. Z1-Z2, Z3-Z4, etc.) : MECA3D propose un type de liaison dédié <em>engrenage</em> dans la boîte "Sélection du type de liaison" — il demande le rapport de réduction (ou les rayons primitifs / nombres de dents) et le sens (extérieur/intérieur).</li>
+        <li><strong>Liaison "roue et vis" (ou engrenage gauche)</strong> entre la vis sans fin (14) et la roue tangente (15) — c'est un type de liaison spécifique dans MECA3D, différent d'une liaison engrenage classique, car les axes de la vis et de la roue sont orthogonaux et non concourants.</li>
+      </ul>
+      <div class="tip">Comme pour la pince Schrader dans la fiche générale, si le modèle SOLIDWORKS a été monté avec des contraintes de concentricité entre chaque axe et son alésage, MECA3D reconnaît automatiquement la contrainte pour créer chaque pivot (drapeau vert). Pour les liaisons engrenage/roue-vis, il faudra en revanche saisir manuellement le rapport ou sélectionner les cercles primitifs, MECA3D ne les déduit pas toujours des contraintes géométriques.</div>
+      <div class="warn">Erreur fréquente : oublier de masquer le corps avant de sélectionner les pièces en prise (cf. fiche générale, §2) — sur un train d'engrenages dense, il est facile de cliquer sur le mauvais axe.</div>
+    </div>
+  </div>
+
+  <h2 class="section-title">3. Déclaration de l'effort moteur</h2>
+  <div class="step">
+    <div class="num">3</div>
+    <div class="content">
+      <p>Contrairement à l'exemple de la pince (un effort de type <em>vérin</em>), ici l'effort d'entrée est une <strong>rotation imposée sur la liaison pivot moteur</strong> :</p>
+      <ul>
+        <li>Clic droit sur <em>Efforts</em> → <em>Ajouter…</em> → choisir <strong>Moteur</strong> (ou directement paramétrer le degré de liberté d'entrée dans la fenêtre de calcul, §4 ci-dessous — MECA3D permet les deux approches selon la version).</li>
+        <li>Sélectionner la liaison pivot entre l'arbre moteur et le bâti.</li>
+        <li>Saisir la <strong>vitesse de rotation</strong> correspondant à la touche demandée (touche 6 pour Q9), convertie en tr/min ou en rad/s selon l'unité attendue par la boîte de dialogue.</li>
+      </ul>
+      <div class="tip">Vitesse touche 6 = 128 × vitesse sidérale (donnée §5 de l'énoncé). Calculez d'abord la vitesse sidérale en tr/min (voir corrigé Q4 plus bas), multipliez par 128, puis convertissez si besoin en rad/s (× 2π/60) avant de la saisir dans MECA3D.</div>
+    </div>
+  </div>
+
+  <h2 class="section-title">4. Paramètres de simulation et calcul</h2>
+  <div class="step">
+    <div class="num">4</div>
+    <div class="content">
+      <p>Clic droit sur <em>Analyse</em> → <em>Calcul mécanique</em> :</p>
+      <ul>
+        <li>Double-cliquer sur la liaison pivot moteur dans la liste des liaisons proposées comme "mouvement d'entrée".</li>
+        <li>Choisir le <strong>degré de liberté à piloter</strong> (rotation autour de l'axe de l'arbre moteur).</li>
+        <li>Saisir la <strong>vitesse</strong> calculée pour la touche 6.</li>
+        <li>Type d'étude : <em>Étude cinématique et statique</em> suffit ici (pas besoin de dynamique pour une vitesse de rotation imposée constante).</li>
+        <li>Nombre de positions : 1 ou 2 suffisent pour un simple relevé de vitesse en régime établi.</li>
+        <li>Cliquer sur <strong>Calcul</strong>.</li>
+      </ul>
+    </div>
+  </div>
+
+  <h2 class="section-title">5. Lecture du résultat (réponse à Q9)</h2>
+  <div class="step">
+    <div class="num">5</div>
+    <div class="content">
+      <p>Dans <span class="meca-path">Résultats / Courbes / Simples</span> (ou <em>Consultation de résultats</em>), sélectionner la <strong>liaison pivot de la fourche</strong> et demander la vitesse angulaire (composante de rotation).</p>
+      <ul>
+        <li>MECA3D affiche en général la vitesse en <strong>rad/s</strong> : convertir en tr/min avec <code>N (tr/min) = ω (rad/s) × 60 / (2π)</code>.</li>
+        <li>Relever cette valeur : c'est la <strong>vitesse de rotation de la fourche N<sub>fourche</sub></strong> demandée en Q9.</li>
+      </ul>
+      <div class="tip">Vérification de cohérence : le rapport N<sub>fourche</sub> / N<sub>moteur</sub> obtenu par la simulation doit être très proche du rapport de réduction global r<sub>g</sub> calculé analytiquement en Q8 — c'est exactement l'objet de la comparaison demandée en Q10/Q11 (conformité maquette numérique / calcul).</div>
+    </div>
+  </div>
+
+  <details class="adv">
+    <summary>Points de vigilance supplémentaires sur le réglage MECA3D (à ouvrir si un calcul ne "tombe pas juste")</summary>
+    <div class="inner">
+      <ul>
+        <li><strong>Sens de rotation</strong> : un signe "−" devant la vitesse d'entrée inverse le sens ; si le résultat de la fourche est dans le mauvais sens, vérifiez le signe plutôt que le montage des liaisons.</li>
+        <li><strong>Unités</strong> : MECA3D travaille en général en <em>rad/s</em> en interne pour les vitesses angulaires et en <em>mm</em> pour les longueurs (système SOLIDWORKS) — toujours reconvertir en tr/min pour comparer aux données du TP, qui sont en tr/min.</li>
+        <li><strong>Liaison roue-vis mal orientée</strong> : si les axes de la vis (14) et de la roue (15) ne sont pas positionnés à 90° dans le modèle CAO, MECA3D refusera ou faussera la liaison "roue et vis" — vérifier le montage SOLIDWORKS avant de créer la liaison.</li>
+        <li><strong>Durée du mouvement</strong> : pour une simple lecture de vitesse en régime permanent, une durée courte (1 s) avec 1 ou 2 positions suffit ; inutile de simuler un mouvement long.</li>
+      </ul>
+    </div>
+  </details>
+
+  <h2 class="section-title">Corrigé — questions calculables à partir des données de l'énoncé</h2>
+
+  <div class="corr-block">
+    <h4>Q1 — Vitesse théorique du moteur (hypothèse : proportionnalité à la tension, régime nominal 8000 tr/min à 12 V)</h4>
+    <p><code>N<sub>moteur</sub> = (U / 12) × 8000</code></p>
+    <table>
+      <tr><th>Touche</th><th>Tension (V)</th><th>N<sub>moteur</sub> (tr/min)</th></tr>
+      <tr><td>6</td><td>1,7</td><td>≈ 1133 tr/min</td></tr>
+      <tr><td>7</td><td>3,8</td><td>≈ 2533 tr/min</td></tr>
+      <tr><td>8</td><td>6</td><td>4000 tr/min</td></tr>
+    </table>
+  </div>
+
+  <div class="corr-block">
+    <h4>Q2 — Expression du rapport de réduction</h4>
+    <p><code>r = N<sub>fourche</sub> / N<sub>moteur</sub></code> (r &lt; 1 puisqu'il s'agit d'un réducteur).</p>
+  </div>
+
+  <div class="corr-block">
+    <h4>Q4 — Vitesse sidérale en tr/min</h4>
+    <p>1 tour en 23 h 56 min = 1436 min → <code>N<sub>sidérale</sub> = 1 / 1436 ≈ 6,96 × 10⁻⁴ tr/min</code></p>
+  </div>
+
+  <div class="missing-block">
+    <h4>Q3, Q5, Q10, Q11 — nécessitent une donnée que l'énoncé ne fournit pas</h4>
+    <p>Ces questions demandent <strong>N<sub>fourche</sub></strong>, soit mesurée sur le télescope réel (Q3/Q5), soit relevée dans la simulation MECA3D (Q9/Q10). Ce sont des valeurs expérimentales/de simulation propres à votre manipulation : je ne peux pas les inventer. Une fois que vous avez ces relevés, la méthode est directe :</p>
+      <table>
+        <tr><th>Question</th><th>Formule à appliquer</th></tr>
+        <tr><td>Q3 (rapport mesuré)</td><td><code>r = N<sub>fourche mesurée</sub> / N<sub>moteur</sub></code> (avec N<sub>moteur</sub> du corrigé Q1), puis moyenne des 3 rapports.</td></tr>
+        <tr><td>Q5 (écart touche 6)</td><td>Spécification touche 6 = 128 × N<sub>sidérale</sub> ≈ 0,0891 tr/min (fourche). <code>écart % = (N<sub>mesurée</sub> − 0,0891) / 0,0891 × 100</code></td></tr>
+        <tr><td>Q10 (rapport simulé)</td><td><code>r = N<sub>fourche simulée</sub> / N<sub>moteur</sub></code>, à comparer au r<sub>g</sub> analytique de Q8.</td></tr>
+        <tr><td>Q11 (synthèse)</td><td>Comparer les 3 rapports obtenus (mesure réelle Q3, calcul analytique Q8, simulation Q10) et commenter l'écart (jeu dans les engrenages, rendement, imprécision de mesure, fidélité de la maquette CAO…).</td></tr>
+      </table>
+  </div>
+
+  <div class="missing-block">
+    <h4>Q6, Q7, Q8 — rapport de réduction du train d'engrenages</h4>
+    <p>La méthode est celle du produit des rapports élémentaires <code>Z<sub>menant</sub> / Z<sub>mené</sub></code> pour chaque étage, puis le rapport roue/vis <code>1 / Z<sub>15</sub></code> (car la vis a 1 filet). Cependant, l'ordre exact d'engrènement des pignons 9 à 13 sur votre schéma n'est pas totalement certain à partir du document transmis (numérotation dense sur le schéma cinématique). Pour vous donner un corrigé numérique fiable et non approximatif, précisez-moi (ou montrez-moi en zoomant sur le schéma) quels pignons sont coaxiaux (solidaires du même arbre) et lesquels sont en prise deux à deux entre le pignon moteur (1) et la vis (13/14) — je vous calcule alors r<sub>1/13</sub>, r<sub>roue/vis</sub> et r<sub>g</sub> immédiatement.</p>
+  </div>
+
+  <footer>Fiche personnalisée à partir de fiche-aide-meca3d et TP_TRANSMISSION_MOUVEMENT_ASTROLAB.</footer>
+</div>
+<a href="../index.html" style="position:fixed;bottom:16px;left:16px;z-index:99999;background:#1e3a5f;color:#fff;padding:10px 16px;border-radius:24px;font:600 14px system-ui,sans-serif;text-decoration:none;box-shadow:0 2px 8px rgba(0,0,0,.25)">← Sommaire</a></body>
+</html>

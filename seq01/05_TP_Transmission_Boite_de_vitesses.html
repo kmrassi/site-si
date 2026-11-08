@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Boîte de vitesses — Fiche interactive</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#eef1f0; --paper-raised:#ffffff; --ink:#152238; --ink-soft:#4a5568; --line:#c9d0d3;
+  --copper:#b5652f; --copper-dim:#e7cdb2; --ok:#2f7a4f; --ok-bg:#e3f2e8; --bad:#b8433a; --bad-bg:#fbeae8; --radius:3px;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background:
+    linear-gradient(rgba(21,34,56,.06) 1px, transparent 1px) 0 0/28px 28px,
+    linear-gradient(90deg, rgba(21,34,56,.06) 1px, transparent 1px) 0 0/28px 28px,
+    var(--paper);
+  color:var(--ink); font-family:'Source Serif 4', Georgia, serif; font-size:16.5px; line-height:1.62;
+}
+h1,h2,h3,h4,.mono,button,.pill{font-family:'Space Grotesk', Arial, 'Segoe UI', sans-serif;}
+
+header.top{padding:36px 6vw 26px; border-bottom:1px solid var(--line);}
+header.top .eyebrow{color:var(--copper); font-size:.78rem; font-weight:600; margin-bottom:8px;}
+header.top h1{margin:0 0 8px; font-size:1.7rem; max-width:26ch;}
+header.top p{max-width:66ch; color:var(--ink-soft); margin:0;}
+.score-bar{margin-top:14px; display:flex; align-items:center; gap:14px;}
+.score-bar b{font-size:1rem;}
+.progress-track{flex:1; max-width:260px; height:8px; background:var(--line); border-radius:6px; overflow:hidden;}
+.progress-fill{height:100%; width:0%; background:var(--copper); transition:width .4s ease;}
+
+main{max-width:960px; margin:0 auto; padding:10px 6vw 90px;}
+
+.callout{background:var(--paper-raised); border:1px solid var(--line); border-left:3px solid var(--copper); padding:14px 18px; border-radius:var(--radius); margin:20px 0; font-size:.92rem;}
+.callout b.tag{display:block; font-size:.7rem; letter-spacing:.04em; text-transform:uppercase; color:var(--copper); margin-bottom:6px;}
+.formula{background:var(--paper-raised); border:1px solid var(--line); border-radius:var(--radius); padding:12px 16px; text-align:center; font-weight:600; margin:10px 0; font-size:1.05rem;}
+.formula small{display:block; font-size:.6em; font-weight:400; color:var(--ink-soft); margin-top:4px;}
+
+section.part{margin-top:40px;}
+section.part > h2{font-size:1.2rem; display:flex; align-items:center; gap:12px; border-bottom:2px solid var(--ink); padding-bottom:10px;}
+section.part > h2 .num{width:28px; height:28px; border-radius:50%; border:1px solid var(--copper); color:var(--copper); display:flex; align-items:center; justify-content:center; font-size:.85rem; flex:none;}
+
+.exo{background:var(--paper-raised); border:1px solid var(--line); border-radius:var(--radius); margin:16px 0; overflow:hidden;}
+.exo-head{display:flex; align-items:center; justify-content:space-between; padding:10px 16px; background:var(--copper-dim); border-bottom:1px solid var(--line);}
+.exo-head span{font-weight:600; font-size:.82rem;}
+.exo-body{padding:14px 18px;}
+.exo-body p.data{margin:0 0 10px; font-size:.9rem; color:var(--ink-soft);}
+.q{margin-bottom:10px;}
+.q label{display:block; font-size:.9rem; margin-bottom:5px;}
+.answer-row{display:flex; align-items:center; gap:8px; flex-wrap:wrap;}
+.answer-row input[type=text]{width:110px; padding:6px 9px; border:1px solid var(--line); border-radius:var(--radius); font-family:'Space Grotesk'; font-size:.88rem; background:var(--paper); color:var(--ink);}
+.unit-lbl{font-size:.8rem; color:var(--ink-soft);}
+.check-btn{border:1px solid var(--ink); background:var(--ink); color:var(--paper); padding:5px 13px; border-radius:var(--radius); font-size:.76rem; font-weight:600; cursor:pointer;}
+.check-btn:hover{opacity:.85;}
+.feedback{font-size:.8rem; margin-top:4px; min-height:1.1em;}
+.feedback.ok{color:var(--ok);}
+.feedback.bad{color:var(--bad);}
+.exo-footer{padding:6px 18px 14px;}
+.reveal-btn{background:none; border:none; color:#2f6690; font-size:.78rem; cursor:pointer; text-decoration:underline; padding:0;}
+.solution{display:none; margin-top:8px; padding:10px 12px; background:var(--ok-bg); border-radius:var(--radius); font-size:.85rem;}
+.solution.show{display:block;}
+.pill{display:inline-block; font-size:.65rem; padding:2px 8px; border-radius:20px; background:var(--copper-dim); color:var(--ink); margin-left:6px; font-weight:600;}
+.note{font-size:.76rem; color:var(--ink-soft); font-style:italic; margin-top:6px;}
+
+table.grid{width:100%; border-collapse:collapse; font-size:.86rem; margin:10px 0;}
+table.grid th, table.grid td{border:1px solid var(--line); padding:7px 9px; text-align:center;}
+table.grid th{background:var(--copper-dim); font-size:.74rem;}
+table.grid td.lbl{text-align:left; font-weight:600;}
+
+.quiz-q{background:var(--paper-raised); border:1px solid var(--line); border-radius:var(--radius); padding:15px 18px; margin:14px 0;}
+.quiz-q p.stem{font-weight:600; margin:0 0 11px; font-size:.98rem;}
+.opt{display:flex; align-items:center; gap:10px; padding:9px 12px; border:1px solid var(--line); border-radius:var(--radius); margin-bottom:6px; cursor:pointer; font-size:.9rem;}
+.opt:hover{background:var(--copper-dim);}
+.opt.correct{background:var(--ok-bg); border-color:var(--ok);}
+.opt.wrong{background:var(--bad-bg); border-color:var(--bad);}
+.quiz-explain{display:none; margin-top:7px; font-size:.85rem; color:var(--ink-soft); border-top:1px dashed var(--line); padding-top:7px;}
+.quiz-explain.show{display:block;}
+.diagram{display:flex; justify-content:center; margin:16px 0;}
+.diagram svg{max-width:100%; height:auto;}
+footer.end{padding:30px 6vw 60px; color:var(--ink-soft); font-size:.83rem;}
+.final-bar{position:sticky; bottom:0; background:var(--paper-raised); border-top:1px solid var(--line); padding:12px 6vw; display:flex; align-items:center; gap:14px; justify-content:space-between; flex-wrap:wrap;}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="eyebrow">Maquette pédagogique — Boîte de vitesses</div>
+  <h1>Boîte de vitesses — Fiche interactive</h1>
+  <p>Vérification des rapports de transmission de la maquette (2 vitesses + marche arrière), à partir de la notice technique 03.2017.</p>
+  <div class="score-bar">
+    <b id="scoreDisplay">Score : 0 / 0</b>
+    <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+  </div>
+</header>
+
+<main>
+
+<div class="callout">
+  <b class="tag">À propos des deux fichiers fournis</b>
+  Le fichier <i>dossier_technique.pdf</i> que tu as joint décrit en réalité l'aspirateur autonome (chaîne d'énergie, capteurs, simulateur de programmation) — il n'a pas de lien avec la boîte de vitesses. La fiche ci-dessous s'appuie donc uniquement sur <i>D-B-BV_Boite-de-vitesse_Notice-technique-03_2017.pdf</i>, qui correspond à l'image que tu as partagée. Si tu voulais bien un corrigé sur l'aspirateur, dis-le moi et je reprends ce document à la place.
+</div>
+
+<!-- ===================== PARTIE 1 : VOCABULAIRE ===================== -->
+<section class="part">
+  <h2><span class="num">1</span>Vocabulaire et dimensions d'un engrenage</h2>
+  <div class="diagram">
+    <svg viewBox="0 0 320 140" width="360">
+      <circle cx="90" cy="70" r="55" fill="none" stroke="#152238" stroke-width="2"/>
+      <circle cx="90" cy="70" r="3" fill="#152238"/>
+      <text x="90" y="20" text-anchor="middle" font-size="11" font-family="Space Grotesk">Roue</text>
+      <circle cx="215" cy="70" r="28" fill="none" stroke="#2f6690" stroke-width="2"/>
+      <circle cx="215" cy="70" r="3" fill="#2f6690"/>
+      <text x="215" y="35" text-anchor="middle" font-size="11" font-family="Space Grotesk" fill="#2f6690">Pignon</text>
+      <line x1="118" y1="70" x2="187" y2="70" stroke="#b8433a" stroke-width="1.6" stroke-dasharray="3 3"/>
+      <text x="152" y="63" text-anchor="middle" font-size="9" fill="#b8433a">contact extérieur</text>
+    </svg>
+  </div>
+  <table class="grid">
+    <tr><th>Grandeur</th><th>Formule</th></tr>
+    <tr><td class="lbl">Diamètre primitif</td><td>d = m × Z</td></tr>
+    <tr><td class="lbl">Diamètre de tête</td><td>d<sub>a</sub> = d + 2 × m</td></tr>
+    <tr><td class="lbl">Diamètre de pied</td><td>d<sub>f</sub> = d − 2,5 × m</td></tr>
+    <tr><td class="lbl">Pas de la denture</td><td>p = π × m</td></tr>
+    <tr><td class="lbl">Entraxe</td><td>(d1+d2)/2 = m × (Z1+Z2)/2</td></tr>
+  </table>
+  <div class="callout"><b class="tag">Condition d'engrènement</b>Deux pignons doivent avoir le <b>même module</b> pour pouvoir engrener ensemble. Ici, tous les pignons de la maquette ont un module m=3.</div>
+
+  <div class="exo">
+    <div class="exo-head"><span>Application — couple P1 (20 dents) / P5 (40 dents), m=3</span><span class="pill">calcul</span></div>
+    <div class="exo-body">
+      <div class="q"><label>Diamètre primitif de P1 (d = m×Z) ?</label>
+        <div class="answer-row"><input type="text" id="v_d1"><span class="unit-lbl">mm</span><button class="check-btn" onclick="checkNum('v_d1',60,2)">Vérifier</button><span class="feedback" id="fb_v_d1"></span></div></div>
+      <div class="q"><label>Diamètre primitif de P5 (d = m×Z) ?</label>
+        <div class="answer-row"><input type="text" id="v_d5"><span class="unit-lbl">mm</span><button class="check-btn" onclick="checkNum('v_d5',120,2)">Vérifier</button><span class="feedback" id="fb_v_d5"></span></div></div>
+      <div class="q"><label>Entraxe entre P1 et P5 (m×(Z1+Z2)/2) ?</label>
+        <div class="answer-row"><input type="text" id="v_entraxe"><span class="unit-lbl">mm</span><button class="check-btn" onclick="checkNum('v_entraxe',90,2)">Vérifier</button><span class="feedback" id="fb_v_entraxe"></span></div></div>
+    </div>
+    <div class="exo-footer"><button class="reveal-btn" onclick="toggleSol(this)">Voir la méthode</button>
+    <div class="solution">d1=3×20=60mm. d5=3×40=120mm. Entraxe=(60+120)/2=<b>90mm</b> (ou directement 3×(20+40)/2=90mm).</div></div>
+  </div>
+</section>
+
+<!-- ===================== PARTIE 2 : RAPPORT DE TRANSMISSION ===================== -->
+<section class="part">
+  <h2><span class="num">2</span>Rapport de transmission K</h2>
+  <div class="formula">K = (−1)ⁿ × (Π nombre de dents des roues menantes) / (Π nombre de dents des roues menées)<small>n = nombre de contacts extérieurs</small></div>
+
+  <div class="exo">
+    <div class="exo-head"><span>Vitesse 1 — P1 (20 dents, menante) → P5 (40 dents, menée)</span><span class="pill">calcul</span></div>
+    <div class="exo-body">
+      <div class="q"><label>K₁ = (−1)¹ × 20/40 ?</label>
+        <div class="answer-row"><input type="text" id="k1"><button class="check-btn" onclick="checkNum('k1',-0.5,3)">Vérifier</button><span class="feedback" id="fb_k1"></span></div></div>
+    </div>
+    <div class="exo-footer"><button class="reveal-btn" onclick="toggleSol(this)">Voir l'interprétation</button>
+    <div class="solution">K₁=−0,5 : l'arbre de sortie tourne 2 fois <b>moins</b> vite que l'arbre d'entrée, dans le <b>sens opposé</b> (signe négatif = un seul contact extérieur).</div></div>
+  </div>
+
+  <div class="exo">
+    <div class="exo-head"><span>Vitesse 2 — P2 (40 dents, menante) → P4 (20 dents, menée)</span><span class="pill">calcul</span></div>
+    <div class="exo-body">
+      <div class="q"><label>K₂ = (−1)¹ × 40/20 ?</label>
+        <div class="answer-row"><input type="text" id="k2"><button class="check-btn" onclick="checkNum('k2',-2,3)">Vérifier</button><span class="feedback" id="fb_k2"></span></div></div>
+    </div>
+    <div class="exo-footer"><button class="reveal-btn" onclick="toggleSol(this)">Voir l'interprétation</button>
+    <div class="solution">K₂=−2 : l'arbre de sortie tourne 2 fois <b>plus</b> vite que l'arbre d'entrée, dans le sens opposé.</div></div>
+  </div>
+
+  <div class="exo">
+    <div class="exo-head"><span>Marche arrière — P3(35) → pignon intermédiaire(23) → P1 sortie(20)</span><span class="pill">calcul</span></div>
+    <div class="exo-body">
+      <p class="data">Deux contacts extérieurs (n=2) : le pignon intermédiaire inverse une première fois, puis le contact avec la sortie inverse une seconde fois — le sens final est donc identique à l'entrée.</p>
+      <div class="q"><label>K<sub>mar</sub> = (−1)² × (35×23)/(23×20) ?</label>
+        <div class="answer-row"><input type="text" id="kmar"><button class="check-btn" onclick="checkNum('kmar',1.75,3)">Vérifier</button><span class="feedback" id="fb_kmar"></span></div></div>
+    </div>
+    <div class="exo-footer"><button class="reveal-btn" onclick="toggleSol(this)">Voir l'interprétation</button>
+    <div class="solution">Le nombre de dents du pignon intermédiaire (23) s'annule dans le calcul : K<sub>mar</sub>=35/20=1,75. L'arbre de sortie tourne 1,75 fois plus vite que l'arbre d'entrée, <b>dans le même sens</b> (deux contacts extérieurs = signe positif).</div></div>
+  </div>
+</section>
+
+<!-- ===================== PARTIE 3 : QUIZ ===================== -->
+<section class="part">
+  <h2><span class="num">3</span>Quiz de compréhension</h2>
+
+  <div class="quiz-q" data-quiz="q1"><p class="stem">1. Pourquoi le pignon intermédiaire de marche arrière n'apparaît-il pas dans la valeur finale de K<sub>mar</sub> ?</p>
+    <div class="opt" data-correct="false">Parce qu'il n'est pas en contact avec les deux autres pignons</div>
+    <div class="opt" data-correct="true">Parce que son nombre de dents apparaît une fois au numérateur et une fois au dénominateur, donc il se simplifie</div>
+    <div class="quiz-explain">Le pignon intermédiaire est à la fois "mené" (par P3) et "menant" (vers la sortie) : son nombre de dents (23) figure aux deux places dans la formule et s'annule. Il ne change donc que le sens de rotation, jamais la valeur du rapport.</div>
+  </div>
+
+  <div class="quiz-q" data-quiz="q2"><p class="stem">2. Que se passe-t-il si l'on essaie de faire engrener deux pignons de modules différents ?</p>
+    <div class="opt" data-correct="true">Ils ne peuvent pas s'engrener correctement : leurs dents n'ont pas la même taille</div>
+    <div class="opt" data-correct="false">Ils s'engrènent normalement, seul le rapport de transmission change</div>
+    <div class="quiz-explain">Le module définit la taille des dents (et donc le pas). Deux roues de modules différents ont des dents incompatibles géométriquement.</div>
+  </div>
+
+  <div class="quiz-q" data-quiz="q3"><p class="stem">3. Au point mort (aucune vitesse enclenchée), comment se comportent les pignons "fous" sur l'arbre de sortie ?</p>
+    <div class="opt" data-correct="true">Ils tournent librement, sans entraîner l'arbre de sortie</div>
+    <div class="opt" data-correct="false">Ils sont bloqués en rotation par le crabot</div>
+    <div class="quiz-explain">Les pignons d'entrée et de sortie des vitesses 1 et 2 sont en contact permanent, mais les pignons de sortie restent libres en rotation (fous) tant que le crabot ne les solidarise pas à l'arbre.</div>
+  </div>
+
+  <div class="quiz-q" data-quiz="q4"><p class="stem">4. Quel est le rôle du crabot lors du passage d'une vitesse ?</p>
+    <div class="opt" data-correct="true">Solidariser un pignon fou à l'arbre de sortie, pour qu'ils tournent à la même vitesse</div>
+    <div class="opt" data-correct="false">Changer le module des pignons en prise</div>
+    <div class="quiz-explain">Guidé en translation par une fourchette, le crabot vient s'encliqueter sur un pignon fou : celui-ci devient alors solidaire de l'arbre de sortie.</div>
+  </div>
+
+  <div class="quiz-q" data-quiz="q5"><p class="stem">5. Pourquoi conseille-t-on d'engager les rapports en faisant tourner l'arbre principal ?</p>
+    <div class="opt" data-correct="true">Pour faciliter le passage de vitesse et éviter une usure prématurée des pignons</div>
+    <div class="opt" data-correct="false">Pour inverser le sens de rotation de la sortie</div>
+    <div class="quiz-explain">C'est une recommandation directe de la notice technique : elle limite les chocs entre les dents du crabot et du pignon lors de l'engagement.</div>
+  </div>
+</section>
+
+<footer class="end">Fiche construite à partir de la notice technique « Boîte de vitesses » (03.2017) et de l'image partagée (page 12 de ce document).</footer>
+</main>
+
+<div class="final-bar">
+  <b id="scoreDisplayBar">Score : 0 / 0</b>
+  <div class="progress-track"><div class="progress-fill" id="progressFill2"></div></div>
+</div>
+
+<script>
+let correctFirstTry = 0;
+const seenTried = new Set();
+
+function updateScore(){
+  document.getElementById('scoreDisplay').textContent = 'Score : ' + correctFirstTry + ' / ' + seenTried.size;
+  document.getElementById('scoreDisplayBar').textContent = 'Score : ' + correctFirstTry + ' / ' + seenTried.size;
+  const pct = seenTried.size ? Math.round(100*correctFirstTry/seenTried.size) : 0;
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressFill2').style.width = pct + '%';
+}
+function registerResult(key, ok){
+  if(!seenTried.has(key)){ seenTried.add(key); if(ok) correctFirstTry++; updateScore(); }
+}
+function checkNum(id, expected, tolPct){
+  const inp = document.getElementById(id);
+  const fb = document.getElementById('fb_' + id);
+  const val = parseFloat(inp.value.replace(',', '.').trim());
+  if(isNaN(val)){ fb.textContent='Entrez un nombre.'; fb.className='feedback bad'; return; }
+  const tol = Math.abs(expected)*(tolPct/100)+0.005;
+  const ok = Math.abs(val-expected)<=tol;
+  registerResult(id, ok);
+  fb.textContent = ok ? '✓ correct' : '✗ à revoir (attendu ≈ '+expected+')';
+  fb.className = 'feedback ' + (ok?'ok':'bad');
+}
+function toggleSol(btn){
+  const sol = btn.nextElementSibling;
+  sol.classList.toggle('show');
+  btn.textContent = sol.classList.contains('show') ? 'Masquer' : 'Voir la méthode';
+}
+
+document.querySelectorAll('.quiz-q').forEach(q=>{
+  const key = q.getAttribute('data-quiz');
+  let answered = false;
+  q.querySelectorAll('.opt').forEach(opt=>{
+    opt.addEventListener('click', ()=>{
+      if(answered) return; answered = true;
+      const isCorrect = opt.getAttribute('data-correct') === 'true';
+      q.querySelectorAll('.opt').forEach(o=>{
+        if(o.getAttribute('data-correct') === 'true') o.classList.add('correct');
+        else if(o === opt) o.classList.add('wrong');
+      });
+      const expl = q.querySelector('.quiz-explain'); if(expl) expl.classList.add('show');
+      registerResult(key, isCorrect);
+    });
+  });
+});
+
+updateScore();
+</script>
+<a href="../index.html" style="position:fixed;bottom:16px;left:16px;z-index:99999;background:#1e3a5f;color:#fff;padding:10px 16px;border-radius:24px;font:600 14px system-ui,sans-serif;text-decoration:none;box-shadow:0 2px 8px rgba(0,0,0,.25)">← Sommaire</a></body>
+</html>

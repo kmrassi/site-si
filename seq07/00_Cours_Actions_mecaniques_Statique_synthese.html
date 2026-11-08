@@ -1,0 +1,1088 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Séquence 7 — Actions mécaniques &amp; Statique | Synthèse interactive</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F3F1EA;
+  --panel:#FFFFFF;
+  --ink:#182842;
+  --ink-soft:#5B6478;
+  --rule:#C7CDD8;
+  --grid: rgba(24,40,66,0.055);
+  --force:#C1440E;
+  --force-soft:#F4DCCB;
+  --moment:#177A72;
+  --moment-soft:#D4EAE7;
+  --ok:#2E7D32;
+  --ok-soft:#E1F0DF;
+  --bad:#B3261E;
+  --bad-soft:#F8DEDC;
+  --sans:'Inter',sans-serif;
+  --head:'Space Grotesk',sans-serif;
+  --mono:'IBM Plex Mono',monospace;
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  margin:0;
+  background:
+    linear-gradient(var(--grid) 1px, transparent 1px) 0 0/32px 32px,
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px) 0 0/32px 32px,
+    var(--bg);
+  color:var(--ink);
+  font-family:var(--sans);
+  line-height:1.55;
+  padding-bottom:80px;
+}
+a{color:var(--force);}
+.wrap{max-width:920px;margin:0 auto;padding:28px 20px 0;}
+
+/* ---------- Cartouche (title block) ---------- */
+.cartouche{
+  border:2px solid var(--ink);
+  background:var(--panel);
+  box-shadow:6px 6px 0 var(--grid);
+}
+.cartouche-top{
+  display:grid;
+  grid-template-columns:64px 1fr 150px;
+  border-bottom:2px solid var(--ink);
+}
+.cartouche-top .cell{padding:14px 16px;}
+.cartouche-top .badge{
+  border-right:2px solid var(--ink);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--head);font-weight:700;font-size:22px;color:var(--force);
+}
+.cartouche-top h1{
+  margin:0;font-family:var(--head);font-weight:600;font-size:clamp(20px,3.4vw,30px);
+  letter-spacing:-0.01em;
+}
+.cartouche-top .sub{margin:4px 0 0;color:var(--ink-soft);font-size:14.5px;}
+.cartouche-top .level{
+  border-left:2px solid var(--ink);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  font-family:var(--mono);font-size:12px;color:var(--ink-soft);text-align:center;
+}
+.cartouche-top .level b{font-family:var(--head);color:var(--ink);font-size:16px;}
+.cartouche-fields{
+  display:grid;grid-template-columns:repeat(4,1fr);
+  font-family:var(--mono);font-size:11px;color:var(--ink-soft);
+}
+.cartouche-fields div{padding:8px 12px;border-right:1px solid var(--rule);}
+.cartouche-fields div:last-child{border-right:none;}
+.cartouche-fields b{display:block;color:var(--ink);font-size:12.5px;margin-bottom:2px;font-family:var(--sans);font-weight:600;}
+
+/* ---------- Nav ---------- */
+nav.toc{
+  position:sticky;top:0;z-index:30;
+  background:rgba(243,241,234,0.94);
+  backdrop-filter:blur(4px);
+  border-bottom:2px solid var(--ink);
+  margin-top:22px;
+}
+nav.toc .inner{
+  max-width:920px;margin:0 auto;padding:10px 20px;
+  display:flex;gap:6px;overflow-x:auto;scrollbar-width:thin;
+}
+nav.toc a{
+  flex:0 0 auto;
+  font-family:var(--mono);font-size:12px;text-decoration:none;color:var(--ink);
+  padding:7px 11px;border:1px solid var(--rule);border-radius:3px;white-space:nowrap;
+  transition:background .15s, color .15s, border-color .15s;
+}
+nav.toc a:hover{border-color:var(--ink);}
+nav.toc a.active{background:var(--ink);color:var(--panel);border-color:var(--ink);}
+
+/* ---------- Sections ---------- */
+.panel{
+  scroll-margin-top:64px;
+  margin-top:22px;
+  background:var(--panel);
+  border:1.5px solid var(--ink);
+}
+.panel > summary, .panel-head{
+  list-style:none;cursor:pointer;
+  display:flex;align-items:center;gap:14px;
+  padding:16px 20px;
+  font-family:var(--head);font-weight:600;font-size:18px;
+  border-bottom:1.5px solid transparent;
+}
+.panel[open] > summary, .panel-head{border-bottom-color:var(--ink);}
+.panel > summary::-webkit-details-marker{display:none;}
+.panel > summary .num{
+  font-family:var(--mono);color:var(--force);font-size:14px;min-width:26px;
+}
+.panel > summary::after{
+  content:"+";margin-left:auto;font-family:var(--mono);font-size:20px;color:var(--ink-soft);
+}
+.panel[open] > summary::after{content:"–";}
+.panel-body{padding:6px 22px 24px;}
+.panel-body h3{font-family:var(--head);font-size:15px;margin:22px 0 8px;color:var(--force);}
+.panel-body h3:first-child{margin-top:6px;}
+.panel-body p{margin:8px 0;}
+.panel-body ul, .panel-body ol{margin:8px 0;padding-left:22px;}
+.panel-body li{margin:4px 0;}
+
+/* formula card */
+.formula{
+  font-family:var(--mono);
+  background:#101B30;color:#F3F1EA;
+  border-radius:4px;padding:14px 18px;margin:12px 0;
+  font-size:16px;overflow-x:auto;
+}
+.formula .lbl{display:block;font-family:var(--sans);color:#9FB1CE;font-size:11.5px;margin-top:8px;}
+.formula:first-child{margin-top:12px;}
+
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:14px 0;}
+@media(max-width:640px){.grid2{grid-template-columns:1fr;}}
+.card{border:1px solid var(--rule);border-radius:4px;padding:12px 14px;background:#FBFAF7;}
+.card h4{margin:0 0 6px;font-size:13.5px;font-family:var(--head);color:var(--ink);}
+.card .tag{
+  display:inline-block;font-family:var(--mono);font-size:10.5px;
+  padding:2px 7px;border-radius:10px;margin-bottom:8px;
+}
+.tag.force{background:var(--force-soft);color:var(--force);}
+.tag.moment{background:var(--moment-soft);color:var(--moment);}
+
+table.spec{width:100%;border-collapse:collapse;margin:14px 0;font-size:13.5px;}
+table.spec th, table.spec td{border:1px solid var(--rule);padding:7px 9px;text-align:left;}
+table.spec th{background:var(--ink);color:#fff;font-family:var(--head);font-weight:600;font-size:12.5px;}
+table.spec td.mono{font-family:var(--mono);font-size:12.5px;}
+table.spec tr:nth-child(even) td{background:#FAF9F5;}
+
+.callout{
+  border-left:4px solid var(--force);background:var(--force-soft);
+  padding:10px 14px;margin:14px 0;font-size:14.5px;border-radius:0 3px 3px 0;
+}
+.callout.warn{border-color:#B3261E;background:var(--bad-soft);}
+.callout.info{border-left-color:var(--moment);background:var(--moment-soft);}
+
+.theorem{
+  border:1px solid var(--ink); border-left:5px solid var(--ink);
+  padding:10px 14px;margin:14px 0;background:#FBFAF7;font-size:14.5px;
+}
+.theorem b{color:var(--force);}
+
+svg.diag{display:block;margin:14px auto;max-width:100%;height:auto;}
+
+/* lever-arm interactive demo */
+.lever-demo{
+  border:1.5px dashed var(--moment);border-radius:6px;
+  padding:16px 18px;margin:16px 0;background:#FBFEFD;
+}
+.lever-caption{
+  font-size:13.5px;margin:0 0 10px;padding:8px 12px;
+  background:var(--moment-soft);border-left:3px solid var(--moment);border-radius:0 3px 3px 0;
+  min-height:36px;
+}
+#leverSvg{display:block;margin:0 auto 10px;max-width:100%;height:auto;width:480px;}
+.lever-controls{display:flex;flex-direction:column;gap:4px;}
+.lever-steps{display:flex;gap:8px;flex-wrap:wrap;}
+.step-btn{
+  font-family:var(--mono);font-size:12px;padding:8px 12px;
+  border:1.5px solid var(--moment);border-radius:4px;background:#fff;color:var(--moment);
+  cursor:pointer;transition:background .15s,color .15s;
+}
+.step-btn:hover{background:var(--moment-soft);}
+.step-btn.active{background:var(--moment);color:#fff;}
+
+/* method flow */
+.flow{display:flex;flex-direction:column;gap:0;margin:14px 0;}
+.flow-step{
+  display:flex;align-items:center;gap:12px;
+  border:1px solid var(--rule);background:#FBFAF7;padding:9px 14px;font-size:13.5px;
+}
+.flow-step .n{
+  font-family:var(--mono);font-weight:600;color:#fff;background:var(--ink);
+  min-width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;
+}
+.flow-arrow{text-align:center;color:var(--ink-soft);font-family:var(--mono);font-size:13px;padding:2px 0;}
+
+/* calculator */
+.calc{border:1.5px dashed var(--force);border-radius:6px;padding:16px 18px;background:#FFFDFA;margin:14px 0;}
+.calc .row{display:flex;flex-wrap:wrap;gap:14px;align-items:flex-end;margin-bottom:12px;}
+.calc label{display:block;font-family:var(--mono);font-size:11.5px;color:var(--ink-soft);margin-bottom:4px;}
+.calc input, .calc select{
+  font-family:var(--mono);font-size:14px;padding:7px 9px;border:1px solid var(--rule);border-radius:3px;
+  width:110px;background:#fff;color:var(--ink);
+}
+.calc .result{
+  font-family:var(--mono);font-size:15px;background:var(--ink);color:#fff;
+  padding:10px 14px;border-radius:4px;display:inline-block;
+}
+.calc .result .val{color:#FFD9C2;font-weight:600;}
+
+/* quiz */
+.quiz-q{border:1px solid var(--rule);border-radius:5px;padding:14px 16px;margin:16px 0;background:#FBFAF7;}
+.quiz-q p.stem{font-weight:600;margin:0 0 10px;font-size:14.5px;}
+.quiz-q .opts{display:flex;flex-direction:column;gap:7px;}
+.quiz-q label{
+  display:flex;gap:8px;align-items:flex-start;font-size:14px;padding:7px 9px;
+  border:1px solid var(--rule);border-radius:4px;cursor:pointer;background:#fff;
+  transition:background .12s;
+}
+.quiz-q label:hover{background:#F3F1EA;}
+.quiz-q input{margin-top:3px;}
+.quiz-q label.correct{background:var(--ok-soft);border-color:var(--ok);}
+.quiz-q label.incorrect{background:var(--bad-soft);border-color:var(--bad);}
+.quiz-q .explain{
+  display:none;margin-top:10px;padding:9px 12px;font-size:13.5px;
+  border-left:3px solid var(--moment);background:var(--moment-soft);border-radius:0 3px 3px 0;
+}
+.quiz-q.checked .explain{display:block;}
+.quiz-actions{display:flex;gap:12px;align-items:center;margin:18px 0;flex-wrap:wrap;}
+button.btn{
+  font-family:var(--head);font-weight:600;font-size:14px;
+  background:var(--force);color:#fff;border:none;border-radius:4px;
+  padding:11px 20px;cursor:pointer;transition:background .15s;
+}
+button.btn:hover{background:#a3390b;}
+button.btn.secondary{background:transparent;color:var(--ink);border:1.5px solid var(--ink);}
+button.btn.secondary:hover{background:var(--ink);color:#fff;}
+#score-box{
+  font-family:var(--mono);font-size:14px;padding:8px 14px;border-radius:4px;
+  background:var(--ink);color:#fff;
+}
+
+/* --- Bloc A: classification cards --- */
+.classif-card{border:1px solid var(--rule);border-radius:5px;padding:13px 15px;margin:14px 0;background:#FBFAF7;}
+.classif-card .scenario{font-size:13.5px;color:var(--ink-soft);margin:0 0 4px;}
+.classif-card .qstem{font-weight:600;font-size:14px;margin:0 0 9px;}
+.classif-card .opts3{display:flex;gap:8px;flex-wrap:wrap;}
+.classif-card label{
+  flex:1 1 150px;display:flex;gap:6px;align-items:center;font-size:13px;
+  border:1px solid var(--rule);border-radius:4px;padding:8px 10px;cursor:pointer;background:#fff;
+}
+.classif-card label:hover{background:#F3F1EA;}
+.classif-card label.correct{background:var(--ok-soft);border-color:var(--ok);}
+.classif-card label.incorrect{background:var(--bad-soft);border-color:var(--bad);}
+.classif-card .explain{display:none;margin-top:9px;padding:8px 11px;font-size:13px;border-left:3px solid var(--moment);background:var(--moment-soft);border-radius:0 3px 3px 0;}
+.classif-card.checked .explain{display:block;}
+
+/* --- Bloc B: numeric exercises --- */
+.numex{border:1px solid var(--rule);border-radius:5px;padding:13px 15px;margin:14px 0;background:#FBFAF7;}
+.numex .given{font-size:13px;color:var(--ink-soft);margin:0 0 6px;font-family:var(--mono);}
+.numex .qstem{font-weight:600;font-size:14px;margin:0 0 9px;}
+.numex .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
+.numex input[type=number]{
+  font-family:var(--mono);font-size:14px;padding:7px 9px;border:1px solid var(--rule);border-radius:3px;width:110px;
+}
+.numex button.check{
+  font-family:var(--head);font-size:12.5px;font-weight:600;background:var(--moment);color:#fff;
+  border:none;border-radius:4px;padding:8px 14px;cursor:pointer;
+}
+.numex button.check:hover{background:#125d57;}
+.numex .fb{margin-top:9px;padding:8px 11px;font-size:13px;border-radius:0 3px 3px 0;display:none;}
+.numex .fb.show{display:block;}
+.numex .fb.good{border-left:3px solid var(--ok);background:var(--ok-soft);}
+.numex .fb.bad{border-left:3px solid var(--bad);background:var(--bad-soft);}
+
+/* --- Bloc C: flashcards --- */
+.flashcard{border:1px solid var(--rule);border-radius:5px;margin:12px 0;overflow:hidden;background:#FBFAF7;}
+.flashcard .q{
+  padding:12px 15px;cursor:pointer;font-weight:600;font-size:14px;
+  display:flex;justify-content:space-between;align-items:center;gap:10px;
+}
+.flashcard .q::after{content:"Cliquer pour révéler ›";font-family:var(--mono);font-weight:400;font-size:11px;color:var(--ink-soft);white-space:nowrap;}
+.flashcard.revealed .q::after{content:"▲ masquer";}
+.flashcard .a{display:none;padding:0 15px 14px;font-size:13.5px;border-top:1px dashed var(--rule);padding-top:10px;}
+.flashcard.revealed .a{display:block;}
+footer{max-width:920px;margin:34px auto 0;padding:14px 20px;color:var(--ink-soft);font-size:12.5px;font-family:var(--mono);border-top:1px solid var(--rule);}
+
+/* --- animations (liens du Google Site) --- */
+.anim-box{border:1.5px solid var(--moment);border-radius:6px;padding:10px 14px 4px;margin:18px 0;background:#F6FBFA;}
+.anim-box h3{margin:4px 0 8px!important;color:var(--moment)!important;}
+.anim{display:flex;flex-wrap:wrap;align-items:center;gap:10px;border:1px solid var(--rule);border-radius:5px;background:#fff;padding:9px 12px;margin:0 0 10px;}
+.anim-ico{font-size:22px;}
+.anim-bd{flex:1 1 220px;}
+.anim-bd b{display:block;font-size:14px;}
+.anim-kind{font-family:var(--mono);font-size:10.5px;color:var(--ink-soft);}
+.anim-go{font-family:var(--head);font-weight:600;font-size:13px;text-decoration:none;background:var(--moment);color:#fff;padding:8px 12px;border-radius:4px;}
+.anim-go:hover{background:#125d57;}
+.anim-show{font-family:var(--mono);font-size:12px;border:1.5px solid var(--moment);background:#fff;color:var(--moment);padding:7px 10px;border-radius:4px;cursor:pointer;}
+.anim-frame{flex-basis:100%;}
+.anim-frame iframe{width:100%;aspect-ratio:16/9;border:1px solid var(--rule);border-radius:4px;display:block;}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="cartouche">
+    <div class="cartouche-top">
+      <div class="badge">§7</div>
+      <div class="cell">
+        <h1>Structures &amp; systèmes mécaniques</h1>
+        <p class="sub">Modélisation des actions mécaniques · Principe Fondamental de la Statique · Dynamique</p>
+      </div>
+      <div class="level">NIVEAU<b>Tᵉʳ SI</b></div>
+    </div>
+    <div class="cartouche-fields">
+      <div><b>Format</b>Synthèse interactive</div>
+      <div><b>Sources</b>6 documents de cours</div>
+      <div><b>Sections</b>12</div>
+      <div><b>Auto‑correction</b>Oui — quiz en fin de fiche</div>
+    </div>
+  </div>
+</div>
+
+<nav class="toc"><div class="inner" id="tocInner">
+  <a href="#s1">1· Action méc.</a>
+  <a href="#s2">2· Résultante</a>
+  <a href="#s3">3· Moment</a>
+  <a href="#s4">4· Torseur</a>
+  <a href="#s5">5· PFS</a>
+  <a href="#s6">6· Cas particuliers</a>
+  <a href="#s7">7· Pb plan</a>
+  <a href="#s8">8· Dynamique</a>
+  <a href="#s9">9· Frottement</a>
+  <a href="#s10">10· Liaisons</a>
+  <a href="#s11">11· Méthode</a>
+  <a href="#s12">12· Calculateur</a>
+  <a href="#s13">13· Activités corrigées</a>
+  <a href="#s14">14· Animations</a>
+  <a href="#quiz">✓ Quiz</a>
+</div></nav>
+
+<div class="wrap">
+
+<!-- 1 -->
+<details class="panel" id="s1" open>
+<summary><span class="num">01</span> Notion d'action mécanique</summary>
+<div class="panel-body">
+<p>Une <b>action mécanique</b> est toute cause, par contact ou à distance, capable de :</p>
+<div class="grid2">
+<div class="card"><span class="tag force">Translation</span><h4>Créer / supprimer un mouvement</h4><p style="font-size:13.5px;margin:0;">Ex. l'action du joueur sur le ballon, ou l'action de la pesanteur (poids).</p></div>
+<div class="card"><span class="tag moment">Rotation / déformation</span><h4>Faire tourner ou déformer</h4><p style="font-size:13.5px;margin:0;">Ex. deux joueurs qui compriment le ballon entre eux.</p></div>
+</div>
+<div class="theorem"><b>Vocabulaire clé</b> — la translation est créée/supprimée par une action appelée <b>FORCE</b> (ou <b>RÉSULTANTE</b>) ; la rotation est créée/supprimée par une action appelée <b>MOMENT</b>.</div>
+<h3>Hypothèses de travail (à toujours rappeler)</h3>
+<ul>
+<li>Solides <b>géométriquement parfaits</b> (défauts de forme négligés)</li>
+<li>Solides <b>indéformables</b> (pas de déformation sous l'effet des actions — hypothèse de la statique)</li>
+<li>Matériau <b>homogène</b> (mêmes propriétés chimiques en tout point)</li>
+<li>Matériau <b>isotrope</b> (mêmes caractéristiques mécaniques dans toutes les directions)</li>
+</ul>
+<h3>Démarche générale</h3>
+<div class="flow">
+<div class="flow-step"><span class="n">1</span>Modélisation des actions mécaniques (données : liaisons entre solides)</div>
+<div class="flow-arrow">↓</div>
+<div class="flow-step"><span class="n">2</span>Isolement d'un solide</div>
+<div class="flow-arrow">↓</div>
+<div class="flow-step"><span class="n">3</span>Étude statique ou dynamique</div>
+<div class="flow-arrow">↓</div>
+<div class="flow-step"><span class="n">4</span>Résistance des matériaux → dimensionnement d'une pièce / liaison</div>
+</div>
+<p>But final : <b>éviter la rupture ou la déformation</b> des pièces du mécanisme.</p>
+<div class="anim-box"><h3>🎬 Animations à voir</h3><div class="anim"><span class="anim-ico">🎞️</span><div class="anim-bd"><span class="anim-kind">Diaporama animé</span><b>Les actions mécaniques entre pièces</b></div><a class="anim-go" href="https://docs.google.com/presentation/d/e/2PACX-1vRRAjyGTU7Fb23706Kf1jwYKiIdjtdLmEK-jWhrIKpW6PCVGQiSv7K94SGf-MVYsIlYJiS7EGqdF4EX/pub?start=false&loop=false&delayms=60000&slide=id.gc64186f0b0_0_67" target="_blank" rel="noopener">▶ Ouvrir l'animation</a><button type="button" class="anim-show" data-embed="https://docs.google.com/presentation/d/e/2PACX-1vRRAjyGTU7Fb23706Kf1jwYKiIdjtdLmEK-jWhrIKpW6PCVGQiSv7K94SGf-MVYsIlYJiS7EGqdF4EX/embed?start=false&loop=false&delayms=60000&slide=id.gc64186f0b0_0_67">Afficher ici ▾</button><div class="anim-frame"></div></div><div class="anim"><span class="anim-ico">🎞️</span><div class="anim-bd"><span class="anim-kind">Diaporama animé</span><b>Les différents types d'actions mécaniques</b></div><a class="anim-go" href="https://docs.google.com/presentation/d/e/2PACX-1vRdz72wg-wqkGGICus_pfwYNDwsJTx4gEzPoXgPsjdA5HgsWsYQi8CGO5Ki0nzo14191k7ZZ75Kkcxh/pub?start=false&loop=false&delayms=60000&slide=id.p" target="_blank" rel="noopener">▶ Ouvrir l'animation</a><button type="button" class="anim-show" data-embed="https://docs.google.com/presentation/d/e/2PACX-1vRdz72wg-wqkGGICus_pfwYNDwsJTx4gEzPoXgPsjdA5HgsWsYQi8CGO5Ki0nzo14191k7ZZ75Kkcxh/embed?start=false&loop=false&delayms=60000&slide=id.p">Afficher ici ▾</button><div class="anim-frame"></div></div><div class="anim"><span class="anim-ico">🎮</span><div class="anim-bd"><span class="anim-kind">Exercice en ligne (V. Geneau)</span><b>Exercice animé : types d'actions mécaniques</b></div><a class="anim-go" href="http://vincent.geneau.free.fr/NewCligne/4_statique_type_am_exo2.html" target="_blank" rel="noopener">▶ Ouvrir l'animation</a><div class="anim-frame"></div></div></div>
+</div>
+</details>
+
+<!-- 2 -->
+<details class="panel" id="s2">
+<summary><span class="num">02</span> Modélisation d'une résultante</summary>
+<div class="panel-body">
+<p>Une action mécanique est toujours modélisable par un <b>vecteur</b>. Ce vecteur — appelé <b>résultante</b> — est en réalité la somme d'actions élémentaires réparties : sur une <b>surface</b> (contact) ou dans un <b>volume</b> (à distance).</p>
+<div class="callout info"><b>Astuce « problème plan »</b> : si la géométrie et les actions admettent un plan de symétrie, toute l'étude peut être ramenée à ce plan (2D) — la vue 3D devient inutile.</div>
+<h3>Convention de notation</h3>
+<p style="font-family:var(--mono);font-size:14px;">A<sub>1/2</sub> = résultante en A des actions exercées par le solide <b>1</b> sur le solide <b>2</b></p>
+
+<h3>Résultantes d'actions de contact</h3>
+<table class="spec">
+<tr><th>Cas</th><th>Direction</th><th>Sens</th><th>Norme</th><th>Point d'application</th></tr>
+<tr><td>Contact solide/solide (liaison)</td><td class="mono">⊥ au contact</td><td>de 0 vers 1</td><td class="mono">‖A₀/₁‖</td><td>point de contact A</td></tr>
+<tr><td>Contact solide/fluide (pression)</td><td class="mono">⊥ au contact</td><td>du fluide vers le solide</td><td class="mono">F = p·S</td><td>centre de gravité de la surface</td></tr>
+</table>
+<div class="formula">F<sub>fluide/1</sub> = p · S<span class="lbl">p en Pa (1 Pa = 1 N/m² ; 1 MPa = 10⁶ Pa ; 1 bar = 10⁵ Pa) — S en m² — F en N</span></div>
+<div class="formula">F<sub>ressort/1</sub> = k · x<span class="lbl">k : raideur (N/m) — x : flèche (m), avec k = G·d⁴ / (8·n·D³) — G, d, n, D : matériau/géométrie du ressort</span></div>
+
+<h3>Résultante d'action à distance — le poids</h3>
+<div class="formula">‖P⃗‖ = P = m · g<span class="lbl">m en kg — g ≈ 9,81 m·s⁻² — P en N</span></div>
+<ul>
+<li><b>Support</b> : toujours vertical (G, y⃗)</li>
+<li><b>Sens</b> : toujours vers le bas</li>
+<li><b>Point d'application</b> : G, centre de gravité</li>
+</ul>
+</div>
+</details>
+
+<!-- 3 -->
+<details class="panel" id="s3">
+<summary><span class="num">03</span> Moment d'une force</summary>
+<div class="panel-body">
+<p>Le moment est <b>indissociable</b> de la force qui le provoque, et toujours défini <b>en un point</b>. Il traduit l'aptitude d'une force à faire tourner un solide autour d'un axe. Il se mesure en <b>newton‑mètre (N·m)</b>.</p>
+
+<div class="lever-demo" id="leverDemo">
+  <p class="lever-caption" id="leverCaption">Étape 1 — Repère le point autour duquel la pièce peut tourner : l'<b>axe de rotation O</b>.</p>
+  <svg viewBox="0 0 480 230" id="leverSvg">
+    <defs><marker id="arrowLever" markerWidth="9" markerHeight="9" refX="4.5" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#C1440E"/></marker></defs>
+    <g id="gRod">
+      <line x1="70" y1="140" x2="300" y2="140" stroke="#182842" stroke-width="7" stroke-linecap="round"/>
+      <circle cx="70" cy="140" r="17" fill="none" stroke="#182842" stroke-width="4"/>
+    </g>
+    <circle cx="70" cy="140" r="5" fill="#C1440E"/>
+    <text x="70" y="115" font-family="IBM Plex Mono" font-size="14" fill="#C1440E" text-anchor="middle">O</text>
+    <circle cx="300" cy="140" r="4" fill="#182842"/>
+    <text x="300" y="163" font-family="IBM Plex Mono" font-size="12" fill="#5B6478" text-anchor="middle">A</text>
+    <text x="185" y="163" font-family="IBM Plex Mono" font-size="11" fill="#5B6478" text-anchor="middle">D</text>
+
+    <g id="gSupport" style="opacity:0;transition:opacity .5s ease;">
+      <line id="supportLine" stroke="#177A72" stroke-width="1.6" stroke-dasharray="7 5"/>
+    </g>
+    <g id="gForce" style="opacity:0;transition:opacity .5s ease;">
+      <line id="forceArrow" x1="300" y1="140" stroke="#C1440E" stroke-width="4.5" marker-end="url(#arrowLever)"/>
+      <text id="forceLabel" font-family="IBM Plex Mono" font-size="14" fill="#C1440E" font-weight="600">F</text>
+    </g>
+    <g id="gPerp" style="opacity:0;transition:opacity .5s ease;">
+      <line id="perpLine" x1="70" y1="140" stroke="#1C7C74" stroke-width="3"/>
+      <polyline id="rightAngleMark" fill="none" stroke="#1C7C74" stroke-width="1.4"/>
+      <text id="perpLabel" font-family="IBM Plex Mono" font-size="14" fill="#1C7C74" font-weight="600">L</text>
+    </g>
+  </svg>
+
+  <div class="lever-controls">
+    <div class="lever-steps">
+      <button class="step-btn" data-step="0" id="lstep0">① Axe de rotation</button>
+      <button class="step-btn" data-step="1" id="lstep1">② Support de F⃗</button>
+      <button class="step-btn" data-step="2" id="lstep2">③ Bras de levier ⊥</button>
+    </div>
+    <div class="calc row" style="margin-top:10px;">
+      <div><label for="leverAngle">Angle α (°)</label><input type="range" id="leverAngle" min="15" max="165" value="90" style="width:160px;"></div>
+      <div class="result" style="align-self:center;">α = <span class="val" id="leverAngleVal">90</span>° &nbsp;→&nbsp; L = D·sin(α) = <span class="val" id="leverLval">60.0</span> mm</div>
+    </div>
+    <button class="btn secondary" id="leverPlay" style="margin-top:4px;">▶ Rejouer l'animation complète</button>
+  </div>
+</div>
+
+<h3>Moment scalaire (problème plan)</h3>
+<div class="formula">‖M<sub>O</sub>(F⃗)‖ = F · d<span class="lbl">F : norme de la force (N) — d : bras de levier, mesuré ⊥ au support de F depuis O (m) — signe : + sens trigonométrique, − sens horaire</span></div>
+
+<div class="theorem">Le <b>bras de levier</b> est la distance mesurée du point O <b>perpendiculairement</b> au support de la force. Si F⃗ est perpendiculaire à l'axe, le bras de levier = la distance directe D visible sur le schéma.</div>
+
+<h3>Cas du moment nul</h3>
+<p>Le moment d'une force en un point de son <b>propre support</b> est toujours nul (le bras de levier y est nul). La force peut alors translater le solide le long de son support, mais ne peut créer aucune rotation autour de ce point.</p>
+
+<h3>Vecteur moment (cas général, plan ou espace)</h3>
+<div class="formula">M<sub>O</sub>(F⃗) = OA⃗ ∧ F⃗<span class="lbl">A : un point du support de F⃗ (souvent le point d'application) — nécessite les coordonnées des points (m) et de la force (N)</span></div>
+<div class="formula">« Transport » du moment : &nbsp; M<sub>O</sub>(F⃗) = M<sub>B</sub>(F⃗) + OB⃗ ∧ F⃗<span class="lbl">relation de Varignon — permet de changer le point de calcul du moment</span></div>
+<h3>Propriété d'additivité</h3>
+<p>Si F⃗ = F⃗ₓ + F⃗ᵧ, alors : <b>M<sub>O</sub>(F⃗) = M<sub>O</sub>(F⃗ₓ) + M<sub>O</sub>(F⃗ᵧ)</b> — pratique pour calculer un moment à partir des composantes.</p>
+<div class="callout">Méthode « clé plate » : 1) repérer l'axe de rotation O · 2) tracer le support de la force · 3) tracer la perpendiculaire (bras de levier L) depuis O · 4) si un angle α est donné, utiliser SOH‑CAH‑TOA pour exprimer L en fonction de la distance connue D.</div>
+<div class="anim-box"><h3>🎬 Animations à voir</h3><div class="anim"><span class="anim-ico">🎞️</span><div class="anim-bd"><span class="anim-kind">Diaporama animé</span><b>Calcul d'un moment (vectoriel)</b></div><a class="anim-go" href="https://docs.google.com/presentation/d/e/2PACX-1vSdOlu3uD3cpubkIIzkUkX_9zqdsMFQ0SBPCyK-B0A-dl-FvI3KoMMynLvG7gGyRdueSqx2WnO1LRWl/pub?start=false&loop=false&delayms=60000&slide=id.g789b23e246_0_1" target="_blank" rel="noopener">▶ Ouvrir l'animation</a><button type="button" class="anim-show" data-embed="https://docs.google.com/presentation/d/e/2PACX-1vSdOlu3uD3cpubkIIzkUkX_9zqdsMFQ0SBPCyK-B0A-dl-FvI3KoMMynLvG7gGyRdueSqx2WnO1LRWl/embed?start=false&loop=false&delayms=60000&slide=id.g789b23e246_0_1">Afficher ici ▾</button><div class="anim-frame"></div></div><div class="anim"><span class="anim-ico">🎮</span><div class="anim-bd"><span class="anim-kind">Exercice en ligne (V. Geneau)</span><b>Exercice animé : calcul de moments</b></div><a class="anim-go" href="http://vincent.geneau.free.fr/NewCligne/2_calcul_moment_exo.html" target="_blank" rel="noopener">▶ Ouvrir l'animation</a><div class="anim-frame"></div></div></div>
+</div>
+</details>
+
+<!-- 4 -->
+<details class="panel" id="s4">
+<summary><span class="num">04</span> Torseur d'action mécanique</summary>
+<div class="panel-body">
+<p>Toute action mécanique est <b>entièrement caractérisée</b> par un <b>torseur</b> : un ensemble ordonné de deux champs vectoriels.</p>
+<div class="grid2">
+<div class="card"><span class="tag force">Résultante R⃗</span><h4>Champ constant</h4><p style="font-size:13.5px;margin:0;">Ne dépend pas du point où on l'exprime.</p></div>
+<div class="card"><span class="tag moment">Moment M⃗</span><h4>Champ variable</h4><p style="font-size:13.5px;margin:0;">Dépend du point de réduction — formule de transport.</p></div>
+</div>
+<div class="formula">{τ<sub>1→2</sub>} = { B⃗<sub>1→2</sub> ; M<sub>A</sub>(B⃗<sub>1→2</sub>) }<sub>A</sub> = <table style="display:inline-table;font-family:var(--mono);font-size:14px;border-collapse:collapse;vertical-align:middle;"><tr><td style="padding:0 8px;">X₁→₂</td><td style="padding:0 8px;">L<sub>A1→2</sub></td></tr><tr><td style="padding:0 8px;">Y₁→₂</td><td style="padding:0 8px;">M<sub>A1→2</sub></td></tr><tr><td style="padding:0 8px;">Z₁→₂</td><td style="padding:0 8px;">N<sub>A1→2</sub></td></tr></table><span class="lbl">colonne gauche : composantes du vecteur force (N) — colonne droite : composantes du vecteur moment (N·m), exprimées au point A, dans la base (x⃗,y⃗,z⃗)</span></div>
+<h3>Deux cas particuliers de torseurs</h3>
+<div class="grid2">
+<div class="card"><h4>Torseur glisseur</h4><p style="font-size:13.5px;margin:0;">Moment <b>nul</b> en un point → réductible à une force pure.</p></div>
+<div class="card"><h4>Torseur couple</h4><p style="font-size:13.5px;margin:0;">Résultante <b>nulle</b> → seule une action de rotation pure (couple) subsiste.</p></div>
+</div>
+</div>
+</details>
+
+<!-- 5 -->
+<details class="panel" id="s5">
+<summary><span class="num">05</span> Principe Fondamental de la Statique (PFS)</summary>
+<div class="panel-body">
+<h3>Isolement d'un ensemble matériel</h3>
+<p>Toute étude commence par définir la <b>frontière</b> du système : isoler un solide (ou groupe de solides) et faire le bilan des actions extérieures — <b>à distance</b> (pesanteur) et <b>de contact</b> (liaisons).</p>
+<div class="callout warn"><b>Piège classique</b> : il ne faut <b>jamais isoler le bâti seul</b>. Il est nécessairement lié à un autre « bâti » extérieur au graphe : le bilan des efforts n'aurait alors aucun sens.</div>
+
+<h3>Énoncé du principe</h3>
+<div class="theorem">Il existe une classe de référentiels dits <b>galiléens</b> dans lesquels un système de solides S reste en équilibre <b>si et seulement si</b> la somme des actions mécaniques extérieures exercées sur lui est nulle : <span style="font-family:var(--mono);">{τ<sub>S̄→S</sub>} = {0}</span></div>
+<div class="formula">Σ F⃗<sub>ext→S</sub> = 0⃗ &nbsp;→ Théorème de la résultante statique<span class="lbl">3 équations scalaires (x, y, z)</span></div>
+<div class="formula">Σ M⃗<sub>A,ext→S</sub> = 0⃗ &nbsp;→ Théorème du moment statique en A<span class="lbl">3 équations scalaires (x, y, z) — soit 6 équations au total en 3D</span></div>
+<p>Un système de solides est en équilibre <b>si et seulement si</b> chaque solide qui le compose est lui‑même en équilibre.</p>
+
+<h3>Théorème des actions réciproques</h3>
+<div class="theorem">Si S₁ exerce une action mécanique sur S₂, alors S₂ exerce sur S₁ une action mécanique de <b>même direction</b>, <b>même intensité</b>, mais <b>opposée</b> : {τ<sub>1→2</sub>} + {τ<sub>2→1</sub>} = {0}</div>
+<p>C'est la traduction, en mécanique du solide, de la 3ᵉ loi de Newton (action / réaction).</p>
+<div class="anim-box"><h3>🎬 Animations à voir</h3><div class="anim"><span class="anim-ico">🎞️</span><div class="anim-bd"><span class="anim-kind">Diaporama animé</span><b>B.A.M.E. — Bilan des actions mécaniques extérieures</b></div><a class="anim-go" href="https://docs.google.com/presentation/d/e/2PACX-1vS4ncNxGMgMp-faHVbKZITWtLSJKiohwtpsmrA1HTH1k34-e-vwNVTQXGEWjO77PGkS07pBV4DsmM2U/pub?start=false&loop=false&delayms=60000&slide=id.p" target="_blank" rel="noopener">▶ Ouvrir l'animation</a><button type="button" class="anim-show" data-embed="https://docs.google.com/presentation/d/e/2PACX-1vS4ncNxGMgMp-faHVbKZITWtLSJKiohwtpsmrA1HTH1k34-e-vwNVTQXGEWjO77PGkS07pBV4DsmM2U/embed?start=false&loop=false&delayms=60000&slide=id.p">Afficher ici ▾</button><div class="anim-frame"></div></div><div class="anim"><span class="anim-ico">🎮</span><div class="anim-bd"><span class="anim-kind">Exercice en ligne (V. Geneau)</span><b>Exercice animé : statique de base</b></div><a class="anim-go" href="http://vincent.geneau.free.fr/NewCligne/2_statique_base_exo.html" target="_blank" rel="noopener">▶ Ouvrir l'animation</a><div class="anim-frame"></div></div></div>
+</div>
+</details>
+
+<!-- 6 -->
+<details class="panel" id="s6">
+<summary><span class="num">06</span> Cas particuliers du PFS</summary>
+<div class="panel-body">
+<table class="spec">
+<tr><th>Situation</th><th>Conclusion (théorème)</th></tr>
+<tr><td>Solide soumis à <b>2 glisseurs</b> (2 forces)</td><td>Les 2 forces ont <b>même support</b>, <b>même intensité</b>, <b>sens opposés</b>. Le solide est en équilibre ⇔ F⃗<sub>A</sub> = − F⃗<sub>B</sub>.</td></tr>
+<tr><td>Solide soumis à <b>3 glisseurs non parallèles</b></td><td>Les 3 forces sont <b>concourantes</b>, <b>coplanaires</b>, et leur <b>somme vectorielle est nulle</b> (triangle des forces fermé).</td></tr>
+<tr><td>Solide soumis à <b>3 glisseurs</b> dont 2 <b>parallèles</b></td><td>Les 3 forces sont alors <b>toutes parallèles</b> et leur somme vectorielle est nulle. Résolution privilégiée : <b>analytique</b>.</td></tr>
+</table>
+<div class="callout info"><b>Méthode graphique</b> — à 2 forces : les tracer alignées, sens opposés, même longueur (norme). À 3 forces : chercher le point de concours I des 2 premières, puis fermer le triangle avec la 3ᵉ (dynamique des forces).</div>
+<p style="font-size:13.5px;color:var(--ink-soft);">Rappel pratique : ces trois cas viennent tous du même raisonnement — appliquer le théorème de la résultante, puis le théorème du moment en un point choisi intelligemment (point de concours, ou point d'application d'une des forces).</p>
+</div>
+</details>
+
+<!-- 7 -->
+<details class="panel" id="s7">
+<summary><span class="num">07</span> Simplification plane</summary>
+<div class="panel-body">
+<p>Si la géométrie des liaisons présente un <b>plan de symétrie</b> et que les actions mécaniques extérieures sont symétriques par rapport à ce plan, alors le mécanisme peut être traité comme « <b>plan</b> » :</p>
+<ul>
+<li>les <b>résultantes</b> sont contenues <b>dans</b> le plan de symétrie ;</li>
+<li>les <b>moments</b> sont <b>perpendiculaires</b> au plan de symétrie.</li>
+</ul>
+<p>Dans le plan XY, seules 3 composantes du torseur subsistent : X, Y (résultante) et N (moment suivant z⃗).</p>
+<div class="formula">{τ<sub>1→2</sub>}<sub>plan XY</sub> = &nbsp; X₁₂, Y₁₂, N₁₂ &nbsp;<span class="lbl">Z₁₂, L₁₂, M₁₂ sont éliminées (nulles ou non pertinentes en 2D)</span></div>
+</div>
+</details>
+
+<!-- 8 -->
+<details class="panel" id="s8">
+<summary><span class="num">08</span> Dynamique — PFD &amp; Lois de Newton</summary>
+<div class="panel-body">
+<p>Le <b>Principe Fondamental de la Dynamique (PFD)</b> généralise le PFS lorsque le système accélère : le torseur des actions extérieures est égal au <b>torseur dynamique</b>.</p>
+<div class="formula">{τ<sub>ext→S</sub>}<sub>G</sub> = {D<sub>(S/R</sub>g<sub>)</sub>}<sub>G</sub><span class="lbl">valable dans un repère galiléen R_g</span></div>
+<div class="grid2">
+<div class="card"><h4>Translation rectiligne</h4>
+<div class="formula" style="margin:6px 0;">R⃗<sub>(S̄→S)</sub> = m·a⃗<sub>G</sub><br>M⃗<sub>G(S̄→S)</sub> = 0⃗</div>
+<p style="font-size:13px;margin:4px 0 0;">m : masse (kg) — a⃗<sub>G</sub> : accélération de G (m/s²)</p></div>
+<div class="card"><h4>Rotation autour d'un axe fixe</h4>
+<div class="formula" style="margin:6px 0;">R⃗<sub>(S̄→S)</sub> = 0⃗<br>M⃗<sub>G(S̄→S)</sub> = J<sub>oz</sub>·θ″·z⃗</div>
+<p style="font-size:13px;margin:4px 0 0;">J<sub>oz</sub> : moment d'inertie (kg·m²) — θ″ : accélération angulaire (rad/s²)</p></div>
+</div>
+<div class="callout"><b>Cas particulier</b> — si le solide n'a aucune accélération (immobile ou mouvement rectiligne uniforme), le PFD se réduit exactement au <b>PFS</b> : R⃗ = 0⃗ et M⃗<sub>A</sub> = 0⃗, quel que soit le point A.</div>
+<h3>Résolution graphique (rappel dynamique)</h3>
+<p>Identique au PFS : 2 forces → alignées, opposées, même norme ; 3 forces non parallèles → concourantes, triangle fermé.</p>
+</div>
+</details>
+
+<!-- 9 -->
+<details class="panel" id="s9">
+<summary><span class="num">09</span> Frottement &amp; adhérence</summary>
+<div class="panel-body">
+<div class="grid2">
+<div class="card"><span class="tag moment">Adhérence</span><h4>Pas de glissement</h4><p style="font-size:13.5px;margin:0;">Les 2 surfaces tendent à glisser l'une par rapport à l'autre mais n'y parviennent pas encore.</p></div>
+<div class="card"><span class="tag force">Frottement</span><h4>Glissement effectif</h4><p style="font-size:13.5px;margin:0;">Les 2 surfaces glissent réellement l'une contre l'autre.</p></div>
+</div>
+<div class="formula">T₀ = f₀ · N &nbsp;(limite d'adhérence) &nbsp;&nbsp;|&nbsp;&nbsp; T = f · N &nbsp;(frottement, glissement établi)<span class="lbl">f₀ : coeff. d'adhérence (statique) — f : coeff. de frottement (dynamique) — N : effort normal (N) — en général f ≤ f₀</span></div>
+<h3>Cône de frottement</h3>
+<p>Outil graphique : on trace un cône d'angle φ = tan⁻¹(f) (ou φ₀ = tan⁻¹(f₀)) autour de la normale.</p>
+<ul>
+<li>Si la réaction R⃗ est <b>dans</b> le cône → <b>adhérence</b> (pas de glissement) ;</li>
+<li>Si R⃗ est <b>sur la limite</b> du cône → <b>équilibre strict</b> (cas limite) ;</li>
+<li>Si R⃗ <b>sort</b> du cône → <b>glissement</b> (le solide se met en mouvement).</li>
+</ul>
+<p style="font-size:13px;color:var(--ink-soft);">Ordres de grandeur typiques : acier/acier sec ≈ 0,18 (adhérence) et 0,15 (glissement) ; pneu/route sec ≈ 0,8 (adhérence) et 0,6 (glissement).</p>
+</div>
+</details>
+
+<!-- 10 -->
+<details class="panel" id="s10">
+<summary><span class="num">10</span> Tableau des liaisons usuelles</summary>
+<div class="panel-body">
+<p>Chaque liaison autorise certains degrés de liberté (DDL) en mouvement et transmet, en réaction, les composantes complémentaires du torseur d'action mécanique.</p>
+<table class="spec">
+<tr><th>Liaison</th><th>Mvt. translation</th><th>Mvt. rotation</th><th>Torseur transmissible (X,Y,Z / L,M,N)</th><th>DDL</th></tr>
+<tr><td>Encastrement</td><td class="mono">0,0,0</td><td class="mono">0,0,0</td><td class="mono">X,Y,Z / L,M,N</td><td>0</td></tr>
+<tr><td>Glissière (A, x⃗)</td><td class="mono">Tx,0,0</td><td class="mono">0,0,0</td><td class="mono">0,Y,Z / L,M,N</td><td>1</td></tr>
+<tr><td>Pivot (A, x⃗)</td><td class="mono">0,0,0</td><td class="mono">Rx,0,0</td><td class="mono">X,Y,Z / 0,M,N</td><td>1</td></tr>
+<tr><td>Hélicoïdale (A, x⃗, pas p)</td><td class="mono">Tx,0,0</td><td class="mono">Rx,0,0 (liées)</td><td class="mono">X,Y,Z / 0,M,N</td><td>1</td></tr>
+<tr><td>Pivot glissant (A, x⃗)</td><td class="mono">Tx,0,0</td><td class="mono">Rx,0,0</td><td class="mono">0,Y,Z / 0,M,N</td><td>2</td></tr>
+<tr><td>Sphérique à doigt (C, x⃗, y⃗)</td><td class="mono">0,0,0</td><td class="mono">0,Ry,Rz</td><td class="mono">X,Y,Z / L,0,0</td><td>2</td></tr>
+<tr><td>Appui plan (A, z⃗)</td><td class="mono">0,Ty,Tz</td><td class="mono">Rx,0,0</td><td class="mono">X,0,0 / 0,M,N</td><td>3</td></tr>
+<tr><td>Sphérique (rotule) (C)</td><td class="mono">0,0,0</td><td class="mono">Rx,Ry,Rz</td><td class="mono">X,Y,Z / 0,0,0</td><td>3</td></tr>
+<tr><td>Cylindre‑plan (A, x⃗, z⃗)</td><td class="mono">0,Ty,Tz</td><td class="mono">Rx,Ry,0</td><td class="mono">X,0,0 / 0,0,N</td><td>4</td></tr>
+<tr><td>Sphère‑cylindre (C, x⃗)</td><td class="mono">Tx,0,0</td><td class="mono">Rx,Ry,Rz</td><td class="mono">0,Y,Z / 0,0,0</td><td>4</td></tr>
+<tr><td>Sphère‑plan (C, z⃗)</td><td class="mono">0,Ty,Tz</td><td class="mono">Rx,Ry,Rz</td><td class="mono">X,0,0 / 0,0,0</td><td>5</td></tr>
+</table>
+<p style="font-size:12.5px;color:var(--ink-soft);">Lecture : les composantes <b>notées par une lettre</b> (X, Y, Z, L, M, N) sont transmises par la liaison ; celles notées <b>0</b> sont libres (mobilité). Le total mobilités + torseur transmissible = 6 pour chaque liaison.</p>
+</div>
+</details>
+
+<!-- 11 -->
+<details class="panel" id="s11">
+<summary><span class="num">11</span> Méthode de résolution</summary>
+<div class="panel-body">
+<div class="flow">
+<div class="flow-step"><span class="n">1</span>Modéliser le système par un graphe des liaisons</div>
+<div class="flow-arrow">↓</div>
+<div class="flow-step"><span class="n">2</span>Relever les hypothèses (solide indéformable, homogène, isotrope…)</div>
+<div class="flow-arrow">↓</div>
+<div class="flow-step"><span class="n">3</span>Inscrire les torseurs des actions mécaniques sur le graphe</div>
+<div class="flow-arrow">↓</div>
+<div class="flow-step"><span class="n">4</span>Identifier les actions <b>connues</b> et celles <b>cherchées</b></div>
+<div class="flow-arrow">↓</div>
+<div class="flow-step"><span class="n">5</span>Isoler un solide (ou groupe) — <b>privilégier</b> : 2 forces → 3 forces (graphique) → groupement faisant apparaître l'inconnue</div>
+<div class="flow-arrow">↓</div>
+<div class="flow-step"><span class="n">6</span>Bilan des actions mécaniques puis application du PFS</div>
+<div class="flow-arrow">↓</div>
+<div class="flow-step"><span class="n">7</span>Résoudre → si insuffisant, isoler un autre système ; sinon conclure</div>
+</div>
+<div class="callout">Astuce loi entrée‑sortie en effort : regarder le <b>degré de liberté (ddl)</b> des pièces par rapport au bâti, puis écrire l'équation du PFS correspondante.</div>
+</div>
+</details>
+
+<!-- 12 : calculator -->
+<details class="panel" id="s12">
+<summary><span class="num">12</span> Calculateur — moment scalaire</summary>
+<div class="panel-body">
+<p>Entraîne‑toi : calcule <span style="font-family:var(--mono);">M<sub>O</sub>(F⃗) = F · d</span> à partir d'une force et d'un bras de levier, avec un signe selon le sens de rotation.</p>
+<div class="calc">
+  <div class="row">
+    <div><label for="calcF">Intensité F (N)</label><input type="number" id="calcF" value="40" step="0.1"></div>
+    <div><label for="calcD">Bras de levier d (mm)</label><input type="number" id="calcD" value="30" step="0.1"></div>
+    <div><label for="calcSens">Sens de rotation</label>
+      <select id="calcSens"><option value="1">Trigonométrique (+)</option><option value="-1">Horaire (−)</option></select>
+    </div>
+  </div>
+  <div class="result">M<sub>O</sub>(F⃗) = <span class="val" id="calcOut">1200.0</span> N·mm</div>
+</div>
+</div>
+</details>
+
+<!-- 13 : activités découverte -->
+<details class="panel" id="s13">
+<summary><span class="num">13</span> Activités découverte — exercices corrigés</summary>
+<div class="panel-body">
+<p>Reprise des deux activités découverte de la séquence : identifier la nature d'une action mécanique, puis calculer des moments. Réponds, puis vérifie — la correction officielle s'affiche avec la justification.</p>
+
+<h3>Bloc A — Activité 1 : glisseur, couple, ou force + moment ?</h3>
+<p style="font-size:13px;color:var(--ink-soft);">Pour chaque situation, une action mécanique de contact ou de liaison est-elle une <b>force pure (glisseur)</b>, un <b>moment pur (couple)</b>, ou une <b>force ET un moment</b> ?</p>
+<div id="classifContainer"></div>
+<div class="quiz-actions">
+  <button class="btn" id="checkClassif">Vérifier le Bloc A</button>
+  <button class="btn secondary" id="resetClassif">Recommencer le Bloc A</button>
+  <span id="score-classif" style="display:none;" class="mono"></span>
+</div>
+
+<h3>Bloc B — Activité 2 : calcul de moments (F et distances comme dans l'énoncé)</h3>
+<p style="font-size:13px;color:var(--ink-soft);">Rappel : M = ± F × d (bras de levier ⊥ au support de F). Entre ta valeur en N·m (avec le signe), puis vérifie.</p>
+<div id="numexContainer"></div>
+
+<h3>Bloc C — Flash questions (Activité 1, parties 1 et 2)</h3>
+<div id="flashContainer"></div>
+
+</div>
+</details>
+
+
+<!-- 14 : animations -->
+<details class="panel" id="s14">
+<summary><span class="num">14</span> Toutes les animations de la séquence</summary>
+<div class="panel-body">
+<p>Les animations du site, regroupées ici. Les <b>diaporamas</b> peuvent s'afficher directement dans la page ; les <b>exercices en ligne</b> s'ouvrent dans un nouvel onglet.</p>
+<div class="anim-box"><h3>🎞️ Diaporamas animés</h3><div class="anim"><span class="anim-ico">🎞️</span><div class="anim-bd"><span class="anim-kind">Diaporama animé</span><b>Les actions mécaniques entre pièces</b></div><a class="anim-go" href="https://docs.google.com/presentation/d/e/2PACX-1vRRAjyGTU7Fb23706Kf1jwYKiIdjtdLmEK-jWhrIKpW6PCVGQiSv7K94SGf-MVYsIlYJiS7EGqdF4EX/pub?start=false&loop=false&delayms=60000&slide=id.gc64186f0b0_0_67" target="_blank" rel="noopener">▶ Ouvrir l'animation</a><button type="button" class="anim-show" data-embed="https://docs.google.com/presentation/d/e/2PACX-1vRRAjyGTU7Fb23706Kf1jwYKiIdjtdLmEK-jWhrIKpW6PCVGQiSv7K94SGf-MVYsIlYJiS7EGqdF4EX/embed?start=false&loop=false&delayms=60000&slide=id.gc64186f0b0_0_67">Afficher ici ▾</button><div class="anim-frame"></div></div><div class="anim"><span class="anim-ico">🎞️</span><div class="anim-bd"><span class="anim-kind">Diaporama animé</span><b>Les différents types d'actions mécaniques</b></div><a class="anim-go" href="https://docs.google.com/presentation/d/e/2PACX-1vRdz72wg-wqkGGICus_pfwYNDwsJTx4gEzPoXgPsjdA5HgsWsYQi8CGO5Ki0nzo14191k7ZZ75Kkcxh/pub?start=false&loop=false&delayms=60000&slide=id.p" target="_blank" rel="noopener">▶ Ouvrir l'animation</a><button type="button" class="anim-show" data-embed="https://docs.google.com/presentation/d/e/2PACX-1vRdz72wg-wqkGGICus_pfwYNDwsJTx4gEzPoXgPsjdA5HgsWsYQi8CGO5Ki0nzo14191k7ZZ75Kkcxh/embed?start=false&loop=false&delayms=60000&slide=id.p">Afficher ici ▾</button><div class="anim-frame"></div></div><div class="anim"><span class="anim-ico">🎞️</span><div class="anim-bd"><span class="anim-kind">Diaporama animé</span><b>B.A.M.E. — Bilan des actions mécaniques extérieures</b></div><a class="anim-go" href="https://docs.google.com/presentation/d/e/2PACX-1vS4ncNxGMgMp-faHVbKZITWtLSJKiohwtpsmrA1HTH1k34-e-vwNVTQXGEWjO77PGkS07pBV4DsmM2U/pub?start=false&loop=false&delayms=60000&slide=id.p" target="_blank" rel="noopener">▶ Ouvrir l'animation</a><button type="button" class="anim-show" data-embed="https://docs.google.com/presentation/d/e/2PACX-1vS4ncNxGMgMp-faHVbKZITWtLSJKiohwtpsmrA1HTH1k34-e-vwNVTQXGEWjO77PGkS07pBV4DsmM2U/embed?start=false&loop=false&delayms=60000&slide=id.p">Afficher ici ▾</button><div class="anim-frame"></div></div><div class="anim"><span class="anim-ico">🎞️</span><div class="anim-bd"><span class="anim-kind">Diaporama animé</span><b>Calcul d'un moment (vectoriel)</b></div><a class="anim-go" href="https://docs.google.com/presentation/d/e/2PACX-1vSdOlu3uD3cpubkIIzkUkX_9zqdsMFQ0SBPCyK-B0A-dl-FvI3KoMMynLvG7gGyRdueSqx2WnO1LRWl/pub?start=false&loop=false&delayms=60000&slide=id.g789b23e246_0_1" target="_blank" rel="noopener">▶ Ouvrir l'animation</a><button type="button" class="anim-show" data-embed="https://docs.google.com/presentation/d/e/2PACX-1vSdOlu3uD3cpubkIIzkUkX_9zqdsMFQ0SBPCyK-B0A-dl-FvI3KoMMynLvG7gGyRdueSqx2WnO1LRWl/embed?start=false&loop=false&delayms=60000&slide=id.g789b23e246_0_1">Afficher ici ▾</button><div class="anim-frame"></div></div></div><div class="anim-box"><h3>🎮 Exercices animés en ligne</h3><div class="anim"><span class="anim-ico">🎮</span><div class="anim-bd"><span class="anim-kind">Exercice en ligne (V. Geneau)</span><b>Exercice animé : calcul de moments</b></div><a class="anim-go" href="http://vincent.geneau.free.fr/NewCligne/2_calcul_moment_exo.html" target="_blank" rel="noopener">▶ Ouvrir l'animation</a><div class="anim-frame"></div></div><div class="anim"><span class="anim-ico">🎮</span><div class="anim-bd"><span class="anim-kind">Exercice en ligne (V. Geneau)</span><b>Exercice animé : types d'actions mécaniques</b></div><a class="anim-go" href="http://vincent.geneau.free.fr/NewCligne/4_statique_type_am_exo2.html" target="_blank" rel="noopener">▶ Ouvrir l'animation</a><div class="anim-frame"></div></div><div class="anim"><span class="anim-ico">🎮</span><div class="anim-bd"><span class="anim-kind">Exercice en ligne (V. Geneau)</span><b>Exercice animé : statique de base</b></div><a class="anim-go" href="http://vincent.geneau.free.fr/NewCligne/2_statique_base_exo.html" target="_blank" rel="noopener">▶ Ouvrir l'animation</a><div class="anim-frame"></div></div></div>
+</div>
+</details>
+
+<!-- QUIZ -->
+<section class="panel" id="quiz" open style="border-color:var(--force);">
+<div class="panel-head" style="border-bottom-color:var(--force);">
+<span class="num" style="color:var(--force);">✓</span> Auto‑évaluation — 16 questions avec correction
+</div>
+<div class="panel-body">
+<p>Réponds à chaque question puis clique sur <b>« Vérifier mes réponses »</b>. Les bonnes réponses s'affichent en vert, les erreurs en rouge, avec l'explication.</p>
+<div id="quizContainer"></div>
+<div class="quiz-actions">
+  <button class="btn" id="checkBtn">Vérifier mes réponses</button>
+  <button class="btn secondary" id="resetBtn">Recommencer</button>
+  <span id="score-box" style="display:none;"></span>
+</div>
+</div>
+</section>
+
+</div>
+
+<footer>Synthèse compilée à partir de : Modélisation des actions mécaniques · Principe fondamental de la statique · Lois de Newton (PFS/PFD) · Dynamique · Frottement &amp; adhérence · Tableau des liaisons usuelles — Terminale SI.</footer>
+
+<script>
+// ---- Nav clicks: open target section (if collapsed) then scroll to it ----
+document.querySelectorAll('nav.toc a').forEach(link=>{
+  link.addEventListener('click', (e)=>{
+    e.preventDefault();
+    try{
+      const id = link.getAttribute('href').slice(1);
+      const target = document.getElementById(id);
+      if(!target) return;
+      if(target.tagName.toLowerCase() === 'details' && !target.open){
+        target.open = true;
+      }
+      requestAnimationFrame(()=>{
+        target.scrollIntoView({behavior:'smooth', block:'start'});
+      });
+    }catch(err){
+      // fallback: let the browser try native anchor jump
+      window.location.hash = link.getAttribute('href');
+    }
+  });
+});
+
+// ---- Nav active highlight (non-critical: wrapped so failures don't break nav clicks above) ----
+try{
+const sections = [...document.querySelectorAll('section.panel, details.panel')];
+const navLinks = [...document.querySelectorAll('nav.toc a')];
+const io = new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      const id = e.target.id;
+      navLinks.forEach(a=>a.classList.toggle('active', a.getAttribute('href') === '#'+id));
+    }
+  });
+},{rootMargin:"-45% 0px -50% 0px"});
+sections.forEach(s=>io.observe(s));
+}catch(err){ /* sticky-nav highlight is cosmetic only; safe to skip if unsupported */ }
+
+// ---- Lever-arm ("bras de levier") interactive demo ----
+try{
+  const O = {x:70, y:140};
+  const A = {x:300, y:140};
+  const D = 60; // mm represented by the O-A rod length on screen
+  let leverStep = 0;
+
+  const svgNS = "http://www.w3.org/2000/svg";
+  const gForce = document.getElementById('gForce');
+  const gSupport = document.getElementById('gSupport');
+  const gPerp = document.getElementById('gPerp');
+  const forceArrow = document.getElementById('forceArrow');
+  const forceLabel = document.getElementById('forceLabel');
+  const supportLine = document.getElementById('supportLine');
+  const perpLine = document.getElementById('perpLine');
+  const perpLabel = document.getElementById('perpLabel');
+  const rightAngleMark = document.getElementById('rightAngleMark');
+  const angleSlider = document.getElementById('leverAngle');
+  const angleValEl = document.getElementById('leverAngleVal');
+  const lValEl = document.getElementById('leverLval');
+  const caption = document.getElementById('leverCaption');
+
+  const captions = [
+    "Étape 1 — Repère le point autour duquel la pièce peut tourner : l'<b>axe de rotation O</b>.",
+    "Étape 2 — Trace une droite qui passe par le point d'application et suit la direction de la force : c'est le <b>support de F⃗</b> (en vert pointillé).",
+    "Étape 3 — Fais glisser l'équerre depuis O jusqu'à cette droite, à angle droit : cette distance est le <b>bras de levier L</b>. Le moment vaut alors <b>M₀(F⃗) = F × L</b>."
+  ];
+
+  function geometry(angleDeg){
+    const rad = angleDeg * Math.PI/180;
+    const u = {x:Math.cos(rad), y:Math.sin(rad)}; // force direction
+    const forceLen = 85;
+    const fEnd = {x:A.x+u.x*forceLen, y:A.y+u.y*forceLen};
+    // perpendicular foot from O onto the line through A with direction u
+    const AO = {x:O.x-A.x, y:O.y-A.y};
+    const proj = AO.x*u.x + AO.y*u.y;
+    const H = {x:A.x+proj*u.x, y:A.y+proj*u.y};
+    const L_px = Math.hypot(O.x-H.x, O.y-H.y);
+    const L_mm = D * Math.abs(Math.sin(rad));
+    return {u, fEnd, H, L_px, L_mm};
+  }
+
+  function draw(angleDeg){
+    const g = geometry(angleDeg);
+    // force arrow
+    forceArrow.setAttribute('x2', g.fEnd.x); forceArrow.setAttribute('y2', g.fEnd.y);
+    forceLabel.setAttribute('x', g.fEnd.x + g.u.x*14); forceLabel.setAttribute('y', g.fEnd.y + g.u.y*14 + 4);
+    // support line (extend generously both directions)
+    const ext = 500;
+    supportLine.setAttribute('x1', A.x-g.u.x*ext); supportLine.setAttribute('y1', A.y-g.u.y*ext);
+    supportLine.setAttribute('x2', A.x+g.u.x*ext); supportLine.setAttribute('y2', A.y+g.u.y*ext);
+    // perpendicular segment O -> H
+    perpLine.setAttribute('x2', g.H.x); perpLine.setAttribute('y2', g.H.y);
+    const midx=(O.x+g.H.x)/2, midy=(O.y+g.H.y)/2;
+    perpLabel.setAttribute('x', midx-16); perpLabel.setAttribute('y', midy-6);
+    // right angle marker at H
+    const s = 11;
+    const dirO = Math.hypot(O.x-g.H.x, O.y-g.H.y) > 0.001
+      ? {x:(O.x-g.H.x)/Math.hypot(O.x-g.H.x,O.y-g.H.y), y:(O.y-g.H.y)/Math.hypot(O.x-g.H.x,O.y-g.H.y)}
+      : {x:0,y:0};
+    const p1 = {x:g.H.x+dirO.x*s, y:g.H.y+dirO.y*s};
+    const p2 = {x:p1.x+g.u.x*s, y:p1.y+g.u.y*s};
+    const p3 = {x:g.H.x+g.u.x*s, y:g.H.y+g.u.y*s};
+    rightAngleMark.setAttribute('points', `${p1.x},${p1.y} ${p2.x},${p2.y} ${p3.x},${p3.y}`);
+    // readouts
+    angleValEl.textContent = angleDeg;
+    lValEl.textContent = g.L_mm.toFixed(1);
+  }
+
+  function showStep(n){
+    leverStep = n;
+    gForce.style.opacity = n>=1 ? 1 : 0;
+    gSupport.style.opacity = n>=1 ? 1 : 0;
+    gPerp.style.opacity = n>=2 ? 1 : 0;
+    caption.innerHTML = captions[n];
+    document.querySelectorAll('.step-btn').forEach(b=>b.classList.toggle('active', parseInt(b.dataset.step)===n));
+  }
+
+  document.querySelectorAll('.step-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=> showStep(parseInt(btn.dataset.step)));
+  });
+
+  angleSlider.addEventListener('input', ()=> draw(parseInt(angleSlider.value)));
+
+  document.getElementById('leverPlay').addEventListener('click', ()=>{
+    showStep(0);
+    setTimeout(()=>showStep(1), 900);
+    setTimeout(()=>showStep(2), 1900);
+  });
+
+  draw(parseInt(angleSlider.value));
+  showStep(0);
+}catch(err){ /* demo is a teaching aid; safe to skip if unsupported */ }
+
+// ---- Calculator ----
+function updateCalc(){
+  const F = parseFloat(document.getElementById('calcF').value)||0;
+  const d = parseFloat(document.getElementById('calcD').value)||0;
+  const sens = parseInt(document.getElementById('calcSens').value);
+  const M = (F*d*sens).toFixed(1);
+  document.getElementById('calcOut').textContent = M;
+}
+['calcF','calcD','calcSens'].forEach(id=>document.getElementById(id).addEventListener('input', updateCalc));
+document.getElementById('calcSens').addEventListener('change', updateCalc);
+updateCalc();
+
+// ---- Bloc A: classification (glisseur / couple / force+moment) ----
+try{
+const classifData = [
+  {situation:"Panneau de signalisation — mât encastré dans le sol", hyp:"Le panneau subit son propre poids.", q:"Action du sol sur le panneau ?", correct:2,
+   exp:"Le mât est encastré dans le sol : le poids du panneau, excentré par rapport à l'axe du mât, crée un moment de flexion. Le sol doit donc transmettre une FORCE et un MOMENT."},
+  {situation:"Panneau de signalisation — mât encastré dans le sol", hyp:"Le panneau subit son poids ET la force du vent.", q:"Action du sol sur le panneau ?", correct:2,
+   exp:"Même raisonnement, amplifié par l'effort du vent : la liaison encastrement transmet toujours une force ET un moment."},
+  {situation:"Brouette", hyp:"La brouette subit son poids et celui de sa charge.", q:"Action du sol sur la roue ?", correct:0,
+   exp:"Le contact roue/sol est quasi ponctuel : il ne transmet qu'une FORCE (glisseur), la roue restant libre de rouler/pivoter autour de ce point."},
+  {situation:"Brouette", hyp:"La brouette subit son propre poids.", q:"Action des mains sur les poignées ?", correct:2,
+   exp:"Les mains empoignent fermement les poignées : elles transmettent une FORCE (porter/pousser) ET un MOMENT (contrôler l'inclinaison du bac)."},
+  {situation:"Remorque", hyp:"La remorque subit son poids et celui de sa charge.", q:"Action du sol sur la roue arrière ?", correct:0,
+   exp:"Contact roue/sol ponctuel : FORCE pure, pas de moment transmis."},
+  {situation:"Remorque", hyp:"La remorque subit son poids et celui de sa charge.", q:"Action du sol sur la roue jockey (béquille avant) ?", correct:0,
+   exp:"Même principe : contact ponctuel, FORCE pure (glisseur)."},
+  {situation:"Clé de serrage", hyp:"La clé subit l'action des 2 mains utilisées.", q:"Action de la clé de serrage sur l'écrou ?", correct:1,
+   exp:"Les 2 mains créent un couple de forces opposées : l'action résultante sur l'écrou est un MOMENT PUR (couple), sans résultante en translation."},
+  {situation:"Visseuse électrique", hyp:"La visseuse subit l'action de la main ; elle fournit un couple de serrage.", q:"Action de la visseuse sur la vis ?", correct:2,
+   exp:"La visseuse pousse la vis (force axiale) tout en la faisant tourner (moment de serrage) : FORCE ET MOMENT."},
+  {situation:"Visseuse électrique", hyp:"La visseuse subit l'action de la main ; elle fournit un couple de serrage.", q:"Action de la main sur la visseuse ?", correct:2,
+   exp:"Par le théorème des actions réciproques, la main subit en retour une FORCE ET un MOMENT (le fameux à-coup ressenti au serrage)."},
+  {situation:"Benne de remorque de tracteur", hyp:"La benne subit son poids et celui de sa charge.", q:"Action du vérin sur la benne ?", correct:0,
+   exp:"Le vérin est articulé (pivot) à ses deux extrémités : c'est un système à 2 liaisons pivot, donc une FORCE pure (glisseur) selon son axe."},
+  {situation:"Benne de remorque de tracteur", hyp:"La benne subit son poids et celui de sa charge.", q:"Action de la remorque sur la benne (articulation) ?", correct:0,
+   exp:"L'articulation est une liaison pivot : elle ne transmet qu'une FORCE, jamais de moment."}
+];
+const classifOpts = ["une force pure = Glisseur","un moment pur = Couple","une force et un moment"];
+const classifContainer = document.getElementById('classifContainer');
+classifData.forEach((item,i)=>{
+  const div = document.createElement('div');
+  div.className='classif-card';
+  div.dataset.correct = item.correct;
+  const opts = classifOpts.map((o,j)=>`<label data-idx="${j}"><input type="radio" name="cl${i}" value="${j}"> ${o}</label>`).join('');
+  div.innerHTML = `<p class="scenario"><b>${item.situation}</b> — Hypothèse : ${item.hyp}</p><p class="qstem">${i+1}. ${item.q}</p><div class="opts3">${opts}</div><div class="explain">${item.exp}</div>`;
+  classifContainer.appendChild(div);
+});
+document.getElementById('checkClassif').addEventListener('click', ()=>{
+  let score=0;
+  document.querySelectorAll('.classif-card').forEach(card=>{
+    const correctIdx = parseInt(card.dataset.correct);
+    const checked = card.querySelector('input:checked');
+    card.classList.add('checked');
+    card.querySelectorAll('label').forEach(l=>{
+      l.classList.remove('correct','incorrect');
+      const idx = parseInt(l.dataset.idx);
+      if(idx===correctIdx) l.classList.add('correct');
+      else if(checked && parseInt(checked.value)===idx) l.classList.add('incorrect');
+    });
+    if(checked && parseInt(checked.value)===correctIdx) score++;
+  });
+  const box = document.getElementById('score-classif');
+  box.style.display='inline-block';
+  box.textContent = `Score Bloc A : ${score} / ${classifData.length}`;
+  box.style.padding='7px 12px'; box.style.borderRadius='4px'; box.style.color='#fff';
+  box.style.background = score===classifData.length ? '#2E7D32' : (score >= classifData.length*0.6 ? '#177A72' : '#B3261E');
+});
+document.getElementById('resetClassif').addEventListener('click', ()=>{
+  document.querySelectorAll('.classif-card').forEach(card=>{
+    card.classList.remove('checked');
+    card.querySelectorAll('input').forEach(inp=>inp.checked=false);
+    card.querySelectorAll('label').forEach(l=>l.classList.remove('correct','incorrect'));
+  });
+  document.getElementById('score-classif').style.display='none';
+});
+}catch(err){ /* Bloc A is a teaching aid; safe to skip if unsupported */ }
+
+// ---- Bloc B: numeric moment exercises ----
+try{
+const numexData = [
+  {given:"F = 100 N — bras de levier d = 37 mm — sens trigonométrique (+)", q:"Calculer M_B(F⃗)", correct:3.7, exp:"M_B(F) = + F × d = 100 × 0,037 = +3,7 N·m."},
+  {given:"F = 100 N — bras de levier d = 25 mm — sens horaire (−)", q:"Calculer M_B(F⃗)", correct:-2.5, exp:"M_B(F) = − F × d = −100 × 0,025 = −2,5 N·m."},
+  {given:"F = 100 N — bras de levier d = 42 mm — sens horaire (−)", q:"Calculer M_C(F⃗)", correct:-4.2, exp:"M_C(F) = − F × d = −100 × 0,042 = −4,2 N·m (on utilise la distance perpendiculaire au support de F, ici 42 mm)."},
+  {given:"F appliquée directement au point B, sur son propre support", q:"Calculer M_B(F⃗)", correct:0, exp:"Moment au point d'application de la force (ou sur sa ligne d'action) : toujours nul, car le bras de levier est nul."},
+  {given:"F = 100 N — bras de levier d = 150 mm — sens horaire (−)", q:"Calculer M_C(F⃗)", correct:-15, exp:"M_C(F) = − F × d = −100 × 0,15 = −15 N·m."},
+  {given:"F appliquée sur le support passant par D (même direction)", q:"Calculer M_D(F⃗)", correct:0, exp:"Le support de F passe par D : bras de levier nul, donc moment nul (même direction)."},
+  {given:"Panneau — F = 50 N — distance D = 1,4 m — sens positif", q:"Calculer M_D(F⃗)", correct:70, exp:"M_D(F) = + F × d = 50 × 1,4 = +70 N·m."},
+  {given:"Brouette — F = 100 daN (= 1000 N) — distance = 0,25 m — sens négatif", q:"Calculer M_A(F⃗)", correct:-250, exp:"Attention à l'unité : 100 daN = 1000 N. M_A(F) = −1000 × 0,25 = −250 N·m."},
+  {given:"Brouette — T = 20 daN — distance = 0,25 m — sens positif", q:"Calculer M_A(T⃗)", correct:250, exp:"Correction officielle : M_A(T) = +250 N·m (attention aux daN → N)."},
+  {given:"Benne — P = 1700 daN (= 17000 N) — distance = 2 m — sens positif", q:"Calculer M_I(P⃗)", correct:34000, exp:"M_I(P) = +17000 × 2 = +34 000 N·m."},
+  {given:"Benne — R = 2000 daN (= 20000 N) — distance = 1,7 m — sens négatif", q:"Calculer M_I(R⃗)", correct:-34000, exp:"M_I(R) = −20000 × 1,7 = −34 000 N·m (en valeur absolue, égal à M_I(P) : c'est ce qui permet de résoudre le PFS)."}
+];
+const numexContainer = document.getElementById('numexContainer');
+numexData.forEach((item,i)=>{
+  const div = document.createElement('div');
+  div.className='numex';
+  div.innerHTML = `<p class="given">${item.given}</p><p class="qstem">${i+1}. ${item.q}</p>
+    <div class="row">
+      <input type="number" step="0.1" id="numex${i}" placeholder="valeur en N·m">
+      <button class="check" data-i="${i}">Vérifier</button>
+    </div>
+    <div class="fb" id="fb${i}"></div>`;
+  numexContainer.appendChild(div);
+});
+numexContainer.querySelectorAll('button.check').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    const i = parseInt(btn.dataset.i);
+    const item = numexData[i];
+    const val = parseFloat(document.getElementById('numex'+i).value);
+    const fb = document.getElementById('fb'+i);
+    fb.classList.add('show');
+    if(!isNaN(val) && Math.abs(val-item.correct) <= Math.max(0.1, Math.abs(item.correct)*0.03)){
+      fb.classList.remove('bad'); fb.classList.add('good');
+      fb.textContent = `✓ Correct — ${item.exp}`;
+    } else {
+      fb.classList.remove('good'); fb.classList.add('bad');
+      fb.textContent = `✗ Réponse attendue : ${item.correct} N·m — ${item.exp}`;
+    }
+  });
+});
+}catch(err){ /* Bloc B is a teaching aid; safe to skip if unsupported */ }
+
+// ---- Bloc C: flashcards ----
+try{
+const flashData = [
+  {q:"Sur une grue à tour, y a-t-il un moment au niveau de la tourelle (le mât) ? Comment équilibrer le système ?",
+   a:"Oui : le bras horizontal portant une charge à son extrémité crée un moment de basculement au niveau de la tourelle. Solution classique : ajouter un contrepoids à l'arrière du bras — son moment (poids × bras plus court) vient compenser celui de la charge (poids × grand bras)."},
+  {q:"Chaque molécule d'un solide est attirée par la Terre : comment simplifie-t-on ce champ de pesanteur réparti ?",
+   a:"On remplace toutes ces forces élémentaires par une résultante unique : une force (le poids total) ET un moment, exprimés en un point choisi. Si on choisit le centre de gravité G comme point de réduction, ce moment devient nul."},
+  {q:"Quel est ce dispositif qui convertit la pression d'un fluide en un mouvement de translation, et comment fonctionne-t-il ?",
+   a:"C'est un vérin (pneumatique ou hydraulique). La tige sort lorsqu'on injecte le fluide dans la chambre, car le fluide appuie sur la face du piston."},
+  {q:"Quelles sont les 4 grandes familles de ressorts rencontrées en mécanique ?",
+   a:"Ressort de traction, ressort de torsion, ressort à lame, et ressort spiral (barillet)."},
+  {q:"Rappelle les 3 formules des actions mécaniques élémentaires vues dans l'activité (pesanteur, fluide, ressort).",
+   a:"Pesanteur : P = m·g — Fluide : F = p·S — Ressort : F = (L₀ − L)·k, avec L₀ la longueur à vide et L la longueur en charge."}
+];
+const flashContainer = document.getElementById('flashContainer');
+flashData.forEach((item,i)=>{
+  const div = document.createElement('div');
+  div.className='flashcard';
+  div.innerHTML = `<div class="q">${i+1}. ${item.q}</div><div class="a">${item.a}</div>`;
+  div.querySelector('.q').addEventListener('click', ()=> div.classList.toggle('revealed'));
+  flashContainer.appendChild(div);
+});
+}catch(err){ /* Bloc C is a teaching aid; safe to skip if unsupported */ }
+
+// ---- Quiz data ----
+const quiz = [
+{q:"Quelle action mécanique crée ou supprime une translation ?",
+ opts:["Le moment","La force (résultante)","Le torseur couple","Le bras de levier"], correct:1,
+ exp:"La translation est créée/supprimée par la FORCE (ou RÉSULTANTE) ; la rotation, elle, est créée/supprimée par le MOMENT."},
+{q:"Une résultante de contact solide/solide est toujours orientée…",
+ opts:["Dans le sens du mouvement souhaité","Perpendiculairement à la surface de contact","Parallèlement au plan de symétrie","Selon la bissectrice des deux solides"], correct:1,
+ exp:"Propriété graphique : la direction d'une action de contact entre deux solides est toujours perpendiculaire à la surface de contact."},
+{q:"Quelle est la formule de l'effort de pression exercé par un fluide sur un piston ?",
+ opts:["F = k·x","F = m·g","F = p·S","F = J·α"], correct:2,
+ exp:"F_fluide/1 = p · S, avec p en Pa et S en m² (F en N)."},
+{q:"Le poids d'un solide a pour direction et sens :",
+ opts:["Horizontale, vers l'avant","Verticale, vers le haut","Verticale, vers le bas","Selon le support de la liaison"], correct:2,
+ exp:"Le poids est toujours vertical (support (G, y⃗)) et dirigé vers le bas, appliqué au centre de gravité G."},
+{q:"Le moment scalaire d'une force F par rapport à un point O vaut :",
+ opts:["M = F + d","M = F / d","M = F · d, avec d le bras de levier ⊥ au support de F","M = F² · d"], correct:2,
+ exp:"‖M_O(F⃗)‖ = F · d, où d est le bras de levier mesuré perpendiculairement au support de la force, depuis O."},
+{q:"Quel est le moment d'une force par rapport à un point de son propre support ?",
+ opts:["Toujours nul","Toujours maximal","Égal à F","Impossible à déterminer"], correct:0,
+ exp:"Le bras de levier étant nul dans ce cas, le moment d'une force en un point de son support est toujours nul."},
+{q:"La formule vectorielle du moment d'une force F⃗ appliquée en A, calculé au point O, est :",
+ opts:["M_O(F⃗) = OA⃗ · F⃗ (produit scalaire)","M_O(F⃗) = OA⃗ ∧ F⃗ (produit vectoriel)","M_O(F⃗) = OA⃗ + F⃗","M_O(F⃗) = F⃗ / OA⃗"], correct:1,
+ exp:"Le vecteur moment est défini par le produit vectoriel : M_O(F⃗) = OA⃗ ∧ F⃗, où A est un point du support de F⃗."},
+{q:"Dans un torseur d'action mécanique, quel champ est constant (indépendant du point de réduction) ?",
+ opts:["Le moment","La résultante","Les deux","Aucun des deux"], correct:1,
+ exp:"La résultante R⃗ est un champ constant ; le moment M⃗ est un champ variable qui suit la formule de transport (relation de Varignon)."},
+{q:"Un torseur dont le moment est nul en un point est appelé :",
+ opts:["Un torseur couple","Un torseur glisseur","Un torseur nul","Un torseur dynamique"], correct:1,
+ exp:"On parle de torseur GLISSEUR quand le moment est nul en un point (l'action se réduit alors à une force pure). Le torseur COUPLE, lui, a une résultante nulle."},
+{q:"Le Principe Fondamental de la Statique s'applique à un système S en équilibre :",
+ opts:["Uniquement si S est un solide unique","Si et seulement si chaque solide constituant S est lui-même en équilibre","Uniquement en 2D","Seulement pour des liaisons encastrement"], correct:1,
+ exp:"Un système de solides est en équilibre si et seulement si chaque solide qui le constitue est en équilibre — c'est la base du théorème des actions réciproques."},
+{q:"Pourquoi ne faut-il jamais isoler le bâti seul dans une étude de statique ?",
+ opts:["Parce que le bâti n'a pas de poids","Parce qu'il est nécessairement lié à un autre bâti extérieur au graphe, rendant le bilan des efforts absurde","Parce que le bâti est toujours en mouvement","Parce que ce n'est pas autorisé par le PFD"], correct:1,
+ exp:"Le bâti est obligatoirement relié à un autre « bâti » qui n'apparaît pas dans le graphe des liaisons : le bilan des efforts extérieurs n'aurait alors aucun sens."},
+{q:"Un solide en équilibre soumis à seulement 2 forces (glisseurs) vérifie :",
+ opts:["Les 2 forces sont perpendiculaires","Les 2 forces ont même support, même intensité, sens opposés","Les 2 forces sont concourantes en un point quelconque","Les 2 forces ont des intensités différentes"], correct:1,
+ exp:"Théorème : si un solide soumis à 2 forces est en équilibre, ces deux forces ont même direction (même support), même intensité et sont de sens opposés."},
+{q:"Un solide en équilibre soumis à 3 forces non parallèles vérifie :",
+ opts:["Les 3 forces sont concourantes, coplanaires, et leur somme vectorielle est nulle","Les 3 forces sont toutes égales","Les 3 forces forment un angle droit entre elles","Une seule des 3 forces suffit à décrire l'équilibre"], correct:0,
+ exp:"Théorème des 3 forces non parallèles : elles doivent être concourantes, coplanaires, et leur somme vectorielle nulle (triangle des forces fermé)."},
+{q:"Que devient le PFD lorsque le solide n'a aucune accélération ?",
+ opts:["Il devient inapplicable","Il se réduit exactement au PFS","Il devient le théorème de Varignon","Il ne concerne que les liaisons pivots"], correct:1,
+ exp:"Si l'accélération est nulle (immobile ou MRU), le PFD s'écrit R⃗=0⃗ et M⃗_A=0⃗ quel que soit A : on retrouve exactement le PFS."},
+{q:"Quelle différence sépare l'adhérence du frottement ?",
+ opts:["Il n'y a aucune différence","L'adhérence correspond à un glissement, le frottement à une absence de glissement","L'adhérence correspond à une absence de glissement, le frottement à un glissement effectif","L'adhérence ne s'applique qu'aux fluides"], correct:2,
+ exp:"Adhérence = les surfaces tendent à glisser mais n'y parviennent pas encore (T < T₀). Frottement = les surfaces glissent réellement l'une contre l'autre."},
+{q:"Dans le tableau des liaisons, une liaison pivot d'axe (A, x⃗) autorise :",
+ opts:["1 translation seulement","1 rotation seulement (autour de x⃗)","3 rotations et 0 translation","2 translations et 1 rotation"], correct:1,
+ exp:"La liaison pivot d'axe (A, x⃗) n'autorise qu'un seul degré de liberté : la rotation Rx autour de l'axe x⃗. Toutes les translations et les autres rotations sont bloquées (transmises)."}
+];
+
+const container = document.getElementById('quizContainer');
+quiz.forEach((item, i)=>{
+  const div = document.createElement('div');
+  div.className='quiz-q';
+  div.dataset.correct = item.correct;
+  let optsHtml = item.opts.map((o,j)=>`<label data-idx="${j}"><input type="radio" name="q${i}" value="${j}"> <span>${o}</span></label>`).join('');
+  div.innerHTML = `<p class="stem">${i+1}. ${item.q}</p><div class="opts">${optsHtml}</div><div class="explain">${item.exp}</div>`;
+  container.appendChild(div);
+});
+
+document.getElementById('checkBtn').addEventListener('click', ()=>{
+  let score = 0;
+  document.querySelectorAll('.quiz-q').forEach(qEl=>{
+    const correctIdx = parseInt(qEl.dataset.correct);
+    const checked = qEl.querySelector('input:checked');
+    qEl.classList.add('checked');
+    qEl.querySelectorAll('label').forEach(l=>{
+      l.classList.remove('correct','incorrect');
+      const idx = parseInt(l.dataset.idx);
+      if(idx===correctIdx) l.classList.add('correct');
+      else if(checked && parseInt(checked.value)===idx) l.classList.add('incorrect');
+    });
+    if(checked && parseInt(checked.value)===correctIdx) score++;
+  });
+  const box = document.getElementById('score-box');
+  box.style.display='inline-block';
+  box.textContent = `Score : ${score} / ${quiz.length}`;
+  box.style.background = score===quiz.length ? '#2E7D32' : (score >= quiz.length*0.6 ? '#177A72' : '#B3261E');
+  box.scrollIntoView({behavior:'smooth', block:'center'});
+});
+
+document.getElementById('resetBtn').addEventListener('click', ()=>{
+  document.querySelectorAll('.quiz-q').forEach(qEl=>{
+    qEl.classList.remove('checked');
+    qEl.querySelectorAll('input').forEach(inp=>inp.checked=false);
+    qEl.querySelectorAll('label').forEach(l=>l.classList.remove('correct','incorrect'));
+  });
+  document.getElementById('score-box').style.display='none';
+  document.getElementById('quiz').scrollIntoView({behavior:'smooth'});
+});
+</script>
+
+<script>
+document.querySelectorAll('.anim-show').forEach(b=>b.addEventListener('click',()=>{
+  const f=b.parentElement.querySelector('.anim-frame');
+  if(f.innerHTML){f.innerHTML='';b.textContent='Afficher ici ▾';return;}
+  f.innerHTML='<iframe src="'+b.dataset.embed+'" allowfullscreen loading="lazy"></iframe>';b.textContent='Masquer ▴';
+}));
+</script>
+<a href="../index.html" style="position:fixed;bottom:16px;left:16px;z-index:99999;background:#1e3a5f;color:#fff;padding:10px 16px;border-radius:24px;font:600 14px system-ui,sans-serif;text-decoration:none;box-shadow:0 2px 8px rgba(0,0,0,.25)">← Sommaire</a>
+</body>
+</html>

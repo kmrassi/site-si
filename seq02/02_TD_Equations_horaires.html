@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TD Équations de mouvement</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout : sections arrondies sur fond pastel, chaque partie a sa propre teinte douce */
+:root{
+  --paper:#F7F2FC; --surface:#FFFFFF; --ink:#2E2A40; --muted:#6A6580; --line:#E7DFF3; --soft:#F5F0FB;
+  --accent:#D9534A; --accent-soft:#FFE3DD;
+  --tA:#3D6FD0; --tB:#2E9A68; --tC:#A24BC4;
+  --ok:#2E9A68; --ok-soft:#DDF5E9; --bad:#C2392F; --bad-soft:#FDE3E0;
+  --mint:#E2F6EE; --peach:#FFEBDF; --sky:#E1EEFC; --lemon:#FFF5D6; --lilac:#EEE5FB; --rose:#FCE4EE;
+  --f-display:"Baloo 2","Trebuchet MS",system-ui,sans-serif;
+  --f-body:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--paper);background-image:radial-gradient(circle at 8% 4%,#FCE4EE 0,transparent 32%),radial-gradient(circle at 95% 18%,#E1EEFC 0,transparent 30%),radial-gradient(circle at 10% 70%,#E2F6EE 0,transparent 28%);color:var(--ink);font-family:var(--f-body);font-size:17px;line-height:1.6;padding-inline:16px}
+.wrap{max-width:1040px;margin:0 auto;padding-block:28px 60px;display:flex;flex-direction:column;gap:28px}
+h1,h2,h3{font-family:var(--f-display);line-height:1.1;text-wrap:balance;margin:0;font-weight:800}
+h2{font-size:clamp(1.7rem,4vw,2.3rem)}
+h3{font-size:1.2rem;font-weight:700}
+p{margin:0;max-width:68ch}
+.mono,code{font-family:var(--f-mono);font-size:.92em}
+.muted{color:var(--muted)}
+.label{font-size:.8rem;font-weight:700;color:var(--muted)}
+
+.hero{background:var(--surface);border-radius:28px;padding:28px;display:flex;flex-direction:column;gap:14px;box-shadow:0 10px 30px -18px rgba(90,60,140,.35)}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{font-weight:700;font-size:.85rem;padding:5px 12px;border-radius:999px}
+.hero h1{font-size:clamp(2.2rem,6.5vw,3.6rem);color:var(--ink)}
+.hero h1 span{color:var(--accent)}
+.lede{font-size:1.08rem}
+
+nav.jump{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+nav.jump a{text-decoration:none;color:var(--ink);font-weight:700;font-size:.95rem;padding:8px 16px;border-radius:999px;background:var(--surface);box-shadow:0 3px 10px -6px rgba(90,60,140,.4);transition:transform .15s}
+nav.jump a:hover,nav.jump a:focus-visible{transform:translateY(-2px);color:var(--accent);outline:none}
+
+section{display:flex;flex-direction:column;gap:20px;border-radius:28px;padding:26px clamp(16px,3vw,32px);scroll-margin-top:16px}
+#translation{background:var(--sky)} #graphes{background:var(--lemon)} #rotation{background:var(--mint)}
+#sncf{background:var(--peach)} #retenir{background:var(--lilac)} #quiz{background:var(--rose)}
+.sec-head{display:flex;flex-direction:column;gap:6px}
+.sec-num{display:inline-flex;align-self:flex-start;font-family:var(--f-display);font-weight:800;color:var(--accent);background:var(--surface);border-radius:999px;padding:2px 14px}
+
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,290px),1fr));gap:16px}
+.formule{background:var(--surface);border-radius:20px;padding:16px 18px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.formule .tag{display:flex;justify-content:space-between;gap:8px;align-items:baseline;flex-wrap:wrap}
+.formule .sig{font-family:var(--f-display);font-weight:800;color:var(--accent);font-size:1.3rem}
+.eq{font-family:var(--f-mono);font-size:.98rem;line-height:1.9;background:var(--soft);border-radius:12px;padding:8px 12px;overflow-x:auto}
+.eq b{color:var(--accent);font-weight:600}
+.formule p{font-size:.95rem;color:var(--muted)}
+
+.bench{background:var(--surface);border-radius:22px;padding:18px;display:grid;grid-template-columns:260px minmax(0,1fr);gap:20px}
+@media (max-width:820px){.bench{grid-template-columns:1fr}}
+.controls{display:flex;flex-direction:column;gap:14px}
+.ctl{display:flex;flex-direction:column;gap:4px}
+.ctl label{display:flex;justify-content:space-between;gap:8px;font-weight:700;font-size:.95rem}
+.ctl output{font-family:var(--f-mono);font-weight:600;color:var(--accent);font-variant-numeric:tabular-nums}
+input[type=range]{width:100%;accent-color:var(--accent)}
+.btns{display:flex;gap:8px;flex-wrap:wrap}
+button{font:inherit;font-weight:700;font-size:.92rem;padding:9px 16px;border-radius:999px;border:2px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}
+button.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+button:hover{border-color:var(--accent)}
+button:focus-visible{outline:3px solid var(--tA);outline-offset:2px}
+.preset{font-size:.82rem;padding:5px 12px;background:var(--soft)}
+.readout{background:var(--soft);border-radius:14px;padding:12px 14px;font-family:var(--f-mono);font-size:.86rem;line-height:1.8;font-variant-numeric:tabular-nums;overflow-x:auto}
+.readout .k{color:var(--muted)}
+.pill{display:inline-block;font-weight:700;font-size:.85rem;padding:4px 14px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+.graphs{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,230px),1fr));gap:12px;min-width:0}
+.graph{display:flex;flex-direction:column;gap:4px;min-width:0;background:var(--soft);border-radius:14px;padding:8px}
+.graph .label{display:flex;justify-content:space-between}
+svg{display:block;width:100%;height:auto}
+.g-grid{stroke:var(--line);stroke-width:1}
+.g-axis{stroke:var(--muted);stroke-width:1.3}
+.g-txt{fill:var(--muted);font-family:var(--f-mono);font-size:10px}
+.g-lbl{fill:var(--ink);font-family:var(--f-body);font-weight:700;font-size:11px}
+.stage{display:flex;flex-direction:column;gap:14px;min-width:0}
+.trackbox{background:var(--soft);border-radius:14px;padding:6px;overflow-x:auto}
+
+.tips{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,230px),1fr));gap:14px}
+.tip{display:flex;gap:12px;align-items:flex-start;padding:16px;background:var(--surface);border-radius:20px}
+.tip svg{width:64px;flex:none}
+.tip strong{display:block;font-family:var(--f-display);font-size:1.1rem}
+
+.enonce{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;background:var(--surface);border-radius:22px;padding:18px}
+@media (max-width:820px){.enonce{grid-template-columns:1fr}}
+.trains{display:flex;flex-direction:column;gap:10px}
+.train{display:grid;grid-template-columns:36px 1fr;gap:10px;align-items:start}
+.badge{width:36px;height:36px;border-radius:12px;display:grid;place-items:center;color:#fff;font-family:var(--f-display);font-weight:800;font-size:1.2rem}
+.bA{background:var(--tA)}.bB{background:var(--tB)}.bC{background:var(--tC)}
+details{background:var(--surface);border-radius:20px}
+details summary{cursor:pointer;padding:16px 18px;font-weight:700;list-style:none;display:flex;justify-content:space-between;gap:10px;font-family:var(--f-display);font-size:1.1rem}
+details summary::-webkit-details-marker{display:none}
+details summary::after{content:"+";color:var(--accent);font-size:1.3rem;line-height:1}
+details[open] summary::after{content:"−"}
+details .body{padding:0 18px 18px;display:flex;flex-direction:column;gap:12px}
+.calc{font-family:var(--f-mono);font-size:.92rem;background:var(--soft);border-radius:14px;padding:12px 14px;line-height:1.85;overflow-x:auto}
+.answer{background:var(--accent-soft);border-radius:14px;padding:12px 16px;font-weight:700}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:.9rem}
+.legend span{display:flex;gap:6px;align-items:center}
+.legend i{width:18px;height:5px;border-radius:3px;display:inline-block}
+
+.retenir{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,290px),1fr));gap:14px}
+.retenir>div{padding:18px;background:var(--surface);border-radius:20px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.retenir ul,.retenir ol{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:4px}
+.tablebox{overflow-x:auto;border-radius:20px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;min-width:480px}
+th,td{border-bottom:1px solid var(--line);padding:10px 14px;text-align:left;vertical-align:top}
+th{font-family:var(--f-display);font-size:1.05rem;background:var(--soft)}
+tr:last-child td{border-bottom:none}
+td.mono{white-space:nowrap}
+
+.quiz{display:flex;flex-direction:column;gap:14px}
+.q{background:var(--surface);border-radius:20px;padding:18px;display:flex;flex-direction:column;gap:10px}
+.opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,180px),1fr));gap:8px}
+.opts button{font-weight:400;text-align:left;border-radius:14px}
+.opts button.good{background:var(--ok-soft);border-color:var(--ok);font-weight:700}
+.opts button.wrong{background:var(--bad-soft);border-color:var(--bad)}
+.expl{font-size:.95rem}
+.score{font-family:var(--f-display);font-weight:800;font-size:1.5rem}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}nav.jump a{transition:none}}
+.tint-sky{background:var(--sky)}.tint-lemon{background:var(--lemon)}.tint-mint{background:var(--mint)}.tint-peach{background:var(--peach)}.tint-lilac{background:var(--lilac)}.tint-rose{background:var(--rose)}
+.part{display:flex;flex-direction:column;gap:10px;padding-top:10px}
+.part h2{font-size:clamp(1.9rem,5vw,2.6rem)}
+.exo-head{display:flex;flex-direction:column;gap:6px}
+.enonce-box{background:var(--surface);border-radius:20px;padding:18px;display:flex;flex-direction:column;gap:10px}
+.enonce-box ol{margin:0;padding-left:1.3em;display:flex;flex-direction:column;gap:4px}
+.data{display:flex;gap:8px;flex-wrap:wrap}
+.data span{font-family:var(--f-mono);font-size:.85rem;background:var(--soft);border-radius:999px;padding:3px 12px}
+.hint{font-size:.95rem;background:var(--lemon);border-radius:14px;padding:10px 14px}
+.split{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:14px;align-items:center}
+.tdtable{min-width:760px;font-size:.88rem}
+.tdtable th{font-family:var(--f-body);font-size:.82rem;text-align:center}
+.tdtable td{text-align:center;padding:5px 6px;font-variant-numeric:tabular-nums}
+.tdtable input{width:100%;min-width:64px;font:inherit;font-family:var(--f-mono);font-size:.85rem;padding:5px 6px;border:1.5px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);text-align:center}
+.tdtable input.ok{border-color:var(--ok);background:var(--ok-soft)}
+.tdtable input.ko{border-color:var(--bad);background:var(--bad-soft)}
+.tdtable td.given{font-weight:700}
+.tdtable tr:nth-child(even) td{background:var(--soft)}
+.sol{font-family:var(--f-mono);font-size:.8rem;color:var(--tB);display:block}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="hero">
+  <div class="chips"><span class="chip" style="background:var(--sky)">Sciences de l'Ingénieur</span><span class="chip" style="background:var(--mint)">Séquence 2</span><span class="chip" style="background:var(--peach)">TD + TD supplémentaire</span><span class="chip" style="background:var(--lilac)">Corrigés</span></div>
+  <h1>TD Équations <span>de mouvement</span></h1>
+  <p class="lede">Huit exercices pour s'entraîner. Pour chacun : l'énoncé, une animation pour comprendre la situation, puis la correction pas à pas. <strong>Cherche d'abord seul</strong>, ouvre la correction ensuite.</p>
+</header>
+
+<nav class="jump" aria-label="Sommaire">
+  <a href="#puits">Puits</a><a href="#moteur">Moteur</a><a href="#accel">Test d'accélération</a><a href="#grue">Grue</a><a href="#frein">Freinage</a><a href="#tableau">Tableau</a><a href="#trains">Trains</a><a href="#space">Space Mountain</a>
+</nav>
+
+<div class="part"><span class="sec-num">TD</span><h2>Équations horaires d'un mouvement</h2></div>
+
+<!-- PUITS -->
+<section id="puits" class="tint-sky">
+  <div class="exo-head"><span class="label">Exercice 1</span><h2>Mesure de la profondeur d'un puits</h2></div>
+  <div class="enonce-box">
+    <p>On lâche une pierre au-dessus d'un puits. On entend le « plouf » <strong>3 secondes</strong> après l'avoir lâchée. Le son remonte à <strong>340 m/s</strong>. La pierre tombe en chute libre avec g = 9,81 m/s². On prend z = 0 à l'ouverture et t = 0 quand on lâche la pierre.</p>
+    <div class="data"><span>t total = 3 s</span><span>c = 340 m/s</span><span>g = 9,81 m/s²</span><span>axe z vers le bas</span></div>
+    <ol><li>Établir les équations horaires (a, v, z) de la chute de la pierre.</li><li>Établir l'équation horaire de la remontée du son.</li><li>En déduire la profondeur de l'eau.</li></ol>
+  </div>
+  <div class="bench">
+    <div class="controls">
+      <div class="ctl"><label for="p-t">Instant t <output id="p-to"></output></label><input id="p-t" type="range" min="0" max="3" step="0.01" value="2.2"></div>
+      <div class="btns"><button class="primary" id="p-play" type="button">▶ Lancer</button></div>
+      <div class="readout" id="p-read"></div>
+    </div>
+    <div class="split">
+      <svg id="p-well" viewBox="0 0 200 250" role="img" aria-label="Pierre qui tombe dans le puits"></svg>
+      <div class="graph"><div class="label"><span>z(t) pierre et son</span><span>m</span></div><svg id="p-g"></svg></div>
+    </div>
+  </div>
+  <details><summary>Correction 1 · La chute de la pierre (MRUV)</summary><div class="body">
+    <p>La pierre part sans vitesse (v<sub>i</sub> = 0), de z<sub>i</sub> = 0, avec une accélération constante g. C'est un <strong>MRUV</strong>.</p>
+    <div class="calc">a(t) = g = 9,81 m/s²<br>v(t) = g·t = 9,81·t<br>z(t) = ½·g·t² = 4,905·t²</div>
+  </div></details>
+  <details><summary>Correction 2 · La remontée du son (MRU)</summary><div class="body">
+    <p>Le son part de la surface de l'eau (z = h) à l'instant t<sub>1</sub> où la pierre touche l'eau. Il remonte (vers z = 0) à vitesse constante : c'est un <strong>MRU</strong>, avec une vitesse négative car il va vers l'origine.</p>
+    <div class="calc">z<sub>son</sub>(t) = −340·(t − t<sub>1</sub>) + h &nbsp;&nbsp; pour t<sub>1</sub> ≤ t ≤ 3</div>
+  </div></details>
+  <details><summary>Correction 3 · La profondeur</summary><div class="body">
+    <p>Deux informations : la pierre arrive en bas à t<sub>1</sub>, donc h = 4,905·t<sub>1</sub>². Le son arrive en haut à t = 3 s, donc 0 = −340·(3 − t<sub>1</sub>) + h.</p>
+    <div class="calc">4,905·t<sub>1</sub>² = 340·(3 − t<sub>1</sub>)<br>4,905·t<sub>1</sub>² + 340·t<sub>1</sub> − 1020 = 0<br>Δ = 340² + 4 × 4,905 × 1020 = 135 612,4 → √Δ ≈ 368,26<br>t<sub>1</sub> = (−340 + 368,26) / (2 × 4,905) ≈ 2,88 s<br>h = 4,905 × 2,88² ≈ 40,7 m</div>
+    <div class="answer">L'eau est à environ 40,7 m de profondeur. La pierre tombe pendant 2,88 s, le son remonte en 0,12 s.</div>
+    <p class="muted">Si on oubliait le son : h = 4,905 × 3² = 44,1 m. L'erreur serait de 3,4 m.</p>
+  </div></details>
+</section>
+
+<!-- MOTEUR -->
+<section id="moteur" class="tint-mint">
+  <div class="exo-head"><span class="label">Exercice 2</span><h2>Vitesse angulaire d'un moteur</h2></div>
+  <div class="enonce-box">
+    <p>Le graphe donne la vitesse angulaire ω de l'axe d'un moteur : elle monte de 0 à 30 rad/s entre 0 et 1 s, reste à 30 rad/s jusqu'à 4 s, puis redescend à 0 à 6 s.</p>
+    <ol><li>Décrire les différentes phases du mouvement.</li><li>Calculer le nombre de tours effectués par l'axe.</li></ol>
+  </div>
+  <div class="bench">
+    <div class="controls">
+      <div class="ctl"><label for="m-t">Instant t <output id="m-to"></output></label><input id="m-t" type="range" min="0" max="6" step="0.02" value="6"></div>
+      <div class="btns"><button class="primary" id="m-play" type="button">▶ Lancer</button></div>
+      <div class="readout" id="m-read"></div>
+    </div>
+    <div class="split">
+      <div class="graph"><div class="label"><span>ω(t) · aire = angle θ</span><span>rad/s</span></div><svg id="m-g"></svg></div>
+      <svg id="m-rot" viewBox="0 0 200 200" role="img" aria-label="Axe du moteur qui tourne"></svg>
+    </div>
+  </div>
+  <details><summary>Correction 1 · Les trois phases</summary><div class="body">
+    <div class="calc">0 à 1 s : MCUV accéléré · α₁ = (30 − 0) / (1 − 0) = 30 rad/s²<br>1 à 4 s : MCU · ω = 30 rad/s, α₂ = 0<br>4 à 6 s : MCUV décéléré · α₃ = (0 − 30) / (6 − 4) = −15 rad/s²</div>
+  </div></details>
+  <details><summary>Correction 2 · Nombre de tours</summary><div class="body">
+    <p>L'angle parcouru est l'<strong>aire sous la courbe ω(t)</strong> : un triangle, un rectangle, un triangle.</p>
+    <div class="calc">θ₁ = ½ × 1 × 30 = 15 rad<br>θ₂ = 3 × 30 = 90 rad<br>θ₃ = ½ × 2 × 30 = 30 rad<br>θ = 15 + 90 + 30 = 135 rad<br>N = θ / 2π = 135 / 6,283 ≈ 21,5 tours</div>
+    <div class="answer">L'axe fait 135 rad, soit environ 21,5 tours.</div>
+  </div></details>
+</section>
+
+<!-- ACCELERATION -->
+<section id="accel" class="tint-peach">
+  <div class="exo-head"><span class="label">Exercice 3</span><h2>Test d'accélération</h2></div>
+  <div class="enonce-box">
+    <p>Un véhicule passe de 0 à <strong>100 km/h en 10,9 s</strong>. On suppose l'accélération constante.</p>
+    <ol><li>Déterminer x(t) et v(t).</li><li>En déduire la distance parcourue.</li><li>Le même véhicule fait le 0-400 m en 17,7 s et le 0-1000 m en 32,2 s. Calculer l'accélération dans chaque essai et comparer. Conclure.</li></ol>
+  </div>
+  <div class="bench">
+    <div class="controls">
+      <div class="ctl"><label for="a-a">Essaie une accélération a <output id="a-ao"></output></label><input id="a-a" type="range" min="1.5" max="3.2" step="0.01" value="2.55"></div>
+      <p class="muted" style="font-size:.9rem">La courbe x = ½·a·t² passe-t-elle par les trois points mesurés ? Une seule valeur de a ne suffit pas pour les trois.</p>
+      <div class="readout" id="a-read"></div>
+    </div>
+    <div class="graph"><div class="label"><span>Position x(t) · points = essais</span><span>m</span></div><svg id="a-g"></svg></div>
+  </div>
+  <details><summary>Correction 1 et 2 · Équations et distance</summary><div class="body">
+    <div class="calc">v = 100 / 3,6 = 27,78 m/s atteinte en 10,9 s<br>a = 27,78 / 10,9 ≈ 2,55 m/s²<br>v(t) = 2,55·t<br>x(t) = ½ × 2,55·t² = 1,27·t²<br>x(10,9) = 1,274 × 10,9² ≈ 151 m</div>
+    <div class="answer">Distance parcourue pendant le 0-100 km/h : environ 151 m.</div>
+  </div></details>
+  <details><summary>Correction 3 · Comparaison et conclusion</summary><div class="body">
+    <p>Départ arrêté, a constante : x = ½·a·t², donc <strong>a = 2·x / t²</strong>.</p>
+    <div class="calc">0-400 m : a = 2 × 400 / 17,7² ≈ 2,55 m/s²<br>0-1000 m : a = 2 × 1000 / 32,2² ≈ 1,93 m/s²</div>
+    <p>Le 0-100 km/h et le 0-400 m donnent la même accélération. Sur 1000 m, l'accélération moyenne est plus faible.</p>
+    <div class="answer">L'hypothèse « accélération constante » est correcte au début, mais pas sur une longue distance. Plus la voiture va vite, plus elle accélère difficilement : résistance de l'air, puissance du moteur limitée, changements de rapport.</div>
+  </div></details>
+</section>
+
+<!-- GRUE -->
+<section id="grue" class="tint-lemon">
+  <div class="exo-head"><span class="label">Exercice 4</span><h2>Grue sur portique roulant</h2></div>
+  <div class="enonce-box">
+    <p>La grue déplace une charge en 4 phases, chacune à vitesse constante :</p>
+    <ol><li>Levage selon Z (Z = 0 au sol) à 1 m/s sur 10 m.</li><li>Translation selon X à 120 m/min sur 60 m.</li><li>Translation selon Y à 30 m/min sur 150 m.</li><li>Descente selon Z à 90 m/min jusqu'au sol.</li></ol>
+    <p><strong>Question :</strong> déterminer z₁(t), x₂(t), y₃(t), z₄(t) et les instants de début et de fin de chaque phase.</p>
+  </div>
+  <div class="bench">
+    <div class="controls">
+      <div class="ctl"><label for="g-t">Instant t <output id="g-to"></output></label><input id="g-t" type="range" min="0" max="346.7" step="0.5" value="120"></div>
+      <div class="btns"><button class="primary" id="g-play" type="button">▶ Lancer</button></div>
+      <div class="readout" id="g-read"></div>
+    </div>
+    <div class="split">
+      <svg id="g-iso" viewBox="0 0 300 220" role="img" aria-label="Trajet de la charge en 3D"></svg>
+      <div class="graph"><div class="label"><span>x, y, z en fonction de t</span><span>m</span></div><svg id="g-g"></svg></div>
+    </div>
+  </div>
+  <details><summary>Correction · Équations et instants</summary><div class="body">
+    <p>D'abord, convertir en m/s : 120 m/min = 2 m/s · 30 m/min = 0,5 m/s · 90 m/min = 1,5 m/s. Durée de chaque phase = distance / vitesse.</p>
+    <div class="tablebox"><table>
+      <thead><tr><th>Phase</th><th>Vitesse</th><th>Durée</th><th>Début → fin</th><th>Équation (MRU)</th></tr></thead>
+      <tbody>
+        <tr><td>1 · levage</td><td class="mono">1 m/s</td><td class="mono">10 / 1 = 10 s</td><td class="mono">0 → 10 s</td><td class="mono">z₁(t) = t</td></tr>
+        <tr><td>2 · selon X</td><td class="mono">2 m/s</td><td class="mono">60 / 2 = 30 s</td><td class="mono">10 → 40 s</td><td class="mono">x₂(t) = 2·(t − 10)</td></tr>
+        <tr><td>3 · selon Y</td><td class="mono">0,5 m/s</td><td class="mono">150 / 0,5 = 300 s</td><td class="mono">40 → 340 s</td><td class="mono">y₃(t) = 0,5·(t − 40)</td></tr>
+        <tr><td>4 · descente</td><td class="mono">−1,5 m/s</td><td class="mono">10 / 1,5 ≈ 6,67 s</td><td class="mono">340 → 346,7 s</td><td class="mono">z₄(t) = −1,5·(t − 340) + 10</td></tr>
+      </tbody>
+    </table></div>
+    <div class="answer">Le déplacement complet dure environ 346,7 s, soit 5 min 47 s.</div>
+    <p class="muted">On a pris x = 0 et y = 0 au point de départ. La vitesse de descente est négative car z diminue.</p>
+  </div></details>
+</section>
+
+<!-- FREINAGE -->
+<section id="frein" class="tint-rose">
+  <div class="exo-head"><span class="label">Exercice 5</span><h2>Test de freinage</h2></div>
+  <div class="enonce-box">
+    <p>Un véhicule roulant à <strong>130 km/h</strong> freine au maximum et s'arrête en <strong>71 m</strong>. Le freinage est uniforme (décélération constante).</p>
+    <ol><li>Déterminer la durée du freinage.</li><li>Établir V<sub>f</sub>(t) et X<sub>f</sub>(t).</li></ol>
+  </div>
+  <div class="bench">
+    <div class="controls">
+      <div class="ctl"><label for="f-t">Instant t <output id="f-to"></output></label><input id="f-t" type="range" min="0" max="3.93" step="0.01" value="1.5"></div>
+      <div class="btns"><button class="primary" id="f-play" type="button">▶ Lancer</button></div>
+      <div class="readout" id="f-read"></div>
+    </div>
+    <div class="stage">
+      <div class="trackbox"><svg id="f-track" viewBox="0 0 720 70" role="img" aria-label="Voiture qui freine"></svg></div>
+      <div class="graphs">
+        <div class="graph"><div class="label"><span>Vitesse V<sub>f</sub>(t)</span><span>m/s</span></div><svg id="f-gv"></svg></div>
+        <div class="graph"><div class="label"><span>Position X<sub>f</sub>(t)</span><span>m</span></div><svg id="f-gx"></svg></div>
+      </div>
+    </div>
+  </div>
+  <details><summary>Correction 1 · Durée du freinage</summary><div class="body">
+    <p>Astuce : en MRUV, la distance est l'aire sous v(t). Ici c'est un triangle : d = ½ × v<sub>0</sub> × t<sub>f</sub>.</p>
+    <div class="calc">v<sub>0</sub> = 130 / 3,6 = 36,11 m/s<br>t<sub>f</sub> = 2·d / v<sub>0</sub> = 2 × 71 / 36,11 ≈ 3,93 s</div>
+    <div class="answer">Le freinage dure environ 3,93 s.</div>
+  </div></details>
+  <details><summary>Correction 2 · Équations horaires</summary><div class="body">
+    <div class="calc">a = (0 − 36,11) / 3,93 ≈ −9,18 m/s²<br>V<sub>f</sub>(t) = −9,18·t + 36,11<br>X<sub>f</sub>(t) = −4,59·t² + 36,11·t &nbsp;&nbsp; pour 0 ≤ t ≤ 3,93 s</div>
+    <p class="muted">Vérification : X<sub>f</sub>(3,93) = −4,59 × 3,93² + 36,11 × 3,93 ≈ 71 m ✓. Autre méthode : v² − v<sub>0</sub>² = 2·a·d.</p>
+  </div></details>
+</section>
+
+<div class="part"><span class="sec-num">TD supplémentaire</span><h2>Pour aller plus loin</h2></div>
+
+<!-- TABLEAU -->
+<section id="tableau" class="tint-lilac">
+  <div class="exo-head"><span class="label">Exercice 6</span><h2>Accélérer, rouler, freiner : le tableau</h2></div>
+  <div class="enonce-box">
+    <p>Un point accélère de 0 à V<sub>1</sub> entre t<sub>0</sub> = 0 et t<sub>1</sub>, roule à V<sub>1</sub> jusqu'à t<sub>2</sub>, puis freine jusqu'à l'arrêt à t<sub>3</sub>.</p>
+    <div class="split" style="align-items:start">
+      <div class="graph"><div class="label"><span>v(t) : un trapèze</span></div><svg id="t-gv"></svg></div>
+      <div class="calc">a<sub>1</sub> = V<sub>1</sub> / t<sub>1</sub><br>a<sub>2</sub> = −V<sub>1</sub> / (t<sub>3</sub> − t<sub>2</sub>)<br>V<sub>1</sub> (km/h) = V<sub>1</sub> (m/s) × 3,6<br><br><span class="muted">Lignes du bas, t<sub>1</sub> inconnu :</span><br>t<sub>1</sub> = V<sub>1</sub> / a<sub>1</sub><br>t<sub>3</sub> = t<sub>2</sub> + V<sub>1</sub> / |a<sub>2</sub>|</div>
+    </div>
+    <p class="hint"><strong>Méthode :</strong> convertis d'abord toutes les durées en secondes. Puis trouve V<sub>1</sub> en m/s : c'est lui qui débloque tout le reste.</p>
+  </div>
+  <div class="enonce-box">
+    <p><strong>Remplis les cases vides</strong> (temps en secondes, résultats arrondis à 3 chiffres), puis clique sur Vérifier.</p>
+    <div class="btns"><button class="primary" id="tb-check" type="button">Vérifier mes réponses</button><button type="button" id="tb-sol">Afficher la correction</button><button type="button" id="tb-clear">Effacer</button></div>
+    <p id="tb-score" class="score" style="font-size:1.15rem"></p>
+    <div class="tablebox"><table class="tdtable" id="tb"></table></div>
+  </div>
+</section>
+
+<!-- TRAINS -->
+<section id="trains" class="tint-peach">
+  <div class="exo-head"><span class="label">Exercice 7</span><h2>Les trains Amiens – Creil – Paris</h2></div>
+  <div class="enonce-box">
+    <p><strong>Origine à Amiens</strong>, chronomètre déclenché à <strong>7 h 30</strong>, distances en <strong>mètres</strong>, temps en <strong>secondes</strong>. Amiens–Paris = 150 km, Amiens–Creil = 90 km.</p>
+    <ul style="margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:4px">
+      <li><span style="color:var(--tA);font-weight:700">Train 1</span> : part d'Amiens à 7 h 30 vers Paris, 150 km/h, sans arrêt.</li>
+      <li><span style="color:var(--tB);font-weight:700">Train 2</span> : part de Creil à 8 h vers Amiens, 80 km/h. x₂(t) = −200/9·t + 130 000</li>
+      <li><span style="color:var(--tC);font-weight:700">Train 3</span> : part de Paris à 7 h 45, 120 km/h jusqu'à Creil, arrêt 15 min, puis 160 km/h vers Amiens. x₃(t) = −100/3·t + 180 000 puis x'₃(t) = −400/9·t + 250 000</li>
+    </ul>
+    <p class="muted" style="font-size:.95rem">Questions : équation du train 1 · graphes · heures de passage à Creil et d'arrivée · croisements 1-2 et 1-3 · dépassement de 2 par 3.</p>
+  </div>
+  <div class="bench" style="grid-template-columns:1fr">
+    <div class="stage">
+      <div style="display:flex;gap:14px;flex-wrap:wrap;align-items:end">
+        <div class="ctl" style="flex:1;min-width:200px"><label for="tr-h">Heure <output id="tr-ho"></output></label><input id="tr-h" type="range" min="0" max="6000" step="15" value="2400"></div>
+        <button class="primary" id="tr-play" type="button">▶ Lancer</button>
+      </div>
+      <div class="trackbox"><svg id="tr-line" viewBox="0 0 720 96" role="img" aria-label="Position des trains"></svg></div>
+      <div class="legend"><span><i style="background:var(--tA)"></i>Train 1</span><span><i style="background:var(--tB)"></i>Train 2</span><span><i style="background:var(--tC)"></i>Train 3</span></div>
+      <div style="overflow-x:auto"><svg id="tr-g" style="min-width:520px"></svg></div>
+    </div>
+  </div>
+  <details><summary>Correction · Équation du train 1</summary><div class="body">
+    <div class="calc">v₁ = 150 km/h = 150 000 / 3600 = 125/3 m/s ≈ 41,67 m/s<br>Il part d'Amiens (x = 0) à t = 0 et s'éloigne : vitesse positive.<br>x₁(t) = 125/3 · t</div>
+  </div></details>
+  <details><summary>Correction · Heures de passage et d'arrivée</summary><div class="body">
+    <div class="calc">Train 1 à Creil : 125/3·t = 90 000 → t = 2160 s = 36 min → <strong>8 h 06</strong><br>Train 1 à Paris : 125/3·t = 150 000 → t = 3600 s → <strong>8 h 30</strong><br>Train 2 à Amiens : −200/9·t + 130 000 = 0 → t = 5850 s = 1 h 37 min 30 s → <strong>9 h 07 min 30 s</strong><br>Train 3 à Amiens : −400/9·t + 250 000 = 0 → t = 5625 s = 1 h 33 min 45 s → <strong>9 h 03 min 45 s</strong></div>
+  </div></details>
+  <details><summary>Correction · Croisements et dépassement</summary><div class="body">
+    <div class="calc"><strong>1 et 2 :</strong> 125/3·t = −200/9·t + 130 000 → 575/9·t = 130 000 → t ≈ 2035 s<br>→ 33 min 55 s → <strong>8 h 03 min 55 s</strong>, x ≈ 84 783 m → <strong>84,8 km d'Amiens</strong><br><br><strong>1 et 3 :</strong> 125/3·t = −100/3·t + 180 000 → 75·t = 180 000 → t = 2400 s<br>→ <strong>8 h 10</strong>, x = 100 000 m → <strong>100 km d'Amiens</strong> (train 3 encore avant Creil ✓)<br><br><strong>3 dépasse 2 :</strong> −400/9·t + 250 000 = −200/9·t + 130 000 → 200/9·t = 120 000 → t = 5400 s<br>→ <strong>9 h 00</strong>, x = 10 000 m → <strong>10 km d'Amiens</strong></div>
+    <p class="muted">Ici le train 3 repart à 160 km/h (et non 150 comme dans l'exercice du cours) : il dépasse le train 2 plus tôt.</p>
+  </div></details>
+</section>
+
+<!-- SPACE MOUNTAIN -->
+<section id="space" class="tint-sky">
+  <div class="exo-head"><span class="label">Exercice 8</span><h2>Space Mountain</h2></div>
+  <div class="enonce-box">
+    <p>Avant l'attraction, le train se place dans le « canon de lancement » (phases 1 à 4 : positionnement). Puis un pousseur le lance jusqu'à V<sub>c</sub> = 14 m/s (phase 5) et il ralentit seul jusqu'à V<sub>b</sub> = 4 m/s à l'entrée du circuit (phase 6).</p>
+    <div class="data"><span>V<sub>e</sub> = 3 m/s</span><span>a₁ = 2,5 m/s²</span><span>a₃ = −3 m/s²</span><span>a₅ = 8 m/s²</span><span>a₆ = −2 m/s²</span><span>t₂ = 5 s</span><span>t₄ = 2 s</span></div>
+    <ol><li>Trouver les durées inconnues t₁, t₃, t₅, t₆ et la durée totale.</li><li>Calculer la distance parcourue dans chaque phase et la course totale.</li><li>Tracer le graphe des positions.</li></ol>
+  </div>
+  <div class="bench">
+    <div class="controls">
+      <div class="ctl"><label for="s-tt">Instant t <output id="s-tto"></output></label><input id="s-tt" type="range" min="0" max="15.95" step="0.05" value="13"></div>
+      <div class="btns"><button class="primary" id="s-play" type="button">▶ Lancer</button></div>
+      <div class="readout" id="s-read"></div>
+    </div>
+    <div class="graphs">
+      <div class="graph"><div class="label"><span>v(t) · aires = distances</span><span>m/s</span></div><svg id="s-gv"></svg></div>
+      <div class="graph"><div class="label"><span>x(t) à tracer</span><span>m</span></div><svg id="s-gx"></svg></div>
+    </div>
+  </div>
+  <details><summary>Correction 1 · Les durées</summary><div class="body">
+    <p>Sur chaque phase où v varie : <strong>Δt = Δv / a</strong>.</p>
+    <div class="tablebox"><table>
+      <thead><tr><th>Phase</th><th>Calcul</th><th>Durée</th></tr></thead>
+      <tbody>
+        <tr><td>t₁</td><td class="mono">(3 − 0) / 2,5</td><td class="mono">1,2 s</td></tr>
+        <tr><td>t₂</td><td>donnée</td><td class="mono">5 s</td></tr>
+        <tr><td>t₃</td><td class="mono">(0 − 3) / (−3)</td><td class="mono">1 s</td></tr>
+        <tr><td>t₄</td><td>donnée</td><td class="mono">2 s</td></tr>
+        <tr><td>t₅</td><td class="mono">(14 − 0) / 8</td><td class="mono">1,75 s</td></tr>
+        <tr><td>t₆</td><td class="mono">(4 − 14) / (−2)</td><td class="mono">5 s</td></tr>
+        <tr><td><strong>Total</strong></td><td></td><td class="mono"><strong>15,95 s</strong></td></tr>
+      </tbody>
+    </table></div>
+  </div></details>
+  <details><summary>Correction 2 · Les distances (aires sous v(t))</summary><div class="body">
+    <div class="tablebox"><table>
+      <thead><tr><th>Phase</th><th>Forme</th><th>Calcul</th><th>Δx</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>triangle</td><td class="mono">3 × 1,2 / 2</td><td class="mono">1,8 m</td></tr>
+        <tr><td>2</td><td>rectangle</td><td class="mono">3 × 5</td><td class="mono">15 m</td></tr>
+        <tr><td>3</td><td>triangle</td><td class="mono">3 × 1 / 2</td><td class="mono">1,5 m</td></tr>
+        <tr><td>4</td><td>à l'arrêt</td><td class="mono">0</td><td class="mono">0 m</td></tr>
+        <tr><td>5</td><td>triangle</td><td class="mono">14 × 1,75 / 2</td><td class="mono">12,25 m</td></tr>
+        <tr><td>6</td><td>trapèze</td><td class="mono">(14 + 4) × 5 / 2</td><td class="mono">45 m</td></tr>
+        <tr><td><strong>Total</strong></td><td></td><td></td><td class="mono"><strong>75,55 m</strong></td></tr>
+      </tbody>
+    </table></div>
+  </div></details>
+  <details><summary>Correction 3 · Le graphe des positions</summary><div class="body">
+    <p>Dans les phases à vitesse constante, x(t) est une droite. Dans les phases accélérées ou freinées, c'est un morceau de parabole. Points de passage :</p>
+    <div class="calc">t = 0 → 0 m · 1,2 s → 1,8 m · 6,2 s → 16,8 m · 7,2 s → 18,3 m<br>9,2 s → 18,3 m · 10,95 s → 30,55 m · 15,95 s → 75,55 m<br><br>Phase 6 (début à t = 10,95 s, x = 30,55 m, v = 14 m/s, a = −2) :<br>X₆(t) = −(t − 10,95)² + 14·(t − 10,95) + 30,55 = −t² + 35,9·t − 242,65 ✓</div>
+  </div></details>
+</section>
+</div>
+
+<script>
+(function(){
+const $=id=>document.getElementById(id);
+const fr=(v,d=2)=>{if(!isFinite(v))return'—';return (+v.toFixed(d)).toString().replace('.',',').replace('-','−')};
+function niceStep(r,n){const raw=r/n,p=Math.pow(10,Math.floor(Math.log10(raw))),m=raw/p;return (m<1.5?1:m<3?2:m<7?5:10)*p}
+function ticks(a,b,n){const s=niceStep(b-a||1,n),o=[];for(let v=Math.ceil(a/s-1e-9)*s;v<=b+1e-9;v+=s)o.push(+v.toFixed(6));return o}
+function plot(svg,c){
+  const W=c.W||360,H=c.H||220,m={l:c.ml||42,r:c.mr||12,t:12,b:34};
+  const X=v=>m.l+(v-c.x[0])/(c.x[1]-c.x[0])*(W-m.l-m.r);
+  const Y=v=>H-m.b-(v-c.y[0])/(c.y[1]-c.y[0])*(H-m.t-m.b);
+  let s='';
+  (c.yt||ticks(c.y[0],c.y[1],4)).forEach(v=>{s+=`<line class="g-grid" x1="${m.l}" x2="${W-m.r}" y1="${Y(v)}" y2="${Y(v)}"/><text class="g-txt" x="${m.l-6}" y="${Y(v)+3.5}" text-anchor="end">${c.yf?c.yf(v):fr(v)}</text>`});
+  (c.xt||ticks(c.x[0],c.x[1],5)).forEach(v=>{s+=`<line class="g-grid" x1="${X(v)}" x2="${X(v)}" y1="${m.t}" y2="${H-m.b}"/><text class="g-txt" x="${X(v)}" y="${H-m.b+14}" text-anchor="middle">${c.xf?c.xf(v):fr(v)}</text>`});
+  const y0=(c.y[0]<=0&&c.y[1]>=0)?Y(0):H-m.b;
+  s+=`<line class="g-axis" x1="${m.l}" x2="${W-m.r}" y1="${y0}" y2="${y0}"/><line class="g-axis" x1="${m.l}" x2="${m.l}" y1="${m.t}" y2="${H-m.b}"/>`;
+  (c.areas||[]).forEach(a=>{if(a.pts.length>2)s+=`<polygon points="${a.pts.map(p=>X(p[0])+','+Y(p[1])).join(' ')}" style="fill:${a.color};stroke:none"/>`});
+  (c.hl||[]).forEach(h=>{s+=`<line x1="${m.l}" x2="${W-m.r}" y1="${Y(h.y)}" y2="${Y(h.y)}" style="stroke:var(--muted);stroke-dasharray:2 3"/><text class="g-txt" x="${W-m.r-2}" y="${Y(h.y)-4}" text-anchor="end">${h.t}</text>`});
+  (c.series||[]).forEach(se=>{s+=`<polyline points="${se.pts.map(p=>X(p[0]).toFixed(1)+','+Y(p[1]).toFixed(1)).join(' ')}" style="fill:none;stroke:${se.color};stroke-width:${se.w||2.5};stroke-linejoin:round;stroke-linecap:round${se.dash?';stroke-dasharray:'+se.dash:''}"/>`});
+  (c.texts||[]).forEach(t=>{s+=`<text class="g-lbl" x="${X(t.x)}" y="${Y(t.y)}" text-anchor="middle" style="fill:${t.color||'var(--ink)'}">${t.t}</text>`});
+  if(c.cursor!=null){s+=`<line x1="${X(c.cursor)}" x2="${X(c.cursor)}" y1="${m.t}" y2="${H-m.b}" style="stroke:var(--ink);stroke-width:1;stroke-dasharray:4 3"/>`}
+  (c.pts||[]).forEach(p=>{s+=`<circle cx="${X(p.x)}" cy="${Y(p.y)}" r="${p.r||4.5}" style="fill:${p.color||'var(--ink)'};stroke:var(--surface);stroke-width:1.5"/>`;if(p.t)s+=`<text class="g-lbl" x="${X(p.x)+(p.dx||7)}" y="${Y(p.y)+(p.dy||-7)}" text-anchor="${p.anchor||'start'}">${p.t}</text>`});
+  if(c.xl)s+=`<text class="g-txt" x="${W-m.r}" y="${H-4}" text-anchor="end">${c.xl}</text>`;
+  svg.setAttribute('viewBox',`0 0 ${W} ${H}`);svg.innerHTML=s;
+}
+const samp=(f,a,b,n=120)=>{const o=[];for(let i=0;i<=n;i++){const t=a+(b-a)*i/n;o.push([t,f(t)])}return o};
+function player(btn,slider,max,speed,render,get,set){let on=false,last=0;
+  function loop(ts){if(!on)return;if(last){let v=get()+(ts-last)/1000*speed;if(v>=max){v=max;on=false;btn.textContent='▶ Lancer'}set(v);slider.value=v;render()}last=ts;requestAnimationFrame(loop)}
+  btn.addEventListener('click',()=>{on=!on;btn.textContent=on?'⏸ Pause':'▶ Lancer';if(on){if(get()>=max-1e-6)set(0);last=0;requestAnimationFrame(loop)}})}
+
+/* 1 PUITS */
+const g=9.81,c=340,t1=2.8803,h=4.905*t1*t1;let pt=+$('p-t').value;
+const zS=t=>4.905*Math.min(t,t1)**2, zSon=t=>h-c*(t-t1);
+function pR(){
+  $('p-to').textContent=fr(pt)+' s';
+  plot($('p-g'),{x:[0,3],y:[0,45],xt:[0,0.5,1,1.5,2,2.5,3],yt:[0,10,20,30,40],hl:[{y:h,t:'eau · 40,7 m'}],
+    series:[{pts:samp(t=>4.905*t*t,0,t1),color:'var(--tA)'},{pts:[[t1,h],[3,0]],color:'var(--accent)'}],
+    cursor:pt,pts:[{x:pt,y:pt<=t1?zS(pt):zSon(pt),color:pt<=t1?'var(--tA)':'var(--accent)'}],xl:'t (s)'});
+  const top=30,bot=210,Y=z=>top+z/45*(bot-top),wy=Y(h);
+  let s=`<rect x="70" y="${top}" width="60" height="${bot-top}" style="fill:var(--soft)"/><rect x="70" y="${wy}" width="60" height="${bot-wy}" style="fill:var(--sky)"/><line x1="70" x2="130" y1="${wy}" y2="${wy}" style="stroke:var(--tA);stroke-width:2"/>`;
+  s+=`<path d="M20 ${top} L70 ${top} L70 ${bot} M130 ${bot} L130 ${top} L180 ${top}" style="fill:none;stroke:var(--ink);stroke-width:3"/>`;
+  s+=`<text class="g-txt" x="62" y="${top+4}" text-anchor="end">z = 0</text><text class="g-txt" x="138" y="${wy+4}">h</text>`;
+  if(pt<t1){s+=`<circle cx="100" cy="${Y(zS(pt))}" r="7" style="fill:var(--muted)"/>`}
+  else{const zs=Math.max(0,zSon(pt)),yy=Y(zs);for(let k=0;k<3;k++)s+=`<path d="M${86-k*5} ${yy+6+k*5} Q100 ${yy-6+k*5} ${114+k*5} ${yy+6+k*5}" style="fill:none;stroke:var(--accent);stroke-width:2"/>`;
+    s+=`<circle cx="100" cy="${wy-1}" r="6" style="fill:var(--muted)"/>`;if(pt>=2.999)s+=`<text class="g-lbl" x="100" y="20" text-anchor="middle" style="fill:var(--accent)">PLOUF !</text>`}
+  $('p-well').innerHTML=s;
+  $('p-read').innerHTML=pt<=t1?`<span class="k">phase</span> : chute (MRUV)<br><span class="k">v = 9,81·t</span> = <strong>${fr(g*pt)} m/s</strong><br><span class="k">z = 4,905·t²</span> = <strong>${fr(zS(pt),1)} m</strong>`:`<span class="k">phase</span> : le son remonte (MRU)<br><span class="k">z<sub>son</sub> = −340·(t − 2,88) + 40,7</span> = <strong>${fr(Math.max(0,zSon(pt)),1)} m</strong>`;
+}
+$('p-t').addEventListener('input',e=>{pt=+e.target.value;pR()});player($('p-play'),$('p-t'),3,.6,pR,()=>pt,v=>pt=v);pR();
+
+/* 2 MOTEUR */
+let mt=+$('m-t').value;
+const wF=t=>t<=1?30*t:t<=4?30:t<=6?30-15*(t-4):0;
+const thF=t=>t<=1?15*t*t:t<=4?15+30*(t-1):t<=6?105+30*(t-4)-7.5*(t-4)**2:135;
+function mR(){
+  $('m-to').textContent=fr(mt)+' s';
+  const area=[[0,0],...samp(wF,0,mt,60),[mt,0]];
+  plot($('m-g'),{x:[0,6],y:[0,35],xt:[0,1,2,3,4,5,6],yt:[0,10,20,30],areas:[{pts:area,color:'var(--accent-soft)'}],series:[{pts:[[0,0],[1,30],[4,30],[6,0]],color:'var(--accent)'}],cursor:mt,pts:[{x:mt,y:wF(mt),color:'var(--accent)'}],xl:'t (s)'});
+  const th=thF(mt),C=100;let s=`<circle cx="${C}" cy="${C}" r="70" style="fill:var(--surface);stroke:var(--line);stroke-width:2"/><circle cx="${C}" cy="${C}" r="56" style="fill:none;stroke:var(--soft);stroke-width:12"/>`;
+  for(let k=0;k<3;k++){const a=th+k*2*Math.PI/3;s+=`<line x1="${C}" y1="${C}" x2="${C+60*Math.cos(a)}" y2="${C-60*Math.sin(a)}" style="stroke:var(--tB);stroke-width:${k?4:7};stroke-linecap:round"/>`}
+  s+=`<circle cx="${C}" cy="${C}" r="10" style="fill:var(--ink)"/>`;$('m-rot').innerHTML=s;
+  const ph=mt<1?'MCUV accéléré · α = 30 rad/s²':mt<=4?'MCU · α = 0':mt<6?'MCUV décéléré · α = −15 rad/s²':'arrêt';
+  $('m-read').innerHTML=`<span class="k">phase</span> : <strong>${ph}</strong><br><span class="k">ω</span> = <strong>${fr(wF(mt))} rad/s</strong><br><span class="k">θ (aire orange)</span> = <strong>${fr(th,1)} rad</strong><br><span class="k">tours = θ / 2π</span> = <strong>${fr(th/2/Math.PI)} tr</strong>`;
+}
+$('m-t').addEventListener('input',e=>{mt=+e.target.value;mR()});player($('m-play'),$('m-t'),6,1.2,mR,()=>mt,v=>mt=v);mR();
+
+/* 3 ACCELERATION */
+let aa=+$('a-a').value;
+function aR(){
+  $('a-ao').textContent=fr(aa)+' m/s²';
+  const P=[[10.9,151.4,'0-100 km/h'],[17.7,400,'0-400 m'],[32.2,1000,'0-1000 m']];
+  plot($('a-g'),{x:[0,35],y:[0,1400],xt:[0,5,10,15,20,25,30,35],yt:[0,250,500,750,1000,1250],
+    series:[{pts:samp(t=>.5*aa*t*t,0,35),color:'var(--accent)'}],
+    pts:P.map(p=>({x:p[0],y:p[1],color:'var(--tA)',t:p[2],dx:-8,dy:-8,anchor:'end'})),xl:'t (s)'});
+  $('a-read').innerHTML=P.map(p=>{const x=.5*aa*p[0]**2,e=(x-p[1])/p[1]*100;return `<span class="k">${p[2]}</span> : modèle ${fr(x,0)} m · écart <strong>${fr(e,0)} %</strong>`}).join('<br>');
+}
+$('a-a').addEventListener('input',e=>{aa=+e.target.value;aR()});aR();
+
+/* 4 GRUE */
+let gt=+$('g-t').value;
+function pos(t){let x=0,y=0,z=0,ph;
+  if(t<=10){z=t;ph='Phase 1 · levage, z₁ = t'}
+  else if(t<=40){z=10;x=2*(t-10);ph='Phase 2 · selon X, x₂ = 2·(t − 10)'}
+  else if(t<=340){z=10;x=60;y=.5*(t-40);ph='Phase 3 · selon Y, y₃ = 0,5·(t − 40)'}
+  else{x=60;y=150;z=Math.max(0,10-1.5*(t-340));ph='Phase 4 · descente, z₄ = −1,5·(t − 340) + 10'}
+  if(t>10)z=t<=340?10:z;return{x,y,z,ph}}
+function gR(){
+  $('g-to').textContent=fr(gt,1)+' s';
+  const T=[0,10,40,340,346.67];
+  plot($('g-g'),{x:[0,350],y:[0,160],xt:[0,50,100,150,200,250,300,350],yt:[0,50,100,150],
+    series:[{pts:T.map(t=>[t,pos(t).x]),color:'var(--tA)'},{pts:T.map(t=>[t,pos(t).y]),color:'var(--tB)'},{pts:T.map(t=>[t,pos(t).z]),color:'var(--tC)',w:3}],
+    texts:[{x:100,y:70,t:'x',color:'var(--tA)'},{x:220,y:105,t:'y',color:'var(--tB)'},{x:300,y:20,t:'z',color:'var(--tC)'}],cursor:gt,xl:'t (s)'});
+  const P=(x,y,z)=>[60+x*1.4+y*0.9,170+x*0.5-y*0.45-z*6];
+  const pts=[[0,0,0],[0,0,10],[60,0,10],[60,150,10],[60,150,0]].map(p=>P(...p));
+  const q=pos(gt),cur=P(q.x,q.y,q.z);
+  let s=`<polygon points="${[P(0,0,0),P(60,0,0),P(60,150,0),P(0,150,0)].map(p=>p.join(',')).join(' ')}" style="fill:var(--soft);stroke:var(--line)"/>`;
+  s+=`<polyline points="${pts.map(p=>p.join(',')).join(' ')}" style="fill:none;stroke:var(--muted);stroke-width:2;stroke-dasharray:4 4"/>`;
+  const o=P(0,0,0);s+=`<text class="g-lbl" x="${o[0]-10}" y="${o[1]+14}">O</text>`;
+  [['x',P(70,0,0),'var(--tA)'],['y',P(0,165,0),'var(--tB)'],['z',P(0,0,16),'var(--tC)']].forEach(([n,p,col])=>{s+=`<line x1="${o[0]}" y1="${o[1]}" x2="${p[0]}" y2="${p[1]}" style="stroke:${col};stroke-width:1.5"/><text class="g-lbl" x="${p[0]+4}" y="${p[1]}" style="fill:${col}">${n}</text>`});
+  s+=`<line x1="${cur[0]}" y1="${P(q.x,q.y,13)[1]}" x2="${cur[0]}" y2="${cur[1]}" style="stroke:var(--ink);stroke-width:1.2"/><rect x="${cur[0]-9}" y="${cur[1]-4}" width="18" height="14" rx="3" style="fill:var(--accent)"/>`;
+  s+=`<text class="g-txt" x="290" y="212" text-anchor="end">échelle non respectée</text>`;
+  $('g-iso').innerHTML=s;
+  $('g-read').innerHTML=`<strong>${q.ph}</strong><br><span class="k">x</span> = ${fr(q.x,1)} m · <span class="k">y</span> = ${fr(q.y,1)} m · <span class="k">z</span> = ${fr(q.z,1)} m`;
+}
+$('g-t').addEventListener('input',e=>{gt=+e.target.value;gR()});player($('g-play'),$('g-t'),346.67,40,gR,()=>gt,v=>gt=v);gR();
+
+/* 5 FREINAGE */
+const v0=130/3.6,af=-v0*v0/142,tf=v0/-af;let ft=+$('f-t').value;
+function fR(){
+  $('f-to').textContent=fr(ft)+' s';
+  const v=v0+af*ft,x=v0*ft+.5*af*ft*ft;
+  plot($('f-gv'),{x:[0,4],y:[0,40],xt:[0,1,2,3,4],yt:[0,10,20,30,40],areas:[{pts:[[0,0],[0,v0],[ft,v],[ft,0]],color:'var(--accent-soft)'}],series:[{pts:[[0,v0],[tf,0]],color:'var(--accent)'}],cursor:ft,pts:[{x:ft,y:v,color:'var(--accent)'}],xl:'t (s)'});
+  plot($('f-gx'),{x:[0,4],y:[0,80],xt:[0,1,2,3,4],yt:[0,20,40,60,80],series:[{pts:samp(t=>v0*t+.5*af*t*t,0,tf),color:'var(--tA)'}],hl:[{y:71,t:'71 m'}],cursor:ft,pts:[{x:ft,y:x,color:'var(--tA)'}],xl:'t (s)'});
+  const L=30,R=690,X=d=>L+d/75*(R-L),cx=X(x);
+  let s=`<line x1="${L}" x2="${R}" y1="52" y2="52" style="stroke:var(--muted);stroke-width:1.5"/>`;
+  [0,10,20,30,40,50,60,70].forEach(d=>{s+=`<line x1="${X(d)}" x2="${X(d)}" y1="48" y2="56" style="stroke:var(--muted)"/><text class="g-txt" x="${X(d)}" y="68" text-anchor="middle">${d} m</text>`});
+  s+=`<line x1="${X(71)}" x2="${X(71)}" y1="14" y2="52" style="stroke:var(--bad);stroke-width:2"/>`;
+  s+=`<g transform="translate(${cx},0)"><rect x="-22" y="26" width="44" height="16" rx="5" style="fill:var(--tA)"/><path d="M-12 26 L-6 18 L10 18 L16 26 Z" style="fill:var(--tA)"/><circle cx="-12" cy="43" r="5" style="fill:var(--ink)"/><circle cx="12" cy="43" r="5" style="fill:var(--ink)"/></g>`;
+  $('f-track').innerHTML=s;
+  $('f-read').innerHTML=`<span class="k">V<sub>f</sub> = −9,18·t + 36,11</span> = <strong>${fr(Math.max(0,v))} m/s</strong> (${fr(Math.max(0,v)*3.6,0)} km/h)<br><span class="k">X<sub>f</sub> = −4,59·t² + 36,11·t</span> = <strong>${fr(x,1)} m</strong>`;
+}
+$('f-t').addEventListener('input',e=>{ft=+e.target.value;fR()});player($('f-play'),$('f-t'),3.93,1,fR,()=>ft,v=>ft=v);fR();
+
+/* 6 TABLEAU */
+plot($('t-gv'),{x:[0,10],y:[0,5],xt:[0,3,7,10],xf:v=>({0:'t₀',3:'t₁',7:'t₂',10:'t₃'})[v],yt:[0,4],yf:v=>v?'V₁':'0',series:[{pts:[[0,0],[3,4],[7,4],[10,0]],color:'var(--accent)'}],texts:[{x:1.2,y:2.7,t:'a₁ > 0'},{x:5,y:4.4,t:'a = 0'},{x:8.9,y:2.7,t:'a₂ < 0'}],xl:'t'});
+const sec=s=>{let t=0,m;if(m=s.match(/(\d+)\s*h/))t+=3600*m[1];if(m=s.match(/(\d+)\s*min/))t+=60*m[1];if(m=s.match(/(\d+)\s*s/))t+=+m[1];return t};
+const rows=[["10 s","20 s","30 s",,,1],["5 s","18 s","23 s",,,5],["1 min","1min 28s","1min 50s",,,7],["43 s","01h 57min 20s","2h 07min 24s",,,10],["7 s","25 s","235 s",,,8],["4 s","64 s","474 s",,,4.6],["5 s","78 s","110 s",,,,20],["8 s","12 s","259 s",,,,34],
+["9 s","93 s","865 s",1],["6 s","24 s","698 s",2],["4 s","50 s","523 s",5.6],["1 s","60 s","478 s",3.2],["2 s","84 s","547 s",4],
+["5 s","79 s","854 s",,-3.5],["6 s","52 s","129 s",,-2.4],["3 s","41 s","332 s",,-1],["5 s","56 s","201 s",,-.8],["8 s","23 s","500 s",,-2.9],["7 s","17 s","654 s",,-7.3],
+["00h 07min 12s","03h 24min 37s","03h 31min 10s",.13],["00h 11min 24s","12h 27min 10s","12h 29min 41s",,-1.2],["01h 10min 34s","15h 54min 09s","16h 02min 04s",,,7.6],["01h 23min 47s","05h 46min 32s","05h 49min 02s",,,,25.9],["00h 00min 56s","07h 08min 09s","07h 31min 11s",4.1],["02h 03min 36s","11h 45min 00s","12h 13min 28s",,-.89],["01h 09min 17s","08h 12min 40s","09h 12min 40s",,,10.4],["00h 00min 41s","21h 58min 57s","22h 03min 09s",,,,67.8],
+[,"t1 + 1h",,1.6,-1.8,12],[,"t1 + 1h 03min",,2.6,-7.4,,90],[,"t1 + 2h 24min",,3,-3,21.7],[,"t1 + 7452s",,9.7,-.4,,113],[,"t1 + 1258s",,.3,-8.1,7.6],[,"t1 + 9654s",,12.7,-23,,71.2]];
+const R3=v=>+v.toPrecision(3);
+const sol=rows.map(r=>{let [a,b,cc,a1,a2,v1,vk]=r;const rel=a==null;let T1,T2,T3;
+  if(!rel){T1=sec(a);T2=sec(b);T3=sec(cc)}
+  if(v1==null&&vk!=null)v1=vk/3.6;
+  if(v1==null&&a1!=null)v1=a1*T1;
+  if(v1==null&&a2!=null)v1=-a2*(T3-T2);
+  if(rel){T1=v1/a1;T2=T1+sec(b.replace('t1 +',''));T3=T2+v1/(-a2)}
+  return [T1,T2,T3,v1/T1,-v1/(T3-T2),v1,v1*3.6]});
+const head=['t₁ (s)','t₂','t₃ (s)','a₁ (m/s²)','a₂ (m/s²)','V₁ (m/s)','V₁ (km/h)'];
+let html='<thead><tr><th>#</th>'+head.map(h=>`<th>${h}</th>`).join('')+'</tr></thead><tbody>';
+rows.forEach((r,i)=>{html+=`<tr><td>${i+1}</td>`;for(let j=0;j<7;j++){const g=r[j];
+  if(g!=null)html+=`<td class="given">${typeof g==='number'?fr(g,3):g}</td>`;
+  else html+=`<td><input id="c${i}_${j}" inputmode="decimal" aria-label="ligne ${i+1}, ${head[j]}"><span class="sol" hidden>${fr(R3(sol[i][j]),6)}</span></td>`}
+  html+='</tr>'});
+$('tb').innerHTML=html+'</tbody>';
+const inputs=[...document.querySelectorAll('#tb input')];
+$('tb-check').addEventListener('click',()=>{let ok=0,n=0;inputs.forEach(inp=>{const[i,j]=inp.id.slice(1).split('_').map(Number),want=sol[i][j],v=parseFloat(inp.value.replace(',','.').replace('−','-'));inp.classList.remove('ok','ko');if(inp.value.trim()==='')return;n++;
+  if(Math.abs(v-want)<=Math.max(.03*Math.abs(want),.002)){inp.classList.add('ok');ok++}else inp.classList.add('ko')});
+  $('tb-score').textContent=n?`${ok} bonne(s) réponse(s) sur ${n} case(s) remplie(s) · ${inputs.length} cases au total`:'Remplis au moins une case.'});
+$('tb-sol').addEventListener('click',()=>{const sh=$('tb-sol').dataset.on!=='1';$('tb-sol').dataset.on=sh?'1':'0';$('tb-sol').textContent=sh?'Masquer la correction':'Afficher la correction';document.querySelectorAll('#tb .sol').forEach(s=>s.hidden=!sh)});
+$('tb-clear').addEventListener('click',()=>{inputs.forEach(i=>{i.value='';i.classList.remove('ok','ko')});$('tb-score').textContent=''});
+
+/* 7 TRAINS (m, s, origine Amiens) */
+let ts=+$('tr-h').value;
+const x1=t=>Math.min(150000,125/3*Math.max(0,t)),x2=t=>t<1800?90000:Math.max(0,-200/9*t+130000),x3=t=>t<900?150000:t<=2700?-100/3*t+180000:t<=3600?90000:Math.max(0,-400/9*t+250000);
+const hm=t=>{const s=Math.round(t)+1800,h=7+Math.floor(s/3600),m=Math.floor(s%3600/60),se=s%60;return `${h} h ${String(m).padStart(2,'0')}`+(se?` min ${String(se).padStart(2,'0')} s`:'')};
+function trR(){
+  $('tr-ho').textContent=hm(ts)+' · t = '+ts+' s';
+  plot($('tr-g'),{W:640,H:300,ml:44,mr:16,x:[0,6000],y:[0,150],xt:[0,900,1800,2700,3600,4500,5400],xf:t=>hm(t).slice(0,7),yt:[0,30,60,90,120,150],hl:[{y:90,t:'Creil'},{y:150,t:'Paris'}],
+    series:[{pts:[[0,0],[3600,150]],color:'var(--tA)',w:3},{pts:[[1800,90],[5850,0]],color:'var(--tB)',w:3},{pts:[[900,150],[2700,90],[3600,90],[5625,0]],color:'var(--tC)',w:3}],
+    cursor:ts,pts:[{x:2035,y:84.8,t:'1×2 · 8 h 04',dx:8,dy:16},{x:2400,y:100,t:'1×3 · 8 h 10',dx:8,dy:-8},{x:5400,y:10,t:'3 dépasse 2 · 9 h 00',anchor:'end',dx:-8,dy:-8}],
+    xl:'heure · x en km depuis Amiens'});
+  const L=40,R=680,X=v=>L+v/150000*(R-L);
+  let s=`<line x1="${L}" x2="${R}" y1="60" y2="60" style="stroke:var(--ink);stroke-width:3"/>`;
+  [[0,'Amiens'],[90000,'Creil'],[150000,'Paris']].forEach(([v,n])=>{s+=`<line x1="${X(v)}" x2="${X(v)}" y1="52" y2="68" style="stroke:var(--ink);stroke-width:2"/><text class="g-lbl" x="${X(v)}" y="86" text-anchor="middle">${n}</text><text class="g-txt" x="${X(v)}" y="46" text-anchor="middle">${v/1000} km</text>`});
+  [['1',x1(ts),'var(--tA)',ts<=3600,-14],['2',x2(ts),'var(--tB)',ts>=1800&&ts<=5850,0],['3',x3(ts),'var(--tC)',ts>=900&&ts<=5625,14]].forEach(([n,x,col,on,dy])=>{const cx=X(x);s+=`<g style="opacity:${on?1:.35}"><rect x="${cx-13}" y="${20+dy}" width="26" height="18" rx="5" style="fill:${col}"/><text x="${cx}" y="${33+dy}" text-anchor="middle" style="fill:#fff;font-family:var(--f-display);font-weight:800;font-size:12px">${n}</text><line x1="${cx}" x2="${cx}" y1="${38+dy}" y2="58" style="stroke:${col};stroke-width:1.5"/></g>`});
+  $('tr-line').innerHTML=s;
+}
+$('tr-h').addEventListener('input',e=>{ts=+e.target.value;trR()});player($('tr-play'),$('tr-h'),6000,700,trR,()=>ts,v=>ts=v);trR();
+
+/* 8 SPACE MOUNTAIN */
+const PH=[[0,1.2,0,3],[1.2,6.2,3,3],[6.2,7.2,3,0],[7.2,9.2,0,0],[9.2,10.95,0,14],[10.95,15.95,14,4]];
+const cols=['var(--sky)','var(--mint)','var(--lemon)','var(--soft)','var(--peach)','var(--lilac)'];
+const X0=[0];PH.forEach(p=>X0.push(X0[X0.length-1]+(p[2]+p[3])/2*(p[1]-p[0])));
+const vSM=t=>{for(const p of PH)if(t<=p[1]+1e-9)return p[2]+(p[3]-p[2])*(t-p[0])/(p[1]-p[0]);return 4};
+const xSM=t=>{for(let i=0;i<PH.length;i++){const p=PH[i];if(t<=p[1]+1e-9){const d=t-p[0],a=(p[3]-p[2])/(p[1]-p[0]);return X0[i]+p[2]*d+.5*a*d*d}}return X0[6]};
+let st=+$('s-tt').value;
+function sR(){
+  $('s-tto').textContent=fr(st)+' s';
+  const areas=PH.map((p,i)=>({pts:[[p[0],0],...samp(vSM,p[0],Math.min(p[1],Math.max(p[0],st)),10),[Math.min(p[1],Math.max(p[0],st)),0]],color:cols[i]}));
+  plot($('s-gv'),{x:[0,16],y:[0,15],xt:[0,4,8,12,16],yt:[0,3,6,9,12,14],areas,series:[{pts:[[0,0],...PH.map(p=>[p[1],p[3]])],color:'var(--accent)'}],
+    texts:PH.map((p,i)=>({x:(p[0]+p[1])/2,y:Math.max(p[2],p[3])+1,t:String(i+1)})),cursor:st,pts:[{x:st,y:vSM(st),color:'var(--accent)'}],xl:'t (s)'});
+  plot($('s-gx'),{x:[0,16],y:[0,80],xt:[0,4,8,12,16],yt:[0,20,40,60,80],series:[{pts:samp(xSM,0,15.95,200),color:'var(--tA)'}],pts:[...PH.map((p,i)=>({x:p[1],y:X0[i+1],r:3,color:'var(--muted)'})),{x:st,y:xSM(st),color:'var(--tA)'}],cursor:st,xl:'t (s)'});
+  let i=PH.findIndex(p=>st<=p[1]+1e-9);if(i<0)i=5;
+  $('s-read').innerHTML=`<span class="k">phase</span> <strong>${i+1}</strong> · ${i<4?'positionnement':'lancement'}<br><span class="k">v</span> = <strong>${fr(vSM(st))} m/s</strong><br><span class="k">x (aires cumulées)</span> = <strong>${fr(xSM(st))} m</strong>`;
+}
+$('s-tt').addEventListener('input',e=>{st=+e.target.value;sR()});player($('s-play'),$('s-tt'),15.95,2.5,sR,()=>st,v=>st=v);sR();
+})();
+</script>
+
+<a href="../index.html" style="position:fixed;bottom:16px;left:16px;z-index:99999;background:#1e3a5f;color:#fff;padding:10px 16px;border-radius:24px;font:600 14px system-ui,sans-serif;text-decoration:none;box-shadow:0 2px 8px rgba(0,0,0,.25)">← Sommaire</a></body>
+</html>

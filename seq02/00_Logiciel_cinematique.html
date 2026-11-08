@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Logiciel de cinématique — vitesses, trajectoires, CIR</title>
+<style>
+:root{--bleu:#1e3a5f;--bleu2:#2f5d8f;--clair:#eef3f9;--fond:#f4f6f9;--txt:#1d2733;--gris:#6b7785;--accent:#e8913a;--vert:#1f7a3d}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--fond);color:var(--txt);line-height:1.55}
+.wrap{max-width:820px;margin:auto;padding:24px 18px 80px}
+.hero{background:linear-gradient(135deg,var(--bleu),var(--bleu2));color:#fff;border-radius:18px;padding:24px 26px}
+.hero .k{font-size:.78rem;letter-spacing:1.3px;text-transform:uppercase;opacity:.8;font-weight:700}
+.hero h1{margin:4px 0 6px;font-size:clamp(1.4rem,3.5vw,1.9rem)}
+.hero p{margin:0;opacity:.92}
+h2{color:var(--bleu);font-size:1.15rem;margin:26px 0 10px}
+.box{background:#fff;border:1px solid #dfe5ec;border-radius:14px;padding:16px 18px}
+.learn{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.learn div{background:#fff;border:1px solid #dfe5ec;border-radius:12px;padding:12px;text-align:center}
+.learn b{display:block;margin-top:4px}.learn span{font-size:1.6rem}
+.dl{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.dl a{display:block;text-decoration:none;color:var(--txt);background:#fff;border:2px solid var(--accent);border-radius:14px;padding:16px;transition:.15s}
+.dl a:hover{background:#fff6ec;transform:translateY(-2px)}
+.dl .ext{display:inline-block;background:var(--accent);color:#fff;font-weight:800;border-radius:8px;padding:2px 10px;font-size:.9rem}
+.dl b{display:block;margin:8px 0 2px;font-size:1.05rem}
+.dl small{color:var(--gris)}
+ol.steps{margin:0;padding-left:22px}ol.steps li{margin:6px 0}
+.tip{background:#fff8e6;border-left:5px solid var(--accent);border-radius:10px;padding:10px 14px;margin-top:12px;font-size:.95rem}
+@media(max-width:640px){.learn,.dl{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+ <div class="hero">
+  <div class="k">Séquence 2 · Cinématique · Logiciel</div>
+  <h1>Logiciel de cinématique</h1>
+  <p>Ce logiciel te permet de comprendre les notions de vitesse et de trajectoire, et de voir comment on détermine le CIR.</p>
+ </div>
+
+ <h2>🎯 Avec ce logiciel, tu vas voir…</h2>
+ <div class="learn">
+  <div><span>➡️</span><b>Les vitesses</b><small>vecteurs vitesse des points</small></div>
+  <div><span>〰️</span><b>Les trajectoires</b><small>le chemin suivi par un point</small></div>
+  <div><span>🎯</span><b>Le CIR</b><small>centre instantané de rotation</small></div>
+ </div>
+
+ <h2>💾 Télécharger le logiciel</h2>
+ <p style="margin-top:0">Choisis <b>une seule</b> des deux versions :</p>
+ <div class="dl">
+  <a href="https://drive.google.com/file/d/14hqdHO5OiBGARVIe05K0hljuPG01fCq3/view?usp=drive_link" target="_blank" rel="noopener">
+   <span class="ext">.exe</span>
+   <b>Version .exe</b>
+   <small>À ouvrir avec Flash Player (lecteur des fichiers .exe)</small>
+  </a>
+  <a href="https://drive.google.com/file/d/1vxcv_P11kuwuIseip5iTrY5QkBe9jqYm/view?usp=drive_link" target="_blank" rel="noopener">
+   <span class="ext">.swf</span>
+   <b>Version .swf</b>
+   <small>À ouvrir avec Macromedia Flash Player (lecteur des fichiers .swf)</small>
+  </a>
+ </div>
+
+ <h2>🧭 Comment faire ?</h2>
+ <div class="box">
+  <ol class="steps">
+   <li>Clique sur une des deux versions ci-dessus : le fichier s'ouvre dans Google Drive.</li>
+   <li>Clique sur l'icône <b>Télécharger</b> (flèche vers le bas) en haut à droite.</li>
+   <li>Ouvre le fichier téléchargé avec le bon lecteur : <b>Flash Player</b> pour le .exe, <b>Macromedia Flash Player</b> pour le .swf.</li>
+   <li>Utilise le logiciel en même temps que le cours « Les bases de la cinématique ».</li>
+  </ol>
+  <div class="tip">💡 Le logiciel ne s'ouvre pas dans le navigateur internet : il faut d'abord le <b>télécharger</b> sur l'ordinateur.</div>
+ </div>
+</div>
+<a href="../index.html" style="position:fixed;bottom:16px;left:16px;z-index:99999;background:#1e3a5f;color:#fff;padding:10px 16px;border-radius:24px;font:600 14px system-ui,sans-serif;text-decoration:none;box-shadow:0 2px 8px rgba(0,0,0,.25)">← Sommaire</a>
+</body>
+</html>

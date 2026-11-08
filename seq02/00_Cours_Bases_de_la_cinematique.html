@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cinématique – Mouvements et trajectoires</title>
+<style>
+:root{--bleu:#1f4e8c;--bleu2:#dbe6f4;--rouge:#d62828;--vert:#2a9d4b;--gris:#5b6470;--fond:#f6f8fb;--carte:#fff;--bord:#d5dde8;}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Segoe UI",Roboto,Arial,sans-serif;background:var(--fond);color:#1d2430;line-height:1.55}
+header{background:linear-gradient(135deg,#1f4e8c,#2f6fbf);color:#fff;padding:18px 20px 14px}
+header .tag{font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;opacity:.85}
+header h1{margin:4px 0 2px;font-size:1.5rem}
+header p{margin:0;opacity:.9;font-size:.95rem}
+.progress{height:6px;background:rgba(255,255,255,.25);border-radius:3px;margin-top:12px;overflow:hidden}
+.progress span{display:block;height:100%;width:0;background:#ffd166;transition:width .4s}
+nav{display:flex;gap:6px;overflow-x:auto;padding:10px 12px;background:#fff;border-bottom:1px solid var(--bord);position:sticky;top:0;z-index:5}
+nav button{flex:0 0 auto;border:1px solid var(--bord);background:#fff;border-radius:20px;padding:7px 14px;font-size:.9rem;cursor:pointer;color:var(--bleu);font-weight:600}
+nav button.active{background:var(--bleu);color:#fff;border-color:var(--bleu)}
+nav button.vu::after{content:" ✓";color:var(--vert)}
+nav button.active.vu::after{color:#ffd166}
+main{max-width:900px;margin:0 auto;padding:16px}
+section{display:none}
+section.active{display:block;animation:fade .35s}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+h2{color:var(--bleu);border-left:6px solid var(--bleu);padding-left:10px;margin:8px 0 14px}
+h3{color:var(--bleu);margin:22px 0 8px;font-size:1.12rem}
+.card{background:var(--carte);border:1px solid var(--bord);border-radius:12px;padding:14px 16px;margin:12px 0;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.def{border-left:6px solid var(--rouge)}
+.def b{color:var(--rouge)}
+.clair{background:#eaf7ee;border-color:#b6e2c2}
+.clair::before{content:"💡 En clair : ";font-weight:700;color:var(--vert)}
+.formule{text-align:center;font-family:"Cambria Math",Georgia,serif;font-size:1.15rem;color:var(--rouge);font-weight:bold;margin:10px 0}
+.vec{display:inline-block;position:relative;padding-top:.3em}
+.vec::after{content:"";position:absolute;left:1px;right:3px;top:.12em;border-top:1.6px solid currentColor}
+.vec::before{content:"";position:absolute;right:-2px;top:-.12em;border:4px solid transparent;border-left:6px solid currentColor}
+.lab{background:#eef4fb;border:1px dashed #9db8dc;border-radius:12px;padding:12px;margin:14px 0}
+.lab .titre{font-weight:700;color:var(--bleu);margin-bottom:6px}
+.lab .titre::before{content:"🔬 "}
+canvas,svg.demo{width:100%;height:auto;background:#fff;border:1px solid var(--bord);border-radius:8px;display:block;touch-action:none}
+.ctrl{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center;margin-top:10px;font-size:.95rem}
+.ctrl label{display:flex;align-items:center;gap:6px}
+input[type=range]{width:140px;accent-color:var(--bleu)}
+.btn{border:none;background:var(--bleu);color:#fff;padding:8px 14px;border-radius:8px;cursor:pointer;font-weight:600;font-size:.9rem}
+.btn.sec{background:#fff;color:var(--bleu);border:1px solid var(--bleu)}
+.seg{display:inline-flex;border:1px solid var(--bleu);border-radius:8px;overflow:hidden;flex-wrap:wrap}
+.seg button{border:none;border-right:1px solid var(--bord);background:#fff;color:var(--bleu);padding:7px 11px;cursor:pointer;font-weight:600;font-size:.88rem}
+.seg button:last-child{border-right:none}
+.seg button.on{background:var(--bleu);color:#fff}
+.out{font-weight:600;padding:6px 10px;border-radius:6px;background:#fff;border:1px solid var(--bord);display:inline-block;margin-top:8px}
+.ok{color:var(--vert)} .ko{color:var(--rouge)}
+.suite{display:flex;justify-content:space-between;gap:10px;margin:24px 0 6px}
+table{width:100%;border-collapse:collapse;font-size:.92rem;background:#fff}
+th,td{border:1px solid var(--bord);padding:7px 8px;text-align:left;vertical-align:top}
+th{background:var(--bleu);color:#fff}
+tr:nth-child(even) td{background:#f7f9fc}
+.cacher td.u span{filter:blur(6px);cursor:pointer;user-select:none}
+.cacher td.u span.vu{filter:none}
+.tree{display:flex;flex-direction:column;align-items:center;gap:4px;margin:10px 0}
+.tree .n{background:linear-gradient(#e7effa,#c9daf2);border:1px solid #7fa3d4;border-radius:8px;padding:7px 14px;font-weight:600;text-align:center}
+.tree button.n{cursor:pointer;font-size:.92rem;color:#14365f}
+.tree button.n:hover{background:#ffd166;border-color:#d4a72c}
+.tree .fl{color:#7fa3d4;font-size:1.2rem;line-height:1}
+.tree .row{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;align-items:flex-start}
+.tree .col{display:flex;flex-direction:column;align-items:center;gap:4px}
+.info4{min-height:96px}
+.info4 h4{margin:0 0 4px;color:var(--rouge);font-size:1.05rem}
+.info4 p{margin:4px 0}
+.info4 .ex{color:var(--gris);font-style:italic}
+.q{margin:12px 0}
+.q .opts{display:flex;flex-direction:column;gap:6px;margin-top:8px}
+.q .opts button{text-align:left;border:1px solid var(--bord);background:#fff;padding:9px 12px;border-radius:8px;cursor:pointer;font-size:.95rem}
+.q .opts button:hover:not(:disabled){border-color:var(--bleu);background:#f2f6fc}
+.q .opts button.bon{background:#e3f6e8;border-color:var(--vert);font-weight:600}
+.q .opts button.faux{background:#fde8e8;border-color:var(--rouge)}
+.q .ex{display:none;margin-top:8px;font-size:.92rem;color:#334}
+.q.done .ex{display:block}
+.score{position:sticky;bottom:8px;background:var(--bleu);color:#fff;padding:10px 14px;border-radius:10px;font-weight:700;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.score .btn{background:#ffd166;color:#14365f}
+.myst{display:none;margin-top:10px}
+.myst.on{display:block}
+small.note{color:var(--gris)}
+@media (max-width:520px){header h1{font-size:1.2rem} input[type=range]{width:110px}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="tag">Spécialité SI · 1re · Séquence 2</div>
+  <h1>Les bases de la cinématique</h1>
+  <p>Mouvements et trajectoires — cours interactif</p>
+  <div class="progress"><span id="prog"></span></div>
+</header>
+
+<nav>
+  <button data-go="s1">1. Définition</button>
+  <button data-go="s2">2. Référentiel</button>
+  <button data-go="s3">3. Trajectoire</button>
+  <button data-go="s4">4. Mouvements</button>
+  <button data-go="s5">5. Notations</button>
+  <button data-go="s6">6. Quiz</button>
+</nav>
+
+<main>
+
+<!-- ===================== 1 ===================== -->
+<section id="s1">
+  <h2>1. Définition et hypothèses</h2>
+  <div class="card def">
+    La cinématique est la partie de la mécanique qui étudie le <b>mouvement des corps en fonction du temps</b>,
+    <b>sans s’occuper des causes (efforts)</b> qui le provoquent.
+  </div>
+  <div class="card clair">on regarde <b>comment</b> un objet bouge (où il est, à quelle vitesse, quand), mais pas <b>pourquoi</b> il bouge.</div>
+
+  <p>On cherche à déterminer des <b>grandeurs cinématiques</b> : la <b>position</b>, la <b>vitesse</b>, l’<b>accélération</b>
+  et l’<b>équation horaire</b> de la trajectoire d’un point, par rapport à un <b>référentiel</b> choisi par l’observateur.</p>
+
+  <h3>Hypothèse : le solide indéformable</h3>
+  <div class="card def">
+    En cinématique, les solides étudiés sont supposés <b>indéformables</b> : la distance entre deux points du solide
+    <b>reste toujours la même</b> au cours du temps.
+    <div class="formule">∀ A et B ∈ (S), ∀ t, ‖<span class="vec">AB</span>‖ = constante</div>
+  </div>
+
+  <div class="lab">
+    <div class="titre">Expérience : fais tourner la pièce (S)</div>
+    <svg class="demo" viewBox="0 0 400 260" id="solSvg">
+      <defs>
+        <radialGradient id="gS" cx="40%" cy="35%"><stop offset="0" stop-color="#e4e8ec"/><stop offset="1" stop-color="#6d7783"/></radialGradient>
+      </defs>
+      <g id="solG"><path d="M-85,-35 Q-55,-70 10,-62 L75,-50 Q92,0 78,45 L-20,55 Q-88,50 -85,-35Z" fill="url(#gS)" stroke="#333" stroke-width="1.5" vector-effect="non-scaling-stroke"/></g>
+      <line id="abL" stroke="#111" stroke-width="2.5"/>
+      <circle id="aC" r="5" fill="#d62828"/><circle id="bC" r="5" fill="#1f4e8c"/>
+      <text id="aT" font-weight="bold" fill="#d62828">A</text><text id="bT" font-weight="bold" fill="#1f4e8c">B</text>
+      <text x="12" y="24" font-size="15" font-weight="bold" fill="#333">(S)</text>
+    </svg>
+    <div class="ctrl">
+      <label>Position : <input type="range" id="solAngle" min="0" max="360" value="0"></label>
+      <label><input type="checkbox" id="solDef"> Pièce en caoutchouc (déformable)</label>
+    </div>
+    <div class="out" id="solOut"></div>
+  </div>
+
+  <div class="suite"><span></span><button class="btn" data-go="s2">Suite : le référentiel →</button></div>
+</section>
+
+<!-- ===================== 2 ===================== -->
+<section id="s2">
+  <h2>2. Le référentiel</h2>
+  <p>Pour étudier un mouvement, il faut un <b>observateur</b>. Selon l’endroit où il se trouve, il ne voit pas le même mouvement !</p>
+  <div class="card def">Le mouvement d’un solide est toujours défini <b>PAR RAPPORT</b> à un autre solide, appelé <b>solide de référence</b>.</div>
+  <div class="card">
+    <b>Notation :</b> le mouvement du cycliste 1 par rapport au sol 0 se note
+    <span style="color:var(--rouge);font-weight:bold;font-size:1.1rem">&nbsp;Mvt 1/0&nbsp;</span>
+    → on lit « mouvement de 1 par rapport à 0 ».
+  </div>
+  <div class="card def">Un <b>référentiel</b> est un système de repérage qui permet de situer un événement <b>dans l’espace ET dans le temps</b>.
+    <div class="formule" style="color:var(--bleu)">RÉFÉRENTIEL = repère d’espace (x, y, z) + repère de temps (chronomètre ⏱)</div>
+  </div>
+
+  <h3>2.1 Se repérer dans l’espace : « où ? »</h3>
+  <p>On utilise un repère orthonormé : une origine <b>O</b> et trois axes x, y, z, portés par les vecteurs unitaires
+  <span class="vec">i</span>, <span class="vec">j</span> et <span class="vec">k</span> (perpendiculaires entre eux, de longueur 1).</p>
+
+  <div class="lab">
+    <div class="titre">Déplace le point M avec les curseurs</div>
+    <svg class="demo" viewBox="0 0 440 300" id="r3">
+      <defs>
+        <marker id="arK" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0L10,5L0,10z" fill="#222"/></marker>
+        <marker id="arG" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0,0L10,5L0,10z" fill="#2a9d4b"/></marker>
+        <marker id="arR" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0L10,5L0,10z" fill="#d62828"/></marker>
+      </defs>
+      <g id="r3g"></g>
+    </svg>
+    <div class="ctrl">
+      <label>x<sub>M</sub> <input type="range" id="rx" min="0" max="5" step="0.5" value="3"></label>
+      <label>y<sub>M</sub> <input type="range" id="ry" min="0" max="5" step="0.5" value="4"></label>
+      <label>z<sub>M</sub> <input type="range" id="rz" min="0" max="5" step="0.5" value="3"></label>
+    </div>
+    <div class="formule" id="r3f"></div>
+  </div>
+  <div class="card clair">x<sub>M</sub>, y<sub>M</sub> et z<sub>M</sub> sont les « adresses » du point M sur chaque axe (en mètres).
+    Comme M bouge, ces nombres changent avec le temps : ce sont des <b>fonctions du temps t</b>.</div>
+
+  <h3>2.2 Se repérer dans le temps : « quand ? »</h3>
+  <p>Le repère de temps est un <b>axe des temps</b> avec un <b>instant d’origine t<sub>0</sub></b> (où t = 0), choisi librement
+  (début du mouvement, d’une phase…). L’unité est la <b>seconde (s)</b>.</p>
+  <div class="lab">
+    <div class="titre">Calcule une durée Δt (« delta té »)</div>
+    <svg class="demo" viewBox="0 0 440 110" id="tAx"></svg>
+    <div class="ctrl">
+      <label>t<sub>1</sub> <input type="range" id="t1" min="0" max="10" step="0.5" value="2"></label>
+      <label>t<sub>2</sub> <input type="range" id="t2" min="0" max="10" step="0.5" value="7"></label>
+    </div>
+    <div class="formule" id="tF"></div>
+  </div>
+
+  <h3>2.3 Mouvement absolu et mouvement relatif</h3>
+  <div class="card">
+    • Mouvement <b style="color:var(--rouge)">absolu</b> : décrit par rapport à un référentiel « au repos ». Pour nous, la <b>Terre</b> convient très bien : c’est un <b>référentiel galiléen</b>.<br>
+    • Mouvement <b style="color:var(--rouge)">relatif</b> : décrit par rapport à un référentiel qui <b>bouge lui-même</b> (par exemple le cadre du vélo).
+  </div>
+  <div class="lab">
+    <div class="titre">Où est la valve rouge de la roue ? Change d’observateur !</div>
+    <canvas id="bike" width="640" height="260"></canvas>
+    <div class="ctrl">
+      <span class="seg" id="bSeg"><button data-m="sol" class="on">👀 Observateur au sol (0)</button><button data-m="cadre">🚲 Observateur sur le cadre (1)</button></span>
+      <button class="btn sec" id="bPlay">⏸ Pause</button>
+      <button class="btn sec" id="bClr">Effacer la trace</button>
+    </div>
+    <div class="out" id="bOut"></div>
+  </div>
+  <div class="card clair">un même point n’a pas la même trajectoire selon le référentiel choisi. Il faut <b>toujours préciser par rapport à quoi</b> on décrit un mouvement.</div>
+
+  <div class="suite"><button class="btn sec" data-go="s1">← Retour</button><button class="btn" data-go="s3">Suite : la trajectoire →</button></div>
+</section>
+
+<!-- ===================== 3 ===================== -->
+<section id="s3">
+  <h2>3. La trajectoire</h2>
+  <div class="card def">On appelle <b>trajectoire</b> d’un point M d’un solide (S) l’ensemble des <b>positions</b> occupées successivement par ce point,
+    au cours du temps, pendant son <b>déplacement par rapport à un référentiel</b> donné.</div>
+  <div class="card"><b>Notation :</b> <span style="color:var(--rouge);font-weight:bold">T<sub>M∈S/R</sub></span> = trajectoire du point M appartenant à S, en mouvement par rapport au repère R.</div>
+  <p>La trajectoire est <b>fondamentale</b> : en l’observant on reconnaît le mouvement, et en connaissant le mouvement on peut prévoir la trajectoire.</p>
+
+  <div class="lab">
+    <div class="titre">À toi : tu es la pointe A du stylo 1, la feuille est le solide 0</div>
+    <canvas id="dess" width="640" height="300"></canvas>
+    <div class="ctrl">
+      <button class="btn" id="dRep">▶ Rejouer le mouvement</button>
+      <button class="btn sec" id="dClr">Effacer</button>
+    </div>
+    <div class="out" id="dOut">Dessine sur la feuille en maintenant le clic (ou le doigt).</div>
+  </div>
+  <div class="card clair">ce que tu viens de dessiner, c’est <b>T<sub>A∈1/0</sub></b> : la « trace » des positions de la pointe A du stylo (1) par rapport à la feuille (0). Les points bleus montrent où était la pointe toutes les 0,5 s : plus ils sont espacés, plus tu allais vite !</div>
+
+  <div class="suite"><button class="btn sec" data-go="s2">← Retour</button><button class="btn" data-go="s4">Suite : les mouvements →</button></div>
+</section>
+
+<!-- ===================== 4 ===================== -->
+<section id="s4">
+  <h2>4. Les mouvements</h2>
+  <p>En modélisation des systèmes mécaniques, on s’intéresse surtout à la <b>rotation</b> et à la <b>translation</b> :
+  ce sont elles qui permettent de trouver les <b>degrés de liberté</b> d’une liaison mécanique.</p>
+
+  <div class="card def"><b>ROTATION</b> : mouvement autour d’un point fixe ou d’un axe fixe (par rapport au référentiel choisi).</div>
+  <div class="card def"><b>TRANSLATION</b> : le solide ne tourne pas. Une droite tracée sur le solide reste toujours <b>parallèle</b> à elle-même.
+    <br>Trois types : <b>rectiligne</b> (segments de droite parallèles), <b>circulaire</b> (cercles de même rayon mais de centres différents), <b>curviligne</b> (courbes quelconques mais superposables).</div>
+  <div class="card def"><b>MOUVEMENT PLAN GÉNÉRAL</b> : tous les points se déplacent dans des plans parallèles, et au moins <b>2 points</b> ont des trajectoires <b>différentes</b>.</div>
+
+  <div class="lab">
+    <div class="titre">Observe les trajectoires des 4 points de couleur</div>
+    <div class="ctrl" style="margin:0 0 10px">
+      <span class="seg" id="mSeg">
+        <button data-m="rot" class="on">Rotation</button><button data-m="rect">Transl. rectiligne</button><button data-m="circ">Transl. circulaire</button><button data-m="curv">Transl. curviligne</button><button data-m="plan">Plan général</button>
+      </span>
+    </div>
+    <canvas id="mov" width="640" height="320"></canvas>
+    <div class="ctrl">
+      <button class="btn sec" id="mPlay">⏸ Pause</button>
+      <button class="btn" id="mMyst">🎲 Mouvement mystère</button>
+    </div>
+    <div class="card info4" id="mInfo"></div>
+    <div class="myst" id="mystBox">
+      <b>Quel est ce mouvement ?</b>
+      <div class="ctrl"><span class="seg" id="mystAns">
+        <button data-m="rot">Rotation</button><button data-m="rect">Transl. rectiligne</button><button data-m="circ">Transl. circulaire</button><button data-m="curv">Transl. curviligne</button><button data-m="plan">Plan général</button>
+      </span></div>
+      <div class="out" id="mystOut">Regarde bien les traces, puis choisis.</div>
+    </div>
+  </div>
+
+  <h3>En conclusion : tous les mouvements à connaître</h3>
+  <p><small class="note">Clique sur une case pour voir l’animation.</small></p>
+  <div class="tree">
+    <div class="n">Mouvements dans l’espace (x, y, z)</div><div class="fl">▼</div>
+    <div class="n">Mouvements dans le plan (x, y)</div><div class="fl">▼</div>
+    <div class="row">
+      <button class="n" data-tm="plan">Plan général</button>
+      <button class="n" data-tm="rot">Rotation</button>
+      <div class="col">
+        <div class="n">Translation</div><div class="fl">▼</div>
+        <div class="row">
+          <button class="n" data-tm="rect">Rectiligne</button>
+          <button class="n" data-tm="circ">Circulaire</button>
+          <button class="n" data-tm="curv">Curviligne</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="suite"><button class="btn sec" data-go="s3">← Retour</button><button class="btn" data-go="s5">Suite : les notations →</button></div>
+</section>
+
+<!-- ===================== 5 ===================== -->
+<section id="s5">
+  <h2>5. Synthèse des notations</h2>
+  <p>Les notations et unités les plus courantes en cinématique.</p>
+  <div class="ctrl" style="margin-bottom:10px">
+    <label><input type="checkbox" id="hideU"> Mode révision : cacher les unités (clique sur une case floue pour la voir)</label>
+  </div>
+  <div style="overflow-x:auto">
+  <table id="notTab">
+    <thead><tr><th>Notation</th><th>Grandeur</th><th>Unité légale</th></tr></thead>
+    <tbody></tbody>
+  </table>
+  </div>
+  <div class="suite"><button class="btn sec" data-go="s4">← Retour</button><button class="btn" data-go="s6">Suite : le quiz →</button></div>
+</section>
+
+<!-- ===================== 6 ===================== -->
+<section id="s6">
+  <h2>6. Quiz : as-tu tout compris ?</h2>
+  <div id="quiz"></div>
+  <div class="score"><span id="qScore">Score : 0 / 0</span><button class="btn" id="qReset">↺ Recommencer</button></div>
+  <div class="suite"><button class="btn sec" data-go="s5">← Retour</button><button class="btn sec" data-go="s1">Revenir au début</button></div>
+</section>
+
+</main>
+
+<script>
+/* ================= NAVIGATION ================= */
+const sections=[...document.querySelectorAll('section')];
+const navBtns=[...document.querySelectorAll('nav button')];
+const vus=new Set(); let current='s1';
+function show(id){
+  current=id;
+  sections.forEach(s=>s.classList.toggle('active',s.id===id));
+  navBtns.forEach(b=>{b.classList.toggle('active',b.dataset.go===id); if(b.dataset.go===id) b.classList.add('vu');});
+  vus.add(id);
+  document.getElementById('prog').style.width=(vus.size/sections.length*100)+'%';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+document.querySelectorAll('[data-go]').forEach(b=>b.addEventListener('click',()=>show(b.dataset.go)));
+
+/* ================= 1. SOLIDE INDÉFORMABLE ================= */
+const sa=document.getElementById('solAngle'), sd=document.getElementById('solDef');
+function majSolide(){
+  const deg=+sa.value, a=deg*Math.PI/180;
+  const sx=sd.checked?1+0.3*Math.sin(a*2):1, sy=1/sx;
+  const cx=200, cy=130;
+  const tr=(x,y)=>{x*=sx;y*=sy;return [cx+x*Math.cos(a)-y*Math.sin(a), cy+x*Math.sin(a)+y*Math.cos(a)];};
+  document.getElementById('solG').setAttribute('transform',`translate(${cx},${cy}) rotate(${deg}) scale(${sx},${sy})`);
+  const A=tr(-40,25), B=tr(45,-30);
+  const L=document.getElementById('abL');
+  L.setAttribute('x1',A[0]);L.setAttribute('y1',A[1]);L.setAttribute('x2',B[0]);L.setAttribute('y2',B[1]);
+  ['aC','bC'].forEach((id,i)=>{const P=i?B:A;const c=document.getElementById(id);c.setAttribute('cx',P[0]);c.setAttribute('cy',P[1]);});
+  ['aT','bT'].forEach((id,i)=>{const P=i?B:A;const t=document.getElementById(id);t.setAttribute('x',P[0]+8);t.setAttribute('y',P[1]-8);});
+  const d=Math.hypot(B[0]-A[0],B[1]-A[1]);
+  document.getElementById('solOut').innerHTML = sd.checked
+    ? `AB = ${d.toFixed(0)} mm <span class="ko">→ la distance change : ce solide est DÉFORMABLE ✗</span>`
+    : `AB = ${d.toFixed(0)} mm <span class="ok">→ la distance ne change jamais : solide indéformable ✓</span>`;
+}
+sa.addEventListener('input',majSolide); sd.addEventListener('change',majSolide); majSolide();
+
+/* ================= 2.1 REPÈRE 3D ================= */
+const S=26, OX=200, OY=190;
+const P3=(x,y,z)=>[OX+y*S-x*S*0.6, OY-z*S+x*S*0.45];
+function ln(p,q,c,w,dash,mk){return `<line x1="${p[0]}" y1="${p[1]}" x2="${q[0]}" y2="${q[1]}" stroke="${c}" stroke-width="${w}" ${dash?'stroke-dasharray="4 4"':''} ${mk?`marker-end="url(#${mk})"`:''}/>`;}
+function tx(p,t,c,dx=0,dy=0,sz=14){return `<text x="${p[0]+dx}" y="${p[1]+dy}" fill="${c}" font-size="${sz}" font-weight="bold" font-style="italic">${t}</text>`;}
+function majR3(){
+  const x=+rx.value,y=+ry.value,z=+rz.value;
+  let g='';
+  // grille du sol
+  for(let i=0;i<=5;i++){g+=ln(P3(i,0,0),P3(i,6,0),'#e3e8ef',1);g+=ln(P3(0,i,0),P3(6,i,0),'#e3e8ef',1);}
+  const O=P3(0,0,0);
+  g+=ln(O,P3(6.3,0,0),'#222',1.5,0,'arK')+ln(O,P3(0,6.8,0),'#222',1.5,0,'arK')+ln(O,P3(0,0,6),'#222',1.5,0,'arK');
+  g+=tx(P3(6.3,0,0),'x','#222',-14,8)+tx(P3(0,6.8,0),'y','#222',4,16)+tx(P3(0,0,6),'z','#222',8,4);
+  const A=P3(x,y,0),M=P3(x,y,z),Px=P3(x,0,0),Py=P3(0,y,0),Pz=P3(0,0,z);
+  g+=ln(Px,A,'#2a9d4b',2)+ln(Py,A,'#2a9d4b',2)+ln(A,M,'#2a9d4b',2)+ln(M,Pz,'#1f4e8c',1.5,1)+ln(O,A,'#1f4e8c',1.2,1);
+  g+=ln(O,M,'#2a9d4b',4,0,'arG');
+  g+=ln(O,P3(1,0,0),'#d62828',2.5,0,'arR')+ln(O,P3(0,1,0),'#d62828',2.5,0,'arR')+ln(O,P3(0,0,1),'#d62828',2.5,0,'arR');
+  g+=tx(P3(1,0,0),'i','#d62828',-12,4)+tx(P3(0,1,0),'j','#d62828',-4,16)+tx(P3(0,0,1),'k','#d62828',6,4);
+  g+=tx(O,'O','#222',-18,-4);
+  g+=`<circle cx="${M[0]}" cy="${M[1]}" r="5" fill="#2a9d4b"/>`+tx(M,'M','#d62828',8,-6,15);
+  g+=`<circle cx="${A[0]}" cy="${A[1]}" r="3" fill="#1f4e8c"/>`+tx(A,'A','#1f4e8c',6,14,12);
+  g+=tx(Px,'x<tspan font-size="10" dy="3">M</tspan>','#d62828',-30,8)+tx(Py,'y<tspan font-size="10" dy="3">M</tspan>','#d62828',-6,20)+tx(Pz,'z<tspan font-size="10" dy="3">M</tspan>','#d62828',-30,4);
+  document.getElementById('r3g').innerHTML=g;
+  const f=v=>String(v).replace('.',',');
+  document.getElementById('r3f').innerHTML=`<span class="vec">OM</span> = ${f(x)}·<span class="vec">i</span> + ${f(y)}·<span class="vec">j</span> + ${f(z)}·<span class="vec">k</span> &nbsp;(en m)`;
+}
+const rx=document.getElementById('rx'),ry=document.getElementById('ry'),rz=document.getElementById('rz');
+[rx,ry,rz].forEach(e=>e.addEventListener('input',majR3)); majR3();
+
+/* ================= 2.2 AXE DES TEMPS ================= */
+const t1=document.getElementById('t1'),t2=document.getElementById('t2');
+function majT(){
+  const a=+t1.value,b=+t2.value, X=t=>30+t*37;
+  let g=`<line x1="20" y1="60" x2="420" y2="60" stroke="#222" stroke-width="2"/><path d="M420,55L430,60L420,65z" fill="#222"/>
+  <text x="340" y="50" font-size="12" fill="#555">Axe des temps</text>`;
+  for(let i=0;i<=10;i++) g+=`<line x1="${X(i)}" y1="56" x2="${X(i)}" y2="64" stroke="#999"/><text x="${X(i)-4}" y="80" font-size="10" fill="#888">${i}</text>`;
+  g+=`<text x="${X(0)-12}" y="22" font-size="12" font-weight="bold" fill="#1f4e8c">t₀ = 0</text><line x1="${X(0)}" y1="27" x2="${X(0)}" y2="52" stroke="#1f4e8c" stroke-width="2"/>`;
+  const lo=Math.min(a,b),hi=Math.max(a,b);
+  g+=`<rect x="${X(lo)}" y="88" width="${X(hi)-X(lo)}" height="10" fill="#ffd166" rx="3"/>`;
+  [[a,'t₁','#d62828'],[b,'t₂','#2a9d4b']].forEach(([v,l,c])=>{g+=`<line x1="${X(v)}" y1="27" x2="${X(v)}" y2="56" stroke="${c}" stroke-width="2"/><circle cx="${X(v)}" cy="60" r="4" fill="${c}"/><text x="${X(v)-6}" y="22" font-size="13" font-weight="bold" fill="${c}">${l}</text>`;});
+  document.getElementById('tAx').innerHTML=g;
+  const f=v=>String(v).replace('.',',');
+  const d=b-a;
+  document.getElementById('tF').innerHTML=`Δt = t₂ − t₁ = ${f(b)} − ${f(a)} = <span style="background:#ffd166;padding:0 6px;border-radius:4px">${f(d)} s</span>`+(d<0?'<br><small class="ko">Attention : t₂ doit être après t₁ !</small>':'');
+}
+[t1,t2].forEach(e=>e.addEventListener('input',majT)); majT();
+
+/* ================= 2.3 VÉLO : RÉFÉRENTIELS ================= */
+const bc=document.getElementById('bike'),bx=bc.getContext('2d');
+let bMode='sol',bPlay=true,bX=60,bTrail=[];
+const R=34,GY=225,EMP=125,FIXX=200;
+function arrowC(ctx,x1,y1,x2,y2,c){ctx.strokeStyle=c;ctx.fillStyle=c;ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();const a=Math.atan2(y2-y1,x2-x1);ctx.beginPath();ctx.moveTo(x2,y2);ctx.lineTo(x2-9*Math.cos(a-.4),y2-9*Math.sin(a-.4));ctx.lineTo(x2-9*Math.cos(a+.4),y2-9*Math.sin(a+.4));ctx.fill();}
+function drawWheel(x,y,phi){bx.strokeStyle='#1f2a37';bx.lineWidth=5;bx.beginPath();bx.arc(x,y,R,0,7);bx.stroke();bx.lineWidth=1.2;bx.strokeStyle='#8a94a3';for(let k=0;k<6;k++){const a=phi+k*Math.PI/3;bx.beginPath();bx.moveTo(x,y);bx.lineTo(x+R*Math.cos(a),y+R*Math.sin(a));bx.stroke();}bx.fillStyle='#333';bx.beginPath();bx.arc(x,y,3,0,7);bx.fill();}
+function drawBike(ox,cy,phi){
+  drawWheel(ox,cy,phi);drawWheel(ox+EMP,cy,phi);
+  const ped=[ox+55,cy],seat=[ox+42,cy-48],head=[ox+EMP-18,cy-50];
+  bx.strokeStyle='#e07a1f';bx.lineWidth=4;bx.lineCap='round';
+  bx.beginPath();bx.moveTo(ox,cy);bx.lineTo(ped[0],ped[1]);bx.lineTo(seat[0],seat[1]);bx.lineTo(ox,cy);bx.moveTo(seat[0],seat[1]);bx.lineTo(head[0],head[1]);bx.lineTo(ped[0],ped[1]);bx.moveTo(head[0],head[1]);bx.lineTo(ox+EMP,cy);bx.stroke();
+  bx.strokeStyle='#333';bx.lineWidth=3;bx.beginPath();bx.moveTo(seat[0]-12,seat[1]-6);bx.lineTo(seat[0]+10,seat[1]-6);bx.moveTo(head[0],head[1]);bx.lineTo(head[0]+6,head[1]-14);bx.lineTo(head[0]+16,head[1]-14);bx.stroke();
+}
+function bikeStep(dt){
+  if(bPlay){bX+=70*dt;if(bMode==='sol'&&bX>470){bX=60;bTrail=[];}}
+  const phi=bX/R,cy=GY-R,P=[bX-R*Math.sin(phi),cy+R*Math.cos(phi)];
+  if(bPlay){bTrail.push(bMode==='sol'?P:[P[0]-bX,P[1]-cy]);if(bTrail.length>1500)bTrail.shift();}
+  const W=bc.width,H=bc.height;bx.clearRect(0,0,W,H);
+  bx.fillStyle='#eef5e9';bx.fillRect(0,GY,W,H-GY);
+  bx.strokeStyle='#5a6b4a';bx.lineWidth=2;bx.beginPath();bx.moveTo(0,GY);bx.lineTo(W,GY);bx.stroke();
+  const ox=bMode==='sol'?bX:FIXX, shift=bMode==='sol'?0:FIXX-bX;
+  bx.fillStyle='#9fb08a';for(let k=-1;k<20;k++){let xx=((k*45+shift)%(W+45)+W+45)%(W+45)-45;bx.fillRect(xx,GY+12,18,4);}
+  // trace
+  bx.strokeStyle='#d62828';bx.lineWidth=2.5;bx.beginPath();
+  bTrail.forEach((p,i)=>{const q=bMode==='sol'?p:[ox+p[0],cy+p[1]];i?bx.lineTo(q[0],q[1]):bx.moveTo(q[0],q[1]);});bx.stroke();
+  drawBike(ox,cy,phi);
+  const V=bMode==='sol'?P:[ox+P[0]-bX,P[1]];
+  bx.fillStyle='#d62828';bx.beginPath();bx.arc(V[0],V[1],6,0,7);bx.fill();
+  // repère de l'observateur
+  bx.font='bold 13px Segoe UI, Arial';
+  if(bMode==='sol'){arrowC(bx,20,GY,70,GY,'#1f4e8c');arrowC(bx,20,GY,20,GY-50,'#1f4e8c');bx.fillStyle='#1f4e8c';bx.fillText('R0 (sol) – absolu',24,GY-56);}
+  else{arrowC(bx,ox+55,cy,ox+100,cy,'#7b2cbf');arrowC(bx,ox+55,cy,ox+55,cy-42,'#7b2cbf');bx.fillStyle='#7b2cbf';bx.fillText('R1 (cadre) – relatif',ox+60,cy-48);}
+  bx.fillStyle='#333';bx.font='14px Segoe UI, Arial';
+  bx.fillText(bMode==='sol'?'Vue depuis le trottoir : le vélo passe devant toi':'Vue depuis le vélo : le sol défile, le vélo ne bouge pas',12,22);
+}
+document.querySelectorAll('#bSeg button').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('#bSeg button').forEach(x=>x.classList.toggle('on',x===b));
+  bMode=b.dataset.m;bTrail=[];bX=60;majBOut();
+}));
+function majBOut(){document.getElementById('bOut').innerHTML=bMode==='sol'
+  ?'Trajectoire de la valve / sol : une suite d’arches, appelée <b>cycloïde</b>. C’est le mouvement <b>absolu</b>.'
+  :'Trajectoire de la valve / cadre : un <b>cercle</b> ! C’est le mouvement <b>relatif</b>. Même point, autre référentiel → autre trajectoire.';}
+majBOut();
+document.getElementById('bPlay').addEventListener('click',e=>{bPlay=!bPlay;e.target.textContent=bPlay?'⏸ Pause':'▶ Lecture';});
+document.getElementById('bClr').addEventListener('click',()=>{bTrail=[];});
+
+/* ================= 3. DESSIN DE TRAJECTOIRE ================= */
+const dc=document.getElementById('dess'),dx=dc.getContext('2d');
+let pts=[],drawing=false,dT0=0,replay=null;
+const DO=[40,270];
+function cpos(e){const r=dc.getBoundingClientRect();return [(e.clientX-r.left)*dc.width/r.width,(e.clientY-r.top)*dc.height/r.height];}
+function feuille(){
+  dx.clearRect(0,0,dc.width,dc.height);dx.fillStyle='#fffef8';dx.fillRect(0,0,dc.width,dc.height);
+  dx.strokeStyle='#edf0f5';dx.lineWidth=1;for(let y=20;y<dc.height;y+=20){dx.beginPath();dx.moveTo(0,y);dx.lineTo(dc.width,y);dx.stroke();}
+  arrowC(dx,DO[0],DO[1],610,DO[1],'#333');arrowC(dx,DO[0],DO[1],DO[0],20,'#333');
+  dx.fillStyle='#333';dx.font='bold 14px Segoe UI, Arial';dx.fillText('O',DO[0]-18,DO[1]+16);dx.fillText('x₀',600,DO[1]+18);dx.fillText('y₀',DO[0]-26,30);
+  dx.fillStyle='#888';dx.font='italic 14px Segoe UI, Arial';dx.fillText('Feuille 0',520,40);
+}
+function pen(x,y){dx.save();dx.translate(x,y);dx.rotate(-Math.PI/4);
+  dx.fillStyle='#e8c99b';dx.beginPath();dx.moveTo(0,0);dx.lineTo(14,-6);dx.lineTo(14,6);dx.fill();
+  dx.fillStyle='#333';dx.beginPath();dx.moveTo(0,0);dx.lineTo(5,-2);dx.lineTo(5,2);dx.fill();
+  dx.fillStyle='#f4c542';dx.fillRect(14,-6,55,12);dx.fillStyle='#f28b82';dx.fillRect(69,-6,10,12);dx.restore();
+  dx.fillStyle='#d62828';dx.font='bold 13px Segoe UI, Arial';dx.fillText('A',x-16,y+4);dx.fillStyle='#333';dx.fillText('1',x+50,y-48);}
+function redraw(tmax){
+  feuille();
+  if(!pts.length){dx.fillStyle='#9aa5b1';dx.font='18px Segoe UI, Arial';dx.fillText('✏️ Dessine ici avec la souris ou le doigt',160,160);return;}
+  dx.strokeStyle='#1d2430';dx.lineWidth=2.5;dx.lineJoin='round';dx.beginPath();
+  let lastP=pts[0];
+  pts.forEach((p,i)=>{if(p.t<=tmax){i?dx.lineTo(p.x,p.y):dx.moveTo(p.x,p.y);lastP=p;}});dx.stroke();
+  let m=0.5;dx.font='bold 11px Segoe UI, Arial';
+  pts.forEach(p=>{if(p.t<=tmax&&p.t>=m){dx.fillStyle='#1f4e8c';dx.beginPath();dx.arc(p.x,p.y,4,0,7);dx.fill();if(Number.isInteger(m)){dx.fillText(m+' s',p.x+6,p.y-6);}m+=0.5;}});
+  const p0=pts[0];dx.strokeStyle='#d62828';dx.lineWidth=2;dx.beginPath();dx.arc(p0.x,p0.y,6,0,7);dx.stroke();
+  dx.fillStyle='#d62828';dx.font='bold 13px Segoe UI, Arial';dx.fillText('t₀ = 0 s',p0.x+8,p0.y-10);
+  if(!drawing&&tmax===Infinity){const pl=pts[pts.length-1];dx.fillText('t₁ = '+pl.t.toFixed(1).replace('.',',')+' s',pl.x+10,pl.y+22);}
+  pen(lastP.x,lastP.y);
+}
+dc.addEventListener('pointerdown',e=>{e.preventDefault();replay=null;drawing=true;pts=[];dT0=performance.now();dc.setPointerCapture(e.pointerId);const p=cpos(e);pts.push({x:p[0],y:p[1],t:0});redraw(Infinity);});
+dc.addEventListener('pointermove',e=>{if(!drawing)return;const p=cpos(e);pts.push({x:p[0],y:p[1],t:(performance.now()-dT0)/1000});redraw(Infinity);});
+function finDessin(){if(!drawing)return;drawing=false;redraw(Infinity);
+  const T=pts[pts.length-1].t;const n=Math.floor(T/0.5);
+  document.getElementById('dOut').innerHTML=`Trajectoire T<sub>A∈1/0</sub> tracée en <b>${T.toFixed(1).replace('.',',')} s</b> — ${n} position(s) repérée(s) (une toutes les 0,5 s).`;}
+dc.addEventListener('pointerup',finDessin);dc.addEventListener('pointercancel',finDessin);
+document.getElementById('dClr').addEventListener('click',()=>{pts=[];replay=null;redraw(Infinity);document.getElementById('dOut').textContent='Dessine sur la feuille en maintenant le clic (ou le doigt).';});
+document.getElementById('dRep').addEventListener('click',()=>{if(pts.length>1)replay={start:performance.now()};});
+redraw(Infinity);
+
+/* ================= 4. MOUVEMENTS ================= */
+const mc=document.getElementById('mov'),mx=mc.getContext('2d');
+const piece=[[-14,12],[14,12],[16,-38],[32,-60],[10,-86],[-20,-80],[-16,-38]];
+const trk=[{p:[0,0],c:'#e9b824'},{p:[-8,-24],c:'#1d4ed8'},{p:[-14,-72],c:'#16a34a'},{p:[24,-60],c:'#dc2626'}];
+const K=1.4;
+const poses={
+  rot:u=>({x:320,y:235,a:-1.2+2.4*u}),
+  rect:u=>({x:110+420*u,y:270-120*u,a:0}),
+  circ:u=>{const t=Math.PI+Math.PI*u;return {x:320+150*Math.cos(t),y:255+110*Math.sin(t),a:0};},
+  curv:u=>({x:100+440*u,y:220-60*Math.sin(2*Math.PI*1.2*u),a:0}),
+  plan:u=>({x:120+400*u,y:272-110*u,a:-0.7+1.5*u})
+};
+const infos={
+  rot:{t:'Rotation',d:'La pièce tourne autour d’un point fixe (le trou jaune). Le point jaune ne bouge pas ; les autres points décrivent des <b>arcs de cercle qui ont tous le même centre</b>.',ex:'Exemples : une porte autour de ses gonds, une aiguille de montre.'},
+  rect:{t:'Translation rectiligne',d:'La pièce glisse <b>sans tourner</b>. Tous les points décrivent des <b>segments de droite parallèles</b>.',ex:'Exemples : un tiroir, un ascenseur, un piston.'},
+  circ:{t:'Translation circulaire',d:'La pièce <b>garde la même orientation</b> mais chaque point décrit un cercle. Les cercles ont le même rayon mais <b>pas le même centre</b> : ils sont superposables.',ex:'Exemple : la nacelle d’une grande roue (elle reste toujours à l’endroit).'},
+  curv:{t:'Translation curviligne',d:'La pièce <b>ne tourne pas</b>, mais ses points suivent des <b>courbes quelconques</b>, identiques et décalées (superposables).',ex:'Exemple : une cabine de téléphérique qui reste verticale sur un parcours courbe.'},
+  plan:{t:'Mouvement plan général',d:'La pièce <b>avance ET tourne</b> en même temps. Les points ont des <b>trajectoires différentes</b> : impossible de les superposer.',ex:'Exemples : une bielle de moteur, une échelle qui glisse le long d’un mur.'}
+};
+let mMode='rot',mPlay=true,mU=0,mWait=0,mTr=trk.map(()=>[]),mGh=[],nextG=0,mystery=false,mystAnswered=false;
+function tf(pose,p){const x=p[0]*K,y=p[1]*K,c=Math.cos(pose.a),s=Math.sin(pose.a);return [pose.x+x*c-y*s,pose.y+x*s+y*c];}
+function resetMov(){mU=0;mWait=0;mTr=trk.map(()=>[]);mGh=[];nextG=0;}
+function outline(pose){mx.beginPath();piece.forEach((p,i)=>{const q=tf(pose,p);i?mx.lineTo(q[0],q[1]):mx.moveTo(q[0],q[1]);});mx.closePath();}
+function movStep(dt){
+  if(mPlay){if(mWait>0){mWait-=dt;if(mWait<=0)resetMov();}else{mU+=dt/4;if(mU>=1){mU=1;mWait=1.3;}}}
+  const pose=poses[mMode](mU);
+  if(mPlay&&mWait<=0)trk.forEach((t,i)=>mTr[i].push(tf(pose,t.p)));
+  if(mU>=nextG){mGh.push(pose);nextG+=0.2;}
+  mx.clearRect(0,0,mc.width,mc.height);mx.fillStyle='#fff';mx.fillRect(0,0,mc.width,mc.height);
+  mx.strokeStyle='#f0f3f7';mx.lineWidth=1;for(let x=0;x<mc.width;x+=32){mx.beginPath();mx.moveTo(x,0);mx.lineTo(x,mc.height);mx.stroke();}for(let y=0;y<mc.height;y+=32){mx.beginPath();mx.moveTo(0,y);mx.lineTo(mc.width,y);mx.stroke();}
+  mGh.forEach(g=>{outline(g);mx.strokeStyle='rgba(90,100,115,.35)';mx.lineWidth=1.2;mx.setLineDash([4,3]);mx.stroke();mx.setLineDash([]);});
+  mTr.forEach((tr,i)=>{if(tr.length<2)return;mx.strokeStyle=trk[i].c;mx.lineWidth=2.5;mx.beginPath();tr.forEach((p,k)=>k?mx.lineTo(p[0],p[1]):mx.moveTo(p[0],p[1]));mx.stroke();});
+  outline(pose);const g=mx.createLinearGradient(pose.x-30,pose.y-110,pose.x+30,pose.y);g.addColorStop(0,'#c5ccd4');g.addColorStop(1,'#5e6874');mx.fillStyle=g;mx.fill();mx.strokeStyle='#222';mx.lineWidth=1.5;mx.stroke();
+  trk.forEach(t=>{const q=tf(pose,t.p);mx.fillStyle='#fff';mx.beginPath();mx.arc(q[0],q[1],6,0,7);mx.fill();mx.fillStyle=t.c;mx.beginPath();mx.arc(q[0],q[1],4.5,0,7);mx.fill();});
+  mx.fillStyle='#14365f';mx.font='bold 16px Segoe UI, Arial';mx.fillText(mystery&&!mystAnswered?'❓ Mouvement mystère':infos[mMode].t,12,24);
+}
+function majInfo(){const i=infos[mMode];document.getElementById('mInfo').innerHTML=(mystery&&!mystAnswered)
+  ?'<h4>❓ Mystère…</h4><p>Observe les traces de couleur et les contours en pointillés : la pièce tourne-t-elle ? Les trajectoires sont-elles identiques ?</p>'
+  :`<h4>${i.t}</h4><p>${i.d}</p><p class="ex">${i.ex}</p>`;}
+function setMode(m){mMode=m;document.querySelectorAll('#mSeg button').forEach(b=>b.classList.toggle('on',b.dataset.m===m));resetMov();majInfo();}
+document.querySelectorAll('#mSeg button').forEach(b=>b.addEventListener('click',()=>{mystery=false;document.getElementById('mystBox').classList.remove('on');setMode(b.dataset.m);}));
+document.querySelectorAll('[data-tm]').forEach(b=>b.addEventListener('click',()=>{mystery=false;document.getElementById('mystBox').classList.remove('on');setMode(b.dataset.tm);mc.scrollIntoView({behavior:'smooth',block:'center'});}));
+document.getElementById('mPlay').addEventListener('click',e=>{mPlay=!mPlay;e.target.textContent=mPlay?'⏸ Pause':'▶ Lecture';});
+document.getElementById('mMyst').addEventListener('click',()=>{
+  const keys=Object.keys(poses);let m;do{m=keys[Math.floor(Math.random()*keys.length)];}while(m===mMode&&Math.random()<.7);
+  mystery=true;mystAnswered=false;
+  document.querySelectorAll('#mSeg button').forEach(b=>b.classList.remove('on'));
+  document.querySelectorAll('#mystAns button').forEach(b=>b.classList.remove('on'));
+  mMode=m;resetMov();majInfo();
+  document.getElementById('mystBox').classList.add('on');
+  document.getElementById('mystOut').textContent='Regarde bien les traces, puis choisis.';
+});
+document.querySelectorAll('#mystAns button').forEach(b=>b.addEventListener('click',()=>{
+  if(!mystery||mystAnswered)return;
+  const ok=b.dataset.m===mMode;
+  b.classList.add('on');
+  if(ok){mystAnswered=true;document.getElementById('mystOut').innerHTML='<span class="ok">✓ Bravo ! C’est bien : '+infos[mMode].t+'.</span> Relance un autre mystère !';
+    document.querySelectorAll('#mSeg button').forEach(x=>x.classList.toggle('on',x.dataset.m===mMode));majInfo();}
+  else{document.getElementById('mystOut').innerHTML='<span class="ko">✗ Non, ce n’est pas « '+infos[b.dataset.m].t+' ». Regarde encore !</span>';setTimeout(()=>b.classList.remove('on'),700);}
+}));
+majInfo();
+
+/* ================= 5. NOTATIONS ================= */
+const NOT=[
+ ['t','temps (variable)','seconde (s)'],
+ ['t₀, t₁, t₂','instants donnés','seconde (s)'],
+ ['s','abscisse curviligne (position sur une courbe)','mètre (m)'],
+ ['V(t₁→t₂)','vitesse linéaire algébrique moyenne entre deux instants','mètre par seconde (m/s ou m·s⁻¹)'],
+ ['v(t)','fonction donnant la vitesse instantanée en fonction du temps','mètre par seconde (m/s ou m·s⁻¹)'],
+ ['v(t₀), v(t₁) ou v₀, v₁','vitesse algébrique instantanée à des instants donnés','mètre par seconde (m/s ou m·s⁻¹)'],
+ ['x(t), y(t), z(t) ou x, y, z','position sur les axes (Ox), (Oy), (Oz), fonction du temps','mètre (m)'],
+ ['x(t₀), x(t₁) ou x₀, x₁','abscisses à des instants donnés','mètre (m)'],
+ ['<span class="vec">V</span>(M∈1/0)','vecteur vitesse du point M','mètre par seconde (m/s ou m·s⁻¹)'],
+ ['‖<span class="vec">V</span>(M∈1/0)‖','norme (intensité) du vecteur vitesse du point M','mètre par seconde (m/s ou m·s⁻¹)'],
+ ['aₜ(t)','fonction donnant l’accélération tangentielle en fonction du temps','mètre par seconde au carré (m/s² ou m·s⁻²)'],
+ ['a ou aₜ','accélération tangentielle','mètre par seconde au carré (m/s² ou m·s⁻²)'],
+ ['aₙ','accélération normale','mètre par seconde au carré (m/s² ou m·s⁻²)'],
+ ['<span class="vec">a</span>(M∈1/0)','vecteur accélération','mètre par seconde au carré (m/s² ou m·s⁻²)'],
+ ['θ ou θ(t)','position angulaire (angle)','radian (rad)'],
+ ['ω<sub>moy</sub>','vitesse angulaire moyenne','radian par seconde (rad/s ou rad·s⁻¹)'],
+ ['ω','vitesse angulaire (vitesse de rotation)','radian par seconde (rad/s ou rad·s⁻¹)'],
+ ['α ou α(t)','accélération angulaire','radian par seconde au carré (rad/s² ou rad·s⁻²)']
+];
+const tb=document.querySelector('#notTab tbody');
+tb.innerHTML=NOT.map(r=>`<tr><td><b>${r[0]}</b></td><td>${r[1]}</td><td class="u"><span>${r[2]}</span></td></tr>`).join('');
+const hideU=document.getElementById('hideU');
+hideU.addEventListener('change',()=>{document.getElementById('notTab').classList.toggle('cacher',hideU.checked);tb.querySelectorAll('td.u span').forEach(s=>s.classList.remove('vu'));});
+tb.querySelectorAll('td.u span').forEach(s=>s.addEventListener('click',()=>s.classList.add('vu')));
+
+/* ================= 6. QUIZ ================= */
+const Q=[
+ {q:'La cinématique étudie…',o:['les forces qui font bouger un objet','le mouvement des objets en fonction du temps, sans s’occuper des causes','la déformation des matériaux'],r:1,e:'La cinématique décrit le mouvement (position, vitesse, accélération) sans étudier les efforts qui le provoquent.'},
+ {q:'Un solide est indéformable si…',o:['il ne bouge pas','la distance entre deux de ses points reste toujours la même','il est très lourd'],r:1,e:'∀ A et B ∈ (S), ∀ t : ‖AB‖ = constante.'},
+ {q:'Un référentiel est composé…',o:['d’un repère d’espace et d’un repère de temps','uniquement de trois axes x, y, z','d’un observateur et d’un chronomètre seulement'],r:0,e:'Référentiel = repère d’espace (où ?) + repère de temps (quand ?).'},
+ {q:'Que signifie la notation « Mvt 2/0 » ?',o:['Le mouvement de 0 par rapport à 2','Le mouvement de 2 par rapport à 0','La moitié du mouvement de 2'],r:1,e:'On lit « mouvement de 2 par rapport à 0 ». Le solide de référence est écrit après la barre.'},
+ {q:'Un chronomètre indique t₁ = 3 s et t₂ = 8,5 s. Que vaut Δt ?',o:['11,5 s','5,5 s','−5,5 s'],r:1,e:'Δt = t₂ − t₁ = 8,5 − 3 = 5,5 s.'},
+ {q:'La valve d’une roue de vélo décrit un cercle vue depuis le cadre, mais une cycloïde vue depuis le sol. Pourquoi ?',o:['Parce que la roue se déforme','Parce que la trajectoire dépend du référentiel choisi','Parce que le vélo va trop vite'],r:1,e:'Un même point a des trajectoires différentes selon le référentiel : il faut toujours préciser « par rapport à quoi ».'},
+ {q:'La trajectoire T<sub>A∈1/0</sub> est…',o:['la trajectoire du point A du solide 1 par rapport au solide 0','la trajectoire du solide 0 par rapport au point A','la vitesse du point A'],r:0,e:'T<sub>M∈S/R</sub> : trajectoire du point M appartenant à S, par rapport à R.'},
+ {q:'Dans une translation, une droite tracée sur le solide…',o:['tourne en permanence','reste toujours parallèle à elle-même','change de longueur'],r:1,e:'C’est la définition de la translation : le solide ne tourne pas sur lui-même.'},
+ {q:'La nacelle d’une grande roue reste toujours à l’endroit. Son mouvement par rapport au sol est…',o:['une rotation','une translation circulaire','une translation rectiligne'],r:1,e:'Elle ne tourne pas sur elle-même, mais ses points décrivent des cercles de même rayon et de centres différents.'},
+ {q:'Une porte qui s’ouvre autour de ses gonds est en…',o:['rotation','translation curviligne','mouvement plan général'],r:0,e:'Elle tourne autour d’un axe fixe (l’axe des gonds).'},
+ {q:'Une bielle de moteur avance et tourne en même temps : ses points ont des trajectoires différentes. C’est…',o:['une translation','une rotation','un mouvement plan général'],r:2,e:'Au moins 2 points ont des trajectoires différentes → mouvement plan général.'},
+ {q:'Quelle est l’unité de la vitesse angulaire ω ?',o:['m/s','rad/s','rad/s²'],r:1,e:'ω s’exprime en radian par seconde (rad/s). Les rad/s² sont pour l’accélération angulaire.'}
+];
+let score=0,repondu=0;
+function renderQuiz(){
+  score=0;repondu=0;majScore();
+  const box=document.getElementById('quiz');
+  box.innerHTML=Q.map((q,i)=>`<div class="card q" id="q${i}"><b>${i+1}. ${q.q}</b><div class="opts">${q.o.map((o,j)=>`<button data-i="${i}" data-j="${j}">${o}</button>`).join('')}</div><div class="ex"></div></div>`).join('');
+  box.querySelectorAll('.opts button').forEach(b=>b.addEventListener('click',()=>{
+    const i=+b.dataset.i,j=+b.dataset.j,card=document.getElementById('q'+i);
+    if(card.classList.contains('done'))return;
+    card.classList.add('done');repondu++;
+    const btns=card.querySelectorAll('button');btns.forEach(x=>x.disabled=true);
+    btns[Q[i].r].classList.add('bon');
+    const ok=j===Q[i].r; if(ok)score++; else b.classList.add('faux');
+    card.querySelector('.ex').innerHTML=(ok?'<span class="ok">✓ Bonne réponse !</span> ':'<span class="ko">✗ Pas tout à fait.</span> ')+Q[i].e;
+    majScore();
+  }));
+}
+function majScore(){
+  let t=`Score : ${score} / ${repondu}`;
+  if(repondu===Q.length){const p=score/Q.length;t+=p===1?' — Parfait ! 🏆':p>=.7?' — Très bien ! 👍':p>=.5?' — Pas mal, relis les parties ratées.':' — Revois le cours et recommence 💪';}
+  document.getElementById('qScore').textContent=t;
+}
+document.getElementById('qReset').addEventListener('click',()=>{renderQuiz();window.scrollTo({top:0,behavior:'smooth'});});
+renderQuiz();
+
+/* ================= BOUCLE D'ANIMATION ================= */
+let last=performance.now();
+function loop(now){
+  const dt=Math.min(.05,(now-last)/1000);last=now;
+  if(current==='s2')bikeStep(dt);
+  if(current==='s3'&&replay){const tt=(now-replay.start)/1000;redraw(tt);if(tt>pts[pts.length-1].t){replay=null;redraw(Infinity);}}
+  if(current==='s4')movStep(dt);
+  requestAnimationFrame(loop);
+}
+show('s1');
+requestAnimationFrame(loop);
+</script>
+<a href="../index.html" style="position:fixed;bottom:16px;left:16px;z-index:99999;background:#1e3a5f;color:#fff;padding:10px 16px;border-radius:24px;font:600 14px system-ui,sans-serif;text-decoration:none;box-shadow:0 2px 8px rgba(0,0,0,.25)">← Sommaire</a></body>
+</html>

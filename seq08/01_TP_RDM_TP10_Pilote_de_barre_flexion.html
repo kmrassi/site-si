@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pilote de barre – RDM</title>
+<style>
+:root{--bg:#f4f6fa;--card:#fff;--ink:#1b2333;--muted:#5d6678;--pri:#1f4e8c;--pri2:#163a69;--acc:#e8702a;--ok:#1d8a4a;--ko:#c0392b;--line:#dfe4ee;--soft:#eef3fb}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+.wrap{max-width:1000px;margin:0 auto;padding:16px}
+.hero{background:linear-gradient(135deg,var(--h1,#1f4e8c),var(--h2,#0f2a4f));color:#fff;border-radius:16px;padding:22px 24px}
+.hero h1{margin:.15em 0;font-size:1.6em;line-height:1.2}
+.hero .sub{opacity:.88;margin:0}
+.chips span{display:inline-block;background:rgba(255,255,255,.15);border-radius:99px;padding:2px 10px;margin:8px 6px 0 0;font-size:.85em}
+.sticky{position:sticky;top:0;z-index:5;background:var(--bg);padding:10px 0 4px}
+.scorebox{display:flex;align-items:center;gap:12px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:8px 12px;flex-wrap:wrap}
+.prog{flex:1;min-width:120px;height:10px;background:var(--soft);border-radius:99px;overflow:hidden}
+.prog i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--ok),#4cc27f);transition:width .4s}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 20px;margin:16px 0;box-shadow:0 1px 2px rgba(20,40,80,.04)}
+h2{margin:0 0 .6em;font-size:1.25em;color:var(--pri2);display:flex;align-items:center;gap:8px}
+h2 .num{background:var(--pri);color:#fff;border-radius:8px;padding:0 9px;font-size:.85em}
+h3{margin:18px 0 0;font-size:1.05em;color:var(--pri2);border-bottom:2px solid var(--soft);padding-bottom:4px}
+.muted{color:var(--muted)}
+.data{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:12px}
+.data div{background:var(--soft);border-radius:10px;padding:10px 12px}
+.data b{display:block;font-size:1.1em;color:var(--pri2)}
+.data span{font-size:.85em;color:var(--muted)}
+.q{border-top:1px solid var(--line);padding:18px 0 10px}
+.qh{display:flex;gap:10px;align-items:baseline;font-weight:600}
+.tag{background:var(--acc);color:#fff;font-weight:700;border-radius:8px;padding:1px 9px;font-size:.9em;flex:none}
+.answer{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:10px 0}
+.answer label{font-weight:600;min-width:70px}
+input[type=text],input[type=number],textarea{font:inherit;width:150px;padding:6px 10px;border:1.5px solid var(--line);border-radius:8px}
+textarea{width:100%;min-height:70px;margin-top:8px}
+.answer.ok input{border-color:var(--ok);background:#effaf3}
+.answer.ko input{border-color:var(--ko);background:#fdf1ef}
+.fb{font-size:.92em}
+.answer.ok .fb,.okc{color:var(--ok)}
+.answer.ko .fb,.koc{color:var(--ko)}
+button{font:inherit;font-size:.95em;cursor:pointer;border:1.5px solid var(--pri);border-radius:8px;padding:6px 12px;background:var(--pri);color:#fff}
+button:hover{background:var(--pri2)}
+button.ghost{background:#fff;color:var(--pri)}
+button.ghost:hover{background:var(--soft)}
+.qbtns{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:6px}
+details.hint{margin:6px 0;color:var(--muted)}
+details.hint summary{cursor:pointer;color:var(--acc);font-weight:600}
+.corr{margin-top:10px;border-left:4px solid var(--acc);background:#fff8f2;border-radius:0 10px 10px 0;padding:10px 14px}
+.step{display:none;padding:7px 0;border-bottom:1px dashed #f0d9c6}
+.step.show{display:block;animation:fi .35s}
+@keyframes fi{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+.corr .bar{display:flex;gap:8px;margin-top:8px}
+.res{font-weight:700;color:var(--acc)}
+.f{font-family:"Cambria Math",Cambria,"Times New Roman",serif;font-size:1.08em;background:#fff;border:1px solid #f1e2d5;border-radius:6px;padding:1px 7px;display:inline-block;margin:2px 0}
+.grid2{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:12px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:12px}
+@media(max-width:760px){.grid2,.grid3{grid-template-columns:1fr}}
+canvas.ch{width:100%;height:170px;display:block;background:#fbfcfe;border:1px solid var(--line);border-radius:10px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;margin:0 0 12px}
+.kpi{background:var(--soft);border-radius:10px;padding:7px 10px}
+.kpi span{font-size:.8em;color:var(--muted);display:block}
+.kpi b{font-size:1.05em;font-variant-numeric:tabular-nums}
+.kpi.hl{background:#fff1e6}
+.kpi.good{background:#e3f6ea}.kpi.bad{background:#fde4e1}
+.controls{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center}
+.ctl{flex:1;min-width:190px}
+input[type=range]{width:100%;accent-color:var(--acc)}
+.sw{display:flex;gap:6px;align-items:center;cursor:pointer}
+select{font:inherit;font-size:.9em;padding:4px 6px;border-radius:7px;border:1.5px solid var(--line);background:#fff}
+select.good{border-color:var(--ok);background:#effaf3}
+select.bad{border-color:var(--ko);background:#fdf1ef}
+.multi label,.mcq .opt{display:flex;gap:8px;align-items:center;border:1.5px solid var(--line);border-radius:8px;padding:6px 10px;margin:6px 0;cursor:pointer;background:#fff;color:var(--ink);width:100%;text-align:left}
+.mcq.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:8px}
+.mcq.cards .opt{flex-direction:column;align-items:stretch;margin:0}
+.mcq.cards .fb{grid-column:1/-1}
+.multi label.good,.opt.good{border-color:var(--ok);background:#effaf3}
+.multi label.bad,.opt.bad{border-color:var(--ko);background:#fdf1ef}
+.mcq .opt:hover{background:var(--soft)}
+.note{background:var(--soft);border-radius:10px;padding:10px 14px;font-size:.95em;margin-top:8px}
+.recap{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+.recap div{background:var(--soft);border-radius:10px;padding:10px 12px}
+footer{text-align:center;color:var(--muted);font-size:.85em;padding:10px}
+.vc{position:relative;display:inline-block}.vc::after{content:"";position:absolute;left:5%;right:5%;top:-.12em;height:.3em;background:no-repeat center/100% 100% url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 20 6%27%3E%3Cpath d=%27M0 3H17M14 0.5L19 3L14 5.5%27 stroke=%27black%27 fill=%27none%27 stroke-width=%271.4%27/%3E%3C/svg%3E")}
+
+:root{--h1:#0b5d8c;--h2:#062f48}
+.simgrid{display:grid;grid-template-columns:320px 1fr;gap:18px;align-items:start}
+@media(max-width:760px){.simgrid{grid-template-columns:1fr}.simgrid svg{max-width:320px;margin:auto;display:block}}
+#pin{background:linear-gradient(#f6fafd,#eaf2f9);border:1px solid var(--line);border-radius:12px}
+.legend{display:flex;align-items:center;gap:8px;font-size:.82em;color:var(--muted);margin-top:6px}
+.legend i{flex:1;height:9px;border-radius:5px;background:linear-gradient(90deg,#00007f,#0000ff,#00ffff,#7fff7f,#ffff00,#ff0000,#7f0000)}
+.verdict{font-weight:700;padding:8px 12px;border-radius:10px;margin:8px 0}
+.verdict.ok{background:#e3f6ea;color:#1d8a4a}.verdict.ko{background:#fde4e1;color:#c0392b}
+#abaque{width:100%;height:300px;display:block;background:#fbfcfe;border:1px solid var(--line);border-radius:10px}
+table.t{border-collapse:collapse;margin:8px 0;font-size:.93em;width:100%}
+table.t td,table.t th{border:1px solid var(--line);padding:5px 10px;text-align:center}
+table.t th{background:var(--soft)}
+.kpis.two{grid-template-columns:repeat(auto-fit,minmax(110px,1fr))}
+.sub2{font-size:.8em;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.04em;margin:6px 0 4px}
+.scale{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:8px}
+.scale .disp{font-size:2em;font-weight:700;font-variant-numeric:tabular-nums;background:#1b2333;color:#7fff7f;border-radius:8px;padding:2px 14px;font-family:ui-monospace,monospace}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="hero">
+  <div style="font-size:.85em;opacity:.8">Terminale SI · TP10 · Résistance des matériaux</div>
+  <h1>Pilote automatique de barre franche</h1>
+  <p class="sub">La liaison du pilote avec le safran peut-elle transmettre la charge maximale ?</p>
+  <div class="chips"><span>Flexion</span><span>Contrainte et flèche</span><span>Concentration de contrainte</span><span>Éléments finis</span><span>Choix de matériau</span></div>
+</header>
+
+<div class="sticky">
+  <div class="scorebox">
+    <b>Progression</b><div class="prog"><i id="bar"></i></div><span id="score">0 / 0</span>
+    <button class="ghost" id="reset">Recommencer</button>
+    <button class="ghost" id="revealAll" title="Pour la projection en classe">Tout dévoiler</button>
+  </div>
+</div>
+
+<section class="card">
+  <h2><span class="num">1</span> Contexte</h2>
+  <p>Un pilote automatique pousse et tire la barre franche d'un voilier pour le maintenir sur son cap. L'effort passe par une petite pièce en forme de pion : la <b>tête d'homme</b>. Elle est plantée dans la barre et se termine par une rotule sur laquelle s'emboîte la tige du pilote.</p>
+  <div class="data">
+    <div><b>85 kg ≈ 850 N</b><span>charge maximale prévue par le constructeur</span></div>
+    <div><b>Ø 6,2 mm</b><span>diamètre du corps de la tête d'homme</span></div>
+    <div><b>Ø 4,2 mm</b><span>diamètre réduit sous la rotule</span></div>
+    <div><b>R 3,1 mm</b><span>rayon de la rotule</span></div>
+    <div><b>15 mm</b><span>hauteur du centre de la rotule au-dessus de la barre</span></div>
+    <div><b>18 mm</b><span>dépassement recommandé par le constructeur</span></div>
+  </div>
+  <p class="muted" style="font-size:.9em;margin-bottom:0">Compétences : choisir un modèle de comportement, caractériser sollicitations, contraintes et déformations, repérer les zones les plus sollicitées, déterminer des concentrations de contrainte, proposer des matériaux de substitution.</p>
+</section>
+
+<section class="card">
+  <h2><span class="num">▶</span> Simulateur : la tête d'homme en flexion</h2>
+  <p class="muted" style="margin-top:0">La tête d'homme est modélisée comme une poutre encastrée dans la barre, chargée au centre de la rotule. Les couleurs représentent la contrainte normale maximale dans chaque section (bleu = faible, rouge = forte). La déformée est très amplifiée pour être visible.</p>
+  <div class="simgrid">
+    <div>
+      <svg id="pin" viewBox="0 0 320 400" width="100%"></svg>
+      <div class="legend"><span>0</span><i></i><span id="legMax"></span></div>
+    </div>
+    <div>
+      <div class="sub2">Modèle simplifié (activité 2) — à l'encastrement</div>
+      <div class="kpis two">
+        <div class="kpi"><span>T</span><b id="kT">–</b></div>
+        <div class="kpi"><span>M<sub>f</sub></span><b id="kM">–</b></div>
+        <div class="kpi"><span>I<sub>Gz</sub></span><b id="kI">–</b></div>
+        <div class="kpi hl"><span>σ max</span><b id="kS">–</b></div>
+        <div class="kpi"><span>Flèche f</span><b id="kF">–</b></div>
+      </div>
+      <div class="sub2">Avec concentration de contrainte (activité 3) — au changement de diamètre</div>
+      <div class="kpis two">
+        <div class="kpi"><span>M<sub>f</sub></span><b id="kM2">–</b></div>
+        <div class="kpi"><span>σ<sub>nom</sub></span><b id="kSn">–</b></div>
+        <div class="kpi"><span>D/d · r/d</span><b id="kR">–</b></div>
+        <div class="kpi"><span>K<sub>t</sub></span><b id="kKt">–</b></div>
+        <div class="kpi hl"><span>σ<sub>max</sub> = K<sub>t</sub>·σ<sub>nom</sub></span><b id="kSm">–</b></div>
+      </div>
+      <div class="verdict" id="verdict"></div>
+    </div>
+  </div>
+  <div class="controls" style="margin-top:10px">
+    <div class="ctl">Effort F = <b id="lF"></b><input type="range" id="sl-F" min="0" max="1200" step="10" value="850"></div>
+    <div class="ctl">Diamètre du corps D = <b id="lDc"></b><input type="range" id="sl-corps" min="4.5" max="10" step="0.1" value="6.2"></div>
+    <div class="ctl">Diamètre réduit d = <b id="ldr"></b><input type="range" id="sl-reduit" min="2.5" max="9.8" step="0.1" value="4.2"></div>
+    <div class="ctl">Rayon de raccordement r = <b id="lr"></b><input type="range" id="sl-r" min="0.2" max="2" step="0.1" value="1"></div>
+  </div>
+  <label class="sw" style="margin-top:8px"><input type="checkbox" id="link"> Agrandir toute la pièce : quand D change, d et r suivent dans les mêmes proportions (activité 6)</label>
+  <div class="note" id="dNote" style="margin-top:8px" hidden></div>
+  <div class="controls" style="margin-top:8px">
+    <label>Matériau : <select id="mat">
+      <option value="241|210000">Acier allié inoxydable (bibliothèque SW) – Re 241 MPa</option>
+      <option value="550|70000">Meilleur aluminium du tableau – Re 550 MPa</option>
+      <option value="710|210000">Meilleur acier de la bibliothèque SW – Re 710 MPa</option>
+      <option value="1300|200000">Inox durci par précipitation 17-4 PH – Re 1 300 MPa</option>
+      <option value="1400|200000">Inox PH 15-7 Mo – Re 1 400 MPa</option>
+    </select></label>
+    <button class="ghost" id="defaults">Valeurs du sujet</button>
+  </div>
+  <div class="grid2">
+    <canvas class="ch" id="cT"></canvas><canvas class="ch" id="cM"></canvas>
+  </div>
+  <p class="muted" style="font-size:.85em">Modèle : poutre encastrée (section plane reste plane). K<sub>t</sub> calculé avec les formules de Peterson données dans le TP. Pour les inox PH, E ≈ 200 000 MPa (valeur indicative).</p>
+</section>
+
+<section class="card">
+  <h2><span class="num">2</span> Travail demandé</h2>
+
+  <h3>Activité 1 · Analyse des zones sollicitées</h3>
+  <div class="q">
+    <div class="qh"><span class="tag">1.1</span><span>Quelle est la force de poussée maximale du pilote ?</span></div>
+    <div class="answer" data-key="a11" data-answer="850" data-tol="0.02"><label>F =</label><input type="text" inputmode="decimal"><span>N</span><button class="check">Vérifier</button><span class="fb"></span></div>
+    <details class="hint"><summary>Indice</summary>Le constructeur annonce une charge de 85 kg. Poids = m × g, avec g ≈ 10 m/s².</details>
+    <div class="qbtns"><button class="ghost reveal">Voir la correction</button></div>
+    <div class="corr" hidden><div class="step">Le constructeur prévoit une charge maximale de 85 kg, soit environ <span class="res">850 N</span>.</div></div>
+  </div>
+
+  <div class="q">
+    <div class="qh"><span class="tag">1.2</span><span>Le dépassement de 18 mm recommandé par le constructeur est-il respecté ? Calcule d'abord le dépassement réel.</span></div>
+    <div class="answer" data-key="a12" data-answer="18.1" data-tol="0.006"><label>dépassement</label><input type="text" inputmode="decimal"><span>mm</span><button class="check">Vérifier</button><span class="fb"></span></div>
+    <details class="hint"><summary>Indice</summary>Le centre de la rotule est à 15 mm au-dessus de la barre ; il faut ajouter le rayon de la rotule.</details>
+    <div class="qbtns"><button class="ghost reveal">Voir la correction</button></div>
+    <div class="corr" hidden><div class="step"><span class="f">15 + 3,1 = 18,1 mm</span> → <span class="res">Oui, le dépassement de 18 mm est respecté.</span></div></div>
+  </div>
+
+  <div class="q">
+    <div class="qh"><span class="tag">1.3</span><span>Identifier le type de sollicitation de la tête d'homme.</span></div>
+    <div class="mcq" data-key="a13" data-okmsg="Correct : l'effort est perpendiculaire à l'axe de la pièce, encastrée à une extrémité.">
+      <button class="opt" data-why="L'effort n'est pas dans l'axe de la pièce : il est perpendiculaire.">Traction</button>
+      <button class="opt" data-why="Il n'y a pas de couple autour de l'axe de la pièce.">Torsion</button>
+      <button class="opt" data-ok="1">Flexion</button>
+      <button class="opt" data-why="Il y a bien un effort tranchant, mais l'effort est appliqué loin de l'encastrement : c'est surtout le moment qui compte.">Cisaillement pur</button>
+      <span class="fb"></span>
+    </div>
+  </div>
+
+  <h3>Activité 2 · Modélisation simplifiée : charge concentrée en un point</h3>
+  <div class="q">
+    <div class="qh"><span class="tag">2.1</span><span>Identifier les grandeurs caractéristiques de la modélisation : l'effort F et la distance L entre l'effort et l'encastrement.</span></div>
+    <div class="answer" data-key="a21" data-answer="15" data-tol="0.001"><label>L =</label><input type="text" inputmode="decimal"><span>mm</span><button class="check">Vérifier</button><span class="fb"></span></div>
+    <div class="qbtns"><button class="ghost reveal">Voir la correction</button></div>
+    <div class="corr" hidden><div class="step"><span class="res">F = 850 N</span> appliquée au centre de la rotule, <span class="res">L = 15 mm</span> au-dessus de l'encastrement dans la barre.</div></div>
+  </div>
+
+  <div class="q">
+    <div class="qh"><span class="tag">2.2</span><span>À l'aide des diagrammes T(x) et M<sub>f</sub>(x) du simulateur, où se trouve la zone la plus sollicitée ?</span></div>
+    <div class="mcq" data-key="a22" data-okmsg="Correct : en x = 0, le moment fléchissant est maximal (M_f = F·L).">
+      <button class="opt" data-ok="1">À l'encastrement (x = 0)</button>
+      <button class="opt" data-why="Au point d'application de l'effort, le moment fléchissant est nul.">Au centre de la rotule (x = L)</button>
+      <button class="opt" data-why="T est constant, mais M_f varie : il est maximal à une extrémité.">Au milieu de la pièce</button>
+      <span class="fb"></span>
+    </div>
+  </div>
+
+  <div class="q">
+    <div class="qh"><span class="tag">2.3</span><span>Dans cette zone, donner la valeur absolue de l'effort tranchant et du moment fléchissant.</span></div>
+    <div class="answer" data-key="a23a" data-answer="850" data-tol="0.002"><label>T =</label><input type="text" inputmode="decimal"><span>N</span><button class="check">Vérifier</button><span class="fb"></span></div>
+    <div class="answer" data-key="a23b" data-answer="12.75" data-tol="0.004"><label>M<sub>f</sub> =</label><input type="text" inputmode="decimal"><span>N·m</span><button class="check">Vérifier</button><span class="fb"></span></div>
+    <div class="qbtns"><button class="ghost reveal">Voir la correction</button></div>
+    <div class="corr" hidden>
+      <div class="step"><span class="f">T = F</span> → <span class="res">T = 850 N</span></div>
+      <div class="step"><span class="f">M<sub>f</sub> = F × L = 850 N × 15 mm = 12 750 N·mm</span> → <span class="res">M<sub>f</sub> = 12,75 N·m</span></div>
+    </div>
+  </div>
+
+  <div class="q">
+    <div class="qh"><span class="tag">2.4</span><span>La contrainte normale vaut <span class="f">σ = M<sub>f</sub> · y / I<sub>Gz</sub></span>. Calculer la distance y entre la fibre la plus sollicitée et la fibre neutre, puis le moment quadratique <span class="f">I<sub>Gz</sub> = π·D⁴/64</span>.</span></div>
+    <div class="answer" data-key="a24a" data-answer="3.1" data-tol="0.001"><label>y =</label><input type="text" inputmode="decimal"><span>mm</span><button class="check">Vérifier</button><span class="fb"></span></div>
+    <div class="answer" data-key="a24b" data-answer="72.5" data-tol="0.01"><label>I<sub>Gz</sub> =</label><input type="text" inputmode="decimal"><span>mm⁴</span><button class="check">Vérifier</button><span class="fb"></span></div>
+    <details class="hint"><summary>Indice</summary>La fibre la plus éloignée de l'axe est à la surface de la pièce, à une distance égale au rayon.</details>
+    <div class="qbtns"><button class="ghost reveal">Voir la correction</button></div>
+    <div class="corr" hidden>
+      <div class="step"><span class="f">y = D / 2 = 6,2 / 2</span> → <span class="res">y = 3,1 mm</span> (surface de la pièce, côté encastrement)</div>
+      <div class="step"><span class="f">I<sub>Gz</sub> = π × 6,2⁴ / 64</span> → <span class="res">I<sub>Gz</sub> ≈ 72,5 mm⁴</span></div>
+    </div>
+  </div>
+
+  <div class="q">
+    <div class="qh"><span class="tag">2.5</span><span>En déduire la contrainte normale maximale.</span></div>
+    <div class="answer" data-key="a25" data-answer="545" data-tol="0.01"><label>σ =</label><input type="text" inputmode="decimal"><span>MPa</span><button class="check">Vérifier</button><span class="fb"></span></div>
+    <details class="hint"><summary>Indice</summary>Travaille en N·mm et en mm : le résultat est alors en N/mm², c'est-à-dire en MPa.</details>
+    <div class="qbtns"><button class="ghost reveal">Voir la correction</button></div>
+    <div class="corr" hidden><div class="step"><span class="f">σ = 12 750 N·mm × 3,1 mm / 72,5 mm⁴</span> → <span class="res">σ ≈ 545 MPa</span></div></div>
+  </div>
+
+  <div class="q">
+    <div class="qh"><span class="tag">2.6</span><span>Quelle(s) famille(s) de matériaux conviennent ? Coche toutes les bonnes réponses.</span></div>
+    <table class="t" style="max-width:420px"><tr><th>Matériaux</th><th>R<sub>e</sub> (MPa)</th></tr><tr><td>Polymères</td><td>10 – 90</td></tr><tr><td>Bois</td><td>20 – 100</td></tr><tr><td>Aluminium</td><td>60 – 550</td></tr><tr><td>Acier</td><td>290 – 1 800</td></tr></table>
+    <div class="multi" data-key="a26" data-okmsg="Correct : seuls les aciers les plus performants conviennent.">
+      <label data-ok="0" data-why="Les polymères plafonnent à 90 MPa."><input type="checkbox"> Polymères</label>
+      <label data-ok="0" data-why="Le bois plafonne à 100 MPa."><input type="checkbox"> Bois</label>
+      <label data-ok="0" data-why="Le meilleur aluminium atteint à peine 550 MPa : aucune marge de sécurité."><input type="checkbox"> Aluminium</label>
+      <label data-ok="1"><input type="checkbox"> Les aciers les plus performants</label>
+      <div class="qbtns"><button class="check">Vérifier</button><span class="fb"></span></div>
+    </div>
+    <div class="qbtns"><button class="ghost reveal">Voir la correction</button></div>
+    <div class="corr" hidden><div class="step">Seuls les <b>aciers les plus performants</b> conviennent. Il s'agit probablement d'un acier inoxydable, dont la limite élastique doit être supérieure à 545 MPa.</div></div>
+  </div>
+
+  <div class="q">
+    <div class="qh"><span class="tag">2.7</span><span>Calculer la flèche au niveau de la rotule : <span class="f">f = F·L³ / (3·E·I<sub>Gz</sub>)</span>, avec E = 210 000 MPa pour les aciers.</span></div>
+    <div class="answer" data-key="a27" data-answer="0.0628" data-tol="0.06"><label>f =</label><input type="text" inputmode="decimal"><span>mm</span><button class="check">Vérifier</button><span class="fb"></span></div>
+    <div class="qbtns"><button class="ghost reveal">Voir la correction</button></div>
+    <div class="corr" hidden><div class="step"><span class="f">f = 850 × 15³ / (3 × 210 000 × 72,5)</span> → <span class="res">f ≈ 0,06 mm</span></div></div>
+  </div>
+
+  <div class="q">
+    <div class="qh"><span class="tag">2.8</span><span>Cette déformation est-elle compatible avec le fonctionnement du pilote ?</span></div>
+    <div class="mcq" data-key="a28" data-okmsg="Correct : 0,06 mm est négligeable par rapport au déplacement de la barre.">
+      <button class="opt" data-ok="1">Oui, elle est négligeable devant le déplacement de la barre</button>
+      <button class="opt" data-why="0,06 mm, c'est l'épaisseur d'une feuille de papier : la barre, elle, se déplace de plusieurs centimètres.">Non, la pièce se tord trop</button>
+      <span class="fb"></span>
+    </div>
+  </div>
+
+  <h3>Activité 3 · Prise en compte de la concentration de contrainte</h3>
+  <div class="note">La tête d'homme passe de Ø 6,2 mm à Ø 4,2 mm sous la rotule : cette réduction de section crée une zone de fragilité. On utilise l'abaque de Peterson : <span class="f">σ<sub>max</sub> = K<sub>t</sub> · σ<sub>nom</sub></span>, avec <span class="f">σ<sub>nom</sub> = 32·M<sub>f</sub> / (π·d³)</span> calculée dans la petite section.</div>
+
+  <div class="q">
+    <div class="qh"><span class="tag">3.1</span><span>Le changement de diamètre est à 7 mm au-dessus de la barre. Quelle est la distance entre cette zone et la force de poussée ?</span></div>
+    <div class="answer" data-key="a31" data-answer="8" data-tol="0.001"><label>distance</label><input type="text" inputmode="decimal"><span>mm</span><button class="check">Vérifier</button><span class="fb"></span></div>
+    <div class="qbtns"><button class="ghost reveal">Voir la correction</button></div>
+    <div class="corr" hidden><div class="step"><span class="f">15 − 7 = 8 mm</span>. On le retrouve sur le diagramme de M<sub>f</sub> en x = 7 mm.</div></div>
+  </div>
+
+  <div class="q">
+    <div class="qh"><span class="tag">3.2</span><span>En déduire le moment fléchissant dans cette zone, puis la contrainte nominale (d = 4,2 mm).</span></div>
+    <div class="answer" data-key="a32a" data-answer="6800" data-tol="0.002"><label>M<sub>f</sub> =</label><input type="text" inputmode="decimal"><span>N·mm</span><button class="check">Vérifier</button><span class="fb"></span></div>
+    <div class="answer" data-key="a32b" data-answer="934" data-tol="0.01"><label>σ<sub>nom</sub> =</label><input type="text" inputmode="decimal"><span>MPa</span><button class="check">Vérifier</button><span class="fb"></span></div>
+    <div class="qbtns"><button class="ghost reveal">Voir la correction</button></div>
+    <div class="corr" hidden>
+      <div class="step"><span class="f">M<sub>f</sub> = 850 N × 8 mm</span> → <span class="res">M<sub>f</sub> = 6 800 N·mm</span></div>
+      <div class="step"><span class="f">σ<sub>nom</sub> = 32 × 6 800 / (π × 4,2³)</span> → <span class="res">σ<sub>nom</sub> ≈ 934 MPa</span></div>
+    </div>
+  </div>
+
+  <div class="q">
+    <div class="qh"><span class="tag">3.3</span><span>Calculer les paramètres de l'abaque : D/d, puis r/d avec un rayon de raccordement r = 1 mm.</span></div>
+    <div class="answer" data-key="a33a" data-answer="1.48" data-tol="0.03"><label>D/d =</label><input type="text" inputmode="decimal"><button class="check">Vérifier</button><span class="fb"></span></div>
+    <div class="answer" data-key="a33b" data-answer="0.238" data-tol="0.03"><label>r/d =</label><input type="text" inputmode="decimal"><button class="check">Vérifier</button><span class="fb"></span></div>
+    <div class="qbtns"><button class="ghost reveal">Voir la correction</button></div>
+    <div class="corr" hidden>
+      <div class="step"><span class="f">D/d = 6,2 / 4,2</span> → <span class="res">≈ 1,5</span> <span class="muted">(1,48 ; la correction papier indique 1,52, on prend la courbe 1,50)</span></div>
+      <div class="step"><span class="f">r/d = 1 / 4,2</span> → <span class="res">≈ 0,24</span></div>
+    </div>
+  </div>
+
+  <div class="q">
+    <div class="qh"><span class="tag">3.4</span><span>Lire K<sub>t</sub> sur l'abaque ci-dessous (courbe D/d = 1,50, r/d = 0,24), puis calculer σ<sub>max</sub>.</span></div>
+    <canvas id="abaque"></canvas>
+    <p class="muted" style="font-size:.85em;margin:4px 0">Abaque recalculé avec les formules de Peterson du TP (arbre épaulé en flexion). Courbes de haut en bas : D/d = 6 · 3 · <b style="color:#1f4e8c">1,50</b> · 1,10 · 1,03 · 1,01. Le point orange suit les réglages du simulateur.</p>
+    <div class="answer" data-key="a34a" data-answer="1.33" data-tol="0.05"><label>K<sub>t</sub> ≈</label><input type="text" inputmode="decimal"><button class="check">Vérifier</button><span class="fb"></span></div>
+    <div class="answer" data-key="a34b" data-answer="1230" data-tol="0.05"><label>σ<sub>max</sub> =</label><input type="text" inputmode="decimal"><span>MPa</span><button class="check">Vérifier</button><span class="fb"></span></div>
+    <div class="qbtns"><button class="ghost reveal">Voir la correction</button></div>
+    <div class="corr" hidden>
+      <div class="step">Lecture de l'abaque : <span class="res">K<sub>t</sub> ≈ 1,3</span> <span class="muted">(les formules donnent 1,37 : la lecture graphique reste une estimation)</span></div>
+      <div class="step"><span class="f">σ<sub>max</sub> = 1,3 × 934</span> → <span class="res">σ<sub>max</sub> ≈ 1 210 MPa</span></div>
+      <div class="step"><div class="note">La contrainte la plus importante se trouve dans la zone de <b>changement de diamètre</b>, et non à l'encastrement. Elle impose un matériau à haute performance.</div></div>
+    </div>
+  </div>
+
+  <h3>Activité 4 · Modélisation par éléments finis (SolidWorks Simulation)</h3>
+  <div class="note">Étude 1 : pièce « tête d'homme », base fixée dans la barre, force de 850 N sur la rotule, matériau <b>acier allié inoxydable</b> de la bibliothèque (R<sub>e</sub> = 241 MPa), maillage par défaut. Résultats relevés :
+    <table class="t"><tr><th></th><th>Contrainte</th><th>Déplacement</th><th>Déformation</th></tr>
+    <tr><th>Valeur critique</th><td>903 MPa</td><td>0,017 mm</td><td>0,0034</td></tr>
+    <tr><th>Lieu</th><td>changement de diamètre</td><td>sommet de la pièce</td><td>zone la plus contrainte</td></tr></table>
+  </div>
+
+  <div class="q">
+    <div class="qh"><span class="tag">4.1</span><span>Calculer le coefficient de sécurité minimal de l'étude 1 : <span class="f">s = R<sub>e</sub> / σ<sub>max</sub></span>.</span></div>
+    <div class="answer" data-key="a41" data-answer="0.26" data-tol="0.06"><label>s =</label><input type="text" inputmode="decimal"><button class="check">Vérifier</button><span class="fb"></span></div>
+    <div class="qbtns"><button class="ghost reveal">Voir la correction</button></div>
+    <div class="corr" hidden>
+      <div class="step"><span class="f">s = 241 / 903</span> → <span class="res">s ≈ 0,27</span> <span class="muted">(SolidWorks affiche 0,25)</span></div>
+      <div class="step">s &lt; 1 : <b>la sécurité n'est pas assurée</b>, la pièce se déformerait de façon permanente avec ce matériau.</div>
+    </div>
+  </div>
+
+  <div class="q">
+    <div class="qh"><span class="tag">4.2</span><span>La déformation maximale vaut 0,0034. Exprimer-la en pourcentage.</span></div>
+    <div class="answer" data-key="a42" data-answer="0.34" data-tol="0.01"><label>ε =</label><input type="text" inputmode="decimal"><span>%</span><button class="check">Vérifier</button><span class="fb"></span></div>
+    <div class="qbtns"><button class="ghost reveal">Voir la correction</button></div>
+    <div class="corr" hidden><div class="step"><span class="f">0,0034 × 100</span> → <span class="res">0,34 %</span>, à l'endroit où la contrainte est maximale.</div></div>
+  </div>
+
+  <div class="q">
+    <div class="qh"><span class="tag">4.3</span><span>Comparer l'étude 1 aux autres modélisations. Coche les affirmations justes.</span></div>
+    <div class="multi" data-key="a43" data-okmsg="Correct !">
+      <label data-ok="1"><input type="checkbox"> La zone la plus contrainte est la même que celle du modèle avec concentration de contrainte.</label>
+      <label data-ok="1"><input type="checkbox"> La contrainte maximale (903 MPa) est un peu plus faible que celle de l'activité 3 (≈ 1 210 MPa).</label>
+      <label data-ok="1"><input type="checkbox"> Le déplacement maximal (0,017 mm) est plus faible que la flèche du modèle simplifié (0,06 mm).</label>
+      <label data-ok="0" data-why="Le modèle simplifié place la zone critique à l'encastrement, ce que la simulation ne confirme pas."><input type="checkbox"> La zone la plus contrainte est à l'encastrement, comme dans le modèle simplifié.</label>
+      <label data-ok="0" data-why="241 MPa < 903 MPa : la pièce se déformerait de façon permanente."><input type="checkbox"> Le matériau choisi convient.</label>
+      <div class="qbtns"><button class="check">Vérifier</button><span class="fb"></span></div>
+    </div>
+  </div>
+
+  <div class="q">
+    <div class="qh"><span class="tag">4.4</span><span>Étude 2 : avec le meilleur acier de la bibliothèque (R<sub>e</sub> = 710 MPa), la pièce résiste-t-elle ? Teste-le dans le simulateur.</span></div>
+    <div class="mcq" data-key="a44" data-okmsg="Correct : même le meilleur acier de la bibliothèque n'est pas assez résistant. Un inox à durcissement par précipitation (17-4 PH…) convient.">
+      <button class="opt" data-why="710 MPa reste inférieur à la contrainte maximale calculée (≈ 900 à 1 200 MPa).">Oui</button>
+      <button class="opt" data-ok="1">Non, il faut un matériau plus performant, absent de la bibliothèque</button>
+      <span class="fb"></span>
+    </div>
+  </div>
+
+  <div class="q">
+    <div class="qh"><span class="tag">4.5</span><span>Étude 3 : en affinant le maillage au maximum, que constate-t-on ?</span></div>
+    <div class="multi" data-key="a45" data-okmsg="Correct : un maillage fin capte mieux le pic de contrainte au changement de diamètre.">
+      <label data-ok="1"><input type="checkbox"> Le calcul est plus long, mais sans doute plus précis.</label>
+      <label data-ok="1"><input type="checkbox"> La contrainte maximale augmente.</label>
+      <label data-ok="1"><input type="checkbox"> Le coefficient de sécurité minimal diminue sensiblement.</label>
+      <label data-ok="0" data-why="Au contraire : un maillage plus fin révèle un pic de contrainte plus élevé."><input type="checkbox"> La contrainte maximale diminue.</label>
+      <div class="qbtns"><button class="check">Vérifier</button><span class="fb"></span></div>
+    </div>
+  </div>
+
+  <h3>Activité 5 · Matériau</h3>
+  <div class="q">
+    <div class="qh"><span class="tag">5.1</span><span>SolidWorks donne la masse de la pièce selon le matériau. La vraie tête d'homme pèse environ <b>11 g</b>. Clique sur le matériau le plus probable.</span></div>
+    <div class="scale"><span class="disp">11 g</span><span class="muted">Pesée de la tête d'homme sur une balance précise</span></div>
+    <div class="mcq" data-key="a51" data-okmsg="Correct : c'est un acier allié, dont la limite élastique doit être d'au moins 1 000 MPa.">
+      <button class="opt" data-why="10,7 g : proche, mais l'acier allié (11,3 g) correspond mieux d'après la correction.">Acier allié inoxydable — 10,7 g</button>
+      <button class="opt" data-ok="1">Acier allié — 11,3 g</button>
+      <button class="opt" data-why="6,8 g : bien trop léger.">Alliage de titane — 6,8 g</button>
+      <button class="opt" data-why="4 g : bien trop léger.">Alliage d'aluminium — 4 g</button>
+      <button class="opt" data-why="9,7 g : trop léger, et le zinc est peu résistant.">Alliage de zinc — 9,7 g</button>
+      <span class="fb"></span>
+    </div>
+    <div class="qbtns"><button class="ghost reveal">Voir la correction</button></div>
+    <div class="corr" hidden>
+      <div class="step">La pièce est un <b>acier allié</b>. Sa composition exacte n'est pas connue, mais sa limite élastique doit certainement atteindre au moins 1 000 MPa.</div>
+      <div class="step">Exemples possibles : inox à durcissement par précipitation X5CrNiCuNb16-4 (17-4 PH, R<sub>p0,2</sub> = 1 300 MPa), X8CrNiMoAl15-7-2 (PH 15-7 Mo, 1 400 MPa), X7CrNiAl17-7 (17-7 PH, 1 300 MPa).</div>
+    </div>
+  </div>
+
+  <h3>Activité 6 · Optimisation</h3>
+  <div class="q">
+    <div class="qh"><span class="tag">6.1</span><span>Dans le simulateur, augmente le rayon de raccordement r. Comment évolue la contrainte maximale au changement de diamètre ?</span></div>
+    <div class="mcq" data-key="a61" data-okmsg="Correct : un raccordement plus doux réduit K_t. Dans SolidWorks, en adoucissant le chanfrein, la zone la plus fragile n'est même plus dans la plus petite section.">
+      <button class="opt" data-ok="1">Elle diminue, car K<sub>t</sub> diminue</button>
+      <button class="opt" data-why="Observe la case K_t du simulateur quand tu augmentes r.">Elle augmente</button>
+      <button class="opt" data-why="σ_nom ne change pas, mais K_t, lui, change.">Elle ne change pas</button>
+      <span class="fb"></span>
+    </div>
+  </div>
+
+  <div class="q">
+    <div class="qh"><span class="tag">6.2</span><span>Pour aller plus loin : avec le modèle simplifié, quel diamètre D faudrait-il pour limiter la contrainte à l'encastrement à 400 MPa, et ainsi utiliser un matériau plus courant ?</span></div>
+    <div class="answer" data-key="a62" data-answer="6.87" data-tol="0.015"><label>D ≥</label><input type="text" inputmode="decimal"><span>mm</span><button class="check">Vérifier</button><span class="fb"></span></div>
+    <details class="hint"><summary>Indice</summary>σ = 32·M<sub>f</sub> / (π·D³). Isole D : D = ∛(32·M<sub>f</sub> / (π·σ)).</details>
+    <div class="qbtns"><button class="ghost reveal">Voir la correction</button></div>
+    <div class="corr" hidden>
+      <div class="step"><span class="f">D = ∛(32 × 12 750 / (π × 400))</span> → <span class="res">D ≈ 6,9 mm</span></div>
+      <div class="step"><div class="note">Il faudra aussi agrandir la zone sous la rotule et adapter l'embout de la tige du pilote.</div></div>
+    </div>
+  </div>
+
+  <h3>Conclusion</h3>
+  <div class="q">
+    <div class="qh"><span class="tag">C</span><span>En quelques phrases, synthétise les critères importants pour mener correctement cette étude de RDM.</span></div>
+    <textarea placeholder="Rédige ta conclusion."></textarea>
+    <div class="qbtns"><button class="ghost reveal">Voir la correction</button></div>
+    <div class="corr" hidden>
+      <div class="step">La <b>modélisation</b> influence en grande partie les résultats : formes, déplacements imposés, matériaux, outils de calcul…</div>
+      <div class="step">Il est important de choisir un modèle à la fois <b>simple et réaliste</b>.</div>
+      <div class="step">Le <b>coefficient de sécurité</b> est lié au type d'utilisation.</div>
+      <div class="step">Le choix du matériau dépend aussi d'autres critères : coût, disponibilité, fabrication, résistance à l'environnement corrosif (eau de mer)…</div>
+    </div>
+  </div>
+</section>
+
+<section class="card">
+  <h2><span class="num">★</span> À retenir</h2>
+  <div class="recap">
+    <div><b>Flexion (poutre encastrée)</b><br><span class="f">M<sub>f</sub> = F·L</span> à l'encastrement</div>
+    <div><b>Contrainte normale</b><br><span class="f">σ = M<sub>f</sub>·y / I<sub>Gz</sub></span></div>
+    <div><b>Section circulaire</b><br><span class="f">I<sub>Gz</sub> = π·D⁴/64</span> → <span class="f">σ = 32·M<sub>f</sub>/(π·D³)</span></div>
+    <div><b>Flèche</b><br><span class="f">f = F·L³ / (3·E·I<sub>Gz</sub>)</span></div>
+    <div><b>Concentration</b><br><span class="f">σ<sub>max</sub> = K<sub>t</sub>·σ<sub>nom</sub></span></div>
+    <div><b>Sécurité</b><br><span class="f">s = R<sub>e</sub> / σ<sub>max</sub> ≥ 1</span></div>
+  </div>
+</section>
+<footer>TP10 Pilote de barre franche – version interactive</footer>
+</div>
+
+<script>
+const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
+const fmt=(v,d=2)=>{if(Math.abs(v)<1e-9)v=0;return v.toLocaleString('fr-FR',{minimumFractionDigits:d,maximumFractionDigits:d});};
+const parseNum=s=>{s=(s||'').trim().replace(/[\s  ]/g,'').replace(',','.');return s===''?NaN:Number(s);};
+const set=(s,v)=>{const e=$(s);if(e)e.textContent=v;};
+
+/* ---------- score ---------- */
+const keys=new Set(), done=new Set();
+function register(k){keys.add(k);updScore();}
+function pass(k){done.add(k);updScore();}
+function updScore(){const n=keys.size,d=done.size;set('#score',d+' / '+n+' réussies');const b=$('#bar');if(b)b.style.width=(n?100*d/n:0)+'%';}
+
+/* ---------- aide intelligente ---------- */
+const FACTORS=[[1e6,'Vérifie l’unité (facteur 10⁶ : Pa/MPa, W/MW… ?).'],[1000,'Vérifie l’unité (facteur 1 000 : kN, kW, mm/m… ?).'],[2*Math.PI,'Il manque peut-être le facteur 2π (tours → radians).'],[60,'Pense à convertir les minutes en secondes.'],[60/(2*Math.PI),'Pense à convertir les tr/min en rad/s (× 2π / 60).'],[9.81,'Masse ou poids ? Pense au facteur g = 9,81 m/s².'],[2,'Tu es à un facteur 2 près : relis bien la formule.']];
+function diagnose(v,ans){
+  if(ans!==0&&Math.abs(v+ans)<=Math.abs(ans)*0.02)return 'Attention au signe !';
+  if(ans===0||v===0)return '';
+  const r=Math.abs(v/ans);
+  for(const[f,m]of FACTORS){if(Math.abs(r/f-1)<0.04||Math.abs(r*f-1)<0.04)return m;}
+  return '';
+}
+function initAnswers(){
+  $$('.answer').forEach(row=>{
+    const k=row.dataset.key;register(k);
+    const inp=$('input',row),fb=$('.fb',row),ans=+row.dataset.answer,tol=+(row.dataset.tol||0.02),abs=+(row.dataset.abs||0);
+    const go=()=>{
+      const v=parseNum(inp.value);row.classList.remove('ok','ko');
+      if(isNaN(v)){fb.textContent='Entre une valeur numérique.';row.classList.add('ko');return;}
+      const ok=Math.abs(v-ans)<=Math.max(abs,Math.abs(ans)*tol);
+      if(ok){fb.textContent='✔ Correct !';row.classList.add('ok');pass(k);}
+      else{const d=diagnose(v,ans);fb.textContent='✘ Pas encore. '+(d||(v>ans?'Ta valeur est trop grande.':'Ta valeur est trop petite.'));row.classList.add('ko');}
+    };
+    $('.check',row).addEventListener('click',go);
+    inp.addEventListener('keydown',e=>{if(e.key==='Enter')go();});
+  });
+}
+function initSelects(){
+  $$('.selq').forEach(box=>{
+    const k=box.dataset.key;register(k);const fb=$('.fb',box);
+    $('.check',box).addEventListener('click',()=>{
+      let ok=true;
+      $$('select',box).forEach(s=>{const g=s.value===s.dataset.correct;s.classList.toggle('good',g);s.classList.toggle('bad',!g);if(!g)ok=false;});
+      fb.textContent=ok?'✔ Tout est juste !':'✘ Les cases en rouge sont à revoir.';fb.className='fb '+(ok?'okc':'koc');
+      if(ok)pass(k);
+    });
+  });
+}
+function initMCQ(){
+  $$('.mcq').forEach(box=>{
+    const k=box.dataset.key;register(k);const fb=$('.fb',box);
+    $$('.opt',box).forEach(b=>b.addEventListener('click',()=>{
+      $$('.opt',box).forEach(o=>o.classList.remove('good','bad'));
+      const ok=b.dataset.ok==='1';b.classList.add(ok?'good':'bad');
+      fb.textContent=ok?'✔ '+(box.dataset.okmsg||'Correct !'):'✘ '+(b.dataset.why||'Non, réessaie.');
+      fb.className='fb '+(ok?'okc':'koc');if(ok)pass(k);
+    }));
+  });
+}
+function initMulti(){
+  $$('.multi').forEach(box=>{
+    const k=box.dataset.key;register(k);const fb=$('.fb',box);
+    $('.check',box).addEventListener('click',()=>{
+      let ok=true;const why=[];
+      $$('label',box).forEach(l=>{
+        const c=$('input',l),good=l.dataset.ok==='1';l.classList.remove('good','bad');
+        if(c.checked!==good){ok=false;l.classList.add('bad');if(c.checked&&l.dataset.why)why.push(l.dataset.why);}
+        else if(good)l.classList.add('good');
+      });
+      fb.textContent=ok?'✔ '+(box.dataset.okmsg||'Bravo, c\'est complet !'):'✘ '+(why.length?why.join(' '):'Il manque au moins une bonne réponse.');
+      fb.className='fb '+(ok?'okc':'koc');if(ok)pass(k);
+    });
+  });
+}
+
+/* ---------- corrections pas à pas ---------- */
+function showStep(corr){
+  const st=$$('.step',corr);let i=+(corr.dataset.i||0);
+  if(i<st.length){st[i].classList.add('show');i++;corr.dataset.i=i;}
+  $$('.next,.all',corr).forEach(b=>b.hidden=i>=st.length);
+}
+function openCorr(q,all){
+  const rb=$('.reveal',q),corr=$('.corr',q);if(!rb||!corr)return;
+  corr.hidden=false;rb.textContent='Masquer la correction';
+  if(all){while(+(corr.dataset.i||0)<$$('.step',corr).length)showStep(corr);}
+  else if(!+(corr.dataset.i||0))showStep(corr);
+}
+function initReveal(onReset){
+  $$('.q').forEach(q=>{
+    const rb=$('.reveal',q),corr=$('.corr',q);if(!rb||!corr)return;
+    rb.dataset.label=rb.textContent;
+    const bar=document.createElement('div');bar.className='bar';
+    bar.innerHTML='<button class="ghost next">Étape suivante ▸</button><button class="ghost all">Tout afficher</button>';
+    corr.appendChild(bar);
+    rb.addEventListener('click',()=>{if(corr.hidden)openCorr(q,false);else{corr.hidden=true;rb.textContent=rb.dataset.label;}});
+    $('.next',corr).addEventListener('click',()=>showStep(corr));
+    $('.all',corr).addEventListener('click',()=>openCorr(q,true));
+  });
+  $('#revealAll').addEventListener('click',()=>$$('.q').forEach(q=>openCorr(q,true)));
+  $('#reset').addEventListener('click',()=>{
+    done.clear();updScore();
+    $$('.q input[type=text],.q textarea').forEach(i=>i.value='');
+    $$('.answer').forEach(r=>{r.classList.remove('ok','ko');$('.fb',r).textContent='';});
+    $$('.selq select').forEach(s=>{s.value='';s.classList.remove('good','bad');});
+    $$('.opt,.multi label,.mcell').forEach(o=>o.classList.remove('good','bad'));
+    $$('.multi input').forEach(c=>c.checked=false);
+    $$('.selq .fb,.mcq .fb,.multi .fb,.mat .fb').forEach(f=>f.textContent='');
+    $$('.corr').forEach(c=>{c.hidden=true;c.dataset.i=0;$$('.step',c).forEach(s=>s.classList.remove('show'));$$('.next,.all',c).forEach(b=>b.hidden=false);});
+    $$('.reveal').forEach(b=>b.textContent=b.dataset.label);
+    if(onReset)onReset();
+  });
+}
+function initAll(onReset){initAnswers();initSelects();initMCQ();initMulti();initReveal(onReset);}
+
+/* ---------- graphiques ---------- */
+function niceTicks(a,b,n){const span=b-a,s0=span/n,mag=10**Math.floor(Math.log10(s0)),r=s0/mag,step=(r<1.5?1:r<3?2:r<7?5:10)*mag,out=[];for(let v=Math.ceil(a/step)*step;v<=b+1e-9;v+=step)out.push(+v.toFixed(10));return out;}
+function chart(cv,o){
+  const{f,t0=0,t1,n=800,color,ylab,cursor,fmtY=v=>fmt(v,0),fmtX=v=>fmt(v,0),xlab='t (s)',ymin0=0,ymax0=0,fill=true}=o;
+  const dpr=window.devicePixelRatio||1,W=cv.clientWidth,H=cv.clientHeight;if(!W)return;
+  cv.width=W*dpr;cv.height=H*dpr;const c=cv.getContext('2d');c.setTransform(dpr,0,0,dpr,0,0);c.clearRect(0,0,W,H);
+  const pad={l:46,r:12,t:24,b:26},pts=[];let ymin=ymin0,ymax=ymax0;
+  for(let i=0;i<=n;i++){const t=t0+(t1-t0)*i/n,y=f(t);pts.push([t,y]);ymin=Math.min(ymin,y);ymax=Math.max(ymax,y);}
+  if(ymax-ymin<1e-9)ymax=ymin+1;const sp=ymax-ymin;ymax+=sp*.1;if(ymin<0)ymin-=sp*.1;
+  const X=t=>pad.l+(t-t0)/(t1-t0)*(W-pad.l-pad.r),Y=y=>H-pad.b-(y-ymin)/(ymax-ymin)*(H-pad.t-pad.b);
+  c.font='11px system-ui';c.strokeStyle='#e4e8f0';c.lineWidth=1;c.fillStyle='#5d6678';c.textAlign='right';c.textBaseline='middle';
+  niceTicks(ymin,ymax,4).forEach(v=>{c.beginPath();c.moveTo(pad.l,Y(v));c.lineTo(W-pad.r,Y(v));c.stroke();c.fillText(fmtY(v),pad.l-6,Y(v));});
+  c.textAlign='center';c.textBaseline='top';niceTicks(t0,t1,5).forEach(t=>c.fillText(fmtX(t),X(t),H-pad.b+5));
+  c.textAlign='right';c.textBaseline='bottom';c.fillText(xlab,W-pad.r,H-pad.b-2);
+  if(ymin<0){c.strokeStyle='#9aa3b5';c.beginPath();c.moveTo(pad.l,Y(0));c.lineTo(W-pad.r,Y(0));c.stroke();}
+  c.beginPath();pts.forEach(([t,y],i)=>i?c.lineTo(X(t),Y(y)):c.moveTo(X(t),Y(y)));c.strokeStyle=color;c.lineWidth=2.2;c.stroke();
+  if(fill){c.lineTo(X(t1),Y(Math.max(0,ymin)));c.lineTo(X(t0),Y(Math.max(0,ymin)));c.closePath();c.globalAlpha=.1;c.fillStyle=color;c.fill();c.globalAlpha=1;}
+  c.fillStyle='#1b2333';c.font='600 12px system-ui';c.textAlign='left';c.textBaseline='top';c.fillText(ylab,8,5);
+  if(cursor!=null){const cx=X(cursor),cy=Y(f(cursor));c.strokeStyle='#e8702a';c.setLineDash([4,4]);c.beginPath();c.moveTo(cx,pad.t);c.lineTo(cx,H-pad.b);c.stroke();c.setLineDash([]);c.fillStyle='#e8702a';c.beginPath();c.arc(cx,cy,5,0,7);c.fill();}
+}
+
+const SL={F:'sl-F',D:'sl-corps',d:'sl-reduit',r:'sl-r'};
+const G={F:850,D:6.2,d:4.2,r:1,L:15,xs:7,Re:241,E:210000};
+function KtP(D,d,r){
+  if(D<=d)return 1;
+  const t=(D-d)/2,q=d/D,Kp=Math.sqrt(t/r*q/(1-q)+1)-1,Kq=1/Math.sqrt(r/t);
+  return 1/Math.sqrt((1/(0.541*Kp))**2+(1/(0.843*Kq))**2)+1;
+}
+function calc(){
+  const I=Math.PI*G.D**4/64,M=G.F*G.L,s0=M*(G.D/2)/I,f=G.F*G.L**3/(3*G.E*I);
+  const M2=G.F*(G.L-G.xs),sn=32*M2/(Math.PI*G.d**3),kt=KtP(G.D,G.d,G.r),sm=kt*sn;
+  return{I,M,s0,f,M2,sn,kt,sm,max:Math.max(s0,sm)};
+}
+function jet(v){v=Math.max(0,Math.min(1,v));const r=Math.min(1,Math.max(0,1.5-Math.abs(4*v-3))),g=Math.min(1,Math.max(0,1.5-Math.abs(4*v-2))),b=Math.min(1,Math.max(0,1.5-Math.abs(4*v-1)));return`rgb(${r*255|0},${g*255|0},${b*255|0})`;}
+
+/* ---------- dessin de la tête d'homme ---------- */
+function drawPin(c){
+  const S=14,X0=150,Y0=330,amp=50; // amplification visuelle fixe
+  const NI=300,vv=[0];let th=0,vy=0;
+  for(let i=0;i<NI;i++){const x=G.L*(i+.5)/NI,D=x<G.xs?G.D:G.d,Ix=Math.PI*D**4/64,k=G.F*(G.L-x)/(G.E*Ix),dx=G.L/NI;vy+=th*dx+k*dx*dx/2;th+=k*dx;vv.push(vy);}
+  const v=x=>Math.min(130,vv[Math.round(x/G.L*NI)]*S*amp);
+  const rad=x=>x<G.xs?G.D/2:G.d/2;
+  const sig=x=>{const M=G.F*(G.L-x),D=2*rad(x);let s=32*M/(Math.PI*D**3);if(x>=G.xs&&x<G.xs+Math.max(.6,G.r))s*=1+(c.kt-1)*(1-(x-G.xs)/Math.max(.6,G.r));return s;};
+  let s=`<defs><pattern id="hatch" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="8" stroke="#a08060" stroke-width="2"/></pattern><marker id="mkF" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#c2185b"/></marker></defs>`;
+  s+=`<rect x="20" y="${Y0}" width="280" height="62" fill="#e8d6bd"/><rect x="20" y="${Y0}" width="280" height="62" fill="url(#hatch)"/><line x1="20" y1="${Y0}" x2="300" y2="${Y0}" stroke="#6b4f33" stroke-width="2"/>`;
+  s+=`<text x="28" y="${Y0+52}" font-size="12" fill="#6b4f33">Barre franche (encastrement)</text>`;
+  // pièce non déformée (contour fantôme)
+  s+=`<path d="M${X0-G.D/2*S},${Y0} V${Y0-G.xs*S} H${X0-G.d/2*S} V${Y0-G.L*S} M${X0+G.D/2*S},${Y0} V${Y0-G.xs*S} H${X0+G.d/2*S} V${Y0-G.L*S}" fill="none" stroke="#9aa3b5" stroke-dasharray="3 3"/>`;
+  const n=60;
+  for(let i=0;i<n;i++){
+    const x1=G.L*i/n,x2=G.L*(i+1)/n,xm=(x1+x2)/2,r1=rad(xm)*S;
+    const pts=[[X0+v(x1)-r1,Y0-x1*S],[X0+v(x2)-r1,Y0-x2*S],[X0+v(x2)+r1,Y0-x2*S],[X0+v(x1)+r1,Y0-x1*S]];
+    s+=`<polygon points="${pts.map(p=>p.map(n=>n.toFixed(1)).join(',')).join(' ')}" fill="${jet(sig(xm)/c.max)}"/>`;
+  }
+  const tip=[X0+v(G.L),Y0-G.L*S];
+  s+=`<circle cx="${tip[0].toFixed(1)}" cy="${tip[1].toFixed(1)}" r="${3.1*S}" fill="${jet(0.05)}" stroke="#1b2333" stroke-width="1.2"/>`;
+  // effort
+  const fl=Math.min(110,G.F/850*80);
+  if(G.F>0)s+=`<line x1="${(tip[0]-fl-3.1*S).toFixed(1)}" y1="${tip[1].toFixed(1)}" x2="${(tip[0]-3.1*S+2).toFixed(1)}" y2="${tip[1].toFixed(1)}" stroke="#c2185b" stroke-width="4" marker-end="url(#mkF)"/><text x="${(tip[0]-fl-3.1*S).toFixed(1)}" y="${(tip[1]-10).toFixed(1)}" font-size="14" font-weight="700" fill="#c2185b">F = ${fmt(G.F,0)} N</text>`;
+  // cotes
+  s+=`<line x1="275" y1="${Y0}" x2="275" y2="${Y0-G.L*S}" stroke="#1b2333"/><text x="280" y="${Y0-G.L*S/2}" font-size="12">L = 15</text>`;
+  s+=`<line x1="250" y1="${Y0}" x2="250" y2="${Y0-G.xs*S}" stroke="#1b2333"/><text x="226" y="${Y0-G.xs*S/2+20}" font-size="12">7</text>`;
+  s+=`<line x1="246" y1="${Y0-G.xs*S}" x2="279" y2="${Y0-G.xs*S}" stroke="#9aa3b5" stroke-dasharray="3 3"/>`;
+  s+=`<text x="10" y="18" font-size="12" fill="#5d6678">Déformée amplifiée ×${amp}</text><text x="10" y="34" font-size="12" fill="#5d6678">Déplacement de la rotule : ${fmt(vv[NI],3)} mm</text>`;
+  $('#pin').innerHTML=s;
+  $('#legMax').textContent=fmt(c.max,0)+' MPa';
+}
+
+/* ---------- abaque de Peterson ---------- */
+function drawAbaque(){
+  const cv=$('#abaque'),W=cv.clientWidth,H=cv.clientHeight;if(!W)return;
+  const dpr=window.devicePixelRatio||1;cv.width=W*dpr;cv.height=H*dpr;const c=cv.getContext('2d');c.setTransform(dpr,0,0,dpr,0,0);
+  const pad={l:46,r:16,t:16,b:32},X=v=>pad.l+v/0.3*(W-pad.l-pad.r),Y=v=>H-pad.b-(v-1)/2*(H-pad.t-pad.b);
+  c.font='11px system-ui';c.fillStyle='#5d6678';c.strokeStyle='#e4e8f0';
+  for(let k=1;k<=3.001;k+=0.2){c.beginPath();c.moveTo(pad.l,Y(k));c.lineTo(W-pad.r,Y(k));c.stroke();c.textAlign='right';c.textBaseline='middle';c.fillText(fmt(k,1),pad.l-6,Y(k));}
+  for(let v=0;v<=0.3001;v+=0.05){c.beginPath();c.moveTo(X(v),pad.t);c.lineTo(X(v),H-pad.b);c.stroke();c.textAlign='center';c.textBaseline='top';c.fillText(fmt(v,2),X(v),H-pad.b+5);}
+  c.fillText('r/d',W-pad.r-10,H-14);c.save();c.translate(12,H/2);c.rotate(-Math.PI/2);c.fillText('Kt',0,0);c.restore();
+  const ratios=[6,3,1.5,1.1,1.03,1.01];
+  ratios.forEach(Dd=>{
+    c.beginPath();let first=true;
+    for(let i=0;i<=200;i++){const rd=0.01+0.29*i/200,k=KtP(Dd,1,rd);if(k>3.05){first=true;continue;}const x=X(rd),y=Y(k);first?c.moveTo(x,y):c.lineTo(x,y);first=false;}
+    const hl=Math.abs(Dd-1.5)<0.01;c.strokeStyle=hl?'#1f4e8c':'#7b8696';c.lineWidth=hl?2.6:1.4;c.stroke();
+    if(hl){c.fillStyle='#1f4e8c';c.font='600 12px system-ui';c.textAlign='left';c.textBaseline='bottom';c.fillText('D/d = 1,50',X(0.06),Y(KtP(1.5,1,0.06))-4);c.font='11px system-ui';}
+  });
+  const rd=G.r/G.d,Dd=G.D/G.d,k=KtP(G.D,G.d,G.r);
+  if(rd<=0.3&&k<=3){c.strokeStyle='#e8702a';c.setLineDash([4,4]);c.beginPath();c.moveTo(X(rd),H-pad.b);c.lineTo(X(rd),Y(k));c.lineTo(pad.l,Y(k));c.stroke();c.setLineDash([]);c.fillStyle='#e8702a';c.beginPath();c.arc(X(rd),Y(k),5,0,7);c.fill();
+    c.font='600 12px system-ui';c.textAlign='left';c.fillText(`D/d = ${fmt(Dd,2)} · r/d = ${fmt(rd,2)} → Kt ≈ ${fmt(k,2)}`,pad.l+8,pad.t+14);}
+}
+
+/* ---------- mise à jour ---------- */
+function update(){
+  if(G.d>G.D-0.1){G.d=+(G.D-0.1).toFixed(1);$('#sl-reduit').value=G.d;}
+  $('#sl-reduit').max=(G.D-0.1).toFixed(1);
+  const c=calc();
+  set('#lF',fmt(G.F,0)+' N');set('#lDc',fmt(G.D,1)+' mm');set('#ldr',fmt(G.d,1)+' mm');set('#lr',fmt(G.r,1)+' mm');
+  set('#kT',fmt(G.F,0)+' N');set('#kM',fmt(c.M/1000,2)+' N·m');set('#kI',fmt(c.I,1)+' mm⁴');set('#kS',fmt(c.s0,0)+' MPa');set('#kF',fmt(c.f,3)+' mm');
+  set('#kM2',fmt(c.M2,0)+' N·mm');set('#kSn',fmt(c.sn,0)+' MPa');set('#kR',fmt(G.D/G.d,2)+' · '+fmt(G.r/G.d,2));set('#kKt',fmt(c.kt,2));set('#kSm',fmt(c.sm,0)+' MPa');
+  const sec=G.Re/c.max,v=$('#verdict'),where=c.sm>c.s0?'au changement de diamètre':'à l\'encastrement';
+  v.className='verdict '+(sec>=1?'ok':'ko');
+  v.textContent=(sec>=1?'✔ La pièce résiste':'✘ La pièce ne résiste pas')+` : σmax = ${fmt(c.max,0)} MPa ${where}, Re = ${fmt(G.Re,0)} MPa → s = ${fmt(sec,2)}`;
+  const n=$('#dNote'),c0=c;n.hidden=$('#link').checked||!(c0.sm>c0.s0)||Math.abs(G.D-6.2)<0.05;
+  n.innerHTML='ℹ️ Augmenter D renforce le bas de la pièce (σ à l\'encastrement = '+fmt(c0.s0,0)+' MPa), mais la zone critique reste <b>sous la rotule, de diamètre d</b> : σ<sub>max</sub> y vaut '+fmt(c0.sm,0)+' MPa. Augmente aussi d, ou coche « Agrandir toute la pièce ».';
+  drawPin(c);drawAbaque();
+  chart($('#cT'),{f:x=>G.F,t0:0,t1:G.L,color:'#e8702a',ylab:'Effort tranchant T (N)',xlab:'x (mm)',cursor:G.xs,ymin0:0});
+  chart($('#cM'),{f:x=>G.F*(G.L-x)/1000,t0:0,t1:G.L,color:'#1f4e8c',ylab:'Moment fléchissant Mf (N·m)',xlab:'x (mm)',cursor:G.xs,fmtY:v=>fmt(v,0)});
+}
+let ratio={d:G.d/G.D,r:G.r/G.D};
+$('#link').addEventListener('change',e=>{ratio={d:G.d/G.D,r:G.r/G.D};update();});
+['F','D','d','r'].forEach(id=>$('#'+SL[id]).addEventListener('input',e=>{
+  G[id]=+e.target.value;
+  if(id==='D'&&$('#link').checked){G.d=Math.round(G.D*ratio.d*10)/10;G.r=Math.min(2,Math.max(.2,Math.round(G.D*ratio.r*10)/10));$('#sl-reduit').max=(G.D-0.1).toFixed(1);$('#sl-reduit').value=G.d;$('#sl-r').value=G.r;}
+  else if(id!=='F'&&$('#link').checked){ratio={d:G.d/G.D,r:G.r/G.D};}
+  update();}));
+$('#mat').addEventListener('change',e=>{const[re,E]=e.target.value.split('|').map(Number);G.Re=re;G.E=E;update();});
+$('#defaults').addEventListener('click',()=>{Object.assign(G,{F:850,D:6.2,d:4.2,r:1,Re:241,E:210000});$('#link').checked=false;['F','D','d','r'].forEach(id=>$('#'+SL[id]).value=G[id]);$('#mat').selectedIndex=0;update();});
+window.addEventListener('resize',update);
+initAll();update();
+</script>
+<script>
+/* Tout dévoiler : affiche toutes les réponses ; second clic = tout masquer */
+(function(){
+  var btn=document.getElementById('revealAll'),rst=document.getElementById('reset');if(!btn)return;
+  var on=false,q=function(s){return Array.prototype.slice.call(document.querySelectorAll(s));};
+  var num=function(v){var n=+v;return (Number.isInteger(n)?String(n):String(+n.toFixed(4))).replace('.',',');};
+  btn.addEventListener('click',function(){
+    if(on){on=false;btn.textContent='Tout dévoiler';if(rst)rst.click();return;}
+    on=true;btn.textContent='Masquer les réponses';
+    q('.answer').forEach(function(r){var i=r.querySelector('input'),c=r.querySelector('.check');if(i&&c){i.value=num(r.dataset.answer);c.click();}});
+    q('.selq').forEach(function(b){b.querySelectorAll('select').forEach(function(s){s.value=s.dataset.correct;});var c=b.querySelector('.check');if(c)c.click();});
+    q('.multi').forEach(function(m){m.querySelectorAll('label').forEach(function(l){var c=l.querySelector('input');if(c)c.checked=l.dataset.ok==='1';});var c=m.querySelector('.check');if(c)c.click();});
+    q('.mcq').forEach(function(m){var o=m.querySelector('.opt[data-ok="1"]');if(o)o.click();});
+    q('.mcell[data-ok="1"]').forEach(function(o){o.click();});
+    q('.corr').forEach(function(c){c.hidden=false;});q('.step').forEach(function(s){s.classList.add('show');});
+    q('.corr .next,.corr .all').forEach(function(b){b.hidden=true;});
+    q('.reveal').forEach(function(b){b.textContent='Masquer la correction';});
+  });
+  if(rst)rst.addEventListener('click',function(){if(on){on=false;btn.textContent='Tout dévoiler';}});
+})();
+</script>
+<a href="../index.html" style="position:fixed;bottom:16px;left:16px;z-index:99999;background:#1e3a5f;color:#fff;padding:10px 16px;border-radius:24px;font:600 14px system-ui,sans-serif;text-decoration:none;box-shadow:0 2px 8px rgba(0,0,0,.25)">← Sommaire</a></body>
+</html>

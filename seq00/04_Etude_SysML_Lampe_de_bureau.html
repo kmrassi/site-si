@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Analyse SysML — Lampe de bureau didactique (kit élec, version batterie)</title>
+
+<style>
+  :root{
+    --primary:#2563eb; --primary-dark:#1e40af; --primary-light:#eff6ff;
+    --accent:#7c3aed; --accent-light:#f5f3ff; --ink:#1e293b; --muted:#64748b;
+    --bg:#f8fafc; --card:#ffffff; --border:#dbe2ea; --good:#059669;
+  }
+  *{box-sizing:border-box;}
+  body{font-family:"Segoe UI", Roboto, Arial, sans-serif;background:var(--bg);color:var(--ink);margin:0;padding:0 0 60px 0;line-height:1.5;}
+  header.page{background:linear-gradient(135deg,#78350f,#d97706,#facc15);color:white;padding:34px 40px;}
+  header.page h1{margin:0 0 6px 0;font-size:26px;text-shadow:0 1px 3px rgba(0,0,0,.25);}
+  header.page p{margin:0;opacity:.95;font-size:14.5px;text-shadow:0 1px 2px rgba(0,0,0,.2);}
+  .wrap{max-width:1220px;margin:0 auto;padding:0 24px;}
+  .badges{margin-top:14px;display:flex;gap:8px;flex-wrap:wrap;}
+  .badge{background:rgba(0,0,0,.18);border:1px solid rgba(255,255,255,.4);padding:4px 12px;border-radius:20px;font-size:12.5px;}
+  section.card{background:var(--card);border:1px solid var(--border);border-radius:14px;margin:28px 0;padding:26px 28px 20px 28px;box-shadow:0 1px 3px rgba(15,23,42,.05);}
+  section.card h2{margin-top:0;color:var(--primary-dark);font-size:20px;border-bottom:2px solid var(--primary-light);padding-bottom:10px;display:flex;align-items:center;gap:10px;}
+  .num{background:var(--primary);color:white;border-radius:8px;width:30px;height:30px;display:inline-flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;}
+  .diagram-frame{background:#fbfdff;border:1px solid var(--border);border-radius:10px;padding:14px;overflow-x:auto;margin:14px 0;}
+  details.explain{margin-top:10px;border:1px solid var(--border);border-radius:10px;background:var(--primary-light);}
+  details.explain summary{cursor:pointer;padding:10px 16px;font-weight:600;color:var(--primary-dark);list-style:none;}
+  details.explain summary::-webkit-details-marker{display:none;}
+  details.explain summary::before{content:"▸ ";}
+  details.explain[open] summary::before{content:"▾ ";}
+  details.explain .content{padding:0 18px 16px 18px;font-size:14.5px;}
+  details.explain ul{margin:6px 0;padding-left:20px;}
+  table.trace{width:100%;border-collapse:collapse;margin-top:10px;font-size:13.5px;}
+  table.trace th{background:var(--accent-light);color:var(--accent);text-align:left;padding:8px 10px;border:1px solid var(--border);}
+  table.trace td{padding:8px 10px;border:1px solid var(--border);}
+  table.trace tr:nth-child(even){background:#fafbff;}
+  .tag{display:inline-block;padding:1px 8px;border-radius:10px;font-size:11.5px;font-weight:600;}
+  .tag.refine{background:#fef3c7;color:#92400e;}
+  .tag.satisfy{background:#dcfce7;color:#166534;}
+  .tag.include{background:#dbeafe;color:#1e40af;}
+  .tag.extend{background:#fae8ff;color:#86198f;}
+  .toc{display:flex;flex-wrap:wrap;gap:10px;margin:18px 0 0 0;}
+  .toc a{background:var(--primary-light);color:var(--primary-dark);padding:6px 14px;border-radius:20px;font-size:13px;text-decoration:none;font-weight:600;}
+  footer{text-align:center;color:var(--muted);font-size:12.5px;margin-top:30px;}
+  @media print{
+    body{padding:0;}
+    section.card{page-break-before:always;box-shadow:none;border:none;margin:0;padding:18px 4px;}
+    header.page{page-break-after:avoid;}
+    .toc{display:none;}
+    details.explain{border:1px solid #ccc;}
+  }
+</style>
+
+</head>
+<body>
+
+<header class="page">
+  <div class="wrap">
+    <h1>Modélisation SysML — Lampe de bureau didactique (Kit de pièces élec, version batterie)</h1>
+    <p>Diagramme des cas d'utilisation · Diagramme d'exigences · Diagramme de blocs (BDD) · Diagramme de blocs internes (IBD) · Diagramme de séquence</p>
+    <p style="margin-top:8px;font-size:12.5px;opacity:.9;">Version 100% HTML/CSS — aucun SVG, aucune image. Réf. LPBUR-KBAT.</p>
+    <div class="badges">
+      <span class="badge">Bande de 10 LED haute luminosité</span>
+      <span class="badge">Module de charge USB-C intégré</span>
+      <span class="badge">Objet entièrement démontable</span>
+      <span class="badge">Hauteur totale : 250 mm</span>
+      <span class="badge">Socle 110×140 mm</span>
+    </div>
+    <div class="toc">
+      <a href="#uc" onclick="event.preventDefault();document.getElementById('uc').scrollIntoView({behavior:'smooth'});">① Cas d'utilisation</a>
+      <a href="#req" onclick="event.preventDefault();document.getElementById('req').scrollIntoView({behavior:'smooth'});">② Exigences</a>
+      <a href="#bdd" onclick="event.preventDefault();document.getElementById('bdd').scrollIntoView({behavior:'smooth'});">③ Blocs (BDD)</a>
+      <a href="#ibd" onclick="event.preventDefault();document.getElementById('ibd').scrollIntoView({behavior:'smooth'});">④ Blocs internes (IBD)</a>
+      <a href="#seq" onclick="event.preventDefault();document.getElementById('seq').scrollIntoView({behavior:'smooth'});">⑤ Séquence</a>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+<section class="card" id="uc">
+  <h2><span class="num">1</span>Diagramme des cas d'utilisation</h2>
+  <div class="diagram-frame">
+<div style="position:relative;width:1000px;height:700px;font-family:'Segoe UI',Arial,sans-serif;">
+<div style="position:absolute;left:255px;top:35px;width:490px;height:500px;background:#f8fafc;border:1.4px solid #2563eb;border-radius:6px;z-index:0;box-sizing:border-box;"></div>
+<div style="position:absolute;left:280.0px;top:44.0px;font-size:13px;color:#1e40af;font-weight:700;z-index:6;text-align:left;white-space:nowrap;">«system» Lampe de bureau didactique</div>
+<div style="position:absolute;left:350.0px;top:68.0px;width:300.0px;height:64.0px;background:#eff6ff;border:1.4px solid #2563eb;border-radius:50%;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:350px;top:68px;width:300px;height:64px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:12px;color:#1e293b;z-index:6;line-height:1.25;">Assembler<br>la lampe</div>
+<div style="position:absolute;left:350.0px;top:148.0px;width:300.0px;height:64.0px;background:#eff6ff;border:1.4px solid #2563eb;border-radius:50%;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:350px;top:148px;width:300px;height:64px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:12px;color:#1e293b;z-index:6;line-height:1.25;">Allumer / éteindre<br>l'éclairage</div>
+<div style="position:absolute;left:350.0px;top:230.0px;width:300.0px;height:60.0px;background:#eff6ff;border:1.4px solid #2563eb;border-radius:50%;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:350px;top:230px;width:300px;height:60px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:12px;color:#1e293b;z-index:6;line-height:1.25;">Recharger<br>la batterie</div>
+<div style="position:absolute;left:350.0px;top:308.0px;width:300.0px;height:64.0px;background:#eff6ff;border:1.4px solid #2563eb;border-radius:50%;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:350px;top:308px;width:300px;height:64px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:12px;color:#1e293b;z-index:6;line-height:1.25;">Accéder aux éléments<br>électriques</div>
+<div style="position:absolute;left:350.0px;top:388.0px;width:300.0px;height:64.0px;background:#fdf4ff;border:1.4px solid #a855f7;border-radius:50%;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:350px;top:388px;width:300px;height:64px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:12px;color:#1e293b;z-index:6;line-height:1.25;">Réaliser<br>un abat-jour</div>
+<div style="position:absolute;left:350.0px;top:470.0px;width:300.0px;height:60.0px;background:#eff6ff;border:1.4px solid #2563eb;border-radius:50%;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:350px;top:470px;width:300px;height:60px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:12px;color:#1e293b;z-index:6;line-height:1.25;">Incliner la<br>platine LED</div>
+<div style="position:absolute;left:64.0px;top:250.0px;width:22.0px;height:22.0px;background:#fff;border:2px solid #1e293b;border-radius:50%;z-index:3;box-sizing:border-box;"></div><div style="position:absolute;left:75.0px;top:272.0px;width:38.0px;height:0;border-top:2px solid #1e293b;transform:rotate(90.00deg);transform-origin:0 0;z-index:3;"></div><div style="position:absolute;left:59.0px;top:288.0px;width:32.0px;height:0;border-top:2px solid #1e293b;transform:rotate(0.00deg);transform-origin:0 0;z-index:3;"></div><div style="position:absolute;left:75.0px;top:310.0px;width:31.3px;height:0;border-top:2px solid #1e293b;transform:rotate(116.57deg);transform-origin:0 0;z-index:3;"></div><div style="position:absolute;left:75.0px;top:310.0px;width:31.3px;height:0;border-top:2px solid #1e293b;transform:rotate(63.43deg);transform-origin:0 0;z-index:3;"></div><div style="position:absolute;left:5.0px;top:346.0px;font-size:12.5px;color:#1e293b;font-weight:600;z-index:6;text-align:center;white-space:nowrap;width:140px;text-align:center;">Utilisateur /<br>Élève</div>
+<div style="position:absolute;left:919.0px;top:80.0px;width:22.0px;height:22.0px;background:#fff;border:2px solid #1e293b;border-radius:50%;z-index:3;box-sizing:border-box;"></div><div style="position:absolute;left:930.0px;top:102.0px;width:38.0px;height:0;border-top:2px solid #1e293b;transform:rotate(90.00deg);transform-origin:0 0;z-index:3;"></div><div style="position:absolute;left:914.0px;top:118.0px;width:32.0px;height:0;border-top:2px solid #1e293b;transform:rotate(0.00deg);transform-origin:0 0;z-index:3;"></div><div style="position:absolute;left:930.0px;top:140.0px;width:31.3px;height:0;border-top:2px solid #1e293b;transform:rotate(116.57deg);transform-origin:0 0;z-index:3;"></div><div style="position:absolute;left:930.0px;top:140.0px;width:31.3px;height:0;border-top:2px solid #1e293b;transform:rotate(63.43deg);transform-origin:0 0;z-index:3;"></div><div style="position:absolute;left:860.0px;top:176.0px;font-size:12.5px;color:#1e293b;font-weight:600;z-index:6;text-align:center;white-space:nowrap;width:140px;text-align:center;">Port USB-C /<br>secteur</div>
+<div style="position:absolute;left:919.0px;top:290.0px;width:22.0px;height:22.0px;background:#fff;border:2px solid #1e293b;border-radius:50%;z-index:3;box-sizing:border-box;"></div><div style="position:absolute;left:930.0px;top:312.0px;width:38.0px;height:0;border-top:2px solid #1e293b;transform:rotate(90.00deg);transform-origin:0 0;z-index:3;"></div><div style="position:absolute;left:914.0px;top:328.0px;width:32.0px;height:0;border-top:2px solid #1e293b;transform:rotate(0.00deg);transform-origin:0 0;z-index:3;"></div><div style="position:absolute;left:930.0px;top:350.0px;width:31.3px;height:0;border-top:2px solid #1e293b;transform:rotate(116.57deg);transform-origin:0 0;z-index:3;"></div><div style="position:absolute;left:930.0px;top:350.0px;width:31.3px;height:0;border-top:2px solid #1e293b;transform:rotate(63.43deg);transform-origin:0 0;z-index:3;"></div><div style="position:absolute;left:860.0px;top:386.0px;font-size:12.5px;color:#1e293b;font-weight:600;z-index:6;text-align:center;white-space:nowrap;width:140px;text-align:center;">Batterie 18650<br>(séparée)</div>
+<div style="position:absolute;left:919.0px;top:440.0px;width:22.0px;height:22.0px;background:#fff;border:2px solid #1e293b;border-radius:50%;z-index:3;box-sizing:border-box;"></div><div style="position:absolute;left:930.0px;top:462.0px;width:38.0px;height:0;border-top:2px solid #1e293b;transform:rotate(90.00deg);transform-origin:0 0;z-index:3;"></div><div style="position:absolute;left:914.0px;top:478.0px;width:32.0px;height:0;border-top:2px solid #1e293b;transform:rotate(0.00deg);transform-origin:0 0;z-index:3;"></div><div style="position:absolute;left:930.0px;top:500.0px;width:31.3px;height:0;border-top:2px solid #1e293b;transform:rotate(116.57deg);transform-origin:0 0;z-index:3;"></div><div style="position:absolute;left:930.0px;top:500.0px;width:31.3px;height:0;border-top:2px solid #1e293b;transform:rotate(63.43deg);transform-origin:0 0;z-index:3;"></div><div style="position:absolute;left:860.0px;top:536.0px;font-size:12.5px;color:#1e293b;font-weight:600;z-index:6;text-align:center;white-space:nowrap;width:140px;text-align:center;">Pièces socle PPEX<br>(séparées)</div>
+<div style="position:absolute;left:64.0px;top:540.0px;width:22.0px;height:22.0px;background:#fff;border:2px solid #1e293b;border-radius:50%;z-index:3;box-sizing:border-box;"></div><div style="position:absolute;left:75.0px;top:562.0px;width:38.0px;height:0;border-top:2px solid #1e293b;transform:rotate(90.00deg);transform-origin:0 0;z-index:3;"></div><div style="position:absolute;left:59.0px;top:578.0px;width:32.0px;height:0;border-top:2px solid #1e293b;transform:rotate(0.00deg);transform-origin:0 0;z-index:3;"></div><div style="position:absolute;left:75.0px;top:600.0px;width:31.3px;height:0;border-top:2px solid #1e293b;transform:rotate(116.57deg);transform-origin:0 0;z-index:3;"></div><div style="position:absolute;left:75.0px;top:600.0px;width:31.3px;height:0;border-top:2px solid #1e293b;transform:rotate(63.43deg);transform-origin:0 0;z-index:3;"></div><div style="position:absolute;left:5.0px;top:636.0px;font-size:12.5px;color:#1e293b;font-weight:600;z-index:6;text-align:center;white-space:nowrap;width:140px;text-align:center;">Pièces bois/MDF<br>(séparées)</div>
+<div style="position:absolute;left:120.0px;top:280.0px;width:292.1px;height:0;border-top:1.2px solid #475569;transform:rotate(-38.05deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:120.0px;top:280.0px;width:237.7px;height:0;border-top:1.2px solid #475569;transform:rotate(14.62deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:895.0px;top:90.0px;width:298.2px;height:0;border-top:1.2px solid #475569;transform:rotate(145.24deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:895.0px;top:300.0px;width:246.3px;height:0;border-top:1.2px solid #475569;transform:rotate(-174.17deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:895.0px;top:450.0px;width:419.1px;height:0;border-top:1.2px solid #475569;transform:rotate(-125.78deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:120.0px;top:550.0px;width:514.3px;height:0;border-top:1.2px solid #475569;transform:rotate(-63.43deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:500.0px;top:148.0px;width:16.0px;height:0;border-top:1.3px dashed #1e40af;transform:rotate(-90.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:492.0px;top:127.2px;width:0;height:0;border-top:4.8px solid transparent;border-bottom:4.8px solid transparent;border-left:8.0px solid #1e40af;transform-origin:8.0px 4.8px;transform:rotate(-90.00deg);z-index:2;"></div>
+<div style="position:absolute;left:510.0px;top:134.0px;font-size:11px;color:#1e40af;font-weight:400;z-index:6;text-align:left;white-space:nowrap;font-style:italic;">«include»</div>
+<div style="position:absolute;left:650.0px;top:260.0px;width:55.0px;height:0;border-top:1.3px dashed #1e40af;transform:rotate(0.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:705.0px;top:260.0px;width:160.0px;height:0;border-top:1.3px dashed #1e40af;transform:rotate(-90.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:705.0px;top:100.0px;width:55.0px;height:0;border-top:1.3px dashed #1e40af;transform:rotate(180.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:642.0px;top:95.2px;width:0;height:0;border-top:4.8px solid transparent;border-bottom:4.8px solid transparent;border-left:8.0px solid #1e40af;transform-origin:8.0px 4.8px;transform:rotate(180.00deg);z-index:2;"></div>
+<div style="position:absolute;left:713.0px;top:174.0px;font-size:11px;color:#1e40af;font-weight:400;z-index:6;text-align:left;white-space:nowrap;font-style:italic;">«include»</div>
+<div style="position:absolute;left:650.0px;top:420.0px;width:85.0px;height:0;border-top:1.3px dashed #a855f7;transform:rotate(0.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:735.0px;top:420.0px;width:305.0px;height:0;border-top:1.3px dashed #a855f7;transform:rotate(-90.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:735.0px;top:115.0px;width:85.0px;height:0;border-top:1.3px dashed #a855f7;transform:rotate(180.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:642.0px;top:110.2px;width:0;height:0;border-top:4.8px solid transparent;border-bottom:4.8px solid transparent;border-left:8.0px solid #7e22ce;transform-origin:8.0px 4.8px;transform:rotate(180.00deg);z-index:2;"></div>
+<div style="position:absolute;left:743.0px;top:254.0px;font-size:11px;color:#7e22ce;font-weight:400;z-index:6;text-align:left;white-space:nowrap;font-style:italic;">«extend»</div>
+<div style="position:absolute;left:743.0px;top:268.0px;font-size:9.5px;color:#7e22ce;font-weight:400;z-index:6;text-align:left;white-space:nowrap;font-style:italic;">(pt d'extension :</div>
+<div style="position:absolute;left:743.0px;top:280.0px;font-size:9.5px;color:#7e22ce;font-weight:400;z-index:6;text-align:left;white-space:nowrap;font-style:italic;">réalisation d'un abat-jour)</div>
+</div>
+  </div>
+  <details class="explain">
+    <summary>Lecture du diagramme</summary>
+    <div class="content">
+      <ul>
+        <li><b>Acteur humain</b> (Utilisateur/Élève) à gauche : il assemble la lampe, l'allume, la recharge et peut réaliser un abat-jour.</li>
+        <li><b>Acteurs de l'environnement</b> à droite/en bas : le Port USB-C/secteur, la Batterie 18650, les pièces du socle en PPEX et les pièces bois/MDF — toutes non comprises dans le kit électrique et à commander ou fabriquer séparément.</li>
+        <li><span class="tag include">include</span> « Allumer/éteindre l'éclairage » et « Recharger la batterie » incluent « Assembler la lampe » : ces actions supposent l'objet déjà monté.</li>
+        <li><span class="tag extend">extend</span> « Réaliser un abat-jour » étend « Assembler la lampe », avec pour point d'extension la réalisation optionnelle d'un abat-jour pédagogique en polypropylène souple ou papier épais.</li>
+      </ul>
+    </div>
+  </details>
+</section>
+
+<section class="card" id="req">
+  <h2><span class="num">2</span>Diagramme d'exigences</h2>
+  <div class="diagram-frame">
+<div style="position:relative;width:1260px;height:500px;font-family:'Segoe UI',Arial,sans-serif;">
+<div style="position:absolute;left:500px;top:15px;width:260px;height:78px;background:#eff6ff;border:1.4px solid #2563eb;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:500.0px;top:21.0px;font-size:9.5px;color:#1e40af;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:260px;text-align:center;font-style:italic;">«requirement»</div>
+<div style="position:absolute;left:500.0px;top:35.0px;font-size:11px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:260px;text-align:center;">REQ-1 : Fabriquer et utiliser une</div>
+<div style="position:absolute;left:500.0px;top:49.0px;font-size:11px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:260px;text-align:center;">lampe démontable pédagogique</div>
+<div style="position:absolute;left:500.0px;top:77.0px;font-size:9px;color:#475569;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:260px;text-align:center;">id = REQ-1</div>
+<div style="position:absolute;left:185px;top:150px;width:240px;height:58px;background:#eff6ff;border:1.4px solid #2563eb;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:185.0px;top:156.0px;font-size:9.5px;color:#1e40af;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:240px;text-align:center;font-style:italic;">«requirement»</div>
+<div style="position:absolute;left:185.0px;top:170.0px;font-size:11px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:240px;text-align:center;">Exigences fonctionnelles</div>
+<div style="position:absolute;left:185.0px;top:192.0px;font-size:9px;color:#475569;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:240px;text-align:center;">id = REQ-2</div>
+<div style="position:absolute;left:835px;top:150px;width:240px;height:58px;background:#f5f3ff;border:1.4px solid #7c3aed;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:835.0px;top:156.0px;font-size:9.5px;color:#6d28d9;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:240px;text-align:center;font-style:italic;">«requirement»</div>
+<div style="position:absolute;left:835.0px;top:170.0px;font-size:11px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:240px;text-align:center;">Exigences non fonctionnelles</div>
+<div style="position:absolute;left:835.0px;top:192.0px;font-size:9px;color:#475569;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:240px;text-align:center;">id = REQ-3</div>
+<div style="position:absolute;left:630.0px;top:93.0px;width:330.0px;height:0;border-top:1.2px solid #475569;transform:rotate(170.05deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:630.0px;top:93.0px;width:330.0px;height:0;border-top:1.2px solid #475569;transform:rotate(9.95deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:626.0px;top:89.0px;width:8.0px;height:8.0px;background:#fff;border:1.3px solid #475569;border-radius:50%;z-index:2;box-sizing:border-box;"></div>
+<div style="position:absolute;left:15px;top:285px;width:185px;height:72px;background:#eff6ff;border:1.4px solid #2563eb;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:15.0px;top:291.0px;font-size:9.5px;color:#1e40af;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:185px;text-align:center;font-style:italic;">«requirement»</div>
+<div style="position:absolute;left:15.0px;top:305.0px;font-size:11px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:185px;text-align:center;">Éclairage LED</div>
+<div style="position:absolute;left:15.0px;top:341.0px;font-size:9px;color:#475569;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:185px;text-align:center;">bande 10 LED haute luminosité / REQ-1.1</div>
+<div style="position:absolute;left:215px;top:285px;width:185px;height:72px;background:#eff6ff;border:1.4px solid #2563eb;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:215.0px;top:291.0px;font-size:9.5px;color:#1e40af;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:185px;text-align:center;font-style:italic;">«requirement»</div>
+<div style="position:absolute;left:215.0px;top:305.0px;font-size:11px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:185px;text-align:center;">Commande<br>marche / arrêt</div>
+<div style="position:absolute;left:215.0px;top:341.0px;font-size:9px;color:#475569;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:185px;text-align:center;">bouton poussoir / REQ-1.2</div>
+<div style="position:absolute;left:415px;top:285px;width:185px;height:72px;background:#eff6ff;border:1.4px solid #2563eb;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:415.0px;top:291.0px;font-size:9.5px;color:#1e40af;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:185px;text-align:center;font-style:italic;">«requirement»</div>
+<div style="position:absolute;left:415.0px;top:305.0px;font-size:11px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:185px;text-align:center;">Recharge de<br>la batterie</div>
+<div style="position:absolute;left:415.0px;top:341.0px;font-size:9px;color:#475569;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:185px;text-align:center;">module USB-C intégré / REQ-1.3</div>
+<div style="position:absolute;left:15px;top:400px;width:185px;height:72px;background:#eff6ff;border:1.4px solid #2563eb;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:15.0px;top:406.0px;font-size:9.5px;color:#1e40af;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:185px;text-align:center;font-style:italic;">«requirement»</div>
+<div style="position:absolute;left:15.0px;top:420.0px;font-size:11px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:185px;text-align:center;">Accès aux éléments<br>électriques</div>
+<div style="position:absolute;left:15.0px;top:456.0px;font-size:9px;color:#475569;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:185px;text-align:center;">trappe vissée / REQ-1.4</div>
+<div style="position:absolute;left:215px;top:400px;width:185px;height:72px;background:#eff6ff;border:1.4px solid #2563eb;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:215.0px;top:406.0px;font-size:9.5px;color:#1e40af;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:185px;text-align:center;font-style:italic;">«requirement»</div>
+<div style="position:absolute;left:215.0px;top:420.0px;font-size:11px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:185px;text-align:center;">Inclinaison de<br>la platine LED</div>
+<div style="position:absolute;left:215.0px;top:456.0px;font-size:9px;color:#475569;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:185px;text-align:center;">orientation réglable / REQ-1.5</div>
+<div style="position:absolute;left:650px;top:335px;width:175px;height:66px;background:#f5f3ff;border:1.4px solid #7c3aed;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:650.0px;top:341.0px;font-size:9.5px;color:#6d28d9;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:175px;text-align:center;font-style:italic;">«requirement»</div>
+<div style="position:absolute;left:650.0px;top:355.0px;font-size:11px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:175px;text-align:center;">Objet entièrement<br>démontable</div>
+<div style="position:absolute;left:650.0px;top:385.0px;font-size:9px;color:#475569;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:175px;text-align:center;">REQ-1.6</div>
+<div style="position:absolute;left:835px;top:335px;width:175px;height:66px;background:#f5f3ff;border:1.4px solid #7c3aed;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:835.0px;top:341.0px;font-size:9.5px;color:#6d28d9;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:175px;text-align:center;font-style:italic;">«requirement»</div>
+<div style="position:absolute;left:835.0px;top:355.0px;font-size:11px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:175px;text-align:center;">Dimensions<br>maîtrisées</div>
+<div style="position:absolute;left:835.0px;top:385.0px;font-size:9px;color:#475569;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:175px;text-align:center;">socle 110×140, h.250mm / REQ-1.7</div>
+<div style="position:absolute;left:1020px;top:335px;width:175px;height:66px;background:#f5f3ff;border:1.4px solid #7c3aed;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:1020.0px;top:341.0px;font-size:9.5px;color:#6d28d9;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:175px;text-align:center;font-style:italic;">«requirement»</div>
+<div style="position:absolute;left:1020.0px;top:355.0px;font-size:11px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:175px;text-align:center;">Finitions<br>soignées</div>
+<div style="position:absolute;left:1020.0px;top:385.0px;font-size:9px;color:#475569;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:175px;text-align:center;">écrous borgnes / REQ-1.8</div>
+<div style="position:absolute;left:835px;top:415px;width:175px;height:66px;background:#f5f3ff;border:1.4px solid #7c3aed;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:835.0px;top:421.0px;font-size:9.5px;color:#6d28d9;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:175px;text-align:center;font-style:italic;">«requirement»</div>
+<div style="position:absolute;left:835.0px;top:435.0px;font-size:11px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:175px;text-align:center;">Compatibilité pièces<br>séparées</div>
+<div style="position:absolute;left:835.0px;top:465.0px;font-size:9px;color:#475569;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:175px;text-align:center;">socle, bois, batterie / REQ-1.9</div>
+<div style="position:absolute;left:305.0px;top:208.0px;width:212.0px;height:0;border-top:1.0px solid #475569;transform:rotate(158.70deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:305.0px;top:208.0px;width:77.0px;height:0;border-top:1.0px solid #475569;transform:rotate(88.14deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:305.0px;top:208.0px;width:216.6px;height:0;border-top:1.0px solid #475569;transform:rotate(20.82deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:305.0px;top:208.0px;width:275.4px;height:0;border-top:1.0px solid #475569;transform:rotate(135.81deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:305.0px;top:208.0px;width:192.0px;height:0;border-top:1.0px solid #475569;transform:rotate(89.25deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:301.0px;top:204.0px;width:8.0px;height:8.0px;background:#fff;border:1.3px solid #475569;border-radius:50%;z-index:2;box-sizing:border-box;"></div>
+<div style="position:absolute;left:955.0px;top:208.0px;width:251.9px;height:0;border-top:1.0px solid #475569;transform:rotate(149.72deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:955.0px;top:208.0px;width:131.1px;height:0;border-top:1.0px solid #475569;transform:rotate(104.35deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:955.0px;top:208.0px;width:198.5px;height:0;border-top:1.0px solid #475569;transform:rotate(39.79deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:955.0px;top:208.0px;width:209.5px;height:0;border-top:1.0px solid #475569;transform:rotate(98.92deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:951.0px;top:204.0px;width:8.0px;height:8.0px;background:#fff;border:1.3px solid #475569;border-radius:50%;z-index:2;box-sizing:border-box;"></div>
+<div style="position:absolute;left:15px;top:15px;width:170px;height:32px;background:#fefce8;border:1.4px solid #ca8a04;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:15.0px;top:26.0px;font-size:10.2px;color:#1e293b;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:170px;text-align:center;">UC3 Recharger la batterie</div>
+<div style="position:absolute;left:100.0px;top:47.0px;width:471.9px;height:0;border-top:1.2px dashed #ca8a04;transform:rotate(30.29deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:499.5px;top:280.2px;width:0;height:0;border-top:4.8px solid transparent;border-bottom:4.8px solid transparent;border-left:8.0px solid #ca8a04;transform-origin:8.0px 4.8px;transform:rotate(30.29deg);z-index:2;"></div>
+<div style="position:absolute;left:30.0px;top:155.0px;font-size:10.5px;color:#92400e;font-weight:400;z-index:6;text-align:left;white-space:nowrap;font-style:italic;">«refine»</div>
+<div style="position:absolute;left:1085px;top:15px;width:160px;height:32px;background:#ecfdf5;border:1.4px solid #059669;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:1085.0px;top:26.0px;font-size:9.5px;color:#1e293b;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:160px;text-align:center;">Bloc Module de Charge</div>
+<div style="position:absolute;left:1165.0px;top:47.0px;width:515.5px;height:0;border-top:1.2px dashed #059669;transform:rotate(146.03deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:729.5px;top:330.2px;width:0;height:0;border-top:4.8px solid transparent;border-bottom:4.8px solid transparent;border-left:8.0px solid #059669;transform-origin:8.0px 4.8px;transform:rotate(146.03deg);z-index:2;"></div>
+<div style="position:absolute;left:990.0px;top:150.0px;font-size:10.5px;color:#166534;font-weight:400;z-index:6;text-align:left;white-space:nowrap;font-style:italic;">«satisfy»</div>
+</div>
+  </div>
+  <details class="explain">
+    <summary>Lecture du diagramme + matrice de traçabilité complète</summary>
+    <div class="content">
+      <ul>
+        <li>Trait plein + petit cercle = relation de <b>containment</b> (décomposition de l'exigence parente).</li>
+        <li><span class="tag refine">refine</span> un cas d'utilisation précise une exigence fonctionnelle.</li>
+        <li><span class="tag satisfy">satisfy</span> un bloc matériel apporte la preuve qu'une exigence est techniquement satisfaite.</li>
+        <li>L'exigence REQ‑1.9 rappelle explicitement la compatibilité nécessaire avec les pièces à fabriquer ou commander séparément (socle, bois, batterie).</li>
+      </ul>
+      <table class="trace">
+        <tr><th>Élément source</th><th>Relation</th><th>Exigence cible</th></tr>
+        <tr><td>UC2 — Allumer / éteindre l'éclairage</td><td><span class="tag refine">refine</span></td><td>REQ‑1.2 Commande marche/arrêt</td></tr>
+        <tr><td>UC3 — Recharger la batterie</td><td><span class="tag refine">refine</span></td><td>REQ‑1.3 Recharge de la batterie</td></tr>
+        <tr><td>UC4 — Accéder aux éléments électriques</td><td><span class="tag refine">refine</span></td><td>REQ‑1.4 Accès aux éléments électriques</td></tr>
+        <tr><td>UC6 — Incliner la platine LED</td><td><span class="tag refine">refine</span></td><td>REQ‑1.5 Inclinaison de la platine</td></tr>
+        <tr><td>UC1 — Assembler la lampe</td><td><span class="tag refine">refine</span></td><td>REQ‑1.6 Objet entièrement démontable</td></tr>
+        <tr><td>Bloc Module de Charge USB-C</td><td><span class="tag satisfy">satisfy</span></td><td>REQ‑1.6 Démontable / assemblage</td></tr>
+      </table>
+    </div>
+  </details>
+</section>
+
+<section class="card" id="bdd">
+  <h2><span class="num">3</span>Diagramme de définition de blocs (BDD)</h2>
+  <div class="diagram-frame">
+<div style="position:relative;width:1230px;height:420px;font-family:'Segoe UI',Arial,sans-serif;">
+<div style="position:absolute;left:440px;top:10px;width:280px;height:80px;background:#dbeafe;border:1.4px solid #1e40af;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:440.0px;top:17.0px;font-size:8.5px;color:#1e40af;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:280px;text-align:center;font-style:italic;white-space:normal;">«block»</div>
+<div style="position:absolute;left:440.0px;top:28.0px;font-size:10px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:280px;text-align:center;white-space:normal;line-height:1.25;padding:0 3px;box-sizing:border-box;">Lampe de bureau didactique<br>(kit élec)</div>
+<div style="position:absolute;left:440.0px;top:60.0px;width:280.0px;height:0;border-top:1px solid #1e40af;transform:rotate(0.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:447.0px;top:68.0px;font-size:8.5px;color:#334155;font-weight:400;z-index:6;text-align:left;white-space:nowrap;width:266px;white-space:normal;line-height:1.25;">hauteur totale = 250 mm</div>
+<div style="position:absolute;left:447.0px;top:84.0px;font-size:8.5px;color:#334155;font-weight:400;z-index:6;text-align:left;white-space:nowrap;width:266px;white-space:normal;line-height:1.25;">socle 110×140 mm</div>
+<div style="position:absolute;left:5px;top:190px;width:155px;height:180px;background:#eff6ff;border:1.4px solid #2563eb;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:5.0px;top:197.0px;font-size:8.5px;color:#1e40af;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:155px;text-align:center;font-style:italic;white-space:normal;">«block»</div>
+<div style="position:absolute;left:5.0px;top:208.0px;font-size:10px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:155px;text-align:center;white-space:normal;line-height:1.25;padding:0 3px;box-sizing:border-box;">Bande LED</div>
+<div style="position:absolute;left:5.0px;top:224.0px;width:155.0px;height:0;border-top:1px solid #2563eb;transform:rotate(0.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:12.0px;top:232.0px;font-size:8.5px;color:#334155;font-weight:400;z-index:6;text-align:left;white-space:nowrap;width:141px;white-space:normal;line-height:1.25;">10 LED haute luminosité</div>
+<div style="position:absolute;left:170px;top:190px;width:155px;height:180px;background:#fdf4ff;border:1.4px solid #a855f7;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:170.0px;top:197.0px;font-size:8.5px;color:#7e22ce;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:155px;text-align:center;font-style:italic;white-space:normal;">«block»</div>
+<div style="position:absolute;left:170.0px;top:208.0px;font-size:10px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:155px;text-align:center;white-space:normal;line-height:1.25;padding:0 3px;box-sizing:border-box;">Platine<br>Inclinable</div>
+<div style="position:absolute;left:170.0px;top:240.0px;width:155.0px;height:0;border-top:1px solid #a855f7;transform:rotate(0.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:177.0px;top:248.0px;font-size:8.5px;color:#334155;font-weight:400;z-index:6;text-align:left;white-space:nowrap;width:141px;white-space:normal;line-height:1.25;">support de la bande LED</div>
+<div style="position:absolute;left:177.0px;top:264.0px;font-size:8.5px;color:#334155;font-weight:400;z-index:6;text-align:left;white-space:nowrap;width:141px;white-space:normal;line-height:1.25;">orientation réglable</div>
+<div style="position:absolute;left:335px;top:190px;width:155px;height:180px;background:#eff6ff;border:1.4px solid #2563eb;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:335.0px;top:197.0px;font-size:8.5px;color:#1e40af;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:155px;text-align:center;font-style:italic;white-space:normal;">«block»</div>
+<div style="position:absolute;left:335.0px;top:208.0px;font-size:10px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:155px;text-align:center;white-space:normal;line-height:1.25;padding:0 3px;box-sizing:border-box;">Bouton<br>Poussoir</div>
+<div style="position:absolute;left:335.0px;top:240.0px;width:155.0px;height:0;border-top:1px solid #2563eb;transform:rotate(0.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:342.0px;top:248.0px;font-size:8.5px;color:#334155;font-weight:400;z-index:6;text-align:left;white-space:nowrap;width:141px;white-space:normal;line-height:1.25;">commande marche/arrêt</div>
+<div style="position:absolute;left:500px;top:190px;width:155px;height:180px;background:#fff7ed;border:1.4px solid #ea580c;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:500.0px;top:197.0px;font-size:8.5px;color:#c2410c;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:155px;text-align:center;font-style:italic;white-space:normal;">«block»</div>
+<div style="position:absolute;left:500.0px;top:208.0px;font-size:10px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:155px;text-align:center;white-space:normal;line-height:1.25;padding:0 3px;box-sizing:border-box;">Module de<br>Charge USB-C</div>
+<div style="position:absolute;left:500.0px;top:240.0px;width:155.0px;height:0;border-top:1px solid #ea580c;transform:rotate(0.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:507.0px;top:248.0px;font-size:8.5px;color:#334155;font-weight:400;z-index:6;text-align:left;white-space:nowrap;width:141px;white-space:normal;line-height:1.25;">intégré</div>
+<div style="position:absolute;left:507.0px;top:264.0px;font-size:8.5px;color:#334155;font-weight:400;z-index:6;text-align:left;white-space:nowrap;width:141px;white-space:normal;line-height:1.25;">gestion de la recharge</div>
+<div style="position:absolute;left:665px;top:190px;width:155px;height:180px;background:#f0fdf4;border:1.4px solid #059669;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:665.0px;top:197.0px;font-size:8.5px;color:#065f46;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:155px;text-align:center;font-style:italic;white-space:normal;">«block»</div>
+<div style="position:absolute;left:665.0px;top:208.0px;font-size:10px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:155px;text-align:center;white-space:normal;line-height:1.25;padding:0 3px;box-sizing:border-box;">Support de<br>Batterie 18650</div>
+<div style="position:absolute;left:665.0px;top:240.0px;width:155.0px;height:0;border-top:1px solid #059669;transform:rotate(0.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:672.0px;top:248.0px;font-size:8.5px;color:#334155;font-weight:400;z-index:6;text-align:left;white-space:nowrap;width:141px;white-space:normal;line-height:1.25;">+ bande de maintien</div>
+<div style="position:absolute;left:672.0px;top:264.0px;font-size:8.5px;color:#334155;font-weight:400;z-index:6;text-align:left;white-space:nowrap;width:141px;white-space:normal;line-height:1.25;">accueille la batterie (séparée)</div>
+<div style="position:absolute;left:830px;top:190px;width:155px;height:180px;background:#eff6ff;border:1.4px solid #2563eb;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:830.0px;top:197.0px;font-size:8.5px;color:#1e40af;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:155px;text-align:center;font-style:italic;white-space:normal;">«block»</div>
+<div style="position:absolute;left:830.0px;top:208.0px;font-size:10px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:155px;text-align:center;white-space:normal;line-height:1.25;padding:0 3px;box-sizing:border-box;">Trappe<br>d'Accès</div>
+<div style="position:absolute;left:830.0px;top:240.0px;width:155.0px;height:0;border-top:1px solid #2563eb;transform:rotate(0.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:837.0px;top:248.0px;font-size:8.5px;color:#334155;font-weight:400;z-index:6;text-align:left;white-space:nowrap;width:141px;white-space:normal;line-height:1.25;">vissée sur inserts laiton</div>
+<div style="position:absolute;left:837.0px;top:264.0px;font-size:8.5px;color:#334155;font-weight:400;z-index:6;text-align:left;white-space:nowrap;width:141px;white-space:normal;line-height:1.25;">4 vis métriques</div>
+<div style="position:absolute;left:995px;top:190px;width:155px;height:180px;background:#f8fafc;border:1.4px solid #64748b;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:995.0px;top:197.0px;font-size:8.5px;color:#334155;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:155px;text-align:center;font-style:italic;white-space:normal;">«block»</div>
+<div style="position:absolute;left:995.0px;top:208.0px;font-size:10px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:155px;text-align:center;white-space:normal;line-height:1.25;padding:0 3px;box-sizing:border-box;">Câblage</div>
+<div style="position:absolute;left:995.0px;top:224.0px;width:155.0px;height:0;border-top:1px solid #64748b;transform:rotate(0.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:1002.0px;top:232.0px;font-size:8.5px;color:#334155;font-weight:400;z-index:6;text-align:left;white-space:nowrap;width:141px;white-space:normal;line-height:1.25;">fils et connecteurs</div>
+<div style="position:absolute;left:1002.0px;top:248.0px;font-size:8.5px;color:#334155;font-weight:400;z-index:6;text-align:left;white-space:nowrap;width:141px;white-space:normal;line-height:1.25;">quincaillerie / vis</div>
+<div style="position:absolute;left:1080px;top:10px;width:145px;height:60px;background:#fff;border:1.4px dashed #94a3b8;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:1080.0px;top:17.0px;font-size:8.5px;color:#475569;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:145px;text-align:center;font-style:italic;white-space:normal;">«block»</div>
+<div style="position:absolute;left:1080.0px;top:28.0px;font-size:10px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:145px;text-align:center;white-space:normal;line-height:1.25;padding:0 3px;box-sizing:border-box;">Socle PPEX</div>
+<div style="position:absolute;left:1080.0px;top:44.0px;width:145.0px;height:0;border-top:1px solid #94a3b8;transform:rotate(0.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:1087.0px;top:52.0px;font-size:8.5px;color:#334155;font-weight:400;z-index:6;text-align:left;white-space:nowrap;width:131px;white-space:normal;line-height:1.25;">6 pièces à usiner (hors kit)</div>
+<div style="position:absolute;left:915px;top:10px;width:155px;height:60px;background:#fff;border:1.4px dashed #94a3b8;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:915.0px;top:17.0px;font-size:8.5px;color:#475569;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:155px;text-align:center;font-style:italic;white-space:normal;">«block»</div>
+<div style="position:absolute;left:915.0px;top:28.0px;font-size:10px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:155px;text-align:center;white-space:normal;line-height:1.25;padding:0 3px;box-sizing:border-box;">Montants bois/MDF</div>
+<div style="position:absolute;left:915.0px;top:44.0px;width:155.0px;height:0;border-top:1px solid #94a3b8;transform:rotate(0.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:922.0px;top:52.0px;font-size:8.5px;color:#334155;font-weight:400;z-index:6;text-align:left;white-space:nowrap;width:141px;white-space:normal;line-height:1.25;">à découper laser (hors kit)</div>
+<div style="position:absolute;left:750px;top:10px;width:155px;height:60px;background:#fff;border:1.4px dashed #94a3b8;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:750.0px;top:17.0px;font-size:8.5px;color:#475569;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:155px;text-align:center;font-style:italic;white-space:normal;">«block»</div>
+<div style="position:absolute;left:750.0px;top:28.0px;font-size:10px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:155px;text-align:center;white-space:normal;line-height:1.25;padding:0 3px;box-sizing:border-box;">Batterie 18650</div>
+<div style="position:absolute;left:750.0px;top:44.0px;width:155.0px;height:0;border-top:1px solid #94a3b8;transform:rotate(0.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:757.0px;top:52.0px;font-size:8.5px;color:#334155;font-weight:400;z-index:6;text-align:left;white-space:nowrap;width:141px;white-space:normal;line-height:1.25;">PILE-18650-A (hors kit)</div>
+<div style="position:absolute;left:580.0px;top:90.0px;width:507.5px;height:0;border-top:1.1px solid #334155;transform:rotate(168.63deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:580.0px;top:90.0px;width:347.2px;height:0;border-top:1.1px solid #334155;transform:rotate(163.26deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:580.0px;top:90.0px;width:195.1px;height:0;border-top:1.1px solid #334155;transform:rotate(149.16deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:580.0px;top:90.0px;width:100.0px;height:0;border-top:1.1px solid #334155;transform:rotate(91.43deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:580.0px;top:90.0px;width:190.8px;height:0;border-top:1.1px solid #334155;transform:rotate(31.61deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:580.0px;top:90.0px;width:342.4px;height:0;border-top:1.1px solid #334155;transform:rotate(16.98deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:580.0px;top:90.0px;width:502.5px;height:0;border-top:1.1px solid #334155;transform:rotate(11.48deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:574.0px;top:85.8px;width:12px;height:8.4px;background:#334155;transform:rotate(45deg);z-index:2;"></div>
+<div style="position:absolute;left:750.0px;top:70.0px;width:120.2px;height:0;border-top:1.1px dashed #64748b;transform:rotate(93.58deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:1152.5px;top:70.0px;width:433.5px;height:0;border-top:1.1px dashed #64748b;transform:rotate(-176.03deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:992.5px;top:70.0px;width:272.5px;height:0;border-top:1.1px dashed #64748b;transform:rotate(-178.95deg);transform-origin:0 0;z-index:1;"></div>
+</div>
+  </div>
+  <details class="explain">
+    <summary>Lecture du diagramme</summary>
+    <div class="content">
+      <ul>
+        <li>Le losange plein indique une relation de <b>composition</b> : le kit électrique est constitué de 7 blocs (bande LED, platine inclinable, bouton poussoir, module de charge, support de batterie, trappe d'accès, câblage).</li>
+        <li>Les trois blocs à bordure <b>pointillée</b> (Socle PPEX, Montants bois/MDF, Batterie 18650) sont hors kit : reliés par une dépendance en pointillés, ils rappellent que ces pièces doivent être usinées, découpées ou commandées séparément pour obtenir la lampe complète.</li>
+      </ul>
+    </div>
+  </details>
+</section>
+
+<section class="card" id="ibd">
+  <h2><span class="num">4</span>Diagramme de blocs internes (IBD)</h2>
+  <div class="diagram-frame">
+<div style="position:relative;width:1200px;height:580px;font-family:'Segoe UI',Arial,sans-serif;">
+<div style="position:absolute;left:20px;top:20px;width:1160px;height:540px;border:1.4px dashed #334155;border-radius:6px;background:#fbfdff;z-index:0;"></div>
+<div style="position:absolute;left:35.0px;top:28.0px;font-size:12px;color:#334155;font-weight:400;z-index:6;text-align:left;white-space:nowrap;font-style:italic;">«ibd» Lampe de bureau didactique : Bloc</div>
+<div style="position:absolute;left:500px;top:240px;width:200px;height:100px;background:#f0fdf4;border:1.4px solid #059669;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:500.0px;top:282.0px;font-size:12px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:200px;text-align:center;">Support de<br>Batterie 18650</div>
+<div style="position:absolute;left:500.0px;top:298.0px;font-size:9.5px;color:#065f46;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:200px;text-align:center;">: pile 3,7V</div>
+<div style="position:absolute;left:70px;top:60px;width:200px;height:90px;background:#eff6ff;border:1.4px solid #2563eb;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:70.0px;top:97.0px;font-size:12px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:200px;text-align:center;">Bouton<br>Poussoir</div>
+<div style="position:absolute;left:930px;top:60px;width:200px;height:90px;background:#fdf4ff;border:1.4px solid #a855f7;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:930.0px;top:97.0px;font-size:12px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:200px;text-align:center;">Platine Inclinable<br>(Bande LED)</div>
+<div style="position:absolute;left:70px;top:260px;width:200px;height:90px;background:#fff7ed;border:1.4px solid #ea580c;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:70.0px;top:297.0px;font-size:12px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:200px;text-align:center;">Module de<br>Charge USB-C</div>
+<div style="position:absolute;left:930px;top:260px;width:200px;height:90px;background:#eff6ff;border:1.4px solid #2563eb;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:930.0px;top:297.0px;font-size:12px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:200px;text-align:center;">Trappe<br>d'Accès</div>
+<div style="position:absolute;left:265px;top:130px;width:10px;height:10px;background:#fff;border:1.2px solid #334155;z-index:2;"></div>
+<div style="position:absolute;left:495px;top:265px;width:10px;height:10px;background:#fff;border:1.2px solid #334155;z-index:2;"></div>
+<div style="position:absolute;left:270.0px;top:135.0px;width:266.7px;height:0;border-top:1.5px solid #1e40af;transform:rotate(30.41deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:492.0px;top:265.2px;width:0;height:0;border-top:4.8px solid transparent;border-bottom:4.8px solid transparent;border-left:8.0px solid #1e40af;transform-origin:8.0px 4.8px;transform:rotate(30.41deg);z-index:2;"></div>
+<div style="position:absolute;left:310.0px;top:188.5px;font-size:9.8px;color:#1e40af;font-weight:400;z-index:6;text-align:left;white-space:nowrap;width:190px;">commande marche / arrêt</div>
+<div style="position:absolute;left:925px;top:130px;width:10px;height:10px;background:#fff;border:1.2px solid #334155;z-index:2;"></div>
+<div style="position:absolute;left:695px;top:265px;width:10px;height:10px;background:#fff;border:1.2px solid #334155;z-index:2;"></div>
+<div style="position:absolute;left:930.0px;top:135.0px;width:266.7px;height:0;border-top:1.5px solid #1e40af;transform:rotate(149.59deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:692.0px;top:265.2px;width:0;height:0;border-top:4.8px solid transparent;border-bottom:4.8px solid transparent;border-left:8.0px solid #1e40af;transform-origin:8.0px 4.8px;transform:rotate(149.59deg);z-index:2;"></div>
+<div style="position:absolute;left:740.0px;top:188.5px;font-size:9.8px;color:#1e40af;font-weight:400;z-index:6;text-align:left;white-space:nowrap;width:190px;">alimentation commandée</div>
+<div style="position:absolute;left:265px;top:295px;width:10px;height:10px;background:#fff;border:1.2px solid #334155;z-index:2;"></div>
+<div style="position:absolute;left:495px;top:295px;width:10px;height:10px;background:#fff;border:1.2px solid #334155;z-index:2;"></div>
+<div style="position:absolute;left:270.0px;top:300.0px;width:230.0px;height:0;border-top:1.5px solid #1e40af;transform:rotate(0.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:492.0px;top:295.2px;width:0;height:0;border-top:4.8px solid transparent;border-bottom:4.8px solid transparent;border-left:8.0px solid #1e40af;transform-origin:8.0px 4.8px;transform:rotate(0.00deg);z-index:2;"></div>
+<div style="position:absolute;left:310.0px;top:286.0px;font-size:9.8px;color:#1e40af;font-weight:400;z-index:6;text-align:left;white-space:nowrap;width:190px;">courant de charge</div>
+<div style="position:absolute;left:925px;top:295px;width:10px;height:10px;background:#fff;border:1.2px solid #334155;z-index:2;"></div>
+<div style="position:absolute;left:695px;top:315px;width:10px;height:10px;background:#fff;border:1.2px solid #334155;z-index:2;"></div>
+<div style="position:absolute;left:930.0px;top:300.0px;width:230.9px;height:0;border-top:1.5px dashed #64748b;transform:rotate(175.03deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:692.0px;top:315.2px;width:0;height:0;border-top:4.8px solid transparent;border-bottom:4.8px solid transparent;border-left:8.0px solid #64748b;transform-origin:8.0px 4.8px;transform:rotate(175.03deg);z-index:2;"></div>
+<div style="position:absolute;left:740.0px;top:296.0px;font-size:9.8px;color:#64748b;font-weight:400;z-index:6;text-align:left;white-space:nowrap;width:190px;">accès physique / maintenance</div>
+</div>
+  </div>
+  <details class="explain">
+    <summary>Lecture du diagramme</summary>
+    <div class="content">
+      <ul>
+        <li>Les petits carrés représentent les <b>ports</b> par lesquels les blocs échangent des flux (item flows).</li>
+        <li>Les flèches pleines bleues = <b>flux électrique</b> (commande marche/arrêt, alimentation de la platine LED, courant de charge).</li>
+        <li>La flèche grise en pointillés vers la Trappe d'Accès représente un <b>flux mécanique</b> (accès physique pour maintenance, remplacement de la batterie).</li>
+        <li>Le Support de Batterie 18650 est le bloc central : il alimente le circuit via le bouton poussoir et reçoit le courant de charge du module USB-C.</li>
+      </ul>
+    </div>
+  </details>
+</section>
+
+<section class="card" id="seq">
+  <h2><span class="num">5</span>Diagramme de séquence</h2>
+  <p style="margin:2px 0 8px 0;color:var(--muted);font-size:13.5px;">Scénario : l'utilisateur allume la lampe, incline la platine LED, puis recharge la batterie.</p>
+  <div class="diagram-frame">
+<div style="position:relative;width:1200px;height:560px;font-family:'Segoe UI',Arial,sans-serif;">
+<div style="position:absolute;left:25px;top:50px;width:130px;height:40px;background:#f1f5f9;border:1.4px solid #334155;border-radius:4px;z-index:2;box-sizing:border-box;"></div>
+<div style="position:absolute;left:25px;top:56px;width:130px;text-align:center;font-size:11px;font-weight:600;z-index:6;line-height:1.2;">Utilisateur</div>
+<div style="position:absolute;left:90.0px;top:90.0px;width:430.0px;height:0;border-top:1.2px dashed #94a3b8;transform:rotate(90.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:225px;top:50px;width:130px;height:40px;background:#eff6ff;border:1.4px solid #2563eb;border-radius:4px;z-index:2;box-sizing:border-box;"></div>
+<div style="position:absolute;left:225px;top:56px;width:130px;text-align:center;font-size:11px;font-weight:600;z-index:6;line-height:1.2;">:Bouton<br>Poussoir</div>
+<div style="position:absolute;left:290.0px;top:90.0px;width:430.0px;height:0;border-top:1.2px dashed #94a3b8;transform:rotate(90.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:445px;top:50px;width:130px;height:40px;background:#f0fdf4;border:1.4px solid #059669;border-radius:4px;z-index:2;box-sizing:border-box;"></div>
+<div style="position:absolute;left:445px;top:56px;width:130px;text-align:center;font-size:11px;font-weight:600;z-index:6;line-height:1.2;">:Support de<br>Batterie</div>
+<div style="position:absolute;left:510.0px;top:90.0px;width:430.0px;height:0;border-top:1.2px dashed #94a3b8;transform:rotate(90.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:695px;top:50px;width:130px;height:40px;background:#fdf4ff;border:1.4px solid #a855f7;border-radius:4px;z-index:2;box-sizing:border-box;"></div>
+<div style="position:absolute;left:695px;top:56px;width:130px;text-align:center;font-size:11px;font-weight:600;z-index:6;line-height:1.2;">:Platine LED</div>
+<div style="position:absolute;left:760.0px;top:90.0px;width:430.0px;height:0;border-top:1.2px dashed #94a3b8;transform:rotate(90.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:925px;top:50px;width:130px;height:40px;background:#fff7ed;border:1.4px solid #ea580c;border-radius:4px;z-index:2;box-sizing:border-box;"></div>
+<div style="position:absolute;left:925px;top:56px;width:130px;text-align:center;font-size:11px;font-weight:600;z-index:6;line-height:1.2;">:Module de<br>Charge</div>
+<div style="position:absolute;left:990.0px;top:90.0px;width:430.0px;height:0;border-top:1.2px dashed #94a3b8;transform:rotate(90.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:285px;top:95px;width:10px;height:145px;background:#dbeafe;border:1.4px solid #2563eb;border-radius:0px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:90.0px;top:100.0px;width:200.0px;height:0;border-top:1.3px solid #1e293b;transform:rotate(0.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:282.0px;top:95.2px;width:0;height:0;border-top:4.8px solid transparent;border-bottom:4.8px solid transparent;border-left:8.0px solid #1e293b;transform-origin:8.0px 4.8px;transform:rotate(0.00deg);z-index:2;"></div>
+<div style="position:absolute;left:98.0px;top:84.0px;font-size:10.6px;color:#1e293b;font-weight:400;z-index:6;text-align:left;white-space:nowrap;">1: appuyerMarcheArrêt()</div>
+<div style="position:absolute;left:290.0px;top:140.0px;width:220.0px;height:0;border-top:1.3px solid #1e293b;transform:rotate(0.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:502.0px;top:135.2px;width:0;height:0;border-top:4.8px solid transparent;border-bottom:4.8px solid transparent;border-left:8.0px solid #1e293b;transform-origin:8.0px 4.8px;transform:rotate(0.00deg);z-index:2;"></div>
+<div style="position:absolute;left:298.0px;top:124.0px;font-size:10.6px;color:#1e293b;font-weight:400;z-index:6;text-align:left;white-space:nowrap;">2: demanderAlimentation()</div>
+<div style="position:absolute;left:510.0px;top:175.0px;width:220.0px;height:0;border-top:1.3px dashed #64748b;transform:rotate(180.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:282.0px;top:170.2px;width:0;height:0;border-top:4.4px solid transparent;border-bottom:4.4px solid transparent;border-left:8.0px solid #64748b;opacity:.85;transform-origin:8.0px 4.4px;transform:rotate(180.00deg);z-index:2;"></div>
+<div style="position:absolute;left:298.0px;top:159.0px;font-size:10.6px;color:#1e293b;font-weight:400;z-index:6;text-align:left;white-space:nowrap;">3: tensionDisponible()</div>
+<div style="position:absolute;left:290.0px;top:215.0px;width:470.0px;height:0;border-top:1.3px solid #1e293b;transform:rotate(0.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:752.0px;top:210.2px;width:0;height:0;border-top:4.8px solid transparent;border-bottom:4.8px solid transparent;border-left:8.0px solid #1e293b;transform-origin:8.0px 4.8px;transform:rotate(0.00deg);z-index:2;"></div>
+<div style="position:absolute;left:298.0px;top:199.0px;font-size:10.6px;color:#1e293b;font-weight:400;z-index:6;text-align:left;white-space:nowrap;">4: alimenter()</div>
+<div style="position:absolute;left:760.0px;top:255.0px;width:670.0px;height:0;border-top:1.3px dashed #64748b;transform:rotate(180.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:82.0px;top:250.2px;width:0;height:0;border-top:4.4px solid transparent;border-bottom:4.4px solid transparent;border-left:8.0px solid #64748b;opacity:.85;transform-origin:8.0px 4.4px;transform:rotate(180.00deg);z-index:2;"></div>
+<div style="position:absolute;left:98.0px;top:239.0px;font-size:10.6px;color:#1e293b;font-weight:400;z-index:6;text-align:left;white-space:nowrap;">5: émettreLumière()</div>
+<div style="position:absolute;left:90.0px;top:295.0px;width:670.0px;height:0;border-top:1.3px solid #1e293b;transform:rotate(0.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:752.0px;top:290.2px;width:0;height:0;border-top:4.8px solid transparent;border-bottom:4.8px solid transparent;border-left:8.0px solid #1e293b;transform-origin:8.0px 4.8px;transform:rotate(0.00deg);z-index:2;"></div>
+<div style="position:absolute;left:98.0px;top:279.0px;font-size:10.6px;color:#1e293b;font-weight:400;z-index:6;text-align:left;white-space:nowrap;">6: inclinerPlatine(angle)</div>
+<div style="position:absolute;left:90.0px;top:335.0px;width:900.0px;height:0;border-top:1.3px solid #1e293b;transform:rotate(0.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:982.0px;top:330.2px;width:0;height:0;border-top:4.8px solid transparent;border-bottom:4.8px solid transparent;border-left:8.0px solid #1e293b;transform-origin:8.0px 4.8px;transform:rotate(0.00deg);z-index:2;"></div>
+<div style="position:absolute;left:98.0px;top:319.0px;font-size:10.6px;color:#1e293b;font-weight:400;z-index:6;text-align:left;white-space:nowrap;">7: connecterCâbleUSB-C()</div>
+<div style="position:absolute;left:990.0px;top:375.0px;width:480.0px;height:0;border-top:1.3px solid #1e293b;transform:rotate(180.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:502.0px;top:370.2px;width:0;height:0;border-top:4.8px solid transparent;border-bottom:4.8px solid transparent;border-left:8.0px solid #1e293b;transform-origin:8.0px 4.8px;transform:rotate(180.00deg);z-index:2;"></div>
+<div style="position:absolute;left:518.0px;top:359.0px;font-size:10.6px;color:#1e293b;font-weight:400;z-index:6;text-align:left;white-space:nowrap;">8: chargerBatterie()</div>
+<div style="position:absolute;left:510.0px;top:410.0px;width:480.0px;height:0;border-top:1.3px dashed #64748b;transform:rotate(0.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:982.0px;top:405.2px;width:0;height:0;border-top:4.4px solid transparent;border-bottom:4.4px solid transparent;border-left:8.0px solid #64748b;opacity:.85;transform-origin:8.0px 4.4px;transform:rotate(0.00deg);z-index:2;"></div>
+<div style="position:absolute;left:518.0px;top:394.0px;font-size:10.6px;color:#1e293b;font-weight:400;z-index:6;text-align:left;white-space:nowrap;">9: niveauDeCharge()</div>
+<div style="position:absolute;left:990.0px;top:445.0px;width:900.0px;height:0;border-top:1.3px dashed #64748b;transform:rotate(180.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:82.0px;top:440.2px;width:0;height:0;border-top:4.4px solid transparent;border-bottom:4.4px solid transparent;border-left:8.0px solid #64748b;opacity:.85;transform-origin:8.0px 4.4px;transform:rotate(180.00deg);z-index:2;"></div>
+<div style="position:absolute;left:98.0px;top:429.0px;font-size:10.6px;color:#1e293b;font-weight:400;z-index:6;text-align:left;white-space:nowrap;">10: batterieChargée()</div>
+</div>
+  </div>
+  <details class="explain">
+    <summary>Lecture du diagramme</summary>
+    <div class="content">
+      <ul>
+        <li>Flèches pleines = <b>appels synchrones</b> ; flèches pointillées = <b>messages de retour</b> ou actions physiques perçues par l'utilisateur.</li>
+        <li>Le Module de Charge et le Bouton Poussoir agissent indépendamment sur le Support de Batterie : on peut recharger la lampe tout en l'utilisant.</li>
+        <li>Le message 6 (inclinaison de la platine) est une action manuelle directe de l'utilisateur sur l'objet, illustrant le caractère mécanique et pédagogique du kit.</li>
+      </ul>
+    </div>
+  </details>
+</section>
+
+</div>
+<footer>Document réalisé à partir des caractéristiques techniques publiques de la lampe de bureau didactique — kit de pièces élec, version batterie (réf. LPBUR-KBAT) — version 100% HTML/CSS.</footer>
+<a href="../index.html" style="position:fixed;bottom:16px;left:16px;z-index:99999;background:#1e3a5f;color:#fff;padding:10px 16px;border-radius:24px;font:600 14px system-ui,sans-serif;text-decoration:none;box-shadow:0 2px 8px rgba(0,0,0,.25)">← Sommaire</a></body>
+</html>

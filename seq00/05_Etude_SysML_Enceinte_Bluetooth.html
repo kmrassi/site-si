@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Analyse SysML — Kit Enceinte Bluetooth avec Module de Charge</title>
+
+<style>
+  :root{
+    --primary:#2563eb; --primary-dark:#1e40af; --primary-light:#eff6ff;
+    --accent:#7c3aed; --accent-light:#f5f3ff; --ink:#1e293b; --muted:#64748b;
+    --bg:#f8fafc; --card:#ffffff; --border:#dbe2ea; --good:#059669;
+  }
+  *{box-sizing:border-box;}
+  body{font-family:"Segoe UI", Roboto, Arial, sans-serif;background:var(--bg);color:var(--ink);margin:0;padding:0 0 60px 0;line-height:1.5;}
+  header.page{background:linear-gradient(135deg,#4c1d95,#7c3aed,#2563eb);color:white;padding:34px 40px;}
+  header.page h1{margin:0 0 6px 0;font-size:26px;}
+  header.page p{margin:0;opacity:.9;font-size:14.5px;}
+  .wrap{max-width:1220px;margin:0 auto;padding:0 24px;}
+  .badges{margin-top:14px;display:flex;gap:8px;flex-wrap:wrap;}
+  .badge{background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.35);padding:4px 12px;border-radius:20px;font-size:12.5px;}
+  section.card{background:var(--card);border:1px solid var(--border);border-radius:14px;margin:28px 0;padding:26px 28px 20px 28px;box-shadow:0 1px 3px rgba(15,23,42,.05);}
+  section.card h2{margin-top:0;color:var(--primary-dark);font-size:20px;border-bottom:2px solid var(--primary-light);padding-bottom:10px;display:flex;align-items:center;gap:10px;}
+  .num{background:var(--primary);color:white;border-radius:8px;width:30px;height:30px;display:inline-flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;}
+  .diagram-frame{background:#fbfdff;border:1px solid var(--border);border-radius:10px;padding:14px;overflow-x:auto;margin:14px 0;}
+  details.explain{margin-top:10px;border:1px solid var(--border);border-radius:10px;background:var(--primary-light);}
+  details.explain summary{cursor:pointer;padding:10px 16px;font-weight:600;color:var(--primary-dark);list-style:none;}
+  details.explain summary::-webkit-details-marker{display:none;}
+  details.explain summary::before{content:"▸ ";}
+  details.explain[open] summary::before{content:"▾ ";}
+  details.explain .content{padding:0 18px 16px 18px;font-size:14.5px;}
+  details.explain ul{margin:6px 0;padding-left:20px;}
+  table.trace{width:100%;border-collapse:collapse;margin-top:10px;font-size:13.5px;}
+  table.trace th{background:var(--accent-light);color:var(--accent);text-align:left;padding:8px 10px;border:1px solid var(--border);}
+  table.trace td{padding:8px 10px;border:1px solid var(--border);}
+  table.trace tr:nth-child(even){background:#fafbff;}
+  .tag{display:inline-block;padding:1px 8px;border-radius:10px;font-size:11.5px;font-weight:600;}
+  .tag.refine{background:#fef3c7;color:#92400e;}
+  .tag.satisfy{background:#dcfce7;color:#166534;}
+  .tag.include{background:#dbeafe;color:#1e40af;}
+  .tag.extend{background:#fae8ff;color:#86198f;}
+  .toc{display:flex;flex-wrap:wrap;gap:10px;margin:18px 0 0 0;}
+  .toc a{background:var(--primary-light);color:var(--primary-dark);padding:6px 14px;border-radius:20px;font-size:13px;text-decoration:none;font-weight:600;}
+  footer{text-align:center;color:var(--muted);font-size:12.5px;margin-top:30px;}
+  @media print{
+    body{padding:0;}
+    section.card{page-break-before:always;box-shadow:none;border:none;margin:0;padding:18px 4px;}
+    header.page{page-break-after:avoid;}
+    .toc{display:none;}
+    details.explain{border:1px solid #ccc;}
+  }
+</style>
+
+</head>
+<body>
+
+<header class="page">
+  <div class="wrap">
+    <h1>Modélisation SysML — Kit Enceinte Bluetooth avec Module de Charge</h1>
+    <p>Diagramme des cas d'utilisation · Diagramme d'exigences · Diagramme de blocs (BDD) · Diagramme de blocs internes (IBD) · Diagramme de séquence</p>
+    <p style="margin-top:8px;font-size:12.5px;opacity:.85;">Version 100% HTML/CSS — aucun SVG, aucune image. Réf. K-ENCEINT-BT-CH.</p>
+    <div class="badges">
+      <span class="badge">Haut-parleur D80 — 5 W / 4 Ω</span>
+      <span class="badge">Amplificateur Bluetooth</span>
+      <span class="badge">Charge USB-C</span>
+      <span class="badge">Batterie 18650 (séparée)</span>
+      <span class="badge">Boîtier MDF (séparé)</span>
+    </div>
+    <div class="toc">
+      <a href="#uc" onclick="event.preventDefault();document.getElementById('uc').scrollIntoView({behavior:'smooth'});">① Cas d'utilisation</a>
+      <a href="#req" onclick="event.preventDefault();document.getElementById('req').scrollIntoView({behavior:'smooth'});">② Exigences</a>
+      <a href="#bdd" onclick="event.preventDefault();document.getElementById('bdd').scrollIntoView({behavior:'smooth'});">③ Blocs (BDD)</a>
+      <a href="#ibd" onclick="event.preventDefault();document.getElementById('ibd').scrollIntoView({behavior:'smooth'});">④ Blocs internes (IBD)</a>
+      <a href="#seq" onclick="event.preventDefault();document.getElementById('seq').scrollIntoView({behavior:'smooth'});">⑤ Séquence</a>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+<section class="card" id="uc">
+  <h2><span class="num">1</span>Diagramme des cas d'utilisation</h2>
+  <div class="diagram-frame">
+<div style="position:relative;width:1000px;height:620px;font-family:'Segoe UI',Arial,sans-serif;">
+<div style="position:absolute;left:255px;top:35px;width:490px;height:440px;background:#f8fafc;border:1.4px solid #2563eb;border-radius:6px;z-index:0;box-sizing:border-box;"></div>
+<div style="position:absolute;left:275.0px;top:44.0px;font-size:12px;color:#1e40af;font-weight:700;z-index:6;text-align:left;white-space:nowrap;">«system» Enceinte Bluetooth avec Module de Charge</div>
+<div style="position:absolute;left:350.0px;top:68.0px;width:300.0px;height:64.0px;background:#eff6ff;border:1.4px solid #2563eb;border-radius:50%;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:350px;top:68px;width:300px;height:64px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:12px;color:#1e293b;z-index:6;line-height:1.25;">Allumer / éteindre<br>l'enceinte</div>
+<div style="position:absolute;left:350.0px;top:148.0px;width:300.0px;height:64.0px;background:#eff6ff;border:1.4px solid #2563eb;border-radius:50%;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:350px;top:148px;width:300px;height:64px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:12px;color:#1e293b;z-index:6;line-height:1.25;">Appairer un appareil<br>en Bluetooth</div>
+<div style="position:absolute;left:350.0px;top:230.0px;width:300.0px;height:60.0px;background:#eff6ff;border:1.4px solid #2563eb;border-radius:50%;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:350px;top:230px;width:300px;height:60px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:12px;color:#1e293b;z-index:6;line-height:1.25;">Diffuser<br>du son</div>
+<div style="position:absolute;left:350.0px;top:310.0px;width:300.0px;height:60.0px;background:#eff6ff;border:1.4px solid #2563eb;border-radius:50%;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:350px;top:310px;width:300px;height:60px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:12px;color:#1e293b;z-index:6;line-height:1.25;">Recharger<br>la batterie</div>
+<div style="position:absolute;left:350.0px;top:388.0px;width:300.0px;height:64.0px;background:#fdf4ff;border:1.4px solid #a855f7;border-radius:50%;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:350px;top:388px;width:300px;height:64px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:12px;color:#1e293b;z-index:6;line-height:1.25;">Visualiser l'état<br>de charge</div>
+<div style="position:absolute;left:64.0px;top:235.0px;width:22.0px;height:22.0px;background:#fff;border:2px solid #1e293b;border-radius:50%;z-index:3;box-sizing:border-box;"></div><div style="position:absolute;left:75.0px;top:257.0px;width:38.0px;height:0;border-top:2px solid #1e293b;transform:rotate(90.00deg);transform-origin:0 0;z-index:3;"></div><div style="position:absolute;left:59.0px;top:273.0px;width:32.0px;height:0;border-top:2px solid #1e293b;transform:rotate(0.00deg);transform-origin:0 0;z-index:3;"></div><div style="position:absolute;left:75.0px;top:295.0px;width:31.3px;height:0;border-top:2px solid #1e293b;transform:rotate(116.57deg);transform-origin:0 0;z-index:3;"></div><div style="position:absolute;left:75.0px;top:295.0px;width:31.3px;height:0;border-top:2px solid #1e293b;transform:rotate(63.43deg);transform-origin:0 0;z-index:3;"></div><div style="position:absolute;left:5.0px;top:331.0px;font-size:12.5px;color:#1e293b;font-weight:600;z-index:6;text-align:center;white-space:nowrap;width:140px;text-align:center;">Utilisateur</div>
+<div style="position:absolute;left:919.0px;top:80.0px;width:22.0px;height:22.0px;background:#fff;border:2px solid #1e293b;border-radius:50%;z-index:3;box-sizing:border-box;"></div><div style="position:absolute;left:930.0px;top:102.0px;width:38.0px;height:0;border-top:2px solid #1e293b;transform:rotate(90.00deg);transform-origin:0 0;z-index:3;"></div><div style="position:absolute;left:914.0px;top:118.0px;width:32.0px;height:0;border-top:2px solid #1e293b;transform:rotate(0.00deg);transform-origin:0 0;z-index:3;"></div><div style="position:absolute;left:930.0px;top:140.0px;width:31.3px;height:0;border-top:2px solid #1e293b;transform:rotate(116.57deg);transform-origin:0 0;z-index:3;"></div><div style="position:absolute;left:930.0px;top:140.0px;width:31.3px;height:0;border-top:2px solid #1e293b;transform:rotate(63.43deg);transform-origin:0 0;z-index:3;"></div><div style="position:absolute;left:860.0px;top:176.0px;font-size:12.5px;color:#1e293b;font-weight:600;z-index:6;text-align:center;white-space:nowrap;width:140px;text-align:center;">Smartphone /<br>source Bluetooth</div>
+<div style="position:absolute;left:919.0px;top:320.0px;width:22.0px;height:22.0px;background:#fff;border:2px solid #1e293b;border-radius:50%;z-index:3;box-sizing:border-box;"></div><div style="position:absolute;left:930.0px;top:342.0px;width:38.0px;height:0;border-top:2px solid #1e293b;transform:rotate(90.00deg);transform-origin:0 0;z-index:3;"></div><div style="position:absolute;left:914.0px;top:358.0px;width:32.0px;height:0;border-top:2px solid #1e293b;transform:rotate(0.00deg);transform-origin:0 0;z-index:3;"></div><div style="position:absolute;left:930.0px;top:380.0px;width:31.3px;height:0;border-top:2px solid #1e293b;transform:rotate(116.57deg);transform-origin:0 0;z-index:3;"></div><div style="position:absolute;left:930.0px;top:380.0px;width:31.3px;height:0;border-top:2px solid #1e293b;transform:rotate(63.43deg);transform-origin:0 0;z-index:3;"></div><div style="position:absolute;left:860.0px;top:416.0px;font-size:12.5px;color:#1e293b;font-weight:600;z-index:6;text-align:center;white-space:nowrap;width:140px;text-align:center;">Port USB-C /<br>secteur</div>
+<div style="position:absolute;left:64.0px;top:480.0px;width:22.0px;height:22.0px;background:#fff;border:2px solid #1e293b;border-radius:50%;z-index:3;box-sizing:border-box;"></div><div style="position:absolute;left:75.0px;top:502.0px;width:38.0px;height:0;border-top:2px solid #1e293b;transform:rotate(90.00deg);transform-origin:0 0;z-index:3;"></div><div style="position:absolute;left:59.0px;top:518.0px;width:32.0px;height:0;border-top:2px solid #1e293b;transform:rotate(0.00deg);transform-origin:0 0;z-index:3;"></div><div style="position:absolute;left:75.0px;top:540.0px;width:31.3px;height:0;border-top:2px solid #1e293b;transform:rotate(116.57deg);transform-origin:0 0;z-index:3;"></div><div style="position:absolute;left:75.0px;top:540.0px;width:31.3px;height:0;border-top:2px solid #1e293b;transform:rotate(63.43deg);transform-origin:0 0;z-index:3;"></div><div style="position:absolute;left:5.0px;top:576.0px;font-size:12.5px;color:#1e293b;font-weight:600;z-index:6;text-align:center;white-space:nowrap;width:140px;text-align:center;">Batterie 18650<br>(commandée séparément)</div>
+<div style="position:absolute;left:120.0px;top:260.0px;width:280.2px;height:0;border-top:1.2px solid #475569;transform:rotate(-34.82deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:120.0px;top:260.0px;width:243.5px;height:0;border-top:1.2px solid #475569;transform:rotate(-19.18deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:895.0px;top:90.0px;width:261.0px;height:0;border-top:1.2px solid #475569;transform:rotate(159.83deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:895.0px;top:330.0px;width:245.2px;height:0;border-top:1.2px solid #475569;transform:rotate(177.66deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:120.0px;top:490.0px;width:269.3px;height:0;border-top:1.2px solid #475569;transform:rotate(-31.33deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:500.0px;top:148.0px;width:16.0px;height:0;border-top:1.3px dashed #1e40af;transform:rotate(-90.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:492.0px;top:127.2px;width:0;height:0;border-top:4.8px solid transparent;border-bottom:4.8px solid transparent;border-left:8.0px solid #1e40af;transform-origin:8.0px 4.8px;transform:rotate(-90.00deg);z-index:2;"></div>
+<div style="position:absolute;left:510.0px;top:134.0px;font-size:11px;color:#1e40af;font-weight:400;z-index:6;text-align:left;white-space:nowrap;font-style:italic;">«include»</div>
+<div style="position:absolute;left:500.0px;top:230.0px;width:18.0px;height:0;border-top:1.3px dashed #1e40af;transform:rotate(-90.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:492.0px;top:207.2px;width:0;height:0;border-top:4.8px solid transparent;border-bottom:4.8px solid transparent;border-left:8.0px solid #1e40af;transform-origin:8.0px 4.8px;transform:rotate(-90.00deg);z-index:2;"></div>
+<div style="position:absolute;left:510.0px;top:215.0px;font-size:11px;color:#1e40af;font-weight:400;z-index:6;text-align:left;white-space:nowrap;font-style:italic;">«include»</div>
+<div style="position:absolute;left:650.0px;top:420.0px;width:55.0px;height:0;border-top:1.3px dashed #a855f7;transform:rotate(0.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:705.0px;top:420.0px;width:80.0px;height:0;border-top:1.3px dashed #a855f7;transform:rotate(-90.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:705.0px;top:340.0px;width:55.0px;height:0;border-top:1.3px dashed #a855f7;transform:rotate(180.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:642.0px;top:335.2px;width:0;height:0;border-top:4.8px solid transparent;border-bottom:4.8px solid transparent;border-left:8.0px solid #7e22ce;transform-origin:8.0px 4.8px;transform:rotate(180.00deg);z-index:2;"></div>
+<div style="position:absolute;left:713.0px;top:364.0px;font-size:11px;color:#7e22ce;font-weight:400;z-index:6;text-align:left;white-space:nowrap;font-style:italic;">«extend»</div>
+<div style="position:absolute;left:713.0px;top:380.0px;font-size:9.5px;color:#7e22ce;font-weight:400;z-index:6;text-align:left;white-space:nowrap;font-style:italic;">(pt d'extension :</div>
+<div style="position:absolute;left:713.0px;top:392.0px;font-size:9.5px;color:#7e22ce;font-weight:400;z-index:6;text-align:left;white-space:nowrap;font-style:italic;">pendant la charge)</div>
+</div>
+  </div>
+  <details class="explain">
+    <summary>Lecture du diagramme</summary>
+    <div class="content">
+      <ul>
+        <li><b>Acteur humain</b> (Utilisateur) à gauche : il allume l'enceinte, l'appaire et recharge la batterie.</li>
+        <li><b>Acteurs de l'environnement</b> à droite/en bas : le Smartphone (source audio Bluetooth), le Port USB-C/secteur, et la Batterie 18650 — commandée séparément (réf. PILE-18650-A), indispensable au fonctionnement mais hors kit.</li>
+        <li><span class="tag include">include</span> « Appairer un appareil » inclut « Allumer l'enceinte » ; « Diffuser du son » inclut « Appairer un appareil » : la chaîne de dépendance reflète l'ordre d'usage réel.</li>
+        <li><span class="tag extend">extend</span> « Visualiser l'état de charge » étend « Recharger la batterie », avec pour point d'extension le moment où la charge est en cours (témoins lumineux actifs).</li>
+      </ul>
+    </div>
+  </details>
+</section>
+
+<section class="card" id="req">
+  <h2><span class="num">2</span>Diagramme d'exigences</h2>
+  <div class="diagram-frame">
+<div style="position:relative;width:1260px;height:500px;font-family:'Segoe UI',Arial,sans-serif;">
+<div style="position:absolute;left:500px;top:15px;width:260px;height:78px;background:#eff6ff;border:1.4px solid #2563eb;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:500.0px;top:21.0px;font-size:9.5px;color:#1e40af;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:260px;text-align:center;font-style:italic;">«requirement»</div>
+<div style="position:absolute;left:500.0px;top:35.0px;font-size:11px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:260px;text-align:center;">REQ-1 : Diffuser du son sans fil</div>
+<div style="position:absolute;left:500.0px;top:49.0px;font-size:11px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:260px;text-align:center;">de façon autonome</div>
+<div style="position:absolute;left:500.0px;top:77.0px;font-size:9px;color:#475569;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:260px;text-align:center;">id = REQ-1</div>
+<div style="position:absolute;left:185px;top:150px;width:240px;height:58px;background:#eff6ff;border:1.4px solid #2563eb;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:185.0px;top:156.0px;font-size:9.5px;color:#1e40af;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:240px;text-align:center;font-style:italic;">«requirement»</div>
+<div style="position:absolute;left:185.0px;top:170.0px;font-size:11px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:240px;text-align:center;">Exigences fonctionnelles</div>
+<div style="position:absolute;left:185.0px;top:192.0px;font-size:9px;color:#475569;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:240px;text-align:center;">id = REQ-2</div>
+<div style="position:absolute;left:835px;top:150px;width:240px;height:58px;background:#f5f3ff;border:1.4px solid #7c3aed;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:835.0px;top:156.0px;font-size:9.5px;color:#6d28d9;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:240px;text-align:center;font-style:italic;">«requirement»</div>
+<div style="position:absolute;left:835.0px;top:170.0px;font-size:11px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:240px;text-align:center;">Exigences non fonctionnelles</div>
+<div style="position:absolute;left:835.0px;top:192.0px;font-size:9px;color:#475569;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:240px;text-align:center;">id = REQ-3</div>
+<div style="position:absolute;left:630.0px;top:93.0px;width:330.0px;height:0;border-top:1.2px solid #475569;transform:rotate(170.05deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:630.0px;top:93.0px;width:330.0px;height:0;border-top:1.2px solid #475569;transform:rotate(9.95deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:626.0px;top:89.0px;width:8.0px;height:8.0px;background:#fff;border:1.3px solid #475569;border-radius:50%;z-index:2;box-sizing:border-box;"></div>
+<div style="position:absolute;left:15px;top:285px;width:185px;height:72px;background:#eff6ff;border:1.4px solid #2563eb;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:15.0px;top:291.0px;font-size:9.5px;color:#1e40af;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:185px;text-align:center;font-style:italic;">«requirement»</div>
+<div style="position:absolute;left:15.0px;top:305.0px;font-size:11px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:185px;text-align:center;">Diffusion sonore</div>
+<div style="position:absolute;left:15.0px;top:341.0px;font-size:9px;color:#475569;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:185px;text-align:center;">haut-parleur D80 5W-4Ω / REQ-1.1</div>
+<div style="position:absolute;left:215px;top:285px;width:185px;height:72px;background:#eff6ff;border:1.4px solid #2563eb;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:215.0px;top:291.0px;font-size:9.5px;color:#1e40af;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:185px;text-align:center;font-style:italic;">«requirement»</div>
+<div style="position:absolute;left:215.0px;top:305.0px;font-size:11px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:185px;text-align:center;">Connectivité<br>Bluetooth</div>
+<div style="position:absolute;left:215.0px;top:341.0px;font-size:9px;color:#475569;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:185px;text-align:center;">appairage smartphone / REQ-1.2</div>
+<div style="position:absolute;left:415px;top:285px;width:185px;height:72px;background:#eff6ff;border:1.4px solid #2563eb;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:415.0px;top:291.0px;font-size:9.5px;color:#1e40af;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:185px;text-align:center;font-style:italic;">«requirement»</div>
+<div style="position:absolute;left:415.0px;top:305.0px;font-size:11px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:185px;text-align:center;">Marche / arrêt<br>manuel</div>
+<div style="position:absolute;left:415.0px;top:341.0px;font-size:9px;color:#475569;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:185px;text-align:center;">bouton poussoir / REQ-1.3</div>
+<div style="position:absolute;left:15px;top:400px;width:185px;height:72px;background:#eff6ff;border:1.4px solid #2563eb;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:15.0px;top:406.0px;font-size:9.5px;color:#1e40af;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:185px;text-align:center;font-style:italic;">«requirement»</div>
+<div style="position:absolute;left:15.0px;top:420.0px;font-size:11px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:185px;text-align:center;">Recharge de<br>la batterie</div>
+<div style="position:absolute;left:15.0px;top:456.0px;font-size:9px;color:#475569;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:185px;text-align:center;">port USB-C / REQ-1.4</div>
+<div style="position:absolute;left:215px;top:400px;width:185px;height:72px;background:#eff6ff;border:1.4px solid #2563eb;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:215.0px;top:406.0px;font-size:9.5px;color:#1e40af;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:185px;text-align:center;font-style:italic;">«requirement»</div>
+<div style="position:absolute;left:215.0px;top:420.0px;font-size:11px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:185px;text-align:center;">Indication<br>visuelle d'état</div>
+<div style="position:absolute;left:215.0px;top:456.0px;font-size:9px;color:#475569;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:185px;text-align:center;">témoins lumineux rouges / REQ-1.5</div>
+<div style="position:absolute;left:700px;top:335px;width:185px;height:66px;background:#f5f3ff;border:1.4px solid #7c3aed;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:700.0px;top:341.0px;font-size:9.5px;color:#6d28d9;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:185px;text-align:center;font-style:italic;">«requirement»</div>
+<div style="position:absolute;left:700.0px;top:355.0px;font-size:11px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:185px;text-align:center;">Alimentation<br>autonome</div>
+<div style="position:absolute;left:700.0px;top:385.0px;font-size:9px;color:#475569;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:185px;text-align:center;">batterie 18650 (séparée) / REQ-1.6</div>
+<div style="position:absolute;left:900px;top:335px;width:185px;height:66px;background:#f5f3ff;border:1.4px solid #7c3aed;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:900.0px;top:341.0px;font-size:9.5px;color:#6d28d9;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:185px;text-align:center;font-style:italic;">«requirement»</div>
+<div style="position:absolute;left:900.0px;top:355.0px;font-size:11px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:185px;text-align:center;">Intégration<br>en boîtier</div>
+<div style="position:absolute;left:900.0px;top:385.0px;font-size:9px;color:#475569;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:185px;text-align:center;">MDF ENCEINT-BT-PANO / REQ-1.7</div>
+<div style="position:absolute;left:1100px;top:335px;width:145px;height:66px;background:#f5f3ff;border:1.4px solid #7c3aed;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:1100.0px;top:341.0px;font-size:9.5px;color:#6d28d9;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:145px;text-align:center;font-style:italic;">«requirement»</div>
+<div style="position:absolute;left:1100.0px;top:355.0px;font-size:11px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:145px;text-align:center;">Assemblage<br>simple</div>
+<div style="position:absolute;left:1100.0px;top:385.0px;font-size:9px;color:#475569;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:145px;text-align:center;">visserie fournie / REQ-1.8</div>
+<div style="position:absolute;left:305.0px;top:208.0px;width:212.0px;height:0;border-top:1.0px solid #475569;transform:rotate(158.70deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:305.0px;top:208.0px;width:77.0px;height:0;border-top:1.0px solid #475569;transform:rotate(88.14deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:305.0px;top:208.0px;width:216.6px;height:0;border-top:1.0px solid #475569;transform:rotate(20.82deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:305.0px;top:208.0px;width:275.4px;height:0;border-top:1.0px solid #475569;transform:rotate(135.81deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:305.0px;top:208.0px;width:192.0px;height:0;border-top:1.0px solid #475569;transform:rotate(89.25deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:301.0px;top:204.0px;width:8.0px;height:8.0px;background:#fff;border:1.3px solid #475569;border-radius:50%;z-index:2;box-sizing:border-box;"></div>
+<div style="position:absolute;left:955.0px;top:208.0px;width:206.2px;height:0;border-top:1.0px solid #475569;transform:rotate(141.99deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:955.0px;top:208.0px;width:132.4px;height:0;border-top:1.0px solid #475569;transform:rotate(73.55deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:955.0px;top:208.0px;width:251.9px;height:0;border-top:1.0px solid #475569;transform:rotate(30.28deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:951.0px;top:204.0px;width:8.0px;height:8.0px;background:#fff;border:1.3px solid #475569;border-radius:50%;z-index:2;box-sizing:border-box;"></div>
+<div style="position:absolute;left:15px;top:15px;width:160px;height:32px;background:#fefce8;border:1.4px solid #ca8a04;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:15.0px;top:26.0px;font-size:10.5px;color:#1e293b;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:160px;text-align:center;">UC4 Recharger la batterie</div>
+<div style="position:absolute;left:95.0px;top:47.0px;width:353.2px;height:0;border-top:1.2px dashed #ca8a04;transform:rotate(87.97deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:99.5px;top:395.2px;width:0;height:0;border-top:4.8px solid transparent;border-bottom:4.8px solid transparent;border-left:8.0px solid #ca8a04;transform-origin:8.0px 4.8px;transform:rotate(87.97deg);z-index:2;"></div>
+<div style="position:absolute;left:30.0px;top:155.0px;font-size:10.5px;color:#92400e;font-weight:400;z-index:6;text-align:left;white-space:nowrap;font-style:italic;">«refine»</div>
+<div style="position:absolute;left:1085px;top:15px;width:160px;height:32px;background:#ecfdf5;border:1.4px solid #059669;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:1085.0px;top:26.0px;font-size:9.5px;color:#1e293b;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:160px;text-align:center;">Bloc Module de Charge</div>
+<div style="position:absolute;left:1165.0px;top:47.0px;width:470.9px;height:0;border-top:1.2px dashed #059669;transform:rotate(142.29deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:784.5px;top:330.2px;width:0;height:0;border-top:4.8px solid transparent;border-bottom:4.8px solid transparent;border-left:8.0px solid #059669;transform-origin:8.0px 4.8px;transform:rotate(142.29deg);z-index:2;"></div>
+<div style="position:absolute;left:990.0px;top:150.0px;font-size:10.5px;color:#166534;font-weight:400;z-index:6;text-align:left;white-space:nowrap;font-style:italic;">«satisfy»</div>
+</div>
+  </div>
+  <details class="explain">
+    <summary>Lecture du diagramme + matrice de traçabilité complète</summary>
+    <div class="content">
+      <ul>
+        <li>Trait plein + petit cercle = relation de <b>containment</b> (décomposition de l'exigence parente).</li>
+        <li><span class="tag refine">refine</span> un cas d'utilisation précise une exigence fonctionnelle.</li>
+        <li><span class="tag satisfy">satisfy</span> un bloc matériel apporte la preuve qu'une exigence est techniquement satisfaite.</li>
+        <li>Les exigences non fonctionnelles REQ‑1.6 et REQ‑1.7 rappellent explicitement que la batterie et le boîtier sont à commander séparément.</li>
+      </ul>
+      <table class="trace">
+        <tr><th>Élément source</th><th>Relation</th><th>Exigence cible</th></tr>
+        <tr><td>UC3 — Diffuser du son</td><td><span class="tag refine">refine</span></td><td>REQ‑1.1 Diffusion sonore</td></tr>
+        <tr><td>UC2 — Appairer un appareil</td><td><span class="tag refine">refine</span></td><td>REQ‑1.2 Connectivité Bluetooth</td></tr>
+        <tr><td>UC1 — Allumer / éteindre</td><td><span class="tag refine">refine</span></td><td>REQ‑1.3 Marche/arrêt manuel</td></tr>
+        <tr><td>UC4 — Recharger la batterie</td><td><span class="tag refine">refine</span></td><td>REQ‑1.4 Recharge de la batterie</td></tr>
+        <tr><td>UC5 — Visualiser l'état de charge</td><td><span class="tag refine">refine</span></td><td>REQ‑1.5 Indication visuelle d'état</td></tr>
+        <tr><td>Bloc Support de batterie 18650</td><td><span class="tag satisfy">satisfy</span></td><td>REQ‑1.6 Alimentation autonome</td></tr>
+        <tr><td>Bloc Visserie &amp; Fixations</td><td><span class="tag satisfy">satisfy</span></td><td>REQ‑1.8 Assemblage simple</td></tr>
+      </table>
+    </div>
+  </details>
+</section>
+
+<section class="card" id="bdd">
+  <h2><span class="num">3</span>Diagramme de définition de blocs (BDD)</h2>
+  <div class="diagram-frame">
+<div style="position:relative;width:1230px;height:420px;font-family:'Segoe UI',Arial,sans-serif;">
+<div style="position:absolute;left:455px;top:10px;width:270px;height:80px;background:#dbeafe;border:1.4px solid #1e40af;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:455.0px;top:17.0px;font-size:8.5px;color:#1e40af;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:270px;text-align:center;font-style:italic;white-space:normal;">«block»</div>
+<div style="position:absolute;left:455.0px;top:28.0px;font-size:10px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:270px;text-align:center;white-space:normal;line-height:1.25;padding:0 3px;box-sizing:border-box;">Kit Enceinte Bluetooth<br>avec Module de Charge</div>
+<div style="position:absolute;left:455.0px;top:60.0px;width:270.0px;height:0;border-top:1px solid #1e40af;transform:rotate(0.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:462.0px;top:68.0px;font-size:8.5px;color:#334155;font-weight:400;z-index:6;text-align:left;white-space:nowrap;width:256px;white-space:normal;line-height:1.25;">haut-parleur D80 / 5W - 4Ω</div>
+<div style="position:absolute;left:462.0px;top:84.0px;font-size:8.5px;color:#334155;font-weight:400;z-index:6;text-align:left;white-space:nowrap;width:256px;white-space:normal;line-height:1.25;">charge via USB-C</div>
+<div style="position:absolute;left:5px;top:190px;width:160px;height:180px;background:#eff6ff;border:1.4px solid #2563eb;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:5.0px;top:197.0px;font-size:8.5px;color:#1e40af;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:160px;text-align:center;font-style:italic;white-space:normal;">«block»</div>
+<div style="position:absolute;left:5.0px;top:208.0px;font-size:10px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:160px;text-align:center;white-space:normal;line-height:1.25;padding:0 3px;box-sizing:border-box;">Carte<br>Amplificateur BT</div>
+<div style="position:absolute;left:5.0px;top:240.0px;width:160.0px;height:0;border-top:1px solid #2563eb;transform:rotate(0.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:12.0px;top:248.0px;font-size:8.5px;color:#334155;font-weight:400;z-index:6;text-align:left;white-space:nowrap;width:146px;white-space:normal;line-height:1.25;">réception Bluetooth</div>
+<div style="position:absolute;left:12.0px;top:264.0px;font-size:8.5px;color:#334155;font-weight:400;z-index:6;text-align:left;white-space:nowrap;width:146px;white-space:normal;line-height:1.25;">amplification audio</div>
+<div style="position:absolute;left:175px;top:190px;width:160px;height:180px;background:#fff7ed;border:1.4px solid #ea580c;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:175.0px;top:197.0px;font-size:8.5px;color:#c2410c;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:160px;text-align:center;font-style:italic;white-space:normal;">«block»</div>
+<div style="position:absolute;left:175.0px;top:208.0px;font-size:10px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:160px;text-align:center;white-space:normal;line-height:1.25;padding:0 3px;box-sizing:border-box;">Module de<br>Charge USB-C</div>
+<div style="position:absolute;left:175.0px;top:240.0px;width:160.0px;height:0;border-top:1px solid #ea580c;transform:rotate(0.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:182.0px;top:248.0px;font-size:8.5px;color:#334155;font-weight:400;z-index:6;text-align:left;white-space:nowrap;width:146px;white-space:normal;line-height:1.25;">gestion de la recharge</div>
+<div style="position:absolute;left:182.0px;top:264.0px;font-size:8.5px;color:#334155;font-weight:400;z-index:6;text-align:left;white-space:nowrap;width:146px;white-space:normal;line-height:1.25;">connecteur USB-C</div>
+<div style="position:absolute;left:345px;top:190px;width:160px;height:180px;background:#eff6ff;border:1.4px solid #2563eb;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:345.0px;top:197.0px;font-size:8.5px;color:#1e40af;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:160px;text-align:center;font-style:italic;white-space:normal;">«block»</div>
+<div style="position:absolute;left:345.0px;top:208.0px;font-size:10px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:160px;text-align:center;white-space:normal;line-height:1.25;padding:0 3px;box-sizing:border-box;">Haut-parleur</div>
+<div style="position:absolute;left:345.0px;top:224.0px;width:160.0px;height:0;border-top:1px solid #2563eb;transform:rotate(0.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:352.0px;top:232.0px;font-size:8.5px;color:#334155;font-weight:400;z-index:6;text-align:left;white-space:nowrap;width:146px;white-space:normal;line-height:1.25;">D80 — 5 W</div>
+<div style="position:absolute;left:352.0px;top:248.0px;font-size:8.5px;color:#334155;font-weight:400;z-index:6;text-align:left;white-space:nowrap;width:146px;white-space:normal;line-height:1.25;">impédance 4 Ω</div>
+<div style="position:absolute;left:515px;top:190px;width:160px;height:180px;background:#eff6ff;border:1.4px solid #2563eb;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:515.0px;top:197.0px;font-size:8.5px;color:#1e40af;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:160px;text-align:center;font-style:italic;white-space:normal;">«block»</div>
+<div style="position:absolute;left:515.0px;top:208.0px;font-size:10px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:160px;text-align:center;white-space:normal;line-height:1.25;padding:0 3px;box-sizing:border-box;">Bouton<br>Marche / Arrêt</div>
+<div style="position:absolute;left:515.0px;top:240.0px;width:160.0px;height:0;border-top:1px solid #2563eb;transform:rotate(0.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:522.0px;top:248.0px;font-size:8.5px;color:#334155;font-weight:400;z-index:6;text-align:left;white-space:nowrap;width:146px;white-space:normal;line-height:1.25;">poussoir</div>
+<div style="position:absolute;left:522.0px;top:264.0px;font-size:8.5px;color:#334155;font-weight:400;z-index:6;text-align:left;white-space:nowrap;width:146px;white-space:normal;line-height:1.25;">commande d'alimentation</div>
+<div style="position:absolute;left:685px;top:190px;width:160px;height:180px;background:#f0fdf4;border:1.4px solid #059669;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:685.0px;top:197.0px;font-size:8.5px;color:#065f46;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:160px;text-align:center;font-style:italic;white-space:normal;">«block»</div>
+<div style="position:absolute;left:685.0px;top:208.0px;font-size:10px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:160px;text-align:center;white-space:normal;line-height:1.25;padding:0 3px;box-sizing:border-box;">Support de<br>batterie 18650</div>
+<div style="position:absolute;left:685.0px;top:240.0px;width:160.0px;height:0;border-top:1px solid #059669;transform:rotate(0.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:692.0px;top:248.0px;font-size:8.5px;color:#334155;font-weight:400;z-index:6;text-align:left;white-space:nowrap;width:146px;white-space:normal;line-height:1.25;">accueille la batterie</div>
+<div style="position:absolute;left:692.0px;top:264.0px;font-size:8.5px;color:#334155;font-weight:400;z-index:6;text-align:left;white-space:nowrap;width:146px;white-space:normal;line-height:1.25;">(batterie commandée séparément)</div>
+<div style="position:absolute;left:855px;top:190px;width:160px;height:180px;background:#fdf4ff;border:1.4px solid #a855f7;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:855.0px;top:197.0px;font-size:8.5px;color:#7e22ce;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:160px;text-align:center;font-style:italic;white-space:normal;">«block»</div>
+<div style="position:absolute;left:855.0px;top:208.0px;font-size:10px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:160px;text-align:center;white-space:normal;line-height:1.25;padding:0 3px;box-sizing:border-box;">Témoins<br>Lumineux</div>
+<div style="position:absolute;left:855.0px;top:240.0px;width:160.0px;height:0;border-top:1px solid #a855f7;transform:rotate(0.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:862.0px;top:248.0px;font-size:8.5px;color:#334155;font-weight:400;z-index:6;text-align:left;white-space:nowrap;width:146px;white-space:normal;line-height:1.25;">2 obturateurs rouges</div>
+<div style="position:absolute;left:862.0px;top:264.0px;font-size:8.5px;color:#334155;font-weight:400;z-index:6;text-align:left;white-space:nowrap;width:146px;white-space:normal;line-height:1.25;">indicateurs de charge</div>
+<div style="position:absolute;left:1025px;top:190px;width:155px;height:180px;background:#f8fafc;border:1.4px solid #64748b;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:1025.0px;top:197.0px;font-size:8.5px;color:#334155;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:155px;text-align:center;font-style:italic;white-space:normal;">«block»</div>
+<div style="position:absolute;left:1025.0px;top:208.0px;font-size:10px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:155px;text-align:center;white-space:normal;line-height:1.25;padding:0 3px;box-sizing:border-box;">Visserie &amp;<br>Fixations</div>
+<div style="position:absolute;left:1025.0px;top:240.0px;width:155.0px;height:0;border-top:1px solid #64748b;transform:rotate(0.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:1032.0px;top:248.0px;font-size:8.5px;color:#334155;font-weight:400;z-index:6;text-align:left;white-space:nowrap;width:141px;white-space:normal;line-height:1.25;">brides du module de charge</div>
+<div style="position:absolute;left:1032.0px;top:264.0px;font-size:8.5px;color:#334155;font-weight:400;z-index:6;text-align:left;white-space:nowrap;width:141px;white-space:normal;line-height:1.25;">vis d'assemblage</div>
+<div style="position:absolute;left:1025px;top:20px;width:155px;height:60px;background:#fff;border:1.4px dashed #94a3b8;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:1025.0px;top:27.0px;font-size:8.5px;color:#475569;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:155px;text-align:center;font-style:italic;white-space:normal;">«block»</div>
+<div style="position:absolute;left:1025.0px;top:38.0px;font-size:10px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:155px;text-align:center;white-space:normal;line-height:1.25;padding:0 3px;box-sizing:border-box;">Batterie 18650</div>
+<div style="position:absolute;left:1025.0px;top:54.0px;width:155.0px;height:0;border-top:1px solid #94a3b8;transform:rotate(0.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:1032.0px;top:62.0px;font-size:8.5px;color:#334155;font-weight:400;z-index:6;text-align:left;white-space:nowrap;width:141px;white-space:normal;line-height:1.25;">PILE-18650-A (hors kit)</div>
+<div style="position:absolute;left:855px;top:20px;width:155px;height:60px;background:#fff;border:1.4px dashed #94a3b8;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:855.0px;top:27.0px;font-size:8.5px;color:#475569;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:155px;text-align:center;font-style:italic;white-space:normal;">«block»</div>
+<div style="position:absolute;left:855.0px;top:38.0px;font-size:10px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:155px;text-align:center;white-space:normal;line-height:1.25;padding:0 3px;box-sizing:border-box;">Boîtier MDF</div>
+<div style="position:absolute;left:855.0px;top:54.0px;width:155.0px;height:0;border-top:1px solid #94a3b8;transform:rotate(0.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:862.0px;top:62.0px;font-size:8.5px;color:#334155;font-weight:400;z-index:6;text-align:left;white-space:nowrap;width:141px;white-space:normal;line-height:1.25;">ENCEINT-BT-PANO (hors kit)</div>
+<div style="position:absolute;left:590.0px;top:90.0px;width:514.8px;height:0;border-top:1.1px solid #334155;transform:rotate(168.80deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:590.0px;top:90.0px;width:349.6px;height:0;border-top:1.1px solid #334155;transform:rotate(163.38deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:590.0px;top:90.0px;width:192.9px;height:0;border-top:1.1px solid #334155;transform:rotate(148.78deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:590.0px;top:90.0px;width:100.1px;height:0;border-top:1.1px solid #334155;transform:rotate(87.14deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:590.0px;top:90.0px;width:201.6px;height:0;border-top:1.1px solid #334155;transform:rotate(29.74deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:590.0px;top:90.0px;width:359.2px;height:0;border-top:1.1px solid #334155;transform:rotate(16.16deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:590.0px;top:90.0px;width:522.2px;height:0;border-top:1.1px solid #334155;transform:rotate(11.04deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:584.0px;top:85.8px;width:12px;height:8.4px;background:#334155;transform:rotate(45deg);z-index:2;"></div>
+<div style="position:absolute;left:1025.0px;top:80.0px;width:282.3px;height:0;border-top:1.1px dashed #64748b;transform:rotate(157.07deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:1010.0px;top:80.0px;width:286.6px;height:0;border-top:1.1px dashed #64748b;transform:rotate(-173.99deg);transform-origin:0 0;z-index:1;"></div>
+</div>
+  </div>
+  <details class="explain">
+    <summary>Lecture du diagramme</summary>
+    <div class="content">
+      <ul>
+        <li>Le losange plein indique une relation de <b>composition</b> : le kit est constitué de 7 blocs livrés ensemble (cartes électroniques, haut-parleur, bouton, support de batterie, témoins lumineux, visserie).</li>
+        <li>Les deux blocs à bordure <b>pointillée</b> (Batterie 18650, Boîtier MDF) ne font pas partie du kit : ils sont reliés par une dépendance en pointillés pour rappeler qu'ils doivent être commandés séparément mais restent nécessaires au produit fini.</li>
+      </ul>
+    </div>
+  </details>
+</section>
+
+<section class="card" id="ibd">
+  <h2><span class="num">4</span>Diagramme de blocs internes (IBD)</h2>
+  <div class="diagram-frame">
+<div style="position:relative;width:1200px;height:580px;font-family:'Segoe UI',Arial,sans-serif;">
+<div style="position:absolute;left:20px;top:20px;width:1160px;height:540px;border:1.4px dashed #334155;border-radius:6px;background:#fbfdff;z-index:0;"></div>
+<div style="position:absolute;left:35.0px;top:28.0px;font-size:12px;color:#334155;font-weight:400;z-index:6;text-align:left;white-space:nowrap;font-style:italic;">«ibd» Kit Enceinte Bluetooth avec Module de Charge : Bloc</div>
+<div style="position:absolute;left:500px;top:240px;width:200px;height:100px;background:#eff6ff;border:1.4px solid #2563eb;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:500.0px;top:282.0px;font-size:12px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:200px;text-align:center;">Carte Amplificateur BT</div>
+<div style="position:absolute;left:500.0px;top:298.0px;font-size:9.5px;color:#1e40af;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:200px;text-align:center;">: module Bluetooth</div>
+<div style="position:absolute;left:70px;top:60px;width:200px;height:90px;background:#eff6ff;border:1.4px solid #2563eb;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:70.0px;top:97.0px;font-size:12px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:200px;text-align:center;">Bouton<br>Marche/Arrêt</div>
+<div style="position:absolute;left:930px;top:60px;width:200px;height:90px;background:#eff6ff;border:1.4px solid #2563eb;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:930.0px;top:97.0px;font-size:12px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:200px;text-align:center;">Haut-parleur<br>(D80, 5W-4Ω)</div>
+<div style="position:absolute;left:70px;top:260px;width:200px;height:90px;background:#fff7ed;border:1.4px solid #ea580c;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:70.0px;top:297.0px;font-size:12px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:200px;text-align:center;">Module de<br>Charge USB-C</div>
+<div style="position:absolute;left:930px;top:260px;width:200px;height:90px;background:#fdf4ff;border:1.4px solid #a855f7;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:930.0px;top:297.0px;font-size:12px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:200px;text-align:center;">Témoins<br>Lumineux</div>
+<div style="position:absolute;left:70px;top:460px;width:200px;height:90px;background:#f0fdf4;border:1.4px solid #059669;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:70.0px;top:497.0px;font-size:12px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:200px;text-align:center;">Support de<br>batterie 18650</div>
+<div style="position:absolute;left:265px;top:130px;width:10px;height:10px;background:#fff;border:1.2px solid #334155;z-index:2;"></div>
+<div style="position:absolute;left:495px;top:265px;width:10px;height:10px;background:#fff;border:1.2px solid #334155;z-index:2;"></div>
+<div style="position:absolute;left:270.0px;top:135.0px;width:266.7px;height:0;border-top:1.5px solid #1e40af;transform:rotate(30.41deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:492.0px;top:265.2px;width:0;height:0;border-top:4.8px solid transparent;border-bottom:4.8px solid transparent;border-left:8.0px solid #1e40af;transform-origin:8.0px 4.8px;transform:rotate(30.41deg);z-index:2;"></div>
+<div style="position:absolute;left:310.0px;top:188.5px;font-size:9.8px;color:#1e40af;font-weight:400;z-index:6;text-align:left;white-space:nowrap;width:180px;">commande marche / arrêt</div>
+<div style="position:absolute;left:925px;top:130px;width:10px;height:10px;background:#fff;border:1.2px solid #334155;z-index:2;"></div>
+<div style="position:absolute;left:695px;top:265px;width:10px;height:10px;background:#fff;border:1.2px solid #334155;z-index:2;"></div>
+<div style="position:absolute;left:930.0px;top:135.0px;width:266.7px;height:0;border-top:1.5px solid #1e40af;transform:rotate(149.59deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:692.0px;top:265.2px;width:0;height:0;border-top:4.8px solid transparent;border-bottom:4.8px solid transparent;border-left:8.0px solid #1e40af;transform-origin:8.0px 4.8px;transform:rotate(149.59deg);z-index:2;"></div>
+<div style="position:absolute;left:740.0px;top:188.5px;font-size:9.8px;color:#1e40af;font-weight:400;z-index:6;text-align:left;white-space:nowrap;width:180px;">signal audio amplifié</div>
+<div style="position:absolute;left:265px;top:295px;width:10px;height:10px;background:#fff;border:1.2px solid #334155;z-index:2;"></div>
+<div style="position:absolute;left:495px;top:315px;width:10px;height:10px;background:#fff;border:1.2px solid #334155;z-index:2;"></div>
+<div style="position:absolute;left:270.0px;top:300.0px;width:230.9px;height:0;border-top:1.5px solid #1e40af;transform:rotate(4.97deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:492.0px;top:315.2px;width:0;height:0;border-top:4.8px solid transparent;border-bottom:4.8px solid transparent;border-left:8.0px solid #1e40af;transform-origin:8.0px 4.8px;transform:rotate(4.97deg);z-index:2;"></div>
+<div style="position:absolute;left:310.0px;top:296.0px;font-size:9.8px;color:#1e40af;font-weight:400;z-index:6;text-align:left;white-space:nowrap;width:180px;">courant de charge</div>
+<div style="position:absolute;left:925px;top:295px;width:10px;height:10px;background:#fff;border:1.2px solid #334155;z-index:2;"></div>
+<div style="position:absolute;left:695px;top:315px;width:10px;height:10px;background:#fff;border:1.2px solid #334155;z-index:2;"></div>
+<div style="position:absolute;left:930.0px;top:300.0px;width:230.9px;height:0;border-top:1.5px solid #1e40af;transform:rotate(175.03deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:692.0px;top:315.2px;width:0;height:0;border-top:4.8px solid transparent;border-bottom:4.8px solid transparent;border-left:8.0px solid #1e40af;transform-origin:8.0px 4.8px;transform:rotate(175.03deg);z-index:2;"></div>
+<div style="position:absolute;left:740.0px;top:296.0px;font-size:9.8px;color:#1e40af;font-weight:400;z-index:6;text-align:left;white-space:nowrap;width:180px;">signal d'état de charge</div>
+<div style="position:absolute;left:265px;top:500px;width:10px;height:10px;background:#fff;border:1.2px solid #334155;z-index:2;"></div>
+<div style="position:absolute;left:495px;top:330px;width:10px;height:10px;background:#fff;border:1.2px solid #334155;z-index:2;"></div>
+<div style="position:absolute;left:270.0px;top:505.0px;width:286.0px;height:0;border-top:1.3px dashed #c2410c;transform:rotate(-36.47deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:265px;top:500px;width:10px;height:10px;background:#fff;border:1.2px solid #334155;z-index:2;"></div>
+<div style="position:absolute;left:65px;top:295px;width:10px;height:10px;background:#fff;border:1.2px solid #334155;z-index:2;"></div>
+<div style="position:absolute;left:270.0px;top:505.0px;width:286.4px;height:0;border-top:1.3px dashed #c2410c;transform:rotate(-134.29deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:492.0px;top:330.2px;width:0;height:0;border-top:4.8px solid transparent;border-bottom:4.8px solid transparent;border-left:8.0px solid #c2410c;transform-origin:8.0px 4.8px;transform:rotate(-36.47deg);z-index:2;"></div>
+<div style="position:absolute;left:300.0px;top:410.0px;font-size:10px;color:#c2410c;font-weight:400;z-index:6;text-align:left;white-space:nowrap;font-style:italic;">alimentation batterie 18650</div>
+</div>
+  </div>
+  <details class="explain">
+    <summary>Lecture du diagramme</summary>
+    <div class="content">
+      <ul>
+        <li>Les petits carrés représentent les <b>ports</b> par lesquels les blocs échangent des flux (item flows).</li>
+        <li>Les flèches pleines bleues = <b>flux d'information</b> (commande marche/arrêt, signal audio amplifié, courant de charge, état de charge).</li>
+        <li>Les flèches orange en pointillés = <b>flux d'énergie</b> : le support de batterie alimente la Carte Amplificateur Bluetooth.</li>
+        <li>La Carte Amplificateur Bluetooth est le bloc central : elle reçoit la commande du bouton et pilote le haut-parleur, tandis que le Module de Charge gère indépendamment la recharge et les témoins lumineux.</li>
+      </ul>
+    </div>
+  </details>
+</section>
+
+<section class="card" id="seq">
+  <h2><span class="num">5</span>Diagramme de séquence</h2>
+  <p style="margin:2px 0 8px 0;color:var(--muted);font-size:13.5px;">Scénario : l'utilisateur allume l'enceinte, appaire son téléphone, écoute de la musique puis recharge la batterie.</p>
+  <div class="diagram-frame">
+<div style="position:relative;width:1200px;height:580px;font-family:'Segoe UI',Arial,sans-serif;">
+<div style="position:absolute;left:25px;top:50px;width:130px;height:40px;background:#f1f5f9;border:1.4px solid #334155;border-radius:4px;z-index:2;box-sizing:border-box;"></div>
+<div style="position:absolute;left:25px;top:56px;width:130px;text-align:center;font-size:11px;font-weight:600;z-index:6;line-height:1.2;">Utilisateur</div>
+<div style="position:absolute;left:90.0px;top:90.0px;width:450.0px;height:0;border-top:1.2px dashed #94a3b8;transform:rotate(90.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:215px;top:50px;width:130px;height:40px;background:#eff6ff;border:1.4px solid #2563eb;border-radius:4px;z-index:2;box-sizing:border-box;"></div>
+<div style="position:absolute;left:215px;top:56px;width:130px;text-align:center;font-size:11px;font-weight:600;z-index:6;line-height:1.2;">:Bouton<br>Marche/Arrêt</div>
+<div style="position:absolute;left:280.0px;top:90.0px;width:450.0px;height:0;border-top:1.2px dashed #94a3b8;transform:rotate(90.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:445px;top:50px;width:130px;height:40px;background:#eff6ff;border:1.4px solid #2563eb;border-radius:4px;z-index:2;box-sizing:border-box;"></div>
+<div style="position:absolute;left:445px;top:56px;width:130px;text-align:center;font-size:11px;font-weight:600;z-index:6;line-height:1.2;">:Carte<br>Amplificateur BT</div>
+<div style="position:absolute;left:510.0px;top:90.0px;width:450.0px;height:0;border-top:1.2px dashed #94a3b8;transform:rotate(90.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:685px;top:50px;width:130px;height:40px;background:#eff6ff;border:1.4px solid #2563eb;border-radius:4px;z-index:2;box-sizing:border-box;"></div>
+<div style="position:absolute;left:685px;top:56px;width:130px;text-align:center;font-size:11px;font-weight:600;z-index:6;line-height:1.2;">:Haut-parleur</div>
+<div style="position:absolute;left:750.0px;top:90.0px;width:450.0px;height:0;border-top:1.2px dashed #94a3b8;transform:rotate(90.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:905px;top:50px;width:130px;height:40px;background:#fff7ed;border:1.4px solid #ea580c;border-radius:4px;z-index:2;box-sizing:border-box;"></div>
+<div style="position:absolute;left:905px;top:56px;width:130px;text-align:center;font-size:11px;font-weight:600;z-index:6;line-height:1.2;">:Module de<br>Charge</div>
+<div style="position:absolute;left:970.0px;top:90.0px;width:450.0px;height:0;border-top:1.2px dashed #94a3b8;transform:rotate(90.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:1085px;top:50px;width:130px;height:40px;background:#fdf4ff;border:1.4px solid #a855f7;border-radius:4px;z-index:2;box-sizing:border-box;"></div>
+<div style="position:absolute;left:1085px;top:56px;width:130px;text-align:center;font-size:11px;font-weight:600;z-index:6;line-height:1.2;">:Témoins<br>Lumineux</div>
+<div style="position:absolute;left:1150.0px;top:90.0px;width:450.0px;height:0;border-top:1.2px dashed #94a3b8;transform:rotate(90.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:505px;top:150px;width:10px;height:380px;background:#dbeafe;border:1.4px solid #2563eb;border-radius:0px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:90.0px;top:100.0px;width:190.0px;height:0;border-top:1.3px solid #1e293b;transform:rotate(0.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:272.0px;top:95.2px;width:0;height:0;border-top:4.8px solid transparent;border-bottom:4.8px solid transparent;border-left:8.0px solid #1e293b;transform-origin:8.0px 4.8px;transform:rotate(0.00deg);z-index:2;"></div>
+<div style="position:absolute;left:98.0px;top:84.0px;font-size:10.6px;color:#1e293b;font-weight:400;z-index:6;text-align:left;white-space:nowrap;">1: appuyerMarcheArrêt()</div>
+<div style="position:absolute;left:280.0px;top:140.0px;width:230.0px;height:0;border-top:1.3px solid #1e293b;transform:rotate(0.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:502.0px;top:135.2px;width:0;height:0;border-top:4.8px solid transparent;border-bottom:4.8px solid transparent;border-left:8.0px solid #1e293b;transform-origin:8.0px 4.8px;transform:rotate(0.00deg);z-index:2;"></div>
+<div style="position:absolute;left:288.0px;top:124.0px;font-size:10.6px;color:#1e293b;font-weight:400;z-index:6;text-align:left;white-space:nowrap;">2: activer()</div>
+<div style="position:absolute;left:510.0px;top:175.0px;width:230.0px;height:0;border-top:1.3px dashed #64748b;transform:rotate(180.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:272.0px;top:170.2px;width:0;height:0;border-top:4.4px solid transparent;border-bottom:4.4px solid transparent;border-left:8.0px solid #64748b;opacity:.85;transform-origin:8.0px 4.4px;transform:rotate(180.00deg);z-index:2;"></div>
+<div style="position:absolute;left:288.0px;top:159.0px;font-size:10.6px;color:#1e293b;font-weight:400;z-index:6;text-align:left;white-space:nowrap;">3: étatActivé()</div>
+<div style="position:absolute;left:90.0px;top:215.0px;width:420.0px;height:0;border-top:1.3px solid #1e293b;transform:rotate(0.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:502.0px;top:210.2px;width:0;height:0;border-top:4.8px solid transparent;border-bottom:4.8px solid transparent;border-left:8.0px solid #1e293b;transform-origin:8.0px 4.8px;transform:rotate(0.00deg);z-index:2;"></div>
+<div style="position:absolute;left:98.0px;top:199.0px;font-size:10.6px;color:#1e293b;font-weight:400;z-index:6;text-align:left;white-space:nowrap;">4: appairerAppareil()</div>
+<div style="position:absolute;left:510.0px;top:245.0px;width:55.0px;height:0;border-top:1.2px solid #1e293b;transform:rotate(0.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:565.0px;top:245.0px;width:20.0px;height:0;border-top:1.2px solid #1e293b;transform:rotate(90.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:565.0px;top:265.0px;width:55.0px;height:0;border-top:1.2px solid #1e293b;transform:rotate(180.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:502.0px;top:260.2px;width:0;height:0;border-top:4.8px solid transparent;border-bottom:4.8px solid transparent;border-left:8.0px solid #1e293b;transform-origin:8.0px 4.8px;transform:rotate(180.00deg);z-index:2;"></div>
+<div style="position:absolute;left:520.0px;top:228.0px;font-size:10.6px;color:#1e293b;font-weight:400;z-index:6;text-align:left;white-space:nowrap;">5: confirmerAppairage()</div>
+<div style="position:absolute;left:90.0px;top:300.0px;width:420.0px;height:0;border-top:1.3px solid #1e293b;transform:rotate(0.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:502.0px;top:295.2px;width:0;height:0;border-top:4.8px solid transparent;border-bottom:4.8px solid transparent;border-left:8.0px solid #1e293b;transform-origin:8.0px 4.8px;transform:rotate(0.00deg);z-index:2;"></div>
+<div style="position:absolute;left:98.0px;top:284.0px;font-size:10.6px;color:#1e293b;font-weight:400;z-index:6;text-align:left;white-space:nowrap;">6: envoyerAudio()</div>
+<div style="position:absolute;left:510.0px;top:335.0px;width:240.0px;height:0;border-top:1.3px solid #1e293b;transform:rotate(0.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:742.0px;top:330.2px;width:0;height:0;border-top:4.8px solid transparent;border-bottom:4.8px solid transparent;border-left:8.0px solid #1e293b;transform-origin:8.0px 4.8px;transform:rotate(0.00deg);z-index:2;"></div>
+<div style="position:absolute;left:518.0px;top:319.0px;font-size:10.6px;color:#1e293b;font-weight:400;z-index:6;text-align:left;white-space:nowrap;">7: amplifierEtDiffuser(signal)</div>
+<div style="position:absolute;left:90.0px;top:375.0px;width:880.0px;height:0;border-top:1.3px solid #1e293b;transform:rotate(0.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:962.0px;top:370.2px;width:0;height:0;border-top:4.8px solid transparent;border-bottom:4.8px solid transparent;border-left:8.0px solid #1e293b;transform-origin:8.0px 4.8px;transform:rotate(0.00deg);z-index:2;"></div>
+<div style="position:absolute;left:98.0px;top:359.0px;font-size:10.6px;color:#1e293b;font-weight:400;z-index:6;text-align:left;white-space:nowrap;">8: connecterCâbleUSB-C()</div>
+<div style="position:absolute;left:970.0px;top:410.0px;width:180.0px;height:0;border-top:1.3px solid #1e293b;transform:rotate(0.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:1142.0px;top:405.2px;width:0;height:0;border-top:4.8px solid transparent;border-bottom:4.8px solid transparent;border-left:8.0px solid #1e293b;transform-origin:8.0px 4.8px;transform:rotate(0.00deg);z-index:2;"></div>
+<div style="position:absolute;left:978.0px;top:394.0px;font-size:10.6px;color:#1e293b;font-weight:400;z-index:6;text-align:left;white-space:nowrap;">9: allumerVoyant("charge en cours")</div>
+<div style="position:absolute;left:970.0px;top:445.0px;width:880.0px;height:0;border-top:1.3px dashed #64748b;transform:rotate(180.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:82.0px;top:440.2px;width:0;height:0;border-top:4.4px solid transparent;border-bottom:4.4px solid transparent;border-left:8.0px solid #64748b;opacity:.85;transform-origin:8.0px 4.4px;transform:rotate(180.00deg);z-index:2;"></div>
+<div style="position:absolute;left:98.0px;top:429.0px;font-size:10.6px;color:#1e293b;font-weight:400;z-index:6;text-align:left;white-space:nowrap;">10: batterieChargée()</div>
+</div>
+  </div>
+  <details class="explain">
+    <summary>Lecture du diagramme</summary>
+    <div class="content">
+      <ul>
+        <li>Flèches pleines = <b>appels synchrones</b> ; flèches pointillées = <b>messages de retour</b>.</li>
+        <li>Le message 5 est un <b>message réflexif</b> : la Carte Amplificateur Bluetooth confirme elle‑même l'appairage avant de pouvoir recevoir l'audio.</li>
+        <li>Le Module de Charge et la Carte Amplificateur fonctionnent de façon indépendante : on peut écouter de la musique tout en rechargeant l'enceinte.</li>
+      </ul>
+    </div>
+  </details>
+</section>
+
+</div>
+<footer>Document réalisé à partir des caractéristiques techniques publiques du kit enceinte Bluetooth avec module de charge (réf. K-ENCEINT-BT-CH) — version 100% HTML/CSS.</footer>
+<a href="../index.html" style="position:fixed;bottom:16px;left:16px;z-index:99999;background:#1e3a5f;color:#fff;padding:10px 16px;border-radius:24px;font:600 14px system-ui,sans-serif;text-decoration:none;box-shadow:0 2px 8px rgba(0,0,0,.25)">← Sommaire</a></body>
+</html>

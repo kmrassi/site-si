@@ -1,0 +1,1036 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Systèmes asservis – Terminale SI</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#eef3fa;--card:#fff;--ink:#16233a;--muted:#5b6b82;--line:#d9e2ef;--blue:#2563eb;--blue2:#e0eaff;--red:#e11d48;--red2:#ffe4ea;--green:#059669;--green2:#dcfce7;--amber:#d97706;--amber2:#fef3c7;--violet:#7c3aed;--violet2:#ede9fe;--r:16px}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;background:var(--bg);color:var(--ink);overflow:hidden;font-size:16px;line-height:1.5}
+button{font:inherit;cursor:pointer}
+#app{display:flex;flex-direction:column;height:100vh}
+.top{display:flex;align-items:center;gap:12px;padding:10px 18px;background:var(--ink);color:#fff;position:relative;z-index:5}
+.top .logo{width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,#60a5fa,#a78bfa);display:grid;place-items:center;font-weight:800}
+.top .t{font-weight:800;letter-spacing:.2px}
+.top .s{opacity:.65;font-size:.85rem}
+.top .sp{flex:1}
+.tbtn{background:#22324d;border:1px solid #33476a;color:#fff;border-radius:10px;padding:6px 12px;font-size:.9rem}
+.tbtn:hover{background:#2c3f61}
+#menu{position:absolute;right:16px;top:52px;background:#fff;color:var(--ink);border-radius:14px;box-shadow:0 20px 50px rgba(0,0,0,.25);padding:8px;width:320px;max-height:70vh;overflow:auto;display:none}
+#menu.open{display:block}
+#menu button{display:block;width:100%;text-align:left;border:0;background:none;padding:8px 10px;border-radius:8px;font-size:.92rem}
+#menu button:hover{background:var(--blue2)}
+#menu button.cur{background:var(--blue);color:#fff}
+.bar{height:4px;background:#22324d}.bar i{display:block;height:100%;background:linear-gradient(90deg,#60a5fa,#a78bfa);width:0;transition:width .4s}
+.deck{position:relative;flex:1;overflow:hidden}
+.slide{position:absolute;inset:0;overflow-y:auto;padding:24px 28px 40px;opacity:0;visibility:hidden;transform:translateX(40px);transition:opacity .45s,transform .45s,visibility .45s}
+.slide.prev{transform:translateX(-40px)}
+.slide.active{opacity:1;visibility:visible;transform:none}
+.inner{max-width:1120px;margin:0 auto}
+.kicker{display:inline-block;font-size:.78rem;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--blue);background:var(--blue2);padding:3px 10px;border-radius:99px;margin-bottom:8px}
+h2{font-size:1.75rem;line-height:1.2;margin-bottom:6px;font-weight:800}
+h3{font-size:1.1rem;margin-bottom:6px}
+.lead{color:var(--muted);margin-bottom:16px;max-width:880px}
+.reveal{opacity:0}
+.slide.active .reveal{animation:up .6s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--i,0)*.1s)}
+@keyframes up{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+.card{background:var(--card);border-radius:var(--r);padding:18px;box-shadow:0 1px 2px rgba(22,35,58,.06),0 6px 20px rgba(22,35,58,.06);border:1px solid var(--line)}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.g73{display:grid;grid-template-columns:1.6fr 1fr;gap:18px}
+@media(max-width:900px){.g2,.g3,.g73{grid-template-columns:1fr}.g4{grid-template-columns:1fr 1fr}}
+@media(max-width:520px){.g4{grid-template-columns:1fr}.slide{padding:18px 16px 40px}h2{font-size:1.4rem}.top .s{display:none}}
+.def{background:var(--blue2);border-left:5px solid var(--blue);border-radius:10px;padding:10px 14px;margin:10px 0}
+.def.r{background:var(--red2);border-color:var(--red)}
+.def.g{background:var(--green2);border-color:var(--green)}
+.def.a{background:var(--amber2);border-color:var(--amber)}
+.def.v{background:var(--violet2);border-color:var(--violet)}
+.def b{display:block;margin-bottom:2px}
+canvas.cv{width:100%;height:300px;display:block}
+canvas.cv.sm{height:190px}
+canvas.cv.xs{height:150px}
+.ctrl{margin:10px 0}
+.ctrl label{display:block;font-weight:600;font-size:.92rem}
+.ctrl label span{float:right;font-family:"Cambria Math","Times New Roman",serif;font-size:1.05rem;color:var(--blue)}
+input[type=range]{width:100%;accent-color:var(--blue)}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}
+.chip{border:1.5px solid var(--line);background:#fff;border-radius:99px;padding:5px 12px;font-size:.88rem;font-weight:600;color:var(--ink);transition:.2s}
+.chip:hover{border-color:var(--blue)}
+.chip.on{background:var(--blue);border-color:var(--blue);color:#fff}
+.btn{border:0;background:var(--blue);color:#fff;border-radius:10px;padding:8px 16px;font-weight:600}
+.btn:hover{filter:brightness(1.08)}
+.btn.ghost{background:#fff;color:var(--blue);border:1.5px solid var(--blue)}
+.m{font-family:"Cambria Math","Times New Roman",serif;font-style:italic;font-size:1.08em}
+.eq{font-family:"Cambria Math","Times New Roman",serif;font-size:1.2rem;text-align:center;padding:10px;background:#f7f9fd;border-radius:10px;margin:8px 0;border:1px dashed var(--line)}
+.frac{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;margin:0 3px}
+.frac>span:last-child{border-top:1.5px solid currentColor}
+.res{display:grid;grid-template-columns:1fr auto;gap:4px 12px;font-size:.93rem;margin-top:8px}
+.res b{font-family:"Cambria Math","Times New Roman",serif;color:var(--ink);font-size:1.02rem;text-align:right}
+.tag{display:inline-block;padding:2px 9px;border-radius:99px;font-size:.8rem;font-weight:700}
+.tag.ok{background:var(--green2);color:var(--green)}.tag.ko{background:var(--red2);color:var(--red)}.tag.mid{background:var(--amber2);color:var(--amber)}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:.85rem;color:var(--muted);margin-top:6px}
+.legend i{display:inline-block;width:18px;height:3px;border-radius:2px;vertical-align:middle;margin-right:5px}
+ul.clean{list-style:none}
+ul.clean li{padding:5px 0 5px 26px;position:relative}
+ul.clean li::before{content:"";position:absolute;left:4px;top:13px;width:10px;height:10px;border-radius:3px;background:var(--blue);transform:rotate(45deg)}
+table.tb{width:100%;border-collapse:collapse;font-size:.93rem}
+table.tb th,table.tb td{border-bottom:1px solid var(--line);padding:9px 10px;text-align:left}
+table.tb th{background:#f4f7fc;font-weight:700}
+.hide-cell{background:repeating-linear-gradient(45deg,#eef3fa,#eef3fa 8px,#e3eaf5 8px,#e3eaf5 16px);color:transparent;border-radius:8px;cursor:pointer;user-select:none;position:relative}
+.hide-cell::after{content:"? cliquer";position:absolute;inset:0;display:grid;place-items:center;color:var(--muted);font-size:.8rem;font-weight:600}
+.shown{animation:pop .4s}
+@keyframes pop{from{background:var(--amber2)}to{background:transparent}}
+/* nav */
+nav{display:flex;align-items:center;gap:10px;padding:8px 16px;background:#fff;border-top:1px solid var(--line)}
+nav .dots{flex:1;display:flex;justify-content:center;gap:6px;flex-wrap:wrap}
+nav .dots button{width:10px;height:10px;border-radius:99px;border:0;background:#cbd5e1;padding:0;transition:.3s}
+nav .dots button.on{width:26px;background:var(--blue)}
+nav .nb{border:0;background:var(--ink);color:#fff;border-radius:10px;padding:8px 16px;font-weight:600}
+nav .nb:disabled{opacity:.3;cursor:default}
+nav .cnt{font-size:.85rem;color:var(--muted);min-width:56px;text-align:center}
+/* title slide */
+.hero{display:grid;grid-template-columns:1.1fr 1fr;gap:30px;align-items:center;min-height:calc(100vh - 190px)}
+@media(max-width:900px){.hero{grid-template-columns:1fr}}
+.hero h1{font-size:3rem;line-height:1.05;font-weight:800;background:linear-gradient(120deg,#1d4ed8,#7c3aed);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero .sub{font-size:1.2rem;color:var(--muted);margin:10px 0 20px}
+.obj{display:flex;gap:10px;align-items:flex-start;margin:8px 0}
+.obj .n{flex:none;width:28px;height:28px;border-radius:8px;background:var(--blue2);color:var(--blue);display:grid;place-items:center;font-weight:800;font-size:.9rem}
+/* block diagram */
+#bd .blk rect,#bd .blk circle{fill:#fff;stroke:var(--ink);stroke-width:2;transition:.25s}
+#bd .blk{cursor:pointer}
+#bd .blk:hover rect,#bd .blk:hover circle{fill:var(--blue2)}
+#bd .blk.sel rect,#bd .blk.sel circle{fill:var(--blue);stroke:var(--blue)}
+#bd .blk.sel text{fill:#fff}
+#bd text{font-family:Inter,system-ui,sans-serif;font-size:15px;fill:var(--ink);text-anchor:middle;dominant-baseline:middle;pointer-events:none}
+#bd .lbl{font-size:13px;fill:var(--muted)}
+#bd .lbl.click{pointer-events:auto;cursor:pointer;font-weight:600;fill:var(--blue)}
+#bd .wire{transition:.3s}
+#bd.hl-d [data-chain=d].wire,#bd.hl-r [data-chain=r].wire{stroke:var(--amber);stroke-width:4.5}
+#bd.hl-d .blk[data-chain=d] rect,#bd.hl-d .blk[data-chain=d] circle,#bd.hl-r .blk[data-chain=r] rect{stroke:var(--amber);stroke-width:4}
+.info{min-height:96px}
+/* flip */
+.flip{perspective:1000px;height:250px;cursor:pointer}
+.flip-in{position:relative;width:100%;height:100%;transition:transform .7s cubic-bezier(.3,.8,.3,1);transform-style:preserve-3d}
+.flip.on .flip-in{transform:rotateY(180deg)}
+.face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:var(--r);padding:16px;display:flex;flex-direction:column;border:1px solid var(--line)}
+.face.f{background:#fff;align-items:center;justify-content:center;text-align:center;gap:8px}
+.face.b{background:var(--ink);color:#fff;transform:rotateY(180deg);font-size:.88rem;overflow:auto}
+.face.b b{color:#93c5fd}
+.face .ic{font-size:2.4rem}
+.face .hint{font-size:.78rem;color:var(--muted)}
+/* tabs */
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.tabs button{border:0;background:#e3eaf5;color:var(--ink);border-radius:10px;padding:7px 14px;font-weight:600;font-size:.92rem}
+.tabs button.on{background:var(--ink);color:#fff}
+/* quiz */
+.q{margin-bottom:14px}
+.q .opts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+@media(max-width:700px){.q .opts{grid-template-columns:1fr}}
+.q .opts button{text-align:left;border:1.5px solid var(--line);background:#fff;border-radius:10px;padding:9px 12px;font-size:.93rem;transition:.2s}
+.q .opts button:hover:not(:disabled){border-color:var(--blue);background:#f6f9ff}
+.q .opts button.good{background:var(--green2);border-color:var(--green);font-weight:600}
+.q .opts button.bad{background:var(--red2);border-color:var(--red)}
+.q .opts button:disabled{cursor:default}
+.q .ex{margin-top:8px;font-size:.88rem;color:var(--muted);display:none}
+.q.done .ex{display:block}
+.score{font-size:1.1rem;font-weight:800}
+/* house */
+#house .wave{transition:opacity .4s}
+.pill{display:inline-flex;align-items:center;gap:6px;background:#f4f7fc;border:1px solid var(--line);border-radius:99px;padding:4px 12px;font-size:.88rem;font-weight:600}
+.status{padding:10px 14px;border-radius:10px;font-weight:600;margin-top:10px;font-size:.93rem}
+.status.ok{background:var(--green2);color:#065f46}.status.ko{background:var(--red2);color:#9f1239}
+.seg{display:inline-flex;background:#e3eaf5;border-radius:12px;padding:4px;gap:4px}
+.seg button{border:0;background:none;padding:7px 14px;border-radius:9px;font-weight:600;font-size:.92rem;color:var(--ink)}
+.seg button.on{background:#fff;box-shadow:0 2px 6px rgba(0,0,0,.12);color:var(--blue)}
+.step{opacity:.25;transition:.4s;padding:8px 12px;border-radius:10px;margin:6px 0;background:#f7f9fd}
+.step.on{opacity:1;background:#fff;border-left:4px solid var(--blue)}
+.inp{display:flex;align-items:center;gap:8px;margin:6px 0;flex-wrap:wrap}
+.inp input{width:110px;padding:6px 10px;border:1.5px solid var(--line);border-radius:8px;font:inherit}
+.inp .fb{font-weight:700;font-size:.9rem}
+.readout{font-family:"Cambria Math","Times New Roman",serif;font-size:1rem;color:var(--blue);min-height:1.4em}
+.arrow-t td{font-size:1.4rem;text-align:center}
+.up{color:var(--green)}.down{color:var(--red)}
+.small{font-size:.86rem;color:var(--muted)}
+.mini{display:flex;gap:10px;align-items:center}
+</style>
+</head>
+<body>
+<div id="app">
+ <div class="top">
+  <div class="logo">∑</div>
+  <div><div class="t">Systèmes asservis</div><div class="s">Terminale SI · Modélisation et performances</div></div>
+  <div class="sp"></div>
+  <button class="tbtn" id="mbtn">☰ Sommaire</button>
+  <button class="tbtn" id="fsbtn" title="Plein écran">⛶</button>
+  <div id="menu"></div>
+ </div>
+ <div class="bar"><i id="prog"></i></div>
+ <main class="deck" id="deck">
+
+<!-- 1 TITRE -->
+<section class="slide" id="s1" data-title="Accueil"><div class="inner">
+ <div class="hero">
+  <div>
+   <div class="kicker reveal">Sciences de l'Ingénieur · Terminale</div>
+   <h1 class="reveal" style="--i:1">Systèmes asservis</h1>
+   <p class="sub reveal" style="--i:2">Modéliser un système, analyser ses performances, choisir un correcteur.</p>
+   <div class="reveal" style="--i:3">
+    <div class="obj"><div class="n">1</div><div>Différencier un système <b>asservi</b> d'un système <b>non asservi</b></div></div>
+    <div class="obj"><div class="n">2</div><div>Modéliser les <b>entrées</b> et les systèmes <b>SLCI</b> (gain, intégrateur, 1<sup>er</sup> et 2<sup>e</sup> ordre)</div></div>
+    <div class="obj"><div class="n">3</div><div><b>Identifier</b> les paramètres d'un modèle à partir d'une réponse indicielle</div></div>
+    <div class="obj"><div class="n">4</div><div>Évaluer <b>stabilité, précision, rapidité</b> et l'effet d'un correcteur <b>PID</b></div></div>
+   </div>
+   <div class="reveal" style="--i:5;margin-top:18px"><button class="btn" onclick="go(1)">Commencer →</button> <span class="small" style="margin-left:8px">Flèches ← → du clavier pour naviguer</span></div>
+  </div>
+  <div class="card reveal" style="--i:2">
+   <svg viewBox="0 0 520 300" style="width:100%">
+    <defs><marker id="a1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#16233a"/></marker></defs>
+    <g fill="none" stroke="#16233a" stroke-width="2.2" marker-end="url(#a1)">
+     <path d="M10 110H72"/><path d="M128 110H170"/><path d="M300 110H340"/><path d="M470 110H515"/>
+     <path d="M490 110V220H405"/><path d="M275 220H100V140"/>
+    </g>
+    <circle r="7" fill="#2563eb"><animateMotion dur="3.5s" repeatCount="indefinite" path="M10 110H490V220H100V110"/></circle>
+    <circle r="7" fill="#7c3aed"><animateMotion dur="3.5s" begin="1.75s" repeatCount="indefinite" path="M10 110H490V220H100V110"/></circle>
+    <circle cx="100" cy="110" r="27" fill="#fff" stroke="#16233a" stroke-width="2"/>
+    <path d="M81 91L119 129M119 91L81 129" stroke="#16233a" stroke-width="2"/>
+    <text x="75" y="90" font-size="16" font-weight="700">+</text><text x="110" y="152" font-size="18" font-weight="700">−</text>
+    <rect x="170" y="80" width="130" height="60" rx="12" fill="#e0eaff" stroke="#2563eb" stroke-width="2"/>
+    <text x="235" y="115" text-anchor="middle" font-size="15" font-weight="600" fill="#16233a">Correcteur</text>
+    <rect x="340" y="80" width="130" height="60" rx="12" fill="#fef3c7" stroke="#d97706" stroke-width="2"/>
+    <text x="405" y="115" text-anchor="middle" font-size="15" font-weight="600" fill="#16233a">Processus</text>
+    <rect x="275" y="192" width="130" height="56" rx="12" fill="#dcfce7" stroke="#059669" stroke-width="2"/>
+    <text x="340" y="225" text-anchor="middle" font-size="15" font-weight="600" fill="#16233a">Capteur</text>
+    <text x="14" y="98" font-size="13" fill="#5b6b82">consigne</text>
+    <text x="440" y="98" font-size="13" fill="#5b6b82">sortie</text>
+    <text x="150" y="238" font-size="13" fill="#5b6b82">mesure</text>
+    <text x="260" y="40" text-anchor="middle" font-size="14" fill="#5b6b82">« Mesurer, comparer, corriger » en permanence</text>
+   </svg>
+  </div>
+ </div>
+</div></section>
+
+<!-- 2 BO / BF -->
+<section class="slide" id="s2" data-title="Boucle ouverte / boucle fermée"><div class="inner">
+ <div class="kicker reveal">1 · Pourquoi asservir ?</div>
+ <h2 class="reveal" style="--i:1">Boucle ouverte ou boucle fermée ?</h2>
+ <p class="lead reveal" style="--i:2">On veut maintenir 20 °C dans la maison. Change la météo (la <b>perturbation</b>) et compare les deux modes de commande.</p>
+ <div class="g2">
+  <div class="card reveal" style="--i:3">
+   <div class="seg" id="s2mode"><button data-m="bo" class="on">Boucle ouverte</button><button data-m="bf">Boucle fermée</button></div>
+   <svg id="house" viewBox="0 0 440 290" style="width:100%;margin-top:8px">
+    <rect id="sky" x="0" y="0" width="440" height="290" rx="14" fill="#cfe3ff"/>
+    <g id="sun"><circle cx="58" cy="52" r="20" fill="#fbbf24"/></g>
+    <g id="snow" opacity="0"><text x="40" y="66" font-size="38">❄️</text></g>
+    <text id="textlbl" x="90" y="58" font-size="14" font-weight="700" fill="#16233a">Extérieur : 10 °C</text>
+    <rect x="0" y="262" width="440" height="28" fill="#86b36b"/>
+    <polygon points="110,120 250,40 390,120" fill="#e11d48"/>
+    <rect x="130" y="118" width="240" height="146" fill="#fff7ed" stroke="#16233a" stroke-width="2"/>
+    <g id="radg">
+     <rect id="rad" x="155" y="200" width="90" height="50" rx="5" fill="#cbd5e1" stroke="#16233a" stroke-width="1.5"/>
+     <path d="M170 200V250M185 200V250M200 200V250M215 200V250M230 200V250" stroke="#16233a" stroke-width="1" opacity=".5"/>
+     <g id="waves" fill="none" stroke="#f97316" stroke-width="2.5" stroke-linecap="round">
+      <path class="wave" d="M170 190q6-8 0-16t0-16"/><path class="wave" d="M200 190q6-8 0-16t0-16"/><path class="wave" d="M230 190q6-8 0-16t0-16"/>
+     </g>
+    </g>
+    <text x="200" y="259" text-anchor="middle" font-size="11" fill="#5b6b82">radiateur</text>
+    <g>
+     <rect x="318" y="150" width="16" height="96" rx="8" fill="#fff" stroke="#16233a" stroke-width="1.5"/>
+     <rect id="merc" x="322" y="200" width="8" height="40" rx="4" fill="#e11d48"/>
+     <circle cx="326" cy="248" r="11" fill="#e11d48" stroke="#16233a" stroke-width="1.5"/>
+     <text id="tin" x="326" y="138" text-anchor="middle" font-size="15" font-weight="800" fill="#16233a">15,0 °C</text>
+    </g>
+    <g id="loop" opacity="0" style="transition:opacity .4s">
+     <rect x="250" y="70" width="110" height="34" rx="8" fill="#2563eb"/>
+     <text x="305" y="92" text-anchor="middle" font-size="13" font-weight="700" fill="#fff">Thermostat</text>
+     <path d="M326 150V104" stroke="#2563eb" stroke-width="3" stroke-dasharray="6 5" fill="none"><animate attributeName="stroke-dashoffset" from="22" to="0" dur="1s" repeatCount="indefinite"/></path>
+     <path d="M250 87H205V196" stroke="#2563eb" stroke-width="3" stroke-dasharray="6 5" fill="none"><animate attributeName="stroke-dashoffset" from="22" to="0" dur="1s" repeatCount="indefinite"/></path>
+     <text x="338" y="130" font-size="11" fill="#2563eb" font-weight="700">mesure</text>
+    </g>
+    <g id="knob">
+     <rect x="250" y="70" width="110" height="34" rx="8" fill="#64748b"/>
+     <text x="305" y="92" text-anchor="middle" font-size="13" font-weight="700" fill="#fff">Bouton réglé</text>
+     <path d="M250 87H205V196" stroke="#64748b" stroke-width="3" fill="none"/>
+    </g>
+   </svg>
+   <div class="g2" style="gap:12px">
+    <div class="ctrl"><label>Consigne <span id="s2tcv">20 °C</span></label><input type="range" id="s2tc" min="15" max="25" step="0.5" value="20"></div>
+    <div class="ctrl"><label>Météo (perturbation) <span id="s2tev">10 °C</span></label><input type="range" id="s2te" min="-5" max="20" step="1" value="10"></div>
+   </div>
+  </div>
+  <div>
+   <div class="card reveal" style="--i:4">
+    <canvas class="cv sm" id="s2cv"></canvas>
+    <div class="legend"><span><i style="background:#2563eb"></i>Température intérieure</span><span><i style="background:#e11d48"></i>Consigne</span><span><i style="background:#94a3b8"></i>Température extérieure</span></div>
+    <div class="pill" style="margin-top:8px">Puissance radiateur : <span id="s2p">0 %</span></div>
+    <div class="status" id="s2st"></div>
+   </div>
+   <div class="card reveal" style="--i:5;margin-top:14px" id="s2txt"></div>
+  </div>
+ </div>
+</div></section>
+
+<!-- 3 STRUCTURE -->
+<section class="slide" id="s3" data-title="Structure d'un système asservi"><div class="inner">
+ <div class="kicker reveal">2 · Structure</div>
+ <h2 class="reveal" style="--i:1">Organisation d'un système en boucle fermée</h2>
+ <p class="lead reveal" style="--i:2">Un système asservi pilote une <b>grandeur de sortie</b> : elle est mesurée en permanence pour ajuster la commande et suivre la consigne. <b>Clique sur chaque bloc.</b></p>
+ <div class="card reveal" style="--i:3">
+  <svg id="bd" viewBox="0 0 1000 300" style="width:100%">
+   <defs><marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#16233a"/></marker></defs>
+   <circle r="7" fill="#2563eb"><animateMotion dur="5s" repeatCount="indefinite" path="M20 120H880V245H150V120"/></circle>
+   <circle r="7" fill="#7c3aed"><animateMotion dur="5s" begin="2.5s" repeatCount="indefinite" path="M20 120H880V245H150V120"/></circle>
+   <g fill="none" stroke="#16233a" stroke-width="2.2" marker-end="url(#ar)">
+    <path class="wire" data-chain="d" d="M20 120H122"/>
+    <path class="wire" data-chain="d" d="M178 120H222"/>
+    <path class="wire" data-chain="d" d="M362 120H402"/>
+    <path class="wire" data-chain="d" d="M542 120H582"/>
+    <path class="wire" data-chain="d" d="M752 120H985"/>
+    <path class="wire" data-chain="r" d="M880 120V245H772"/>
+    <path class="wire" data-chain="r" d="M582 245H150V148"/>
+    <path d="M472 40V88"/><path d="M667 40V88"/>
+   </g>
+   <circle cx="880" cy="120" r="5" fill="#16233a"/>
+   <g class="blk" data-k="cmp" data-chain="d"><circle cx="150" cy="120" r="26"/><path d="M132 102L168 138M168 102L132 138" stroke="#16233a" stroke-width="2" style="pointer-events:none"/></g>
+   <text x="128" y="96" style="font-weight:800">+</text><text x="170" y="160" style="font-weight:800;font-size:20px">−</text>
+   <g class="blk" data-k="cor" data-chain="d"><rect x="222" y="90" width="140" height="60" rx="10"/><text x="292" y="120">Correcteur</text></g>
+   <g class="blk" data-k="pre" data-chain="d"><rect x="402" y="90" width="140" height="60" rx="10"/><text x="472" y="120">Pré-actionneur</text></g>
+   <g class="blk" data-k="pro" data-chain="d"><rect x="582" y="90" width="170" height="60" rx="10"/><text x="667" y="112">Processus</text><text x="667" y="134" style="font-size:10px">actionneur·transmetteur·effecteur</text></g>
+   <g class="blk" data-k="cap" data-chain="r"><rect x="582" y="218" width="190" height="55" rx="10"/><text x="677" y="246">Capteur</text></g>
+   <text class="lbl click" data-k="cons" x="60" y="100">Consigne</text>
+   <text class="lbl click" data-k="ecart" x="199" y="100">ε</text>
+   <text class="lbl" x="382" y="100">u</text>
+   <text class="lbl click" data-k="en" x="472" y="28">Énergie</text>
+   <text class="lbl click" data-k="pert" x="667" y="28">Perturbations</text>
+   <text class="lbl click" data-k="sor" x="935" y="100">Sortie</text>
+   <text class="lbl click" data-k="mes" x="360" y="232">mesure (image de la sortie)</text>
+  </svg>
+  <div class="chips" id="bdhl"><span class="small" style="align-self:center">Surligner :</span><button class="chip" data-hl="d">Chaîne directe (d'action)</button><button class="chip" data-hl="r">Chaîne de retour</button><button class="chip on" data-hl="">Aucune</button></div>
+ </div>
+ <div class="card info reveal" style="--i:4;margin-top:14px" id="bdinfo"><h3>👆 Clique sur un bloc ou un mot bleu</h3><p class="small">Chaque élément du schéma a un rôle précis dans la boucle.</p></div>
+</div></section>
+
+<!-- 4 EXEMPLES -->
+<section class="slide" id="s4" data-title="Exemples de systèmes asservis"><div class="inner">
+ <div class="kicker reveal">2 · Structure</div>
+ <h2 class="reveal" style="--i:1">Identifier les éléments d'une boucle</h2>
+ <p class="lead reveal" style="--i:2">Choisis un système, essaie de trouver chaque élément, puis clique sur la case pour vérifier.</p>
+ <div class="card reveal" style="--i:3">
+  <div class="tabs" id="extabs"></div>
+  <table class="tb" id="extable"></table>
+  <div style="margin-top:12px"><button class="btn ghost" id="exall">Tout révéler</button></div>
+ </div>
+</div></section>
+
+<!-- 5 PERTURBATION / REGULATEUR / SUIVEUR -->
+<section class="slide" id="s5" data-title="Perturbations, régulateur, suiveur"><div class="inner">
+ <div class="kicker reveal">2 · Structure</div>
+ <h2 class="reveal" style="--i:1">Chaîne directe, boucle fermée, régulateur, suiveur</h2>
+ <div class="g2">
+  <div class="card reveal" style="--i:2">
+   <h3>Commande en chaîne directe (boucle ouverte)</h3>
+   <p>Aucun contrôle sur la manière dont la commande a été exécutée. Exemple : voiture <b>sans</b> régulateur, pédale fixe → la vitesse change dans une montée.</p>
+   <h3 style="margin-top:12px">Commande en boucle fermée</h3>
+   <p>La sortie est <b>mesurée</b> puis <b>comparée</b> à la consigne pour agir en conséquence.</p>
+   <div class="def r"><b>Perturbation</b>Grandeur d'entrée non prévisible, extérieure, qui agit sur le processus et tend à modifier la sortie (pente de la route, vent, température extérieure…).</div>
+  </div>
+  <div class="card reveal" style="--i:3">
+   <table class="tb">
+    <tr><th></th><th>Boucle ouverte</th><th>Boucle fermée</th></tr>
+    <tr><td>Mesure de la sortie</td><td>❌</td><td>✅ capteur</td></tr>
+    <tr><td>Corrige les perturbations</td><td>❌</td><td>✅</td></tr>
+    <tr><td>Simplicité / coût</td><td>✅ simple</td><td>➖ plus complexe</td></tr>
+    <tr><td>Risque d'instabilité</td><td>non</td><td>⚠️ oui, si mal réglé</td></tr>
+   </table>
+  </div>
+ </div>
+ <div class="g2" style="margin-top:18px">
+  <div class="card reveal" style="--i:4">
+   <h3>🏰 Système <span style="color:var(--blue)">régulateur</span></h3>
+   <p class="small">La consigne reste <b>constante</b> ; le système compense les perturbations (château d'eau, chauffage).</p>
+   <canvas class="cv xs" id="s5a"></canvas>
+  </div>
+  <div class="card reveal" style="--i:5">
+   <h3>🚀 Système <span style="color:var(--violet)">suiveur</span></h3>
+   <p class="small">La consigne <b>évolue</b> dans le temps ; la sortie doit la suivre (lanceur Ariane 6, radar, poursuite).</p>
+   <canvas class="cv xs" id="s5b"></canvas>
+  </div>
+ </div>
+ <div class="legend reveal" style="--i:6"><span><i style="background:#e11d48"></i>consigne</span><span><i style="background:#2563eb"></i>sortie</span><span><i style="background:#94a3b8"></i>perturbation à t = 5 s</span></div>
+</div></section>
+
+<!-- 6 ENTREES -->
+<section class="slide" id="s6" data-title="Modélisation des entrées"><div class="inner">
+ <div class="kicker reveal">3 · Modélisation des entrées</div>
+ <h2 class="reveal" style="--i:1">Signaux d'entrée types</h2>
+ <p class="lead reveal" style="--i:2">Pour étudier un système, on le soumet à des entrées simples et on observe sa sortie.</p>
+ <div class="g73">
+  <div class="card reveal" style="--i:3">
+   <div class="tabs" id="s6tabs"><button data-k="ech" class="on">Échelon unité</button><button data-k="ramp">Rampe unitaire</button><button data-k="comp">Signal composé</button></div>
+   <canvas class="cv" id="s6cv"></canvas>
+   <div class="legend" id="s6leg"></div>
+  </div>
+  <div class="card reveal" style="--i:4" id="s6txt"></div>
+ </div>
+</div></section>
+
+<!-- 7 SLCI -->
+<section class="slide" id="s7" data-title="Hypothèses SLCI"><div class="inner">
+ <div class="kicker reveal">4 · Modélisation des systèmes</div>
+ <h2 class="reveal" style="--i:1">Les hypothèses SLCI</h2>
+ <p class="lead reveal" style="--i:2">On étudie des systèmes <b>L</b>inéaires, <b>C</b>ontinus et <b>I</b>nvariants, souvent mono-variables. Retourne chaque carte.</p>
+ <div class="g4">
+  <div class="flip reveal" style="--i:3"><div class="flip-in"><div class="face f"><div class="ic">➡️</div><h3>Mono-variable</h3><div class="hint">cliquer pour retourner</div></div>
+   <div class="face b"><b>Une seule entrée, une seule sortie.</b><br><br>e(t) → [SLCI] → s(t)<br><br>Un drone (4 moteurs, 3 rotations, altitude…) est <b>multi-variable</b> : étudié en classes préparatoires.</div></div></div>
+  <div class="flip reveal" style="--i:4"><div class="flip-in"><div class="face f"><div class="ic">📏</div><h3>Linéaire</h3><div class="hint">cliquer pour retourner</div></div>
+   <div class="face b"><b>Proportionnalité :</b> si e(t) → s(t), alors λ·e(t) → λ·s(t).<br><br><b>Superposition :</b> si e₁ → s₁ et e₂ → s₂, alors e₁ + e₂ → s₁ + s₂.<br><br>⚠️ Saturations, seuils, frottements secs ne sont pas linéaires.</div></div></div>
+  <div class="flip reveal" style="--i:5"><div class="flip-in"><div class="face f"><div class="ic">〰️</div><h3>Continu</h3><div class="hint">cliquer pour retourner</div></div>
+   <div class="face b"><b>Grandeurs définies à chaque instant</b> (système analogique).<br><br>Un microcontrôleur <b>échantillonne</b> (en temps) et <b>quantifie</b> (en valeur). Si la période d'échantillonnage est très petite devant le temps de réponse, on assimile le système à un système continu.</div></div></div>
+  <div class="flip reveal" style="--i:6"><div class="flip-in"><div class="face f"><div class="ic">⏱️</div><h3>Invariant</h3><div class="hint">cliquer pour retourner</div></div>
+   <div class="face b"><b>Comportement indépendant du temps.</b><br><br>La même entrée appliquée à t₁ ou à t₂ = t₁ + τ donne la même sortie, simplement décalée : s₂(t) = s₁(t − τ).<br><br>(Les caractéristiques ne vieillissent pas pendant l'étude.)</div></div></div>
+ </div>
+ <div class="card reveal" style="--i:7;margin-top:18px">
+  <h3>Échantillonnage et quantification</h3>
+  <div class="chips" id="s7chips"><button class="chip on" data-k="0">(a) Continu</button><button class="chip" data-k="1">(b) Échantillonné en temps</button><button class="chip" data-k="2">(c) + quantifié</button></div>
+  <canvas class="cv xs" id="s7cv"></canvas>
+ </div>
+</div></section>
+
+<!-- 8 GAIN / INTEGRATEUR -->
+<section class="slide" id="s8" data-title="Gain pur et intégrateur"><div class="inner">
+ <div class="kicker reveal">4 · Modèles élémentaires</div>
+ <h2 class="reveal" style="--i:1">Gain pur et intégrateur</h2>
+ <div class="g2">
+  <div class="card reveal" style="--i:2">
+   <h3>Gain pur : <span class="m">s(t) = K·e(t)</span></h3>
+   <p class="small">Sortie proportionnelle à l'entrée. Transmetteurs (réducteurs, vis-écrou), pré-actionneurs (variateur), capteurs (potentiomètre, génératrice tachymétrique), ressort <span class="m">F = k·Δx</span>.</p>
+   <div class="def g"><b>Exemple : roue et vis sans fin</b><span class="m">r = ω₂/ω₁ = Z₁/Z₂</span> &nbsp;→ le gain est <span class="m">K = r</span></div>
+   <svg viewBox="0 0 400 150" style="width:100%">
+    <g id="worm"><rect x="20" y="58" width="160" height="34" rx="10" fill="#94a3b8"/>
+     <g id="wthreads" stroke="#475569" stroke-width="3"></g></g>
+    <g id="wheel" style="transform-origin:290px 75px"><circle cx="290" cy="75" r="62" fill="#fcd34d" stroke="#b45309" stroke-width="3"/><circle cx="290" cy="75" r="12" fill="#b45309"/>
+     <path d="M290 13V137M228 75H352" stroke="#b45309" stroke-width="4"/></g>
+    <text x="100" y="120" text-anchor="middle" font-size="13" fill="#5b6b82">vis : ω₁</text>
+    <text x="290" y="148" text-anchor="middle" font-size="13" fill="#5b6b82">roue : ω₂</text>
+   </svg>
+   <div class="g2" style="gap:10px">
+    <div class="ctrl"><label>Z₁ (filets) <span id="z1v">1</span></label><input type="range" id="z1" min="1" max="4" step="1" value="1"></div>
+    <div class="ctrl"><label>Z₂ (dents) <span id="z2v">40</span></label><input type="range" id="z2" min="20" max="80" step="5" value="40"></div>
+   </div>
+   <div class="ctrl"><label>ω₁ (rad/s) <span id="w1v">150</span></label><input type="range" id="w1" min="20" max="300" step="10" value="150"></div>
+   <div class="res"><span>Rapport de réduction r</span><b id="rr">1/40 = 0,025</b><span>Vitesse de la roue ω₂</span><b id="w2">3,75 rad/s</b></div>
+  </div>
+  <div class="card reveal" style="--i:3">
+   <h3>Intégrateur : <span class="m">x(t) = ∫ v(τ) dτ</span></h3>
+   <p class="small">Passage vitesse → position (ou accélération → vitesse). Exemples : bobine <span class="m">u = L·di/dt</span>, condensateur <span class="m">i = C·du/dt</span>.</p>
+   <div class="tabs" id="s8tabs"><button data-k="e" class="on">Vitesse en échelon</button><button data-k="r">Vitesse en rampe</button></div>
+   <canvas class="cv sm" id="s8cv"></canvas>
+   <div class="legend"><span><i style="background:#94a3b8"></i>vitesse v(t)</span><span><i style="background:#2563eb"></i>position x(t)</span></div>
+   <div class="def" id="s8txt"></div>
+  </div>
+ </div>
+</div></section>
+
+<!-- 9 PREMIER ORDRE -->
+<section class="slide" id="s9" data-title="Système du 1er ordre"><div class="inner">
+ <div class="kicker reveal">4 · Modèles</div>
+ <h2 class="reveal" style="--i:1">Système du premier ordre</h2>
+ <div class="g73">
+  <div class="card reveal" style="--i:2">
+   <canvas class="cv" id="s9cv"></canvas>
+   <div class="legend"><span><i style="background:#94a3b8"></i>entrée e₀·u(t)</span><span><i style="background:#2563eb"></i>réponse s(t)</span><span><i style="background:#d97706"></i>63 % → τ</span><span><i style="background:#059669"></i>95 % → 3τ</span><span><i style="background:#7c3aed"></i>tangente à l'origine</span></div>
+  </div>
+  <div class="card reveal" style="--i:3">
+   <div class="eq">τ·<span class="frac"><span>ds(t)</span><span>dt</span></span> + s(t) = K·e(t)</div>
+   <div class="eq" style="font-size:1.05rem">s(t) = K·e₀·(1 − e<sup>−t/τ</sup>)</div>
+   <div class="ctrl"><label>Gain statique K <span id="k1v">2</span></label><input type="range" id="k1" min="0.5" max="3" step="0.1" value="2"></div>
+   <div class="ctrl"><label>Constante de temps τ (s) <span id="t1v">2</span></label><input type="range" id="t1" min="0.5" max="5" step="0.1" value="2"></div>
+   <div class="ctrl"><label>Échelon e₀ <span id="e1v">2</span></label><input type="range" id="e1" min="1" max="4" step="0.5" value="2"></div>
+   <label class="small"><input type="checkbox" id="c1" checked> Afficher les constructions</label>
+   <div class="res" id="r1"></div>
+  </div>
+ </div>
+ <div class="g3" style="margin-top:16px">
+  <div class="def reveal" style="--i:4"><b>Pas d'oscillation</b>s(t) strictement croissante, pente à l'origine non nulle : K·e₀/τ.</div>
+  <div class="def a reveal" style="--i:5"><b>t = τ → 63 %</b>et t = 3τ → 95 % de la valeur finale, donc t<sub>r5%</sub> = 3τ.</div>
+  <div class="def g reveal" style="--i:6"><b>Plus τ est grand…</b>plus le système est lent. K fixe la valeur finale K·e₀.</div>
+ </div>
+</div></section>
+
+<!-- 10 DEUXIEME ORDRE -->
+<section class="slide" id="s10" data-title="Système du 2e ordre"><div class="inner">
+ <div class="kicker reveal">4 · Modèles</div>
+ <h2 class="reveal" style="--i:1">Système du deuxième ordre</h2>
+ <div class="g73">
+  <div class="card reveal" style="--i:2">
+   <canvas class="cv" id="s10cv"></canvas>
+   <div class="legend"><span><i style="background:#94a3b8"></i>valeur finale K·e₀</span><span><i style="background:#2563eb"></i>réponse s(t)</span><span><i style="background:#d1fae5;height:10px"></i>bande ±5 %</span><span><i style="background:#e11d48"></i>1<sup>er</sup> dépassement</span></div>
+   <div class="chips" id="s10pre"><span class="small" style="align-self:center">Essais :</span><button class="chip" data-x="0.15">ξ = 0,15</button><button class="chip" data-x="0.4">ξ = 0,4</button><button class="chip" data-x="0.69">ξ = 0,69 ⚡</button><button class="chip" data-x="1">ξ = 1 (critique)</button><button class="chip" data-x="2">ξ = 2</button></div>
+  </div>
+  <div class="card reveal" style="--i:3">
+   <div class="eq" style="font-size:1.05rem"><span class="frac"><span>1</span><span>ω₀²</span></span><span class="frac"><span>d²s</span><span>dt²</span></span> + <span class="frac"><span>2ξ</span><span>ω₀</span></span><span class="frac"><span>ds</span><span>dt</span></span> + s = K·e</div>
+   <div class="ctrl"><label>Gain statique K <span id="k2v">1</span></label><input type="range" id="k2" min="0.5" max="2" step="0.1" value="1"></div>
+   <div class="ctrl"><label>Amortissement ξ <span id="x2v">0,3</span></label><input type="range" id="x2" min="0.05" max="2" step="0.01" value="0.3"></div>
+   <div class="ctrl"><label>Pulsation propre ω₀ (rad/s) <span id="w2v">4</span></label><input type="range" id="w02" min="1" max="10" step="0.5" value="4"></div>
+   <div id="reg2" style="margin:6px 0"></div>
+   <div class="res" id="r2"></div>
+  </div>
+ </div>
+ <div class="g3" style="margin-top:16px">
+  <div class="def r reveal" style="--i:4"><b>ξ &lt; 1 : pseudo-périodique</b>Oscillations. D<sub>k</sub> = e<sup>−kπξ/√(1−ξ²)</sup>, T<sub>a</sub> = 2π / (ω₀√(1−ξ²)).</div>
+  <div class="def a reveal" style="--i:5"><b>ξ = 0,69 : le plus rapide</b>avec un dépassement D₁ inférieur à 5 % (t<sub>r5%</sub>·ω₀ ≈ 3).</div>
+  <div class="def g reveal" style="--i:6"><b>ξ ≥ 1 : apériodique</b>Pas de dépassement, tangente à l'origine nulle. ξ = 1 : le plus rapide sans dépassement.</div>
+ </div>
+</div></section>
+
+<!-- 11 IDENTIFICATION -->
+<section class="slide" id="s11" data-title="Identifier un modèle"><div class="inner">
+ <div class="kicker reveal">5 · Identification</div>
+ <h2 class="reveal" style="--i:1">À toi : identifier un modèle de comportement</h2>
+ <p class="lead reveal" style="--i:2">Voici la réponse <b>mesurée</b> d'un moteur à un échelon de tension. Survole la courbe pour lire les valeurs. Choisis le modèle puis identifie ses paramètres.</p>
+ <div class="g73">
+  <div class="card reveal" style="--i:3">
+   <canvas class="cv" id="s11cv" style="cursor:crosshair"></canvas>
+   <div class="readout" id="s11ro">Survole la courbe…</div>
+  </div>
+  <div class="card reveal" style="--i:4">
+   <div class="pill" id="s11e0">Échelon : e₀ = 10 V</div>
+   <h3 style="margin-top:12px">1) Quel modèle ?</h3>
+   <div class="chips"><button class="chip" id="s11o1">1<sup>er</sup> ordre</button><button class="chip" id="s11o2">2<sup>e</sup> ordre (ξ &lt; 1)</button></div>
+   <div id="s11fb1" class="small"></div>
+   <div id="s11p" style="display:none">
+    <h3 style="margin-top:10px">2) Paramètres</h3>
+    <div id="s11inputs"></div>
+    <button class="btn" id="s11chk" style="margin-top:6px">Vérifier</button>
+    <button class="btn ghost" id="s11cor" style="margin-top:6px">Correction</button>
+   </div>
+   <div id="s11sol" class="small" style="margin-top:10px"></div>
+   <button class="btn ghost" id="s11new" style="margin-top:12px">🎲 Nouvelle courbe</button>
+  </div>
+ </div>
+</div></section>
+
+<!-- 12 PERFORMANCES -->
+<section class="slide" id="s12" data-title="Performances"><div class="inner">
+ <div class="kicker reveal">6 · Analyse des performances</div>
+ <h2 class="reveal" style="--i:1">Stabilité, précision, rapidité</h2>
+ <p class="lead reveal" style="--i:2">Un système asservi est évalué selon trois critères, en général pour une entrée constante (échelon).</p>
+ <div class="g3">
+  <div class="card reveal" style="--i:3">
+   <h3>⚖️ Stabilité</h3>
+   <p class="small">La sortie converge-t-elle vers une valeur constante quand t → ∞ ?</p>
+   <div class="chips" id="stabc"><button class="chip on" data-k="a">Bien amorti</button><button class="chip" data-k="b">Mal amorti</button><button class="chip" data-k="c">Instable</button></div>
+   <canvas class="cv xs" id="s12a"></canvas>
+   <p class="small">Caractérisée par le <b>dépassement</b> D₁ et l'<b>amortissement</b>.</p>
+  </div>
+  <div class="card reveal" style="--i:4">
+   <h3>🎯 Précision</h3>
+   <p class="small">La sortie atteint-elle la consigne ? Erreur statique :</p>
+   <div class="eq" style="font-size:1rem">μ<sub>s</sub> = lim (E₀ − s(t))</div>
+   <canvas class="cv xs" id="s12b"></canvas>
+   <p class="small">Précis si μ<sub>s</sub> = 0. Entrée et sortie doivent avoir la même unité.</p>
+  </div>
+  <div class="card reveal" style="--i:5">
+   <h3>⚡ Rapidité</h3>
+   <p class="small">Temps de réponse à 5 % : instant où la sortie entre <b>définitivement</b> dans la bande ±5 % de la valeur finale.</p>
+   <canvas class="cv xs" id="s12c"></canvas>
+   <p class="small">Plus t<sub>r5%</sub> est petit, plus le système est rapide.</p>
+  </div>
+ </div>
+ <div class="card reveal" style="--i:6;margin-top:16px">
+  <h3>✍️ Exercice — d'après la courbe : consigne 10, valeur maximale 16, valeur finale 10</h3>
+  <div class="g2">
+   <div>
+    <div class="eq" style="font-size:1rem">D = 100 × (V<sub>max</sub> / V<sub>finale</sub> − 1)</div>
+    <div class="inp">D = <input id="exD" placeholder="en %"> % <button class="btn" data-chk="D">Vérifier</button> <span class="fb" id="fbD"></span></div>
+   </div>
+   <div>
+    <div class="eq" style="font-size:1rem">E = 100 × |Consigne − V<sub>finale</sub>| / Consigne</div>
+    <div class="inp">Si la valeur finale était 9,2 : E = <input id="exE" placeholder="en %"> % <button class="btn" data-chk="E">Vérifier</button> <span class="fb" id="fbE"></span></div>
+   </div>
+  </div>
+ </div>
+</div></section>
+
+<!-- 13 CORRECTEURS -->
+<section class="slide" id="s13" data-title="Correcteurs PID"><div class="inner">
+ <div class="kicker reveal">7 · Correction</div>
+ <h2 class="reveal" style="--i:1">Améliorer les performances : le correcteur PID</h2>
+ <p class="lead reveal" style="--i:2">Le correcteur calcule la commande à partir de l'écart ε = consigne − mesure. Règle les trois actions et observe : <b>tout est compromis</b> !</p>
+ <div class="g73">
+  <div class="card reveal" style="--i:3">
+   <canvas class="cv" id="s13cv"></canvas>
+   <div class="legend"><span><i style="background:#e11d48"></i>consigne</span><span><i style="background:#2563eb"></i>sortie</span><span><i style="background:#d1fae5;height:10px"></i>bande ±5 %</span></div>
+   <canvas class="cv xs" id="s13u" style="margin-top:8px"></canvas>
+   <div class="legend"><span><i style="background:#7c3aed"></i>commande u(t) envoyée par le correcteur</span></div>
+  </div>
+  <div class="card reveal" style="--i:4">
+   <div class="eq" style="font-size:.98rem">u = K<sub>p</sub>·ε + K<sub>i</sub>·∫ε dt + K<sub>d</sub>·<span class="frac"><span>dε</span><span>dt</span></span></div>
+   <div class="chips" id="s13pre"><button class="chip" data-p="1,0,0">Sans correcteur</button><button class="chip" data-p="4,0,0">P fort</button><button class="chip" data-p="3,2,0">PI</button><button class="chip" data-p="4,0,0.4">PD</button><button class="chip" data-p="4,4,0.4">PID réglé</button></div>
+   <div class="ctrl"><label>Proportionnel K<sub>p</sub> <span id="kpv">1</span></label><input type="range" id="kp" min="0" max="10" step="0.1" value="1"></div>
+   <div class="ctrl"><label>Intégral K<sub>i</sub> <span id="kiv">0</span></label><input type="range" id="ki" min="0" max="10" step="0.1" value="0"></div>
+   <div class="ctrl"><label>Dérivé K<sub>d</sub> <span id="kdv">0</span></label><input type="range" id="kd" min="0" max="1" step="0.02" value="0"></div>
+   <label class="small"><input type="checkbox" id="pert"> Ajouter une perturbation (charge) à t = 6 s</label>
+   <div class="res" id="r13"></div>
+  </div>
+ </div>
+ <div class="g2" style="margin-top:16px">
+  <div class="card reveal" style="--i:5">
+   <h3>Tableau récapitulatif</h3>
+   <table class="tb arrow-t">
+    <tr><th>Quand on augmente…</th><th>Précision</th><th>Stabilité</th><th>Rapidité</th></tr>
+    <tr><td style="font-size:1rem"><b>P</b> (proportionnel)</td><td class="up">↗</td><td class="down">↘</td><td class="up">↗</td></tr>
+    <tr><td style="font-size:1rem"><b>I</b> (intégral)</td><td class="up">↗↗</td><td class="down">↘</td><td class="down">↘</td></tr>
+    <tr><td style="font-size:1rem"><b>D</b> (dérivé)</td><td>–</td><td class="up">↗</td><td class="up">↗</td></tr>
+   </table>
+  </div>
+  <div class="card reveal" style="--i:6">
+   <h3>À retenir</h3>
+   <ul class="clean">
+    <li><b>P</b> : réduit l'erreur statique et accélère, mais fait osciller (et peut rendre instable).</li>
+    <li><b>I</b> : <b>annule l'erreur statique</b> (même avec perturbation), mais ralentit la stabilisation.</li>
+    <li><b>D</b> : amortit les oscillations (anticipe), n'annule pas l'erreur.</li>
+    <li>Améliorer la précision dégrade la stabilité ; améliorer la stabilité dégrade la rapidité.</li>
+   </ul>
+  </div>
+ </div>
+</div></section>
+
+<!-- 14 BRAS ROBOTISE -->
+<section class="slide" id="s14" data-title="Exemple : bras robotisé"><div class="inner">
+ <div class="kicker reveal">8 · Application</div>
+ <h2 class="reveal" style="--i:1">Asservissement de vitesse d'un bras robotisé</h2>
+ <div class="card reveal" style="--i:2">
+  <svg viewBox="0 0 1000 170" style="width:100%" font-family="Inter,system-ui" font-size="14">
+   <defs><marker id="a3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#16233a"/></marker></defs>
+   <g fill="none" stroke="#16233a" stroke-width="2" marker-end="url(#a3)">
+    <path d="M5 60H40"/><path d="M150 60H190"/><path d="M230 60H270"/><path d="M380 60H420"/><path d="M530 60H570"/><path d="M680 60H720"/><path d="M830 60H995"/>
+    <path d="M930 60V140H720"/><path d="M600 140H210V82"/>
+   </g>
+   <g fill="#fff" stroke="#16233a" stroke-width="2"><rect x="40" y="35" width="110" height="50" rx="8"/><circle cx="210" cy="60" r="20"/><rect x="270" y="35" width="110" height="50" rx="8" fill="#e0eaff"/><rect x="420" y="35" width="110" height="50" rx="8"/><rect x="570" y="35" width="110" height="50" rx="8" fill="#fef3c7"/><rect x="720" y="35" width="110" height="50" rx="8"/><rect x="600" y="118" width="120" height="44" rx="8" fill="#dcfce7"/></g>
+   <path d="M196 46L224 74M224 46L196 74" stroke="#16233a" stroke-width="2"/>
+   <g text-anchor="middle" fill="#16233a"><text x="95" y="65">Adaptateur</text><text x="325" y="58">Correcteur</text><text x="325" y="76" font-size="12" fill="#2563eb">C</text><text x="475" y="58">Variateur</text><text x="475" y="76" font-size="12" fill="#2563eb">K<tspan dy="3" font-size="9">v</tspan></text><text x="625" y="58">Moteur</text><text x="625" y="76" font-size="12" fill="#2563eb">K<tspan dy="3" font-size="9">m</tspan><tspan dy="-3">, τ</tspan><tspan dy="3" font-size="9">m</tspan></text><text x="775" y="58">Réducteur</text><text x="775" y="76" font-size="12" fill="#2563eb">K<tspan dy="3" font-size="9">r</tspan></text><text x="660" y="138">Capteur</text><text x="660" y="155" font-size="12" fill="#2563eb">K<tspan dy="3" font-size="9">c</tspan></text></g>
+   <g font-style="italic" font-family="Cambria Math,Times New Roman,serif" font-size="16" fill="#5b6b82" text-anchor="middle"><text x="20" y="40">ω<tspan dy="4" font-size="11">c</tspan></text><text x="170" y="40">u<tspan dy="4" font-size="11">c</tspan></text><text x="250" y="40">ε</text><text x="400" y="26">u<tspan dy="4" font-size="11">com</tspan></text><text x="550" y="26">u<tspan dy="4" font-size="11">mot</tspan></text><text x="700" y="26">ω<tspan dy="4" font-size="11">mot</tspan></text><text x="960" y="40">ω</text><text x="400" y="132">u<tspan dy="4" font-size="11">m</tspan></text></g>
+  </svg>
+ </div>
+ <div class="g2" style="margin-top:16px">
+  <div class="card reveal" style="--i:3">
+   <h3>Mise en équation pas à pas</h3>
+   <div id="steps">
+    <div class="step on">Moteur (1<sup>er</sup> ordre) : <span class="m">τ<sub>m</sub>·dω<sub>mot</sub>/dt + ω<sub>mot</sub> = K<sub>m</sub>·u<sub>mot</sub></span> &nbsp;[1]</div>
+    <div class="step">Gains purs : <span class="m">ω = K<sub>r</sub>·ω<sub>mot</sub></span> [2] ; <span class="m">u<sub>mot</sub> = K<sub>v</sub>·u<sub>com</sub></span> [3] ; <span class="m">u<sub>com</sub> = C·ε</span> [4]</div>
+    <div class="step">Comparateur : <span class="m">ε = K<sub>c</sub>·ω<sub>c</sub> − K<sub>c</sub>·ω = K<sub>c</sub>(ω<sub>c</sub> − ω)</span> [5]</div>
+    <div class="step">On multiplie [1] par K<sub>r</sub> : <span class="m">τ<sub>m</sub>·dω/dt + ω = K<sub>m</sub>K<sub>r</sub>·u<sub>mot</sub> = K<sub>m</sub>K<sub>r</sub>K<sub>v</sub>C·ε</span></div>
+    <div class="step">On remplace ε : <span class="m">τ<sub>m</sub>·dω/dt + ω = K<sub>m</sub>K<sub>r</sub>K<sub>v</sub>CK<sub>c</sub>·(ω<sub>c</sub> − ω)</span></div>
+    <div class="step" style="font-weight:600">En notant <span class="m">K<sub>BO</sub> = K<sub>m</sub>K<sub>r</sub>K<sub>v</sub>CK<sub>c</sub></span> : <span class="m">τ<sub>m</sub>·dω/dt + (1 + K<sub>BO</sub>)·ω = K<sub>BO</sub>·ω<sub>c</sub></span><br>→ C'est encore un <b>1<sup>er</sup> ordre</b> !</div>
+   </div>
+   <button class="btn" id="stepbtn" style="margin-top:8px">Étape suivante ▶</button>
+  </div>
+  <div class="card reveal" style="--i:4">
+   <h3>Conséquence : le correcteur C change tout</h3>
+   <div class="eq" style="font-size:1rem">K' = <span class="frac"><span>K<sub>BO</sub></span><span>1 + K<sub>BO</sub></span></span> &nbsp;&nbsp; τ' = <span class="frac"><span>τ<sub>m</sub></span><span>1 + K<sub>BO</sub></span></span></div>
+   <div class="ctrl"><label>K<sub>BO</sub> (augmente avec C) <span id="kbov">2</span></label><input type="range" id="kbo" min="0.5" max="30" step="0.5" value="2"></div>
+   <canvas class="cv sm" id="s14cv"></canvas>
+   <div class="res" id="r14"></div>
+  </div>
+ </div>
+</div></section>
+
+<!-- 15 QUIZ -->
+<section class="slide" id="s15" data-title="Quiz"><div class="inner">
+ <div class="kicker reveal">9 · Évaluation</div>
+ <h2 class="reveal" style="--i:1">Quiz : as-tu compris ?</h2>
+ <div class="card reveal" style="--i:2;display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:14px"><span class="score" id="qscore">Score : 0 / 0</span><button class="btn ghost" id="qreset">Recommencer</button></div>
+ <div id="quiz"></div>
+</div></section>
+
+<!-- 16 A RETENIR -->
+<section class="slide" id="s16" data-title="À retenir"><div class="inner">
+ <div class="kicker reveal">Bilan</div>
+ <h2 class="reveal" style="--i:1">L'essentiel à retenir</h2>
+ <div class="g3" style="margin-top:12px">
+  <div class="card reveal" style="--i:2"><h3>🔁 Boucle fermée</h3><ul class="clean"><li>Consigne, comparateur, correcteur, pré-actionneur, processus, capteur.</li><li>Écart ε = consigne − mesure.</li><li>Corrige l'effet des perturbations.</li><li>Régulateur (consigne fixe) / suiveur (consigne variable).</li></ul></div>
+  <div class="card reveal" style="--i:3"><h3>📐 Modèles</h3><ul class="clean"><li>Entrées : échelon, rampe, signaux composés.</li><li>SLCI : linéaire, continu, invariant.</li><li>Gain pur s = K·e ; intégrateur.</li><li>1<sup>er</sup> ordre : K, τ — 63 % à τ, t<sub>r5%</sub> = 3τ.</li><li>2<sup>e</sup> ordre : K, ξ, ω₀ — ξ = 0,69 le plus rapide, ξ = 1 sans dépassement.</li></ul></div>
+  <div class="card reveal" style="--i:4"><h3>📊 Performances</h3><ul class="clean"><li>Stabilité : convergence, D₁ = (s<sub>max</sub> − s<sub>∞</sub>)/s<sub>∞</sub>.</li><li>Précision : erreur statique μ<sub>s</sub>.</li><li>Rapidité : t<sub>r5%</sub>.</li><li>PID : P accélère, I annule l'erreur, D stabilise — compromis !</li></ul></div>
+ </div>
+ <div class="reveal" style="--i:5;text-align:center;margin-top:24px"><button class="btn" onclick="go(0)">↺ Revenir au début</button></div>
+</div></section>
+
+ </main>
+ <nav>
+  <button class="nb" id="prev">← Précédent</button>
+  <div class="dots" id="dots"></div>
+  <span class="cnt" id="cnt"></span>
+  <button class="nb" id="next">Suivant →</button>
+ </nav>
+</div>
+
+<script>
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const fmt=(v,d=2)=>{let s=(Math.round(v*10**d)/10**d).toFixed(d);if(/^-0[.,]?0*$/.test(s))s=s.slice(1);return s.replace('.',',')};
+const C={blue:'#2563eb',red:'#e11d48',green:'#059669',amber:'#d97706',violet:'#7c3aed',ink:'#16233a',grey:'#94a3b8'};
+
+/* ---------- PLOT ---------- */
+function niceTicks(a,b,n){const span=b-a;if(span<=0)return[a];const s0=span/n,mag=10**Math.floor(Math.log10(s0)),f=s0/mag;const st=(f<1.5?1:f<3?2:f<7?5:10)*mag;const t=[];for(let v=Math.ceil(a/st-1e-9)*st;v<=b+1e-9;v+=st)t.push(+v.toFixed(10));return t}
+const fmtT=v=>String(+(+v).toPrecision(6)).replace('.',',');
+function drawPlot(cv,o){
+ const dpr=window.devicePixelRatio||1,w=cv.clientWidth,h=cv.clientHeight;if(!w||!h)return;
+ if(cv.width!==Math.round(w*dpr)||cv.height!==Math.round(h*dpr)){cv.width=Math.round(w*dpr);cv.height=Math.round(h*dpr)}
+ const c=cv.getContext('2d');c.setTransform(dpr,0,0,dpr,0,0);c.clearRect(0,0,w,h);
+ const m={l:46,r:14,t:14,b:28},pw=w-m.l-m.r,ph=h-m.t-m.b;
+ const X=x=>m.l+(x-o.x0)/(o.x1-o.x0)*pw,Y=y=>m.t+ph-(y-o.y0)/(o.y1-o.y0)*ph;
+ cv._map={m,pw,ph,X,Y};cv._o=o;
+ const F='12px Inter,system-ui,sans-serif',FB='600 12px Inter,system-ui,sans-serif';c.font=F;
+ c.strokeStyle='#e5ebf3';c.lineWidth=1;c.fillStyle='#5b6b82';
+ c.textAlign='center';c.textBaseline='top';
+ niceTicks(o.x0,o.x1,o.nx||(w<420?5:9)).forEach(v=>{const x=X(v);c.beginPath();c.moveTo(x,m.t);c.lineTo(x,m.t+ph);c.stroke();c.fillText(fmtT(v),x,m.t+ph+6)});
+ c.textAlign='right';c.textBaseline='middle';
+ niceTicks(o.y0,o.y1,o.ny||(h<200?4:6)).forEach(v=>{const y=Y(v);c.beginPath();c.moveTo(m.l,y);c.lineTo(m.l+pw,y);c.stroke();c.fillText(fmtT(v),m.l-6,y)});
+ c.strokeStyle=C.ink;c.lineWidth=1.5;c.beginPath();c.moveTo(m.l,m.t);c.lineTo(m.l,m.t+ph);c.lineTo(m.l+pw,m.t+ph);c.stroke();
+ c.fillStyle=C.ink;
+ if(o.xlabel){c.textAlign='right';c.textBaseline='bottom';c.fillText(o.xlabel,m.l+pw-2,m.t+ph-4)}
+ if(o.ylabel){c.textAlign='left';c.textBaseline='top';c.fillText(o.ylabel,m.l+6,m.t+2)}
+ c.save();c.beginPath();c.rect(m.l,m.t-2,pw+2,ph+4);c.clip();
+ (o.bands||[]).forEach(b=>{c.fillStyle=b.color;const y1=Y(b.y1),y0=Y(b.y0);c.fillRect(X(b.xa??o.x0),y1,X(b.xb??o.x1)-X(b.xa??o.x0),y0-y1)});
+ const p=o.prog==null?1:o.prog,xlim=o.x0+(o.x1-o.x0)*p;
+ const ln=(l,vert)=>{c.strokeStyle=l.color||C.grey;c.lineWidth=l.w||1.5;c.setLineDash(l.dash||[6,5]);c.beginPath();
+  if(vert){c.moveTo(X(l.x),Y(l.ya??o.y0));c.lineTo(X(l.x),Y(l.yb??o.y1))}else{c.moveTo(X(l.xa??o.x0),Y(l.y));c.lineTo(X(l.xb??o.x1),Y(l.y))}
+  c.stroke();c.setLineDash([]);
+  if(l.label){c.fillStyle=l.color||'#5b6b82';c.font=FB;
+   if(vert){c.textAlign='left';c.textBaseline='top';c.fillText(l.label,X(l.x)+4,m.t+4+(l.dy||0))}
+   else{c.textAlign=l.left?'left':'right';c.textBaseline='bottom';c.fillText(l.label,l.left?m.l+6:(l.lx!=null?X(l.lx):m.l+pw-4),Y(l.y)-3)}
+   c.font=F}};
+ const late=o.lateLines&&p<1;
+ if(!late){(o.hlines||[]).forEach(l=>ln(l,false));(o.vlines||[]).forEach(l=>ln(l,true))}
+ (o.segs||[]).forEach(s=>{if(p<1&&s.late)return;c.strokeStyle=s.color;c.lineWidth=s.w||1.8;c.setLineDash(s.dash||[]);c.beginPath();c.moveTo(X(s.a[0]),Y(s.a[1]));c.lineTo(X(s.b[0]),Y(s.b[1]));c.stroke();c.setLineDash([])});
+ (o.series||[]).forEach(s=>{c.strokeStyle=s.color;c.lineWidth=s.w||2.6;c.setLineDash(s.dash||[]);c.lineJoin='round';c.beginPath();let st=false;const R=(o.y1-o.y0)*2;
+  for(const pt of s.pts){if(pt[0]>xlim)break;if(!isFinite(pt[1])){st=false;continue}const px=X(pt[0]),py=Y(clamp(pt[1],o.y0-R,o.y1+R));if(!st){c.moveTo(px,py);st=true}else c.lineTo(px,py)}
+  c.stroke();c.setLineDash([])});
+ if(p>=1)(o.marks||[]).forEach(k=>{c.fillStyle=k.color;c.beginPath();c.arc(X(k.x),Y(k.y),5,0,7);c.fill();if(k.label){c.font=FB;c.textAlign=k.right?'right':'left';c.textBaseline='bottom';c.fillText(k.label,X(k.x)+(k.right?-8:8),Y(k.y)-6);c.font=F}});
+ if(o.cross){const k=o.cross;c.strokeStyle=C.violet;c.lineWidth=1;c.setLineDash([3,3]);c.beginPath();c.moveTo(X(k.x),m.t+ph);c.lineTo(X(k.x),Y(k.y));c.lineTo(m.l,Y(k.y));c.stroke();c.setLineDash([]);c.fillStyle=C.violet;c.beginPath();c.arc(X(k.x),Y(k.y),4.5,0,7);c.fill()}
+ c.restore();
+}
+function animatePlot(cv,o,dur=1100){cancelAnimationFrame(cv._raf);const t0=performance.now();const f=now=>{o.prog=Math.min(1,(now-t0)/dur);drawPlot(cv,o);if(o.prog<1)cv._raf=requestAnimationFrame(f)};cv._raf=requestAnimationFrame(f)}
+function sample(fn,x0,x1,N=500){const a=[];for(let i=0;i<=N;i++){const t=x0+(x1-x0)*i/N;a.push([t,fn(t)])}return a}
+
+/* ---------- MODELS ---------- */
+const first=(K,e0,tau)=>t=>t<0?0:K*e0*(1-Math.exp(-t/tau));
+function second(K,e0,xi,w0){return t=>{if(t<0)return 0;
+ if(Math.abs(xi-1)<1e-3)return K*e0*(1-(1+w0*t)*Math.exp(-w0*t));
+ if(xi<1){const s=Math.sqrt(1-xi*xi),wa=w0*s;return K*e0*(1-Math.exp(-xi*w0*t)*(Math.cos(wa*t)+xi/s*Math.sin(wa*t)))}
+ const s=Math.sqrt(xi*xi-1);return K*e0*(1-(1/(2*s))*(Math.exp(-w0*(xi-s)*t)/(xi-s)-Math.exp(-w0*(xi+s)*t)/(xi+s)))}}
+function tr5(pts,fin){for(let i=pts.length-1;i>=0;i--){if(Math.abs(pts[i][1]-fin)>0.05*Math.abs(fin))return pts[Math.min(i+1,pts.length-1)][0]}return 0}
+
+/* ---------- NAVIGATION ---------- */
+const slides=$$('.slide');let cur=0;const hooks={};
+const dots=$('#dots'),menu=$('#menu');
+slides.forEach((s,i)=>{const d=document.createElement('button');d.title=s.dataset.title;d.onclick=()=>go(i);dots.appendChild(d);
+ const mb=document.createElement('button');mb.textContent=(i+1)+'. '+s.dataset.title;mb.onclick=()=>{go(i);menu.classList.remove('open')};menu.appendChild(mb)});
+function go(n){n=clamp(n,0,slides.length-1);const old=slides[cur];if(old!==slides[n]){old.classList.remove('active');hooks[old.id]?.leave?.()}
+ cur=n;slides.forEach((s,i)=>s.classList.toggle('prev',i<n));slides[n].classList.add('active');slides[n].scrollTop=0;
+ $$('#dots button').forEach((d,i)=>d.classList.toggle('on',i===n));$$('#menu button').forEach((d,i)=>d.classList.toggle('cur',i===n));
+ $('#cnt').textContent=(n+1)+' / '+slides.length;$('#prog').style.width=((n+1)/slides.length*100)+'%';
+ $('#prev').disabled=n===0;$('#next').disabled=n===slides.length-1;
+ setTimeout(()=>hooks[slides[n].id]?.enter?.(),180)}
+$('#prev').onclick=()=>go(cur-1);$('#next').onclick=()=>go(cur+1);
+$('#mbtn').onclick=e=>{e.stopPropagation();menu.classList.toggle('open')};
+document.addEventListener('click',e=>{if(!menu.contains(e.target))menu.classList.remove('open')});
+$('#fsbtn').onclick=()=>{try{document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen()}catch(e){}};
+document.addEventListener('keydown',e=>{if(/INPUT|TEXTAREA|SELECT/.test(e.target.tagName))return;if(e.key==='ArrowRight'||e.key==='PageDown')go(cur+1);if(e.key==='ArrowLeft'||e.key==='PageUp')go(cur-1)});
+let rz;window.addEventListener('resize',()=>{clearTimeout(rz);rz=setTimeout(()=>$$('canvas.cv').forEach(cv=>{if(cv._o){cv._o.prog=1;drawPlot(cv,cv._o)}}),120)});
+function bind(id,cb,f=v=>fmt(v,v%1?(Math.abs(v*10%1)>1e-9?2:1):0)){const el=$('#'+id),out=$('#'+id+'v');const up=()=>{const v=+el.value;if(out)out.textContent=f(v);cb(v)};el.addEventListener('input',up);return up}
+
+/* ---------- S2 : maison ---------- */
+(function(){
+ const st={mode:'bo',Tc:20,Te:10,T:15,P:5,I:5,t:0,buf:[]};let raf=null;const cv=$('#s2cv');
+ $$('#s2mode button').forEach(b=>b.onclick=()=>{$$('#s2mode button').forEach(x=>x.classList.toggle('on',x===b));st.mode=b.dataset.m;if(st.mode==='bf')st.I=st.P;txt()});
+ bind('s2tc',v=>st.Tc=v,v=>fmt(v,1)+' °C');bind('s2te',v=>st.Te=v,v=>v+' °C');
+ function txt(){$('#s2txt').innerHTML=st.mode==='bo'
+  ?'<h3>Boucle ouverte</h3><p>Le bouton du radiateur est réglé <b>une fois pour toutes</b> (calibré pour 10 °C dehors). Personne ne vérifie la température obtenue : si la météo change, la maison se refroidit ou se réchauffe. <b>Impossible de connaître a priori la bonne consigne.</b></p>'
+  :'<h3>Boucle fermée</h3><p>Le <b>thermomètre (capteur)</b> mesure la température intérieure. Le <b>thermostat</b> compare mesure et consigne et ajuste la puissance selon l\'<b>écart</b>. La température revient à la consigne même si la météo change.</p>'}
+ txt();
+ function step(){for(let k=0;k<3;k++){const dt=0.1;
+  if(st.mode==='bo')st.P=clamp(st.Tc-10,0,40);else{const e=st.Tc-st.T;st.I=clamp(st.I+0.12*e*dt,0,40);st.P=clamp(1.5*e+st.I,0,40)}
+  st.T+=(st.Te+st.P-st.T)/8*dt;st.t+=dt;st.buf.push([st.t,st.T])}
+  while(st.buf.length&&st.buf[0][0]<st.t-90)st.buf.shift();render();raf=requestAnimationFrame(step)}
+ function render(){const pw=st.P/40;
+  $('#rad').setAttribute('fill',`rgb(${Math.round(203+52*pw)},${Math.round(213-130*pw)},${Math.round(225-170*pw)})`);
+  $$('#waves .wave').forEach(w=>w.style.opacity=pw);
+  const sky=clamp((st.Te+5)/25,0,1);$('#sky').setAttribute('fill',`rgb(${Math.round(190+40*sky)},${Math.round(210+15*sky)},${Math.round(240-20*sky)})`);
+  $('#sun').style.opacity=sky;$('#snow').setAttribute('opacity',st.Te<=2?1:0);$('#textlbl').textContent='Extérieur : '+st.Te+' °C';
+  const hm=clamp((st.T+5)/45,0,1)*86;$('#merc').setAttribute('y',240-hm);$('#merc').setAttribute('height',hm+4);
+  $('#tin').textContent=fmt(st.T,1)+' °C';
+  $('#loop').setAttribute('opacity',st.mode==='bf'?1:0);$('#knob').style.display=st.mode==='bf'?'none':'';
+  $('#s2p').textContent=Math.round(pw*100)+' %';
+  const d=st.T-st.Tc,ok=Math.abs(d)<0.3;const s=$('#s2st');s.className='status '+(ok?'ok':'ko');
+  s.textContent=ok?'✅ Température intérieure = consigne':'⚠️ Écart de '+fmt(Math.abs(d),1)+' °C ('+(d<0?'trop froid':'trop chaud')+')';
+  const x0=Math.max(0,st.t-90);
+  drawPlot(cv,{x0,x1:x0+90,y0:-5,y1:40,xlabel:'temps',ylabel:'°C',series:[{pts:st.buf,color:C.blue}],hlines:[{y:st.Tc,color:C.red,dash:[]},{y:st.Te,color:C.grey,dash:[2,4]}]})}
+ hooks.s2={enter(){cancelAnimationFrame(raf);raf=requestAnimationFrame(step)},leave(){cancelAnimationFrame(raf)}};
+})();
+
+/* ---------- S3 : schéma bloc ---------- */
+(function(){
+ const D={
+  cons:['Consigne','Ce que l\'on <b>veut</b> obtenir (température souhaitée, vitesse demandée…). Souvent convertie en tension par un <b>adaptateur</b> pour être comparable à la mesure.'],
+  cmp:['Comparateur (soustracteur)','Calcule l\'<b>écart</b> entre la consigne et la mesure : <span class="m">ε = consigne − mesure</span>. Si ε = 0, la sortie correspond à ce qu\'on veut.'],
+  ecart:['Écart (erreur) ε','Différence entre la consigne et la mesure. C\'est cette information qui pilote la commande : plus l\'écart est grand, plus le système réagit.'],
+  cor:['Correcteur (partie commande)','Algorithme (souvent dans un microcontrôleur) qui élabore le <b>signal de commande</b> à partir de l\'écart. Exemple : correcteur PID. La commande ne transporte pas d\'énergie significative.'],
+  pre:['Pré-actionneur (organe de commande)','<b>Distribue / module l\'énergie</b> envoyée à l\'actionneur selon le signal de commande : variateur, amplificateur, hacheur, relais…'],
+  en:['Énergie','Le processus transforme une énergie importante qui provient d\'une <b>source extérieure</b> (batterie, réseau). Ce n\'est pas le signal de commande qui fournit l\'énergie.'],
+  pro:['Processus','Chaîne d\'action : <b>actionneur</b> (convertit l\'énergie, ex. moteur), <b>transmetteur</b> (adapte, ex. réducteur), <b>effecteur</b> (agit sur la grandeur de sortie, ex. roue).'],
+  pert:['Perturbations','Sollicitations extérieures <b>non prévisibles</b> qui modifient la sortie : vent, pente, charge, température extérieure… La boucle fermée permet de les compenser.'],
+  sor:['Sortie (grandeur asservie)','Ce que l\'on fait <b>réellement</b> : altitude, vitesse, température, position… C\'est la grandeur que l\'on veut piloter.'],
+  cap:['Capteur (chaîne de retour)','<b>Mesure</b> la grandeur asservie et la convertit en un signal image (souvent une tension) comparable à la consigne. Ex. : thermomètre, codeur, génératrice tachymétrique, altimètre.'],
+  mes:['Mesure','Image de la sortie fournie par le capteur. Elle revient vers le comparateur : c\'est le <b>retour</b> qui « ferme » la boucle.']};
+ $$('#bd [data-k]').forEach(el=>el.addEventListener('click',()=>{const k=el.dataset.k;$$('#bd .blk').forEach(b=>b.classList.toggle('sel',b.dataset.k===k));
+  const box=$('#bdinfo');box.innerHTML='<h3>'+D[k][0]+'</h3><p>'+D[k][1]+'</p>';box.animate([{opacity:0,transform:'translateY(8px)'},{opacity:1,transform:'none'}],{duration:350})}));
+ $$('#bdhl .chip').forEach(b=>b.onclick=()=>{$$('#bdhl .chip').forEach(x=>x.classList.toggle('on',x===b));$('#bd').classList.remove('hl-d','hl-r');if(b.dataset.hl)$('#bd').classList.add('hl-'+b.dataset.hl)});
+})();
+
+/* ---------- S4 : exemples ---------- */
+(function(){
+ const rows=['Grandeur asservie','Consigne','Capteur','Partie commande','Processus (énergie → sortie)','Perturbations'];
+ const EX={
+  '✈️ Avion':['Altitude','Altitude demandée par le pilote','Altimètre','Calculateur de bord','Gouvernes de profondeur, ailerons, mécanismes d\'entraînement, avion','Vent, turbulences'],
+  '⛵ Voilier':['Cap suivi par le bateau','Cap donné par l\'équipage','Compas magnétique (boussole)','Pilote automatique','Vérin qui actionne la barre, bateau','Vent, houle, courants'],
+  '🚗 Régulateur de vitesse':['Vitesse du véhicule','Vitesse choisie par le conducteur','Capteur de vitesse (roue)','Calculateur','Moteur, transmission, roues','Montée/descente, vent de face ou arrière'],
+  '🎥 Chariot caméra':['Vitesse v(t) du chariot','Vitesse de consigne v<sub>c</sub>(t)','Capteur sur l\'arbre moteur + convertisseur','Microcontrôleur (correcteur)','Variateur → moteur → réducteur → roue','Frottements, charge, pente du rail'],
+  '🦿 Prothèse':['Couple au niveau de la cheville','Couple de consigne C<sub>th</sub>(θ)','Codeur incrémental, potentiomètre linéaire, capteurs capacitifs','Calculateur (2 niveaux hiérarchiques)','Amplificateur → moteur CC → poulies-courroie → vis-écrou → ressorts','Terrain, poids du patient, marche']};
+ const tabs=$('#extabs');let curK;
+ function show(k){curK=k;$$('#extabs button').forEach(b=>b.classList.toggle('on',b.textContent===k));
+  $('#extable').innerHTML='<tr><th style="width:32%">Élément</th><th>Pour ce système</th></tr>'+rows.map((r,i)=>`<tr><td><b>${r}</b></td><td class="hide-cell">${EX[k][i]}</td></tr>`).join('');
+  $$('#extable .hide-cell').forEach(c=>c.onclick=()=>{c.classList.remove('hide-cell');c.classList.add('shown')})}
+ Object.keys(EX).forEach(k=>{const b=document.createElement('button');b.textContent=k;b.onclick=()=>show(k);tabs.appendChild(b)});
+ $('#exall').onclick=()=>$$('#extable .hide-cell').forEach(c=>{c.classList.remove('hide-cell');c.classList.add('shown')});
+ show(Object.keys(EX)[0]);
+})();
+
+/* ---------- S5 : régulateur / suiveur ---------- */
+(function(){
+ function simTrack(cons,pert){const dt=0.01,pts=[],cp=[];let x=0,v=0,I=0;for(let t=0;t<=10;t+=dt){const r=cons(t);const e=r-x;I+=e*dt;const u=6*e+5*I-0.8*v+(pert&&t>5?-1.5:0);const acc=16*(u-x)-4*v;v+=acc*dt;x+=v*dt;pts.push([t,x]);cp.push([t,r])}return[pts,cp]}
+ hooks.s5={enter(){
+  const [a,ac]=simTrack(t=>t>=0.3?1:0,true);
+  animatePlot($('#s5a'),{x0:0,x1:10,y0:0,y1:1.6,xlabel:'t (s)',series:[{pts:ac,color:C.red,w:2},{pts:a,color:C.blue}],vlines:[{x:5,color:C.grey,label:'perturbation'}]});
+  const [b,bc]=simTrack(t=>t<1?0:t<5?0.3*(t-1):1.2+0.25*Math.sin((t-5)*1.6),false);
+  animatePlot($('#s5b'),{x0:0,x1:10,y0:0,y1:1.6,xlabel:'t (s)',series:[{pts:bc,color:C.red,w:2},{pts:b,color:C.blue}]})}};
+})();
+
+/* ---------- S6 : entrées ---------- */
+(function(){
+ const cv=$('#s6cv');let k='ech';
+ const T={ech:`<div class="def"><b>Échelon unité u(t)</b>si t &lt; 0 : u(t) = 0 ; si t ≥ 0 : u(t) = 1</div><p>Passage instantané de 0 à 1 puis valeur constante. C'est l'entrée la plus utilisée pour <b>identifier un modèle</b> (réponse « indicielle »).</p><p class="small" style="margin-top:8px">Exemple : on bascule l'interrupteur d'un moteur, on fixe brutalement une consigne de température.</p><p style="margin-top:8px">Échelon d'amplitude e₀ : <span class="m">e(t) = e₀·u(t)</span></p>`,
+  ramp:`<div class="def v"><b>Rampe unitaire r(t)</b>si t &lt; 0 : r(t) = 0 ; si t ≥ 0 : r(t) = t</div><p>On peut l'écrire avec l'échelon : <span class="m">r(t) = t·u(t)</span>.</p><p style="margin-top:8px">Elle modélise par exemple un <b>déplacement imposé à vitesse constante</b> (consigne d'un système suiveur).</p>`,
+  comp:`<div class="def a"><b>Signal composé</b>Tout signal affine par morceaux = somme d'échelons et de rampes, éventuellement <b>retardés</b>.</div><p>Exemple : consigne de vitesse d'un moteur qui accélère pendant T puis reste à V₀ :</p><div class="eq" style="font-size:.98rem">V(t) = <span class="frac"><span>V₀</span><span>T</span></span>·t·u(t) − <span class="frac"><span>V₀</span><span>T</span></span>·(t−T)·u(t−T)</div><p class="small"><span class="m">u(t−T)</span> : échelon retardé de T (passe à 1 à t = T).</p>`};
+ const L={ech:'<span><i style="background:#2563eb"></i>u(t)</span>',ramp:'<span><i style="background:#7c3aed"></i>r(t)</span>',comp:'<span><i style="background:#2563eb"></i>(V₀/T)·t·u(t)</span><span><i style="background:#e11d48"></i>−(V₀/T)(t−T)·u(t−T)</span><span><i style="background:#16233a"></i>somme V(t)</span>'};
+ function draw(){$('#s6txt').innerHTML=T[k];$('#s6leg').innerHTML=L[k];let o;
+  if(k==='ech')o={x0:-1,x1:5,y0:-0.2,y1:1.5,xlabel:'t',series:[{pts:sample(t=>t<0?0:1,-1,5,600),color:C.blue,w:3}]};
+  else if(k==='ramp')o={x0:-1,x1:5,y0:-0.3,y1:5,xlabel:'t',series:[{pts:sample(t=>t<0?0:t,-1,5,600),color:C.violet,w:3}],segs:[{a:[1,0],b:[1,1],color:C.grey,dash:[4,4],late:1},{a:[0,1],b:[1,1],color:C.grey,dash:[4,4],late:1}]};
+  else{const V=1,Tt=2;o={x0:-0.5,x1:5,y0:-1.6,y1:2.6,xlabel:'t',series:[{pts:sample(t=>t<0?0:V/Tt*t,-0.5,5,600),color:C.blue,dash:[7,5],w:2},{pts:sample(t=>t<Tt?0:-V/Tt*(t-Tt),-0.5,5,600),color:C.red,dash:[7,5],w:2},{pts:sample(t=>t<0?0:t<Tt?V/Tt*t:V,-0.5,5,600),color:C.ink,w:3.2}],vlines:[{x:2,label:'T',color:C.grey}],hlines:[{y:1,label:'V₀',color:C.grey,left:1}]}}
+  animatePlot(cv,o,900)}
+ $$('#s6tabs button').forEach(b=>b.onclick=()=>{k=b.dataset.k;$$('#s6tabs button').forEach(x=>x.classList.toggle('on',x===b));draw()});
+ hooks.s6={enter:draw};
+})();
+
+/* ---------- S7 : SLCI ---------- */
+(function(){
+ $$('.flip').forEach(f=>f.onclick=()=>f.classList.toggle('on'));
+ const cv=$('#s7cv');let k=0;const fn=second(1,1,0.3,3);
+ function draw(){const N=500,cont=sample(fn,0,6,N),Te=0.25,q=0.125;const series=[{pts:cont,color:k?'#cbd5e1':C.blue,w:k?2:3}];
+  if(k){const st=[];for(let t=0;t<=6;t+=Te){let v=fn(t);if(k===2)v=Math.round(v/q)*q;st.push([t,v]);st.push([Math.min(6,t+Te-1e-6),v])}series.push({pts:st,color:C.blue,w:2.5})}
+  animatePlot(cv,{x0:0,x1:6,y0:0,y1:1.5,xlabel:'temps t',series,hlines:k===2?[...Array(12)].map((_,i)=>({y:i*q,color:'#e2e8f0',dash:[2,3],w:1})):[]},800)}
+ $$('#s7chips .chip').forEach(b=>b.onclick=()=>{k=+b.dataset.k;$$('#s7chips .chip').forEach(x=>x.classList.toggle('on',x===b));draw()});
+ hooks.s7={enter:draw};
+})();
+
+/* ---------- S8 : gain & intégrateur ---------- */
+(function(){
+ const th=$('#wthreads');for(let x=30;x<175;x+=14){const l=document.createElementNS('http://www.w3.org/2000/svg','line');l.setAttribute('x1',x);l.setAttribute('y1',58);l.setAttribute('x2',x+8);l.setAttribute('y2',92);th.appendChild(l)}
+ let z1=1,z2=40,w1=150,a1=0,a2=0,raf=null,last=0;
+ function upd(){const r=z1/z2;$('#rr').textContent=z1+'/'+z2+' = '+fmt(r,3);$('#w2').textContent=fmt(w1*r,2)+' rad/s'}
+ bind('z1',v=>{z1=v;upd()},v=>v);bind('z2',v=>{z2=v;upd()},v=>v);bind('w1',v=>{w1=v;upd()},v=>v);upd();
+ function anim(now){const dt=Math.min(0.05,(now-last)/1000||0);last=now;a1+=w1*dt*0.05;a2+=w1*z1/z2*dt*57.3*0.25;
+  th.setAttribute('transform',`translate(${-((a1*40)%14)},0)`);$('#wheel').style.transform=`rotate(${a2}deg)`;raf=requestAnimationFrame(anim)}
+ const cv=$('#s8cv');let k='e';
+ function draw(){const o=k==='e'
+  ?{x0:0,x1:5,y0:0,y1:5,xlabel:'t',series:[{pts:sample(t=>1,0,5),color:C.grey},{pts:sample(t=>t,0,5),color:C.blue}]}
+  :{x0:0,x1:5,y0:0,y1:6,xlabel:'t',series:[{pts:sample(t=>t,0,5),color:C.grey},{pts:sample(t=>t*t/2,0,5),color:C.blue}]};
+  $('#s8txt').innerHTML=k==='e'?'<b>v constante → x est une droite</b><span class="m">v(t) = v₀·u(t) ⇒ x(t) = v₀·t·u(t)</span>':'<b>v en rampe → x est une parabole</b><span class="m">v(t) = v₀·t·u(t) ⇒ x(t) = v₀·(t²/2)·u(t)</span>';
+  animatePlot(cv,o,900)}
+ $$('#s8tabs button').forEach(b=>b.onclick=()=>{k=b.dataset.k;$$('#s8tabs button').forEach(x=>x.classList.toggle('on',x===b));draw()});
+ hooks.s8={enter(){draw();last=performance.now();cancelAnimationFrame(raf);raf=requestAnimationFrame(anim)},leave(){cancelAnimationFrame(raf)}};
+})();
+
+/* ---------- S9 : 1er ordre ---------- */
+(function(){
+ const cv=$('#s9cv');const p={K:2,tau:2,e0:2,c:true};
+ function build(){const {K,tau,e0}=p,f=Ke=>K*e0*Ke,F=K*e0;const y1=Math.max(e0,F)*1.18;
+  const o={x0:-1,x1:20,y0:0,y1,xlabel:'t (s)',lateLines:true,
+   series:[{pts:sample(t=>t<0?0:e0,-1,20,800),color:C.grey,w:2,dash:[6,4]},{pts:sample(first(K,e0,tau),-1,20,800),color:C.blue,w:3}],
+   hlines:[{y:F,color:C.ink,dash:[3,4],label:'K·e₀ = '+fmt(F,2)}],vlines:[],segs:[]};
+  if(p.c){o.hlines.push({y:0.632*F,xb:tau,color:C.amber,label:'63 %',lx:tau,dash:[5,4]},{y:0.95*F,xb:3*tau,color:C.green,label:'95 %',lx:3*tau,dash:[5,4]});
+   o.vlines.push({x:tau,yb:0.632*F,color:C.amber,label:'τ',dy:0},{x:3*tau,yb:0.95*F,color:C.green,label:'3τ',dy:18});
+   o.segs.push({a:[0,0],b:[tau*1.15,F*1.15],color:C.violet,dash:[6,4],late:1})}
+  $('#r1').innerHTML=`<span>Valeur finale K·e₀</span><b>${fmt(F,2)}</b><span>s(τ) = 0,63·K·e₀</span><b>${fmt(0.632*F,2)}</b><span>Temps de réponse t<sub>r5%</sub> = 3τ</span><b>${fmt(3*tau,1)} s</b><span>Pente à l'origine K·e₀/τ</span><b>${fmt(F/tau,2)}</b>`;
+  return o}
+ const now=()=>{const o=build();o.prog=1;drawPlot(cv,o)};
+ bind('k1',v=>{p.K=v;now()});bind('t1',v=>{p.tau=v;now()});bind('e1',v=>{p.e0=v;now()});
+ $('#c1').onchange=e=>{p.c=e.target.checked;now()};
+ hooks.s9={enter(){animatePlot(cv,build(),1300)}};
+})();
+
+/* ---------- S10 : 2e ordre ---------- */
+(function(){
+ const cv=$('#s10cv');const p={K:1,xi:0.3,w0:4};
+ function build(){const {K,xi,w0}=p,F=K,fn=second(K,1,xi,w0);
+  const long=sample(fn,0,90/w0,4000),tr=tr5(long,F);const x1=clamp(tr*1.35,2,40);
+  const pts=sample(fn,0,x1,900);
+  const o={x0:0,x1,y0:0,y1:Math.max(F*1.9,F*1.15),xlabel:'t (s)',lateLines:true,bands:[{y0:0.95*F,y1:1.05*F,color:'rgba(16,185,129,.18)'}],
+   series:[{pts,color:C.blue,w:3}],hlines:[{y:F,color:C.ink,dash:[3,4]}],vlines:[{x:tr,color:C.green,label:'t r5% = '+fmt(tr,2)+' s'}],marks:[]};
+  let reg,html='';
+  if(xi<1){const s=Math.sqrt(1-xi*xi),D1=Math.exp(-Math.PI*xi/s),t1=Math.PI/(w0*s),Ta=2*Math.PI/(w0*s);
+   o.marks.push({x:t1,y:F*(1+D1),color:C.red,label:'D₁ = '+fmt(D1*100,1)+' %'});
+   reg='<span class="tag ko">Régime pseudo-périodique (ξ &lt; 1)</span>';
+   html=`<span>Dépassement D₁</span><b>${fmt(D1*100,1)} %</b><span>Instant du 1<sup>er</sup> dépassement t₁</span><b>${fmt(t1,2)} s</b><span>Pseudo-période T<sub>a</sub></span><b>${fmt(Ta,2)} s</b>`}
+  else{reg=Math.abs(xi-1)<0.005?'<span class="tag mid">Régime critique (ξ = 1)</span>':'<span class="tag ok">Régime apériodique (ξ &gt; 1)</span>';html='<span>Dépassement</span><b>aucun</b>'}
+  html+=`<span>Temps de réponse t<sub>r5%</sub></span><b>${fmt(tr,2)} s</b><span>t<sub>r5%</sub>·ω₀ (abaque)</span><b>${fmt(tr*w0,2)}</b>`;
+  $('#reg2').innerHTML=reg;$('#r2').innerHTML=html;return o}
+ const now=()=>{const o=build();o.prog=1;drawPlot(cv,o)};
+ const uk=bind('k2',v=>{p.K=v;now()}),ux=bind('x2',v=>{p.xi=v;now()}),uw=bind('w02',v=>{p.w0=v;now()});
+ $$('#s10pre .chip').forEach(b=>b.onclick=()=>{$('#x2').value=b.dataset.x;ux();$$('#s10pre .chip').forEach(x=>x.classList.toggle('on',x===b));animatePlot(cv,build(),900)});
+ hooks.s10={enter(){animatePlot(cv,build(),1300)}};
+})();
+
+/* ---------- S11 : identification ---------- */
+(function(){
+ const cv=$('#s11cv');let ex,chosen=null,showCor=false;
+ const rnd=(a,b)=>a+Math.random()*(b-a),pick=a=>a[Math.floor(Math.random()*a.length)];
+ function make(){const type=Math.random()<.5?1:2,e0=pick([5,10,12]);let K,tau,xi,w0,fn,x1;
+  if(type===1){K=Math.round(rnd(3,25));tau=Math.round(rnd(0.05,0.3)*100)/100;fn=first(K,e0,tau);x1=Math.ceil(tau*6*10)/10}
+  else{K=Math.round(rnd(3,25));xi=Math.round(rnd(0.15,0.5)*100)/100;w0=Math.round(rnd(10,40));fn=second(K,e0,xi,w0);x1=clamp(tr5(sample(fn,0,60/w0,3000),K*e0)*1.3,0.3,10);x1=Math.ceil(x1*10)/10}
+  const pts=sample(t=>fn(t)+(t>0?(Math.random()-.5)*0.012*K*e0:0),0,x1,400);
+  ex={type,e0,K,tau,xi,w0,fn,x1,pts};chosen=null;showCor=false;
+  $('#s11e0').textContent='Échelon de tension : e₀ = '+e0+' V';$('#s11fb1').innerHTML='';$('#s11p').style.display='none';$('#s11sol').innerHTML='';
+  $$('#s11o1,#s11o2').forEach(b=>b.classList.remove('on'))}
+ function opts(){const F=ex.K*ex.e0;const o={x0:0,x1:ex.x1,y0:0,y1:F*(ex.type===2?1+Math.exp(-Math.PI*ex.xi/Math.sqrt(1-ex.xi**2))+0.15:1.2),xlabel:'t (s)',ylabel:'ω (rad/s)',nx:10,ny:8,series:[{pts:ex.pts,color:C.blue,w:2.2}],hlines:[],vlines:[],marks:[]};
+  if(showCor){o.hlines.push({y:F,color:C.ink,label:'K·e₀ = '+fmt(F,0),dash:[3,4]});
+   if(ex.type===1){o.hlines.push({y:.632*F,xb:ex.tau,color:C.amber,label:'63 %',lx:ex.tau});o.vlines.push({x:ex.tau,yb:.632*F,color:C.amber,label:'τ = '+fmt(ex.tau,2)+' s'})}
+   else{const s=Math.sqrt(1-ex.xi**2),D1=Math.exp(-Math.PI*ex.xi/s),t1=Math.PI/(ex.w0*s);o.marks.push({x:t1,y:F*(1+D1),color:C.red,label:'s max = '+fmt(F*(1+D1),1)});o.vlines.push({x:t1,yb:F*(1+D1),color:C.red,label:'t₁ = '+fmt(t1,3)+' s'})}}
+  return o}
+ function draw(anim){const o=opts();if(anim)animatePlot(cv,o,1000);else{o.prog=1;drawPlot(cv,o)}}
+ function choose(t){chosen=t;$('#s11o1').classList.toggle('on',t===1);$('#s11o2').classList.toggle('on',t===2);
+  const ok=t===ex.type;$('#s11fb1').innerHTML=ok?'<span class="tag ok">✓ Bien vu</span> '+(t===1?'pente initiale non nulle, aucune oscillation.':'tangente à l\'origine nulle et dépassements.')
+   :'<span class="tag ko">✗ Regarde mieux</span> '+(t===1?'la courbe dépasse sa valeur finale : ce n\'est pas un 1<sup>er</sup> ordre.':'aucune oscillation ni dépassement ici.');
+  if(ok){$('#s11p').style.display='';$('#s11inputs').innerHTML=(t===1
+   ?'<div class="inp">K = <input id="iK"> rad/s/V</div><div class="inp">τ = <input id="iT"> s</div>'
+   :'<div class="inp">K = <input id="iK"> rad/s/V</div><div class="inp">ξ = <input id="iX"></div><div class="inp">ω₀ = <input id="iW"> rad/s</div>')}
+  else $('#s11p').style.display='none'}
+ $('#s11o1').onclick=()=>choose(1);$('#s11o2').onclick=()=>choose(2);
+ const num=id=>parseFloat(($('#'+id)?.value||'').replace(',','.'));
+ $('#s11chk').onclick=()=>{const r=[];const t=(v,ref,tol,n)=>r.push(`${n} : `+(isFinite(v)&&Math.abs(v-ref)<=tol?'<span class="tag ok">✓</span>':'<span class="tag ko">✗</span>'));
+  t(num('iK'),ex.K,ex.K*0.06,'K');if(ex.type===1)t(num('iT'),ex.tau,ex.tau*0.12,'τ');else{t(num('iX'),ex.xi,0.06,'ξ');t(num('iW'),ex.w0,ex.w0*0.12,'ω₀')}
+  $('#s11sol').innerHTML=r.join(' &nbsp; ')};
+ $('#s11cor').onclick=()=>{showCor=true;draw(false);const F=ex.K*ex.e0;
+  $('#s11sol').innerHTML=ex.type===1
+   ?`<b>Correction</b><br>• Valeur finale ≈ ${fmt(F,0)} rad/s ⇒ K = ${fmt(F,0)} / ${ex.e0} = <b>${ex.K} rad/s/V</b><br>• 63 % × ${fmt(F,0)} = ${fmt(.632*F,1)} rad/s atteint à t = <b>τ = ${fmt(ex.tau,2)} s</b><br>• Vérif. : à 3τ = ${fmt(3*ex.tau,2)} s on doit lire 95 %.`
+   :(()=>{const s=Math.sqrt(1-ex.xi**2),D1=Math.exp(-Math.PI*ex.xi/s),t1=Math.PI/(ex.w0*s);return `<b>Correction</b><br>• Valeur finale ≈ ${fmt(F,0)} ⇒ K = ${fmt(F,0)} / ${ex.e0} = <b>${ex.K} rad/s/V</b><br>• D₁ = (s<sub>max</sub> − s<sub>∞</sub>)/s<sub>∞</sub> ≈ ${fmt(D1*100,1)} % ⇒ ξ = (1 + π²/ln²D₁)<sup>−1/2</sup> ≈ <b>${fmt(ex.xi,2)}</b><br>• t₁ ≈ ${fmt(t1,3)} s ⇒ ω₀ = π / (t₁·√(1−ξ²)) ≈ <b>${ex.w0} rad/s</b>`})()};
+ $('#s11new').onclick=()=>{make();draw(true)};
+ function hover(ev){if(!cv._map)return;const r=cv.getBoundingClientRect(),cx=(ev.touches?ev.touches[0].clientX:ev.clientX)-r.left;const {m,pw}=cv._map;
+  const t=ex.x0??0;const x=clamp((cx-m.l)/pw,0,1)*ex.x1;let best=ex.pts[0];for(const p of ex.pts)if(Math.abs(p[0]-x)<Math.abs(best[0]-x))best=p;
+  const o=opts();o.prog=1;o.cross={x:best[0],y:best[1]};drawPlot(cv,o);$('#s11ro').textContent='t = '+fmt(best[0],3)+' s   ;   ω = '+fmt(best[1],1)+' rad/s'}
+ cv.addEventListener('mousemove',hover);cv.addEventListener('touchmove',e=>{hover(e)},{passive:true});
+ cv.addEventListener('mouseleave',()=>draw(false));
+ make();hooks.s11={enter(){draw(true)}};
+})();
+
+/* ---------- S12 : performances ---------- */
+(function(){
+ let ks='a';
+ function drawA(){const P={a:[0.7,3],b:[0.15,3]};let pts;
+  if(ks==='c'){pts=sample(t=>1-Math.exp(0.09*t)*Math.cos(2.4*t),0,10,600)}else pts=sample(second(1,1,P[ks][0],P[ks][1]),0,10,600);
+  animatePlot($('#s12a'),{x0:0,x1:10,y0:0,y1:2.2,xlabel:'t',series:[{pts:sample(()=>1,0,10,2),color:C.red,w:2},{pts,color:C.blue}]},900)}
+ $$('#stabc .chip').forEach(b=>b.onclick=()=>{ks=b.dataset.k;$$('#stabc .chip').forEach(x=>x.classList.toggle('on',x===b));drawA()});
+ hooks.s12={enter(){drawA();
+  animatePlot($('#s12b'),{x0:0,x1:10,y0:0,y1:1.3,xlabel:'t',lateLines:true,series:[{pts:sample(()=>1,0,10,2),color:C.red,w:2},{pts:sample(first(0.8,1,1.3),0,10),color:C.blue}],segs:[{a:[8.5,0.8],b:[8.5,1],color:C.amber,w:3,late:1}],marks:[{x:8.5,y:0.9,color:C.amber,label:'μs',right:1}]},900);
+  const f=second(1,1,0.35,3),pts=sample(f,0,8,800),tr=tr5(sample(f,0,30,3000),1);
+  animatePlot($('#s12c'),{x0:0,x1:8,y0:0,y1:1.6,xlabel:'t',lateLines:true,bands:[{y0:.95,y1:1.05,color:'rgba(16,185,129,.22)'}],series:[{pts,color:C.blue}],vlines:[{x:tr,color:C.green,label:'t r5%'}]},900)}};
+ $$('[data-chk]').forEach(b=>b.onclick=()=>{const k=b.dataset.chk,v=parseFloat($('#ex'+k).value.replace(',','.')),ref=k==='D'?60:8;
+  $('#fb'+k).innerHTML=Math.abs(v-ref)<0.6?'<span class="tag ok">✓ Exact</span>':'<span class="tag ko">✗ '+(k==='D'?'100 × (16/10 − 1)':'100 × |10 − 9,2| / 10')+'</span>'});
+})();
+
+/* ---------- S13 : PID ---------- */
+(function(){
+ const p={Kp:1,Ki:0,Kd:0,pert:false};
+ function sim(){const dt=0.002,T=10,N=T/dt,w0=3,xi=0.4;let x=0,v=0,a=0,I=0;const ys=[],us=[];let blow=false;
+  for(let i=0;i<=N;i++){const t=i*dt,e=1-x,u=p.Kp*e+p.Ki*I-p.Kd*v;I+=e*dt;a+=(u-a)/0.05*dt;const d=p.pert&&t>=6?-0.4:0;
+   const acc=w0*w0*((a+d)-x)-2*xi*w0*v;v+=acc*dt;x+=v*dt;if(i%4===0){ys.push([t,x]);us.push([t,u])}if(Math.abs(x)>6){blow=true;break}}
+  return{ys,us,blow}}
+ function metrics(ys,tEnd){const Y=ys.filter(q=>q[0]<tEnd),n=Y.length;const tail=Y.slice(Math.floor(n*0.96)),fin=tail.reduce((s,q)=>s+q[1],0)/tail.length;
+  const last=Y.slice(Math.floor(n*0.85)).map(q=>q[1]),amp=Math.max(...last)-Math.min(...last);const mx=Math.max(...Y.map(q=>q[1]));
+  return{fin,D:mx>fin?(mx-fin)/fin*100:0,E:Math.abs(1-fin)*100,tr:tr5(Y,fin),settled:amp<0.06*Math.abs(fin)+0.01}}
+ function draw(anim){const r=sim(),tEnd=p.pert?6:10.01;let html;
+  const o={x0:0,x1:10,y0:0,y1:2,xlabel:'t (s)',series:[{pts:[[0,1],[10,1]],color:C.red,w:2},{pts:r.ys,color:C.blue}],bands:[],vlines:[]};
+  if(p.pert)o.vlines.push({x:6,color:C.grey,label:'perturbation'});
+  const Yw=r.ys.filter(q=>q[0]<tEnd),ampW=(a,b)=>{const s=Yw.slice(Math.floor(Yw.length*a),Math.floor(Yw.length*b)).map(q=>q[1]);return Math.max(...s)-Math.min(...s)};
+  const growing=!r.blow&&ampW(0.85,1)>0.05&&ampW(0.85,1)>0.9*ampW(0.55,0.7);
+  if(r.blow||growing){
+   html='<span>Stabilité</span><b><span class="tag ko">INSTABLE / oscillations</span></b><span>Conseil</span><b style="font-family:Inter;font-size:.85rem">baisse K<sub>p</sub>, ajoute K<sub>d</sub></b>'}
+  else{const M=metrics(r.ys,tEnd);o.bands.push({y0:.95*M.fin,y1:1.05*M.fin,color:'rgba(16,185,129,.18)',xb:tEnd});
+   const tg=(v,a,b)=>v<=a?'ok':v<=b?'mid':'ko';
+   html=`<span>Stabilité</span><b><span class="tag ok">stable</span></b><span>Dépassement D₁</span><b><span class="tag ${tg(M.D,10,35)}">${fmt(M.D,1)} %</span></b><span>Erreur statique</span><b><span class="tag ${tg(M.E,1,10)}">${fmt(M.E,1)} %</span></b><span>Temps de réponse t<sub>r5%</sub></span><b><span class="tag ${tg(M.tr,1.5,4)}">${fmt(M.tr,2)} s</span></b>`;
+   if(p.pert){const fin2=r.ys.slice(-40).reduce((s,q)=>s+q[1],0)/40;html+=`<span>Après perturbation</span><b>s<sub>∞</sub> = ${fmt(fin2,3)}</b>`}}
+  $('#r13').innerHTML=html;
+  const uo={x0:0,x1:10,y0:Math.min(-1,...r.us.map(q=>q[1]))*1.05,y1:Math.max(1,...r.us.map(q=>Math.min(q[1],20)))*1.05,xlabel:'t (s)',series:[{pts:r.us,color:C.violet,w:2}]};
+  uo.y0=Math.max(uo.y0,-20);
+  if(anim){animatePlot($('#s13cv'),o,1200);animatePlot($('#s13u'),uo,1200)}else{o.prog=1;uo.prog=1;drawPlot($('#s13cv'),o);drawPlot($('#s13u'),uo)}}
+ const uk=bind('kp',v=>{p.Kp=v;draw()}),ui=bind('ki',v=>{p.Ki=v;draw()}),ud=bind('kd',v=>{p.Kd=v;draw()});
+ $('#pert').onchange=e=>{p.pert=e.target.checked;draw(true)};
+ $$('#s13pre .chip').forEach(b=>b.onclick=()=>{const [a,c,d]=b.dataset.p.split(',');$('#kp').value=a;$('#ki').value=c;$('#kd').value=d;
+  $('#kpv').textContent=fmt(+a,1);$('#kiv').textContent=fmt(+c,1);$('#kdv').textContent=fmt(+d,2);p.Kp=+a;p.Ki=+c;p.Kd=+d;
+  $$('#s13pre .chip').forEach(x=>x.classList.toggle('on',x===b));draw(true)});
+ hooks.s13={enter(){draw(true)}};
+})();
+
+/* ---------- S14 : bras ---------- */
+(function(){
+ let n=0;const steps=$$('#steps .step');
+ $('#stepbtn').onclick=()=>{n=(n+1)%steps.length;steps.forEach((s,i)=>s.classList.toggle('on',i<=n));$('#stepbtn').textContent=n===steps.length-1?'↺ Recommencer':'Étape suivante ▶'};
+ const cv=$('#s14cv');let K=2;const tm=0.5;
+ function build(){const Kp=K/(1+K),tp=tm/(1+K);
+  $('#r14').innerHTML=`<span>Gain K'</span><b>${fmt(Kp,3)}</b><span>Constante de temps τ'</span><b>${fmt(tp,3)} s</b><span>Erreur statique = 1/(1+K<sub>BO</sub>)</span><b>${fmt(100/(1+K),1)} %</b><span>t<sub>r5%</sub> = 3τ'</span><b>${fmt(3*tp,2)} s</b>`;
+  return{x0:0,x1:2.5,y0:0,y1:1.2,xlabel:'t (s)',ylabel:'ω / ωc',series:[{pts:[[0,1],[2.5,1]],color:C.red,w:2},{pts:sample(first(Kp,1,tp),0,2.5,400),color:C.blue}]}}
+ bind('kbo',v=>{K=v;const o=build();o.prog=1;drawPlot(cv,o)},v=>fmt(v,1));
+ hooks.s14={enter(){animatePlot(cv,build(),1000)}};
+})();
+
+/* ---------- S15 : quiz ---------- */
+(function(){
+ const Q=[
+  ['Dans un système asservi, l\'écart ε est égal à :',['consigne − mesure','sortie − consigne','mesure × gain du capteur','la perturbation'],0,'Le comparateur calcule ε = consigne − mesure.'],
+  ['Quel élément mesure la grandeur asservie ?',['Le correcteur','Le capteur','Le pré-actionneur','L\'effecteur'],1,'Le capteur forme la chaîne de retour.'],
+  ['Un château d\'eau dont on maintient le niveau constant est un système :',['suiveur','régulateur','en boucle ouverte','multi-variable'],1,'Consigne constante → régulateur.'],
+  ['Un 1er ordre atteint 63 % de sa valeur finale à :',['t = τ/3','t = 3τ','t = τ','t = 5τ'],2,'s(τ) = K·e₀(1 − e⁻¹) ≈ 0,63·K·e₀.'],
+  ['Le temps de réponse à 5 % d\'un 1er ordre vaut :',['τ','2τ','3τ','5τ'],2,'s(3τ) = 0,95·K·e₀ ⇒ t r5% = 3τ.'],
+  ['Une réponse indicielle a une tangente nulle à l\'origine et des dépassements. Modèle ?',['1er ordre','2e ordre avec ξ < 1','2e ordre avec ξ > 1','Gain pur'],1,'Dépassements ⇒ 2e ordre pseudo-périodique.'],
+  ['Valeur max 13, valeur finale 10 : le dépassement D₁ vaut :',['3 %','13 %','30 %','23 %'],2,'D = 100 × (13/10 − 1) = 30 %.'],
+  ['Pour un 2e ordre, le réglage le plus rapide sans dépassement est :',['ξ = 0,1','ξ = 0,69','ξ = 1','ξ = 2'],2,'ξ = 1 : régime critique.'],
+  ['Quelle action du PID annule l\'erreur statique ?',['Proportionnelle','Intégrale','Dérivée','Aucune'],1,'L\'intégrale accumule l\'écart tant qu\'il n\'est pas nul.'],
+  ['Augmenter fortement le gain proportionnel :',['améliore la stabilité','dégrade la précision','améliore précision et rapidité mais dégrade la stabilité','annule l\'erreur statique'],2,'C\'est le compromis précision/rapidité ↔ stabilité.']];
+ let score=0,done=0;
+ function render(){score=0;done=0;$('#qscore').textContent='Score : 0 / '+Q.length;
+  $('#quiz').innerHTML=Q.map((q,i)=>`<div class="card q" id="q${i}"><b>${i+1}. ${q[0]}</b><div class="opts">${q[1].map((o,j)=>`<button data-q="${i}" data-o="${j}">${o}</button>`).join('')}</div><div class="ex">💡 ${q[3]}</div></div>`).join('');
+  $$('#quiz button').forEach(b=>b.onclick=()=>{const i=+b.dataset.q,j=+b.dataset.o,q=Q[i],box=$('#q'+i);
+   box.querySelectorAll('button').forEach((x,k)=>{x.disabled=true;if(k===q[2])x.classList.add('good')});
+   if(j!==q[2])b.classList.add('bad');else score++;done++;box.classList.add('done');
+   $('#qscore').textContent='Score : '+score+' / '+Q.length+(done===Q.length?(score>=8?' 🎉 Excellent !':score>=5?' 👍 Bien, revois les points manqués':' 📚 Reprends le cours'):'')})}
+ $('#qreset').onclick=render;render();
+})();
+
+go(0);
+</script>
+<a href="../index.html" style="position:fixed;bottom:16px;left:16px;z-index:99999;background:#1e3a5f;color:#fff;padding:10px 16px;border-radius:24px;font:600 14px system-ui,sans-serif;text-decoration:none;box-shadow:0 2px 8px rgba(0,0,0,.25)">← Sommaire</a></body>
+</html>

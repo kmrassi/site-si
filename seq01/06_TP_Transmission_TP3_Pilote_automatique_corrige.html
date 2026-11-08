@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TP3 Pilote automatique — Corrigé interactif</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#eef1f0; --paper-raised:#ffffff; --ink:#152238; --ink-soft:#4a5568; --line:#c9d0d3;
+  --copper:#b5652f; --copper-dim:#e7cdb2; --ok:#2f7a4f; --ok-bg:#e3f2e8; --bad:#b8433a; --bad-bg:#fbeae8; --radius:3px;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background:
+    linear-gradient(rgba(21,34,56,.06) 1px, transparent 1px) 0 0/28px 28px,
+    linear-gradient(90deg, rgba(21,34,56,.06) 1px, transparent 1px) 0 0/28px 28px,
+    var(--paper);
+  color:var(--ink); font-family:'Source Serif 4', Georgia, serif; font-size:16.5px; line-height:1.62;
+}
+h1,h2,h3,h4,.mono,button,.pill{font-family:'Space Grotesk', Arial, 'Segoe UI', sans-serif;}
+
+header.top{padding:36px 6vw 26px; border-bottom:1px solid var(--line);}
+header.top .eyebrow{color:var(--copper); font-size:.78rem; font-weight:600; margin-bottom:8px;}
+header.top h1{margin:0 0 8px; font-size:1.65rem; max-width:28ch;}
+header.top p{max-width:66ch; color:var(--ink-soft); margin:0;}
+.score-bar{margin-top:14px; display:flex; align-items:center; gap:14px;}
+.score-bar b{font-size:1rem;}
+.progress-track{flex:1; max-width:260px; height:8px; background:var(--line); border-radius:6px; overflow:hidden;}
+.progress-fill{height:100%; width:0%; background:var(--copper); transition:width .4s ease;}
+
+main{max-width:980px; margin:0 auto; padding:10px 6vw 90px;}
+
+.callout{background:var(--paper-raised); border:1px solid var(--line); border-left:3px solid var(--copper); padding:14px 18px; border-radius:var(--radius); margin:20px 0; font-size:.92rem;}
+.callout b.tag{display:block; font-size:.7rem; letter-spacing:.04em; text-transform:uppercase; color:var(--copper); margin-bottom:6px;}
+.formula{background:var(--paper-raised); border:1px solid var(--line); border-radius:var(--radius); padding:12px 16px; text-align:center; font-weight:600; margin:10px 0; font-size:1.02rem;}
+.formula small{display:block; font-size:.62em; font-weight:400; color:var(--ink-soft); margin-top:4px;}
+
+section.part{margin-top:40px;}
+section.part > h2{font-size:1.2rem; display:flex; align-items:center; gap:12px; border-bottom:2px solid var(--ink); padding-bottom:10px;}
+section.part > h2 .num{width:28px; height:28px; border-radius:50%; border:1px solid var(--copper); color:var(--copper); display:flex; align-items:center; justify-content:center; font-size:.85rem; flex:none;}
+
+.exo{background:var(--paper-raised); border:1px solid var(--line); border-radius:var(--radius); margin:16px 0; overflow:hidden;}
+.exo-head{display:flex; align-items:center; justify-content:space-between; padding:10px 16px; background:var(--copper-dim); border-bottom:1px solid var(--line);}
+.exo-head span{font-weight:600; font-size:.82rem;}
+.exo-body{padding:14px 18px;}
+.exo-body p.data{margin:0 0 10px; font-size:.9rem; color:var(--ink-soft);}
+.q{margin-bottom:10px;}
+.q label{display:block; font-size:.9rem; margin-bottom:5px;}
+.answer-row{display:flex; align-items:center; gap:8px; flex-wrap:wrap;}
+.answer-row input[type=text]{width:110px; padding:6px 9px; border:1px solid var(--line); border-radius:var(--radius); font-family:'Space Grotesk'; font-size:.88rem; background:var(--paper); color:var(--ink);}
+.unit-lbl{font-size:.8rem; color:var(--ink-soft);}
+.check-btn{border:1px solid var(--ink); background:var(--ink); color:var(--paper); padding:5px 13px; border-radius:var(--radius); font-size:.76rem; font-weight:600; cursor:pointer;}
+.check-btn:hover{opacity:.85;}
+.feedback{font-size:.8rem; margin-top:4px; min-height:1.1em;}
+.feedback.ok{color:var(--ok);}
+.feedback.bad{color:var(--bad);}
+.exo-footer{padding:6px 18px 14px;}
+.reveal-btn{background:none; border:none; color:#2f6690; font-size:.78rem; cursor:pointer; text-decoration:underline; padding:0;}
+.solution{display:none; margin-top:8px; padding:10px 12px; background:var(--ok-bg); border-radius:var(--radius); font-size:.85rem;}
+.solution.show{display:block;}
+.pill{display:inline-block; font-size:.65rem; padding:2px 8px; border-radius:20px; background:var(--copper-dim); color:var(--ink); margin-left:6px; font-weight:600;}
+.note{font-size:.76rem; color:var(--ink-soft); font-style:italic; margin-top:6px;}
+
+table.grid{width:100%; border-collapse:collapse; font-size:.86rem; margin:10px 0;}
+table.grid th, table.grid td{border:1px solid var(--line); padding:7px 9px; text-align:center;}
+table.grid th{background:var(--copper-dim); font-size:.74rem;}
+table.grid td.lbl{text-align:left; font-weight:600;}
+footer.end{padding:30px 6vw 60px; color:var(--ink-soft); font-size:.83rem;}
+.final-bar{position:sticky; bottom:0; background:var(--paper-raised); border-top:1px solid var(--line); padding:12px 6vw; display:flex; align-items:center; gap:14px; justify-content:space-between; flex-wrap:wrap;}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="eyebrow">SI — Pilote automatique de voilier</div>
+  <h1>TP3 — Vérification des performances (corrigé interactif)</h1>
+  <p>Écarts entre performances attendues (constructeur), simulées et réelles, à partir du modèle du moteur à courant continu et de la chaîne poulie-courroie + vis-écrou.</p>
+  <div class="score-bar">
+    <b id="scoreDisplay">Score : 0 / 0</b>
+    <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+  </div>
+</header>
+
+<main>
+
+<!-- ===================== PARTIE 1 : RAPPEL MODELE MOTEUR ===================== -->
+<section class="part">
+  <h2><span class="num">1</span>Rappel — modèle du moteur à courant continu</h2>
+  <div class="callout">
+    <b class="tag">Équations essentielles</b>
+    U = E + R·I, avec E = K<sub>E</sub>·ω. Couple électromagnétique C<sub>E</sub> = K<sub>T</sub>·I (K<sub>T</sub>=K<sub>E</sub> en unités légales). Pertes internes modélisées par une droite : C<sub>P</sub> = a·N + C<sub>f0</sub>, d'où C<sub>E</sub> = C<sub>U</sub> + a·N + C<sub>f0</sub> (C<sub>U</sub> = couple utile disponible sur l'arbre).
+  </div>
+  <div class="exo">
+    <div class="exo-head"><span>Paramètres relevés sur le banc (fichier « modélisation MCC2 »)</span><span class="pill">données</span></div>
+    <div class="exo-body">
+      <table class="grid">
+        <tr><th>K<sub>E</sub></th><th>R (induit)</th><th>U (alimentation)</th><th>a (frott. visqueux)</th><th>C<sub>f0</sub> (frott. sec)</th></tr>
+        <tr><td>2,210·10⁻² V·rad⁻¹·s</td><td>1 Ω</td><td>12,5 V</td><td>3,792·10⁻⁷ Nm·tr⁻¹·min</td><td>5,433·10⁻³ Nm</td></tr>
+      </table>
+      <div class="q"><label>Vérifiez le couple maxi à vitesse nulle : C<sub>U max</sub> = U×K<sub>E</sub>/R − C<sub>f0</sub> ?</label>
+        <div class="answer-row"><input type="text" id="p1_cmax"><span class="unit-lbl">N·m</span><button class="check-btn" onclick="checkNum('p1_cmax',0.271,2)">Vérifier</button><span class="feedback" id="fb_p1_cmax"></span></div></div>
+      <div class="note">Ce couple maxi correspond au couple de blocage du moteur (vitesse nulle) : il ne dépend que de U, K<sub>E</sub>, R et du frottement sec.</div>
+    </div>
+    <div class="exo-footer"><button class="reveal-btn" onclick="toggleSol(this)">Voir la méthode</button>
+    <div class="solution">À vitesse nulle, U = R×(C<sub>f0</sub>+C<sub>U</sub>)/K<sub>E</sub> ⇒ C<sub>Umax</sub> = U×K<sub>E</sub>/R − C<sub>f0</sub> = 12,5×0,0221/1 − 0,005433 ≈ <b>0,271 N·m</b>, conforme à la valeur donnée dans le dossier (vitesse à vide N=5256 tr/min et C<sub>max</sub>=0,271 N·m sont les deux points remarquables de la droite couple-vitesse).</div></div>
+  </div>
+</section>
+
+<!-- ===================== PARTIE 2 : ACTIVITE 2 - THEORIQUE A VIDE ===================== -->
+<section class="part">
+  <h2><span class="num">2</span>Activité 2 — Comportement théorique à vide</h2>
+  <div class="exo">
+    <div class="exo-body">
+      <p class="data">Chaîne cinématique : poulie motrice Z<sub>m</sub>=20 dents → poulie réceptrice (liée à la vis) Z<sub>v</sub>=71 dents → vis-écrou de pas p=3mm. Vitesse à vide du moteur N<sub>m</sub>=5256 tr/min.</p>
+      <div class="q"><label>Fréquence de rotation à vide de la vis (N<sub>vis</sub> = N<sub>m</sub> × Z<sub>m</sub>/Z<sub>v</sub>) ?</label>
+        <div class="answer-row"><input type="text" id="p2_nvis"><span class="unit-lbl">tr/min</span><button class="check-btn" onclick="checkNum('p2_nvis',1481.4,2)">Vérifier</button><span class="feedback" id="fb_p2_nvis"></span></div></div>
+      <div class="q"><label>Vitesse de translation à vide de la tige (V = p × N<sub>vis</sub> en tr/s) ?</label>
+        <div class="answer-row"><input type="text" id="p2_v"><span class="unit-lbl">m/s</span><button class="check-btn" onclick="checkNum('p2_v',0.0741,2)">Vérifier</button><span class="feedback" id="fb_p2_v"></span></div></div>
+      <div class="q"><label>Temps théorique pour parcourir 0,25 m à vide ?</label>
+        <div class="answer-row"><input type="text" id="p2_t"><span class="unit-lbl">s</span><button class="check-btn" onclick="checkNum('p2_t',3.376,2)">Vérifier</button><span class="feedback" id="fb_p2_t"></span></div></div>
+    </div>
+    <div class="exo-footer"><button class="reveal-btn" onclick="toggleSol(this)">Voir la méthode et comparer</button>
+    <div class="solution">N<sub>vis</sub>=5256×20/71≈1481,4 tr/min = 24,69 tr/s. V=0,003×24,69≈0,0741 m/s. t=0,25/0,0741≈<b>3,38 s</b>.
+    <div class="note">Comparaison avec la valeur constructeur à 0 kg (4 s) : le calcul théorique (sans frottement) est plus rapide, ce qui est cohérent — le système réel perd du temps à cause des frottements. Comparaison avec la courbe simulée : au tout début de la simulation (t&lt;0,14 s sur une durée totale de 4 s), la vitesse de la vis n'a pas encore atteint son régime établi ; elle continue de croître vers cette valeur théorique de 1481 tr/min.</div></div></div>
+  </div>
+</section>
+
+<!-- ===================== PARTIE 3 : CALCULATEUR REGIME ETABLI EN CHARGE ===================== -->
+<section class="part">
+  <h2><span class="num">3</span>Estimation en charge (régime établi) — Activités 1, 3 et 4</h2>
+  <div class="callout">
+    <b class="tag">Méthode</b>
+    Une masse m en bout de tige exerce une force résistante F=m·g. En régime établi (vitesse stabilisée, hors phase d'accélération), cette force se traduit par un couple résistant ramené sur l'arbre moteur : C<sub>vis</sub>=F×p/(2π), puis C<sub>moteur</sub>=C<sub>vis</sub>×Z<sub>m</sub>/Z<sub>v</sub>. En reportant ce couple sur la droite couple-vitesse du moteur, on obtient la vitesse stabilisée, donc la vitesse de sortie de tige. <b>Cette estimation ignore la phase d'accélération</b> (contrairement à la simulation dynamique demandée dans le TP), elle sous-estime donc légèrement le temps réel de sortie.
+  </div>
+  <div class="exo">
+    <div class="exo-head"><span>Calculateur — temps de sortie estimé selon la charge</span><span class="pill">interactif</span></div>
+    <div class="exo-body">
+      <div class="answer-row" style="margin-bottom:10px;"><label>Masse en bout de tige <input type="text" id="c3_m" value="30"> kg</label><button class="check-btn" onclick="calcCharge()">Calculer</button></div>
+      <table class="grid">
+        <tr><th>N<sub>moteur</sub> (tr/min)</th><th>N<sub>vis</sub> (tr/min)</th><th>V<sub>tige</sub> (m/s)</th><th>Temps pour 0,25 m (s)</th></tr>
+        <tr><td id="c3_nmot">—</td><td id="c3_nvis">—</td><td id="c3_v">—</td><td id="c3_t">—</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="exo">
+    <div class="exo-head"><span>Comparaison avec les valeurs constructeur (TP32)</span><span class="pill">référence</span></div>
+    <div class="exo-body">
+      <table class="grid">
+        <tr><th>Charge</th><th>0 kg</th><th>10 kg</th><th>20 kg</th><th>30 kg</th><th>40 kg</th><th>50 kg</th></tr>
+        <tr><td class="lbl">Constructeur (s)</td><td>4</td><td>4,3</td><td>5</td><td>5,3</td><td>6</td><td>8</td></tr>
+        <tr><td class="lbl">Estimation théorique (s)</td><td>3,38</td><td>3,55</td><td>3,74</td><td>3,96</td><td>4,19</td><td>4,46</td></tr>
+      </table>
+      <p style="font-size:.88rem; color:var(--ink-soft);">L'écart se creuse avec la charge : le modèle théorique néglige les frottements internes réels (au-delà de la simple droite couple-vitesse mesurée à vide) et le temps d'accélération, deux effets qui pèsent de plus en plus lourd à mesure que la charge augmente et que le système s'approche de son couple maximal.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== PARTIE 4 : JOURNAL DE SIMULATION ===================== -->
+<section class="part">
+  <h2><span class="num">4</span>À propos du journal de simulation (Pilote TP32.log)</h2>
+  <div class="callout">
+    <b class="tag">Lecture du fichier log</b>
+    Le journal fourni trace uniquement les <i>événements</i> de calcul Méca3D (nombre de positions demandées, début/fin de calcul), pas de valeurs de résultat. On y voit des calculs à 1500 positions (recommandé dans l'énoncé), puis un calcul plus précis à 15 000 positions. Il ne contient donc aucune donnée numérique à corriger : c'est une preuve que les simulations ont bien été lancées, pas un résultat en soi.
+  </div>
+</section>
+
+<!-- ===================== PARTIE 5 : ANALYSE DES ECARTS ===================== -->
+<section class="part">
+  <h2><span class="num">5</span>Analyse des écarts (Activité 4)</h2>
+  <div class="callout">
+    <b class="tag">Pistes de rédaction</b>
+    <b>Théorique → Simulé</b> : la simulation dynamique (avec inertie) met un certain temps à atteindre la vitesse théorique de régime établi ; sur de courtes courses, ce temps d'accélération peut représenter une part non négligeable du temps total.<br>
+    <b>Simulé → Réel</b> : le modèle Méca3D « sans frottement » (Activité 1) ignore les frottements mécaniques (guidages, écrou à billes non idéal, etc.) : le système réel est donc systématiquement plus lent. L'ajout d'un couple résistant équivalent au frottement à vide mesuré (Activité 5) rapproche le modèle du comportement réel, sans toutefois capturer les frottements qui dépendent de la charge.<br>
+    <b>Théorique → Réel</b> : cumule les deux effets précédents ; l'écart augmente avec la charge, ce qui est cohérent avec la table de comparaison ci-dessus.
+  </div>
+</section>
+
+<footer class="end">Corrigé construit à partir des paramètres du moteur donnés dans le TP (K<sub>E</sub>, R, U, a, C<sub>f0</sub>) et des caractéristiques cinématiques (poulie 20/71 dents, pas de vis 3mm). Les temps « théoriques » en charge sont des estimations de régime établi, à affiner par la simulation dynamique demandée dans le TP.</footer>
+</main>
+
+<div class="final-bar">
+  <b id="scoreDisplayBar">Score : 0 / 0</b>
+  <div class="progress-track"><div class="progress-fill" id="progressFill2"></div></div>
+</div>
+
+<script>
+let correctFirstTry = 0;
+const seenTried = new Set();
+
+function updateScore(){
+  document.getElementById('scoreDisplay').textContent = 'Score : ' + correctFirstTry + ' / ' + seenTried.size;
+  document.getElementById('scoreDisplayBar').textContent = 'Score : ' + correctFirstTry + ' / ' + seenTried.size;
+  const pct = seenTried.size ? Math.round(100*correctFirstTry/seenTried.size) : 0;
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressFill2').style.width = pct + '%';
+}
+function registerResult(key, ok){
+  if(!seenTried.has(key)){ seenTried.add(key); if(ok) correctFirstTry++; updateScore(); }
+}
+function checkNum(id, expected, tolPct){
+  const inp = document.getElementById(id);
+  const fb = document.getElementById('fb_' + id);
+  const val = parseFloat(inp.value.replace(',', '.').trim());
+  if(isNaN(val)){ fb.textContent='Entrez un nombre.'; fb.className='feedback bad'; return; }
+  const tol = Math.abs(expected)*(tolPct/100)+0.001;
+  const ok = Math.abs(val-expected)<=tol;
+  registerResult(id, ok);
+  fb.textContent = ok ? '✓ correct' : '✗ à revoir (attendu ≈ '+expected+')';
+  fb.className = 'feedback ' + (ok?'ok':'bad');
+}
+function toggleSol(btn){
+  const sol = btn.nextElementSibling;
+  sol.classList.toggle('show');
+  btn.textContent = sol.classList.contains('show') ? 'Masquer' : 'Voir la méthode';
+}
+
+function calcCharge(){
+  const m = parseFloat(document.getElementById('c3_m').value.replace(',','.'));
+  if(isNaN(m)) return;
+  const g=9.81, p=0.003, Zm=20, Zv=71, Nvide=5256, Cmax=0.271;
+  const F = m*g;
+  const Cvis = F*p/(2*Math.PI);
+  const Cmot = Cvis*(Zm/Zv);
+  let ratio = Cmot/Cmax;
+  if(ratio>1) ratio=1;
+  const Nmot = Nvide*(1-ratio);
+  const Nvis = Nmot*(Zm/Zv);
+  const V = p*(Nvis/60);
+  const t = V>0 ? 0.25/V : Infinity;
+  document.getElementById('c3_nmot').textContent = Nmot.toFixed(1);
+  document.getElementById('c3_nvis').textContent = Nvis.toFixed(1);
+  document.getElementById('c3_v').textContent = V.toFixed(4);
+  document.getElementById('c3_t').textContent = isFinite(t) ? t.toFixed(2) : '∞ (charge ≥ couple max)';
+}
+calcCharge();
+updateScore();
+</script>
+<a href="../index.html" style="position:fixed;bottom:16px;left:16px;z-index:99999;background:#1e3a5f;color:#fff;padding:10px 16px;border-radius:24px;font:600 14px system-ui,sans-serif;text-decoration:none;box-shadow:0 2px 8px rgba(0,0,0,.25)">← Sommaire</a></body>
+</html>

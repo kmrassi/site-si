@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>TP9 · La chaîne d'énergie du pilote TP32 est-elle réversible ?</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Barlow+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F2F5F4; --sheet:#FFFFFF; --ink:#15324B; --ink2:#3E5568; --sea:#2C6E7F; --sea-l:#DCEBEC;
+  --signal:#E9B10A; --signal-l:#FCF1C9; --port:#C2362B; --port-l:#F8DEDA; --star:#23865A; --star-l:#D8EFE3;
+  --line:#CAD7D7; --muted:#6B7F8C;
+  --body:"Barlow",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+  --cond:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
+  box-sizing:border-box;
+}
+*,*::before,*::after{box-sizing:inherit}
+html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.55}
+body{padding-bottom:env(safe-area-inset-bottom,0px)}
+img{max-width:100%;height:auto;display:block}
+button{font-family:inherit;font-size:inherit}
+:focus-visible{outline:3px solid var(--signal);outline-offset:2px}
+a{color:var(--sea)}
+
+/* ---------- En-tête ---------- */
+.top{background:var(--ink);color:#fff;padding:22px 20px 0;padding-top:calc(22px + env(safe-area-inset-top,0px))}
+.top-in{max-width:980px;margin:0 auto;display:flex;gap:24px;align-items:center}
+.top-txt{flex:1;min-width:0}
+.tp-code{font-family:var(--cond);font-weight:700;font-size:15px;letter-spacing:.04em;color:var(--signal);margin:0 0 2px}
+.top h1{font-family:var(--cond);font-weight:600;font-size:clamp(24px,3.4vw,34px);line-height:1.12;margin:0 0 6px}
+.top .sub{margin:0;color:#B9C9D4;font-size:15px}
+.clock{flex:none;width:118px;height:118px;position:relative}
+.clock svg{width:100%;height:100%;transform:rotate(-90deg)}
+.clock .lbl{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.clock .t{font-family:var(--cond);font-weight:700;font-size:26px;line-height:1}
+.clock .s{font-size:12px;color:#B9C9D4;margin-top:3px}
+.tabs{max-width:980px;margin:20px auto 0;display:flex;gap:4px;overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex:none;background:transparent;border:0;color:#C8D6DF;padding:10px 16px 12px;border-radius:8px 8px 0 0;cursor:pointer;font-weight:600;font-size:15px;display:flex;gap:8px;align-items:center}
+.tab:hover:not(:disabled){color:#fff;background:rgba(255,255,255,.07)}
+.tab[aria-selected="true"]{background:var(--paper);color:var(--ink)}
+.tab:disabled{opacity:.45;cursor:not-allowed}
+.tab .cnt{font-family:var(--cond);font-size:13px;background:rgba(255,255,255,.14);border-radius:20px;padding:0 7px}
+.tab[aria-selected="true"] .cnt{background:var(--sea-l);color:var(--sea)}
+.tab .cnt.full{background:var(--star);color:#fff}
+
+/* ---------- Barre de progression ---------- */
+.bar{position:sticky;top:0;z-index:20;background:var(--paper);border-bottom:1px solid var(--line)}
+.bar-in{max-width:980px;margin:0 auto;padding:10px 20px;display:flex;gap:16px;align-items:center;font-size:14px}
+.prog{flex:1;height:8px;background:#DDE6E6;border-radius:8px;overflow:hidden}
+.prog i{display:block;height:100%;background:var(--sea);width:0;transition:width .4s}
+.prog.full i{background:var(--star)}
+.bar .who{color:var(--ink2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:38%}
+.bar .mini-t{font-family:var(--cond);font-weight:700;font-size:16px;white-space:nowrap}
+.bar .mini-t.warn{color:#9A7400}.bar .mini-t.late{color:var(--port)}
+
+/* ---------- Contenu ---------- */
+main{max-width:980px;margin:0 auto;padding:28px 20px 60px}
+.panel{display:none}
+.panel.on{display:block}
+.col{max-width:760px}
+.act-head{display:flex;gap:18px;align-items:flex-start;margin:0 0 24px}
+.act-n{font-family:var(--cond);font-weight:700;font-size:76px;line-height:.82;color:var(--sea)}
+.act-head h2{font-family:var(--cond);font-weight:600;font-size:30px;line-height:1.1;margin:4px 0 6px}
+.act-head .dur{color:var(--muted);font-size:15px;margin:0}
+h3{font-family:var(--cond);font-weight:600;font-size:23px;margin:34px 0 10px}
+p{margin:0 0 14px}
+.lead{font-size:19px}
+figure{margin:18px 0 22px;background:var(--sheet);border:1px solid var(--line);border-radius:10px;padding:12px}
+figure img{margin:0 auto;cursor:zoom-in;border-radius:4px}
+figure.sm img{max-width:440px;width:100%}
+figcaption{font-size:14px;color:var(--muted);margin-top:8px;text-align:center}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.two figure{margin:0}
+.note{background:var(--sea-l);border-radius:10px;padding:14px 18px;margin:18px 0}
+.note.key{background:var(--ink);color:#fff}
+.note.key b{color:var(--signal)}
+.note.warn{background:var(--signal-l)}
+.note p:last-child,.note ul:last-child{margin-bottom:0}
+.note h4{margin:0 0 6px;font-size:16px}
+ul.plain{padding-left:20px;margin:0 0 14px}
+ul.plain li{margin-bottom:4px}
+.formula{font-family:var(--cond);font-size:21px;background:var(--sheet);border:1px solid var(--line);border-radius:8px;padding:8px 14px;display:inline-block;margin:4px 0 12px}
+table.data{border-collapse:collapse;width:100%;margin:10px 0 16px;font-size:15px;background:var(--sheet)}
+table.data th,table.data td{border:1px solid var(--line);padding:7px 10px;text-align:left;vertical-align:top}
+table.data th{background:#E9F0F0;font-weight:600}
+.scroll-x{overflow-x:auto}
+
+/* Plan des activités */
+.plan{list-style:none;padding:0;margin:10px 0 24px;border-left:3px solid var(--line)}
+.plan li{position:relative;padding:4px 0 14px 22px}
+.plan li::before{content:"";position:absolute;left:-8px;top:10px;width:13px;height:13px;border-radius:50%;background:var(--paper);border:3px solid var(--sea)}
+.plan b{display:block;font-family:var(--cond);font-size:19px;font-weight:600}
+.plan span{color:var(--muted);font-size:15px}
+
+/* Démarrage */
+.start{background:var(--sheet);border:2px solid var(--ink);border-radius:14px;padding:22px;margin:28px 0}
+.start h3{margin-top:0}
+.row{display:flex;gap:14px;flex-wrap:wrap}
+.row label{flex:1 1 220px;display:flex;flex-direction:column;gap:4px;font-weight:600;font-size:15px}
+input[type=text],input[type=password],textarea,select{font:inherit;color:var(--ink);background:#fff;border:1.5px solid #AFC0C3;border-radius:8px;padding:9px 12px;width:100%}
+input:focus,textarea:focus,select:focus{border-color:var(--sea);outline:none;box-shadow:0 0 0 3px var(--sea-l)}
+input:disabled,textarea:disabled{background:#EEF2F2;color:var(--ink2)}
+.btn{background:var(--ink);color:#fff;border:0;border-radius:9px;padding:11px 20px;font-weight:600;cursor:pointer}
+.btn:hover:not(:disabled){background:#0E2436}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn.alt{background:#fff;color:var(--ink);border:1.5px solid var(--ink)}
+.btn.alt:hover{background:var(--sea-l)}
+.btn.go{background:var(--signal);color:var(--ink)}
+.btn.go:hover:not(:disabled){background:#D9A300}
+.btn.sm{padding:7px 13px;font-size:15px}
+.err{color:var(--port);font-weight:600;font-size:15px;min-height:1.4em;margin:8px 0 0}
+
+/* Étapes logiciel */
+.step{display:flex;gap:12px;align-items:flex-start;background:var(--sheet);border:1px dashed #9FB5B8;border-radius:10px;padding:10px 14px;margin:10px 0}
+.step input{width:20px;height:20px;margin:3px 0 0;accent-color:var(--star);flex:none}
+.step label{cursor:pointer}
+.step.done{border-style:solid;border-color:var(--star);background:#F3FAF6}
+.step .tag{font-family:var(--cond);font-weight:600;color:var(--sea);font-size:14px;display:block}
+
+/* Questions */
+.q{position:relative;background:var(--sheet);border:1px solid var(--line);border-left:5px solid var(--line);border-radius:10px;padding:18px 20px 18px 20px;margin:18px 0}
+.q.ok{border-left-color:var(--sea)}
+.q.flash{animation:flash 1.4s}
+@keyframes flash{0%,40%{box-shadow:0 0 0 4px var(--signal)}100%{box-shadow:0 0 0 0 transparent}}
+.q-h{display:flex;gap:12px;align-items:flex-start;margin-bottom:12px}
+.q-num{flex:none;font-family:var(--cond);font-weight:700;font-size:17px;min-width:38px;height:30px;padding:0 8px;border-radius:15px;background:var(--paper);color:var(--ink);display:flex;align-items:center;justify-content:center;border:2px solid var(--line)}
+.q.ok .q-num{background:var(--sea);border-color:var(--sea);color:#fff}
+.q-p{flex:1}
+.q-p p:last-child{margin-bottom:0}
+.opt{font-size:13px;color:var(--muted);font-weight:500;margin-left:6px}
+.choices{display:flex;flex-direction:column;gap:8px}
+.choice{display:flex;gap:10px;align-items:center;border:1.5px solid #C4D2D4;border-radius:9px;padding:9px 14px;cursor:pointer;background:#fff}
+.choice:hover{border-color:var(--sea)}
+.choice input{accent-color:var(--sea);width:18px;height:18px;margin:0;flex:none}
+.choice:has(input:checked){border-color:var(--sea);background:var(--sea-l);font-weight:600}
+.choice:has(input:disabled){cursor:default}
+.numrow{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.numrow input{max-width:200px}
+.unit{font-family:var(--cond);font-weight:600;color:var(--ink2);font-size:18px}
+.fields{display:grid;grid-template-columns:minmax(150px,1.3fr) minmax(120px,1fr) auto;gap:8px 12px;align-items:center}
+.fields .fl{font-size:15px}
+.fields .fsec{grid-column:1/-1;font-family:var(--cond);font-weight:600;font-size:18px;color:var(--sea);margin-top:8px;border-bottom:1px solid var(--line)}
+.grid{border-collapse:collapse;width:100%;font-size:15px}
+.grid td{padding:6px 6px;border-bottom:1px solid var(--line);vertical-align:middle}
+.grid td:first-child{font-weight:600;padding-right:12px}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.seg label{border:1.5px solid #C4D2D4;border-radius:20px;padding:5px 13px;cursor:pointer;background:#fff;font-size:15px}
+.seg input{position:absolute;opacity:0;pointer-events:none}
+.seg label:has(input:checked){background:var(--ink);border-color:var(--ink);color:#fff}
+.seg label:has(input:focus-visible){outline:3px solid var(--signal)}
+textarea{min-height:96px;resize:vertical;line-height:1.5}
+details.hint{margin-top:12px}
+details.hint summary{cursor:pointer;color:var(--sea);font-weight:600;font-size:15px;list-style:none;display:inline-flex;gap:6px;align-items:center}
+details.hint summary::-webkit-details-marker{display:none}
+details.hint summary::before{content:"+";font-family:var(--cond);font-size:20px;line-height:1;width:20px;height:20px;border-radius:50%;background:var(--sea-l);display:inline-flex;align-items:center;justify-content:center}
+details.hint[open] summary::before{content:"–"}
+details.hint div{background:var(--signal-l);border-radius:8px;padding:10px 14px;margin-top:8px;font-size:15px}
+details.res{background:var(--sheet);border:1px solid var(--line);border-radius:10px;margin:16px 0;padding:0 16px}
+details.res summary{cursor:pointer;padding:12px 0;font-weight:600}
+details.res[open]{padding-bottom:14px}
+
+.act-foot{display:flex;justify-content:space-between;gap:10px;margin-top:34px;flex-wrap:wrap}
+
+/* Correction */
+.lockbox{background:var(--sheet);border:2px solid var(--ink);border-radius:14px;padding:24px;max-width:760px}
+.lockbox h2{font-family:var(--cond);font-size:30px;margin:0 0 8px}
+.missing{list-style:none;padding:0;margin:14px 0;display:flex;flex-wrap:wrap;gap:8px}
+.missing button{background:var(--port-l);color:var(--port);border:0;border-radius:20px;padding:5px 12px;cursor:pointer;font-weight:600;font-size:14px}
+.score{display:flex;gap:22px;align-items:center;background:var(--ink);color:#fff;border-radius:14px;padding:18px 22px;margin:0 0 26px;flex-wrap:wrap}
+.score .big{font-family:var(--cond);font-weight:700;font-size:52px;line-height:1;color:var(--signal)}
+.score p{margin:0;color:#C8D6DF;font-size:15px}
+.cq{background:var(--sheet);border:1px solid var(--line);border-radius:10px;padding:16px 18px;margin:14px 0}
+.cq-h{display:flex;gap:10px;align-items:baseline;margin-bottom:10px;flex-wrap:wrap}
+.cq-h b{font-family:var(--cond);font-size:18px}
+.cq-h .pr{flex:1;color:var(--ink2);font-size:15px;min-width:200px}
+.cq .mine{background:#F4F7F7;border-radius:8px;padding:10px 14px;margin-bottom:10px;font-size:15px;white-space:pre-wrap}
+.cq .mine .lab,.cq .sol .lab{display:block;font-family:var(--cond);font-weight:600;font-size:14px;color:var(--muted);margin-bottom:2px;white-space:normal}
+.cq .sol{border-left:4px solid var(--star);padding:6px 0 6px 14px}
+.cq .sol p:last-child{margin-bottom:0}
+.v{display:inline-block;font-size:13px;font-weight:700;border-radius:20px;padding:2px 10px;white-space:nowrap}
+.v.ok{background:var(--star-l);color:var(--star)}
+.v.ko{background:var(--port-l);color:var(--port)}
+.v.mid{background:var(--signal-l);color:#8A6800}
+.v.na{background:#E6ECEC;color:var(--ink2)}
+.selfev{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;align-items:center;font-size:14px;color:var(--muted)}
+.selfev button{border:1.5px solid var(--line);background:#fff;border-radius:20px;padding:3px 11px;cursor:pointer;font-size:14px}
+.selfev button.on.a{background:var(--star);border-color:var(--star);color:#fff}
+.selfev button.on.b{background:var(--signal);border-color:var(--signal);color:var(--ink)}
+.selfev button.on.c{background:var(--port);border-color:var(--port);color:#fff}
+table.ct{border-collapse:collapse;width:100%;font-size:14px;margin:4px 0}
+table.ct td,table.ct th{border-bottom:1px solid var(--line);padding:5px 8px;text-align:left}
+table.ct th{color:var(--muted);font-weight:600}
+
+/* Fenêtres */
+.modal{position:fixed;inset:0;background:rgba(10,25,38,.62);display:none;align-items:center;justify-content:center;z-index:60;padding:20px}
+.modal.on{display:flex}
+.modal .box{background:#fff;border-radius:14px;max-width:440px;width:100%;padding:24px}
+.modal h3{margin:0 0 8px}
+.modal .acts{display:flex;gap:10px;justify-content:flex-end;margin-top:16px;flex-wrap:wrap}
+.lb{position:fixed;inset:0;background:rgba(10,25,38,.9);display:none;align-items:center;justify-content:center;z-index:70;padding:20px;cursor:zoom-out}
+.lb.on{display:flex}
+.lb img{max-height:94vh;max-width:96vw;background:#fff;border-radius:6px}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(30px);background:var(--ink);color:#fff;padding:10px 18px;border-radius:10px;opacity:0;transition:.25s;z-index:80;pointer-events:none}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+
+footer{max-width:980px;margin:0 auto;padding:0 20px 40px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;color:var(--muted);font-size:14px}
+footer .sp{flex:1}
+footer button{background:none;border:0;color:var(--ink2);text-decoration:underline;cursor:pointer;font-size:14px;padding:4px}
+.timeup{background:var(--port);color:#fff;text-align:center;padding:10px;font-weight:600;display:none}
+.timeup.on{display:block}
+
+/* Widgets */
+.widget{background:var(--sheet);border:2px solid var(--sea);border-radius:12px;padding:16px 18px;margin:20px 0}
+.widget h4{font-family:var(--cond);font-size:20px;margin:0 0 4px}
+.widget .ctl{display:flex;gap:18px;flex-wrap:wrap;margin:10px 0}
+.widget .ctl label{flex:1 1 220px;font-size:15px}
+.widget input[type=range]{width:100%;accent-color:var(--sea)}
+.widget .read{display:flex;gap:10px;flex-wrap:wrap;margin:8px 0}
+.widget .read div{background:var(--paper);border-radius:8px;padding:6px 12px;font-size:14px}
+.widget .read b{font-family:var(--cond);font-size:20px;display:block}
+.wsvg{width:100%;height:auto;display:block;background:#F7FAFA;border-radius:8px}
+canvas.plot{width:100%;height:320px;display:block;background:#F7FAFA;border-radius:8px}
+
+@media (max-width:640px){
+  html,body{font-size:16px}
+  .top-in{flex-direction:column;align-items:flex-start;gap:12px}
+  .clock{width:92px;height:92px;position:absolute;right:16px;top:calc(16px + env(safe-area-inset-top,0px))}
+  .top{position:relative}
+  .top-txt{padding-right:100px}
+  .clock .t{font-size:20px}
+  .two{grid-template-columns:1fr}
+  .fields{grid-template-columns:1fr auto}
+  .fields .fl{grid-column:1/-1;margin-top:6px}
+  .act-n{font-size:56px}
+  .bar .who{display:none}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+@media print{
+  .top .tabs,.bar,footer,.start,.act-foot,.modal,.lb,.toast,details.hint,.widget{display:none!important}
+  .top{background:#fff;color:#000}.clock{display:none}
+  .panel{display:block!important;page-break-before:always}
+  .panel#p-accueil{display:none!important}
+  .q{break-inside:avoid}
+  body,html{background:#fff}
+}
+</style>
+</head>
+<body>
+<div class="timeup" id="timeup">Temps écoulé : tes réponses sont verrouillées. Appelle ton professeur.</div>
+<header class="top">
+  <div class="top-in">
+    <div class="top-txt">
+      <p class="tp-code" id="tpcode"></p>
+      <h1 id="tptitle"></h1>
+      <p class="sub" id="tpsub"></p>
+    </div>
+    <div class="clock" aria-live="off">
+      <svg viewBox="0 0 120 120" aria-hidden="true">
+        <circle cx="60" cy="60" r="52" fill="none" stroke="rgba(255,255,255,.14)" stroke-width="8"/>
+        <circle id="ring" cx="60" cy="60" r="52" fill="none" stroke="#E9B10A" stroke-width="8" stroke-linecap="round" stroke-dasharray="326.7" stroke-dashoffset="0"/>
+      </svg>
+      <div class="lbl"><span class="t" id="clockt">2:00</span><span class="s" id="clocks">à lancer</span></div>
+    </div>
+  </div>
+  <nav class="tabs" role="tablist" id="tabs"></nav>
+</header>
+<div class="bar"><div class="bar-in">
+  <span class="who" id="who"></span>
+  <div class="prog" id="prog"><i></i></div>
+  <span id="progt">0 / 0</span>
+  <span class="mini-t" id="minit"></span>
+</div></div>
+<main id="main"></main>
+<footer>
+  <button type="button" id="bPrint">Imprimer ma copie</button>
+  <button type="button" id="bCopy">Copier mes réponses</button>
+  <span class="sp"></span>
+  <button type="button" id="bTeacher">Espace enseignant</button>
+</footer>
+
+<div class="modal" id="mPw" role="dialog" aria-modal="true" aria-labelledby="mPwT">
+  <div class="box">
+    <h3 id="mPwT">Validation par le professeur</h3>
+    <p id="mPwMsg">Le professeur saisit le mot de passe pour afficher la correction. Tes réponses seront alors verrouillées.</p>
+    <input type="password" id="pwIn" autocomplete="off" aria-label="Mot de passe enseignant">
+    <p class="err" id="pwErr"></p>
+    <div class="acts"><button class="btn alt" type="button" id="pwCancel">Annuler</button><button class="btn" type="button" id="pwOk">Valider</button></div>
+  </div>
+</div>
+<div class="modal" id="mT" role="dialog" aria-modal="true" aria-labelledby="mTT">
+  <div class="box">
+    <h3 id="mTT">Espace enseignant</h3>
+    <div id="tLogin">
+      <input type="password" id="tIn" autocomplete="off" aria-label="Mot de passe enseignant">
+      <p class="err" id="tErr"></p>
+      <div class="acts"><button class="btn alt" type="button" data-close>Fermer</button><button class="btn" type="button" id="tOk">Entrer</button></div>
+    </div>
+    <div id="tMenu" hidden>
+      <p>Copie de <b id="tWho"></b></p>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <button class="btn" type="button" id="tUnlock">Afficher la correction maintenant</button>
+        <button class="btn alt" type="button" id="tPlus">Ajouter 10 minutes</button>
+        <button class="btn alt" type="button" id="tReset">Effacer la copie et recommencer</button>
+      </div>
+      <div class="acts"><button class="btn alt" type="button" data-close>Fermer</button></div>
+    </div>
+  </div>
+</div>
+<div class="lb" id="lb"><img alt="" id="lbImg"></div>
+<div class="toast" id="toast"></div>
+
+<script>
+const TP = {"id": "tp9", "code": "TP9", "duree": 120, "titre": "La chaîne d'énergie du pilote TP32 est-elle réversible ?", "sousTitre": "Pilote automatique Simrad TP32 · Sciences de l'ingénieur", "accueil": "\n<p class=\"lead\">Un système est <b>réversible<\/b> quand l'énergie peut le traverser dans les deux sens : de la source vers la charge, mais aussi de la charge vers la source.<\/p>\n<p>Sur un bateau, le vent et la gîte peuvent pousser la barre et donc entraîner la tige du pilote. Le pilote reçoit alors de l'énergie au lieu d'en fournir. Que se passe-t-il dans sa chaîne d'énergie ?<\/p>\n<div class=\"note key\"><p><b>Problématique.<\/b> La chaîne d'énergie du pilote TP32 est-elle réversible ?<\/p><\/div>\n<h3>La chaîne d'énergie du pilote<\/h3>\n<div class=\"scroll-x\"><svg viewBox=\"0 0 760 150\" class=\"wsvg\" role=\"img\" aria-label=\"Chaîne d'énergie du pilote TP32\" style=\"min-width:600px;background:#fff;border:1px solid var(--line)\">\n<defs><marker id=\"ar\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"7\" markerHeight=\"7\" orient=\"auto\"><path d=\"M0,0L10,5L0,10z\" fill=\"#15324B\"/><\/marker><\/defs>\n<g font-family=\"Barlow, sans-serif\" text-anchor=\"middle\">\n<rect x=\"10\" y=\"34\" width=\"128\" height=\"62\" rx=\"9\" fill=\"#15324B\"/><text x=\"74\" y=\"62\" font-size=\"17\" font-weight=\"700\" fill=\"#fff\">Alimenter<\/text><text x=\"74\" y=\"83\" font-size=\"12.5\" fill=\"#C8D6DF\">batterie + diode D1<\/text><line x1=\"140\" y1=\"65\" x2=\"158\" y2=\"65\" stroke=\"#15324B\" stroke-width=\"2.5\" marker-end=\"url(#ar)\"/><rect x=\"160\" y=\"34\" width=\"128\" height=\"62\" rx=\"9\" fill=\"#DCEBEC\"/><text x=\"224\" y=\"62\" font-size=\"17\" font-weight=\"700\" fill=\"#15324B\">Distribuer<\/text><text x=\"224\" y=\"83\" font-size=\"12.5\" fill=\"#3E5568\">pont en H<\/text><line x1=\"290\" y1=\"65\" x2=\"308\" y2=\"65\" stroke=\"#15324B\" stroke-width=\"2.5\" marker-end=\"url(#ar)\"/><rect x=\"310\" y=\"34\" width=\"128\" height=\"62\" rx=\"9\" fill=\"#DCEBEC\"/><text x=\"374\" y=\"62\" font-size=\"17\" font-weight=\"700\" fill=\"#15324B\">Convertir<\/text><text x=\"374\" y=\"83\" font-size=\"12.5\" fill=\"#3E5568\">moteur CC<\/text><line x1=\"440\" y1=\"65\" x2=\"458\" y2=\"65\" stroke=\"#15324B\" stroke-width=\"2.5\" marker-end=\"url(#ar)\"/><rect x=\"460\" y=\"34\" width=\"128\" height=\"62\" rx=\"9\" fill=\"#DCEBEC\"/><text x=\"524\" y=\"62\" font-size=\"17\" font-weight=\"700\" fill=\"#15324B\">Transmettre<\/text><text x=\"524\" y=\"83\" font-size=\"12.5\" fill=\"#3E5568\">poulies-courroie<\/text><line x1=\"590\" y1=\"65\" x2=\"608\" y2=\"65\" stroke=\"#15324B\" stroke-width=\"2.5\" marker-end=\"url(#ar)\"/><rect x=\"610\" y=\"34\" width=\"128\" height=\"62\" rx=\"9\" fill=\"#DCEBEC\"/><text x=\"674\" y=\"62\" font-size=\"17\" font-weight=\"700\" fill=\"#15324B\">Transmettre<\/text><text x=\"674\" y=\"83\" font-size=\"12.5\" fill=\"#3E5568\">vis à billes<\/text>\n<text x=\"380\" y=\"124\" font-size=\"13\" fill=\"#6B7F8C\">énergie électrique  →  énergie mécanique de rotation  →  translation de la tige<\/text>\n<\/g><\/svg><\/div>\n<h3>Déroulement<\/h3>\n<ul class=\"plan\">\n<li><b>Activité 1 · Étude mécanique<\/b><span>Travail, puissance et sens du transfert d'énergie · environ 25 min<\/span><\/li>\n<li><b>Activité 2 · Mesures sur le pilote<\/b><span>À vide, en charge, au repos et en mode AUTO · environ 85 min<\/span><\/li>\n<li><b>Activité 3 · Pour aller plus loin<\/b><span>Oscilloscope à mémoire et tableur, si le matériel est disponible · facultatif<\/span><\/li>\n<\/ul>\n<div class=\"note warn\"><h4>Matériel<\/h4><ul class=\"plain\"><li>Pilote TP32 sur son banc, alimentation 12 V, masse de 40 kg et plateau (2,4 kg).<\/li><li>Voltmètre, ampèremètre numérique ou sonde de courant à effet Hall, chronomètre et règle.<\/li><\/ul><\/div>\n", "activites": [{"titre": "Étude mécanique : mettre en évidence la réversibilité", "duree": "Environ 25 min", "blocks": [{"t": "html", "html": "<p>Lis la ressource ci-dessous, puis réponds aux questions. Elle reste disponible pendant toute l'activité.<\/p>\n<details class=\"res\"><summary>Ressource : notion de travail et de puissance mécanique<\/summary>\n<p>On étudie un solide en translation rectiligne soumis à une ou plusieurs forces.<\/p>\n<p><b>Travail d'une force<\/b> quand le solide se déplace de A à B :<\/p>\n<p class=\"formula\">W<sub>AB<\/sub>(F) = F · AB · cos(F , AB)<\/p>\n<p style=\"font-size:15px\">Unités : W en joules (J), F en newtons (N), AB en mètres (m).<\/p>\n<ul class=\"plain\"><li>La force s'oppose au mouvement (cos &lt; 0) : travail <b>négatif<\/b>, dit <b>résistant<\/b>.<\/li>\n<li>La force va dans le sens du mouvement (cos &gt; 0) : travail <b>positif<\/b>, dit <b>moteur<\/b>.<\/li>\n<li>La force est perpendiculaire au mouvement (cos = 0) : travail <b>nul<\/b>.<\/li><\/ul>\n<div class=\"two\">\n<div class=\"note\"><h4>Exemple 1 : la charge monte<\/h4><p>Le poids est vers le bas, la charge va vers le haut.<\/p><p>W<sub>AB<\/sub>(P<sub>charge<\/sub>) = − P<sub>charge<\/sub> · AB &lt; 0 : travail résistant.<\/p><p>W<sub>AB<\/sub>(F<sub>tige<\/sub>) = + F<sub>tige<\/sub> · AB &gt; 0 : travail moteur.<\/p><p><b>L'énergie va de la tige vers la charge.<\/b><\/p><\/div>\n<div class=\"note\"><h4>Exemple 2 : la charge descend<\/h4><p>Le poids est vers le bas, la charge va vers le bas.<\/p><p>W<sub>AB<\/sub>(P<sub>charge<\/sub>) = + P<sub>charge<\/sub> · AB &gt; 0 : travail moteur.<\/p><p>W<sub>AB<\/sub>(F<sub>tige<\/sub>) = − F<sub>tige<\/sub> · AB &lt; 0 : travail résistant.<\/p><p><b>L'énergie va de la charge vers la tige.<\/b><\/p><\/div>\n<\/div>\n<p><b>Puissance<\/b> : elle tient compte du temps mis pour fournir le travail.<\/p>\n<p class=\"formula\">P = F · V · cos(F , V)<\/p>\n<p style=\"font-size:15px\">Unités : P en watts (W), F en newtons (N), V en mètres par seconde (m/s).<\/p>\n<\/details>"}, {"t": "q", "id": "t9q1a", "num": "1a", "type": "text", "short": "Expression de la puissance du poids (montée)", "prompt": "<p><b>Exemple 1 (montée de la charge).<\/b> Donne l'expression de la puissance mécanique fournie par le poids P<sub>charge<\/sub> de la charge de masse M, qui se déplace à vitesse constante V.<\/p>", "placeholder": "P = …", "hint": "P = F · V · cos(F , V). Le poids et la vitesse sont-ils dans le même sens ou en sens contraires ?"}, {"t": "q", "id": "t9q1b", "num": "1b", "type": "num", "unit": "W", "short": "Application numérique (montée)", "prompt": "<p>Application numérique : M = 40 kg, V = 0,1 m/s, g = 9,81 m/s². Attention au signe.<\/p>"}, {"t": "q", "id": "t9q2", "num": "2", "type": "num", "unit": "W", "short": "Puissance du poids (descente)", "prompt": "<p><b>Exemple 2 (descente de la charge).<\/b> Mêmes données. Calcule la puissance fournie par le poids de la charge.<\/p>"}, {"t": "q", "id": "t9q3", "num": "3", "type": "grid", "short": "Signification du signe des puissances", "prompt": "<p>Que signifie le signe de ces puissances ? Complète le tableau.<\/p>", "rows": [{"label": "Montée : travail du poids", "options": ["moteur", "résistant"]}, {"label": "Montée : l'énergie va…", "options": ["de la tige vers la charge", "de la charge vers la tige"]}, {"label": "Descente : travail du poids", "options": ["moteur", "résistant"]}, {"label": "Descente : l'énergie va…", "options": ["de la tige vers la charge", "de la charge vers la tige"]}]}]}, {"titre": "Mesures sur le pilote : sens des transferts d'énergie", "duree": "Environ 85 min", "blocks": [{"t": "html", "html": "<div class=\"note warn\"><h4>Organisez-vous en binôme<\/h4><p>Il faut souvent mesurer plusieurs grandeurs <b>en même temps<\/b>. Répartissez-vous les rôles : l'un manipule les boutons du pilote et lit la tension, l'autre lit le courant et mesure la vitesse.<\/p><p>Quand la masse descend vite, un transistor de la carte chauffe fortement. <b>Faites une seule montée par mesure et laissez refroidir le pilote entre deux essais.<\/b><\/p><\/div>\n   <h3>Fonctionnement à vide (sans masse)<\/h3>\n   <p>Branche un voltmètre et un ampèremètre (ou une sonde de courant) sur le moteur du pilote, de façon à lire une tension <b>positive<\/b> et un courant <b>positif<\/b> quand la tige <b>rentre<\/b>.<\/p>"}, {"t": "q", "id": "t9q4", "num": "4", "type": "fields", "short": "Mesures à vide", "prompt": "<p>Mesure la tension et le courant du moteur quand la tige rentre, puis quand elle sort. Calcule la puissance électrique consommée par le moteur dans chaque cas. Garde les signes !<\/p>", "fields": [{"sec": "Rentrée de la tige"}, {"id": "ur", "label": "Tension U moteur", "unit": "V"}, {"id": "ir", "label": "Courant I moteur", "unit": "A"}, {"id": "pr", "label": "Puissance P = U × I", "unit": "W"}, {"sec": "Sortie de la tige"}, {"id": "us", "label": "Tension U moteur", "unit": "V"}, {"id": "is", "label": "Courant I moteur", "unit": "A"}, {"id": "ps", "label": "Puissance P = U × I", "unit": "W"}]}, {"t": "q", "id": "t9q4b", "num": "4b", "type": "qcm", "short": "Signe de la puissance à vide", "prompt": "<p>La puissance électrique consommée par le moteur est :<\/p>", "options": ["positive dans les deux sens", "négative dans les deux sens", "positive à la rentrée, négative à la sortie", "négative à la rentrée, positive à la sortie"]}, {"t": "q", "id": "t9q4c", "num": "4c", "type": "qcm", "short": "Sens du transfert à vide", "prompt": "<p>Dans quel sens se fait le transfert d'énergie ?<\/p>", "options": ["De l'alimentation vers la tige", "De la tige vers l'alimentation", "Il change selon le sens de déplacement"]}, {"t": "html", "html": "<h3>Fonctionnement en charge<\/h3>\n   <p>Ne débranche pas les appareils de mesure. Accroche une masse de <b>40 kg<\/b> au bout du câble : le pilote va la soulever. Le plateau au bout du câble pèse <b>2,4 kg<\/b>, la masse totale est donc <b>M = 42,4 kg<\/b>. Le câble doit être tendu très vite, ou même en permanence.<\/p>"}, {"t": "q", "id": "t9q5", "num": "5", "type": "fields", "short": "Mesures en charge (montée et descente)", "prompt": "<p>Mesure la vitesse de la tige, la tension et le courant du moteur pendant la <b>montée<\/b> de la masse, puis pendant sa <b>descente<\/b>. Calcule la puissance électrique du moteur et la puissance mécanique pour lever (ou descendre) la masse.<\/p>", "fields": [{"sec": "Montée de la masse"}, {"id": "vm", "label": "Vitesse de la tige V", "unit": "m/s"}, {"id": "um", "label": "Tension U moteur", "unit": "V"}, {"id": "im", "label": "Courant I moteur", "unit": "A"}, {"id": "pem", "label": "P électrique = U × I", "unit": "W"}, {"id": "pmm", "label": "P mécanique = M × g × V", "unit": "W"}, {"sec": "Descente de la masse"}, {"id": "vd", "label": "Vitesse de la tige V", "unit": "m/s"}, {"id": "ud", "label": "Tension U moteur", "unit": "V"}, {"id": "id_", "label": "Courant I moteur", "unit": "A"}, {"id": "ped", "label": "P électrique = U × I", "unit": "W"}, {"id": "pmd", "label": "P mécanique = M × g × V", "unit": "W"}], "hint": "Vitesse : chronomètre le temps mis par la tige pour parcourir une distance connue, V = d / t. Compte la vitesse <b>positive<\/b> à la montée et <b>négative<\/b> à la descente. M = 42,4 kg et g = 9,81 m/s²."}, {"t": "q", "id": "t9q5b", "num": "5b", "type": "grid", "short": "Signe des puissances et sens du transfert en charge", "prompt": "<p>Complète le tableau à partir de tes résultats.<\/p>", "rows": [{"label": "Montée : signe des puissances", "options": ["positives", "négatives"]}, {"label": "Montée : l'énergie va…", "options": ["de l'alimentation vers la masse", "de la masse vers l'alimentation"]}, {"label": "Descente : signe des puissances", "options": ["positives", "négatives"]}, {"label": "Descente : l'énergie va…", "options": ["de l'alimentation vers la masse", "de la masse vers l'alimentation"]}]}, {"t": "q", "id": "t9q5c", "num": "5c", "type": "text", "short": "Justification et comparaison des tensions", "prompt": "<p>Détaille ta réponse : compare la puissance électrique et la puissance mécanique dans chaque cas. Compare aussi la tension aux bornes du moteur pendant la descente avec la tension d'alimentation (environ 12,5 V). Que peux-tu en conclure ?<\/p>"}, {"t": "q", "id": "t9q6", "num": "6", "type": "qcm", "short": "Signe du courant moteur dans les deux sens", "prompt": "<p>Que constates-tu sur le signe du courant dans le moteur pour ses deux sens de rotation (montée et descente) ?<\/p>", "options": ["Le courant change de signe", "Le courant garde le même signe", "Le courant est nul pendant la descente"], "hint": "Le poids de la charge change-t-il de sens quand elle monte ou quand elle descend ?"}, {"t": "html", "html": "<h3>Mesures sur l'alimentation du pilote<\/h3><p>Branche maintenant le voltmètre et l'ampèremètre sur l'<b>alimentation électrique du pilote<\/b>, de façon à lire une valeur positive pendant la rentrée de la tige.<\/p>"}, {"t": "q", "id": "t9q7", "num": "7", "type": "fields", "short": "Mesures sur l'alimentation", "prompt": "<p>Avec la même masse, mesure la tension et le courant d'alimentation pendant la rentrée puis la sortie de la tige. Calcule la puissance consommée par le pilote.<\/p>", "fields": [{"sec": "Rentrée de la tige (montée)"}, {"id": "ur", "label": "Tension U alimentation", "unit": "V"}, {"id": "ir", "label": "Courant I alimentation", "unit": "A"}, {"id": "pr", "label": "Puissance P = U × I", "unit": "W"}, {"sec": "Sortie de la tige (descente)"}, {"id": "us", "label": "Tension U alimentation", "unit": "V"}, {"id": "is", "label": "Courant I alimentation", "unit": "A"}, {"id": "ps", "label": "Puissance P = U × I", "unit": "W"}]}, {"t": "q", "id": "t9q7b", "num": "7b", "type": "qcm", "short": "Le pilote complet est-il réversible ?", "prompt": "<p>Compare ces puissances à celles mesurées sur le moteur. Le pilote complet est-il réversible ?<\/p>", "options": ["Oui : pendant la descente, l'énergie revient vers l'alimentation", "Non : l'énergie ne revient jamais vers l'alimentation"]}, {"t": "q", "id": "t9q7c", "num": "7c", "type": "text", "short": "Justification (réversibilité du pilote complet)", "prompt": "<p>Justifie ta réponse. Quel composant de la fonction « Alimenter » en est responsable ?<\/p>", "hint": "Observe le schéma électrique de la carte du pilote, juste après le connecteur d'alimentation."}, {"t": "html", "html": "<h3>Le pilote au repos, en charge<\/h3>"}, {"t": "q", "id": "t9q8a", "num": "8a", "type": "text", "short": "Observation au repos en charge", "prompt": "<p>Rentre la tige au maximum, en charge, puis ne touche plus au pilote (aucune commande). Qu'observes-tu ?<\/p>"}, {"t": "q", "id": "t9q8b", "num": "8b", "type": "fields", "short": "Mesures au repos en charge", "prompt": "<p>Mesure la tension aux bornes du moteur, le courant et la vitesse de la tige. Calcule la puissance électrique du moteur et la puissance mécanique fournie par la charge.<\/p>", "fields": [{"id": "u", "label": "Tension U moteur", "unit": "V"}, {"id": "i", "label": "Courant I moteur", "unit": "A"}, {"id": "v", "label": "Vitesse de la tige V", "unit": "m/s"}, {"id": "pe", "label": "P électrique = U × I", "unit": "W"}, {"id": "pm", "label": "P mécanique = M × g × V", "unit": "W"}], "hint": "Ici la tige sort très lentement : mesure le temps sur une petite distance. Prends V positive pour ce calcul."}, {"t": "q", "id": "t9q8c", "num": "8c", "type": "text", "short": "Conclusion sur le branchement du moteur", "prompt": "<p>Que peux-tu conclure sur la façon dont le moteur est branché quand on ne commande rien ? Où passe l'énergie fournie par la charge ?<\/p>", "hint": "La tension aux bornes du moteur est presque nulle alors qu'un courant circule : à quoi est-il relié ?"}, {"t": "q", "id": "t9q9", "num": "9", "type": "grid", "short": "Fonctions réversibles ou irréversibles", "prompt": "<p>Déduis des résultats précédents quelles fonctions de la chaîne d'énergie sont réversibles ou irréversibles.<\/p>", "rows": [{"label": "Alimenter", "options": ["Réversible", "Irréversible"]}, {"label": "Distribuer", "options": ["Réversible", "Irréversible"]}, {"label": "Convertir", "options": ["Réversible", "Irréversible"]}, {"label": "Transmettre (poulies + courroie)", "options": ["Réversible", "Irréversible"]}, {"label": "Transmettre (vis à billes)", "options": ["Réversible", "Irréversible"]}]}, {"t": "html", "html": "<h3>Essai en charge en mode AUTO<\/h3>"}, {"t": "q", "id": "t9q10", "num": "10", "type": "text", "short": "Comportement en mode AUTO", "prompt": "<p>Place la tige à mi-course, puis appuie sur <b>STBY/AUTO<\/b>. Le pilote doit garder le cap, mais la charge est entraînante. Décris le comportement du pilote. Pendant combien de temps cela dure-t-il ?<\/p>"}, {"t": "q", "id": "t9q11a", "num": "11a", "type": "text", "short": "Conséquence d'une vis non réversible (TP10)", "prompt": "<p>Le même fabricant vend aussi le pilote <b>TP10<\/b>, équipé d'une vis à filet trapézoïdal <b>non réversible<\/b>. Quelle conséquence ce choix a-t-il sur la consommation de l'appareil sous charge ?<\/p>"}, {"t": "q", "id": "t9q11b", "num": "11b", "type": "qcm", "short": "Pilote le plus économe en mode AUTO", "prompt": "<p>En mode AUTO, sous charge, quel pilote est le plus économe en énergie ?<\/p>", "options": ["Le TP32 (vis à billes réversible)", "Le TP10 (vis trapézoïdale non réversible)", "Ils consomment autant"]}]}, {"titre": "Pour aller plus loin : la FEM du moteur", "duree": "Facultatif · si un oscilloscope à mémoire est disponible", "blocks": [{"t": "html", "html": "<p>Cette partie demande un <b>oscilloscope à mémoire<\/b> relié à un ordinateur, avec un logiciel qui exporte les mesures pour un tableur, et une <b>sonde de courant à effet Hall<\/b> (calibre 0,1 V/A si possible). Elle n'est pas obligatoire pour demander la correction.<\/p>"}, {"t": "q", "id": "t9q12", "num": "12", "type": "check", "optional": true, "short": "Enregistrement de l'oscillogramme", "prompt": "<p>Branche l'oscilloscope sur le moteur : la tension aux bornes du moteur sur une voie, le courant moteur sur l'autre. Enregistre un cycle complet rentrée puis sortie de la tige.<\/p>", "label": "Oscillogramme enregistré"}, {"t": "q", "id": "t9q13", "num": "13", "type": "text", "optional": true, "short": "Phases de fonctionnement", "prompt": "<p>Repère sur l'oscillogramme les différentes phases de fonctionnement en régime établi du pilote et de son moteur (jusqu'à 9 phases). Décris-les.<\/p>"}, {"t": "q", "id": "t9q14", "num": "14", "type": "qcm", "optional": true, "short": "Équation de la FEM", "prompt": "<p>Quelle équation relie la FEM E du moteur à courant continu à U (tension aux bornes), I (courant) et R (résistance d'induit) ?<\/p>", "options": ["E = U + R·I", "E = U − R·I", "E = R·I − U", "E = U / (R·I)"]}, {"t": "html", "html": "<p><b>Questions 15 à 17.<\/b> Importe la mesure dans le tableur. On donne R ≈ 0,8 Ω. Pour chaque point, calcule E (on néglige l'inductance de l'induit), puis trace E en fonction de I sur une feuille à part. L'outil ci-dessous permet de vérifier ton tracé.<\/p>"}, {"t": "widget", "name": "fem"}, {"t": "q", "id": "t9q18", "num": "18", "type": "text", "optional": true, "short": "Points de fonctionnement sur E = f(I)", "prompt": "<p>Indique sur le graphe E = f(I) où se trouvent les points de fonctionnement du moteur décrits à la question 13.<\/p>"}]}]};
+const ENC = "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";
+const ENC_CHECK = "7UY9wTNrFo4I";
+const SALT = "tp9-2026";
+</script>
+<script>
+(function(){
+"use strict";
+/* ===== SHA-256 (pur JS, fonctionne même hors contexte sécurisé) ===== */
+const K=new Uint32Array([0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,0xd807aa98,0x12835b01,0x243185be,0x550c7dc3,0x72be5d74,0x80deb1fe,0x9bdc06a7,0xc19bf174,0xe49b69c1,0xefbe4786,0x0fc19dc6,0x240ca1cc,0x2de92c6f,0x4a7484aa,0x5cb0a9dc,0x76f988da,0x983e5152,0xa831c66d,0xb00327c8,0xbf597fc7,0xc6e00bf3,0xd5a79147,0x06ca6351,0x14292967,0x27b70a85,0x2e1b2138,0x4d2c6dfc,0x53380d13,0x650a7354,0x766a0abb,0x81c2c92e,0x92722c85,0xa2bfe8a1,0xa81a664b,0xc24b8b70,0xc76c51a3,0xd192e819,0xd6990624,0xf40e3585,0x106aa070,0x19a4c116,0x1e376c08,0x2748774c,0x34b0bcb5,0x391c0cb3,0x4ed8aa4a,0x5b9cca4f,0x682e6ff3,0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2]);
+function rotr(x,n){return (x>>>n)|(x<<(32-n));}
+function sha256(bytes){
+  const l=bytes.length,n=((l+9+63)>>6)<<6,m=new Uint8Array(n);m.set(bytes);m[l]=0x80;
+  const dv=new DataView(m.buffer),bits=l*8;dv.setUint32(n-4,bits>>>0);dv.setUint32(n-8,Math.floor(bits/4294967296));
+  const H=new Uint32Array([0x6a09e667,0xbb67ae85,0x3c6ef372,0xa54ff53a,0x510e527f,0x9b05688c,0x1f83d9ab,0x5be0cd19]);
+  const W=new Uint32Array(64);
+  for(let i=0;i<n;i+=64){
+    for(let t=0;t<16;t++)W[t]=dv.getUint32(i+t*4);
+    for(let t=16;t<64;t++){const a=W[t-15],b=W[t-2];W[t]=(W[t-16]+(rotr(a,7)^rotr(a,18)^(a>>>3))+W[t-7]+(rotr(b,17)^rotr(b,19)^(b>>>10)))>>>0;}
+    let a=H[0],b=H[1],c=H[2],d=H[3],e=H[4],f=H[5],g=H[6],h=H[7];
+    for(let t=0;t<64;t++){
+      const t1=(h+(rotr(e,6)^rotr(e,11)^rotr(e,25))+((e&f)^(~e&g))+K[t]+W[t])>>>0;
+      const t2=((rotr(a,2)^rotr(a,13)^rotr(a,22))+((a&b)^(a&c)^(b&c)))>>>0;
+      h=g;g=f;f=e;e=(d+t1)>>>0;d=c;c=b;b=a;a=(t1+t2)>>>0;
+    }
+    H[0]+=a;H[1]+=b;H[2]+=c;H[3]+=d;H[4]+=e;H[5]+=f;H[6]+=g;H[7]+=h;
+  }
+  const o=new Uint8Array(32),ov=new DataView(o.buffer);for(let i=0;i<8;i++)ov.setUint32(i*4,H[i]);return o;
+}
+const enc=new TextEncoder();
+function decrypt(b64,pw,salt){
+  const bin=atob(b64),len=bin.length,out=new Uint8Array(len);
+  let blk=null,bi=0;
+  for(let i=0;i<len;i++){
+    if(i%32===0){blk=sha256(enc.encode(pw+"|"+salt+"|"+bi));bi++;}
+    out[i]=bin.charCodeAt(i)^blk[i%32];
+  }
+  try{const o=JSON.parse(new TextDecoder("utf-8",{fatal:true}).decode(out));return o&&o.ok===1?o:null;}catch(e){return null;}
+}
+function normPw(s){return (s||"").trim().toLowerCase();}
+function checkPw(pw){return !!decrypt(ENC_CHECK,normPw(pw),SALT+"#check");}
+
+/* ===== État ===== */
+const KEY="tpPilote_"+TP.id+"_v1";
+function blank(){return {name:"",binome:"",start:null,extra:0,steps:{},ans:{},unlocked:false,pw:null,self:{},tab:"accueil"};}
+let S=blank();
+try{const r=localStorage.getItem(KEY);if(r)S=Object.assign(blank(),JSON.parse(r));}catch(e){}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
+let CORR=null;
+if(S.unlocked&&S.pw){CORR=decrypt(ENC,S.pw,SALT);if(!CORR){S.unlocked=false;}}
+
+const QS=[];
+TP.activites.forEach((a,ai)=>a.blocks.forEach(b=>{if(b.t==="q"){b.act=ai;QS.push(b);}}));
+const REQ=QS.filter(q=>!q.optional);
+const $=s=>document.querySelector(s);
+const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const num=s=>{if(s==null)return NaN;const t=String(s).replace(/\s/g,"").replace(",",".");return t===""?NaN:Number(t);};
+const fmt=(x,d)=>{if(!isFinite(x))return "—";const a=Math.abs(x);d=d!=null?d:(a>=100?1:a>=10?2:a>=1?3:a>=0.01?4:6);return Number(x.toFixed(d)).toString().replace(".",",");};
+
+function answered(q){
+  const v=S.ans[q.id];
+  switch(q.type){
+    case "qcm":return typeof v==="number";
+    case "num":return isFinite(num(v));
+    case "text":return typeof v==="string"&&v.trim().length>=3;
+    case "check":return v===true;
+    case "fields":return !!v&&q.fields.every(f=>f.sec||isFinite(num(v[f.id])));
+    case "grid":return !!v&&q.rows.every((r,i)=>typeof v[i]==="number");
+  }
+  return false;
+}
+function remaining(){if(!S.start)return TP.duree*60;return Math.round(TP.duree*60+S.extra*60-(Date.now()-S.start)/1000);}
+function timeUp(){return S.start&&remaining()<=0;}
+function locked(){return S.unlocked||timeUp();}
+
+/* ===== Rendu ===== */
+document.title=TP.code+" · "+TP.titre;
+$("#tpcode").textContent=TP.code+" · épreuve de "+(TP.duree/60)+" h";
+$("#tptitle").textContent=TP.titre;
+$("#tpsub").textContent=TP.sousTitre;
+
+const tabs=[{id:"accueil",lab:"Mise en situation"}].concat(TP.activites.map((a,i)=>({id:"a"+(i+1),lab:"Activité "+(i+1),ai:i}))).concat([{id:"corr",lab:"Correction"}]);
+$("#tabs").innerHTML=tabs.map(t=>`<button class="tab" role="tab" id="t-${t.id}" data-tab="${t.id}" aria-controls="p-${t.id}">${esc(t.lab)}${t.ai!=null?` <span class="cnt" id="c-${t.id}"></span>`:""}${t.id==="corr"?` <span id="lockic" aria-hidden="true">🔒</span>`:""}</button>`).join("");
+
+function renderQ(q){
+  const id=q.id,v=S.ans[id];
+  let body="";
+  if(q.type==="qcm"){
+    body=`<div class="choices" role="radiogroup">`+q.options.map((o,i)=>`<label class="choice"><input type="radio" name="${id}" value="${i}" data-q="${id}" ${v===i?"checked":""}><span>${o}</span></label>`).join("")+`</div>`;
+  }else if(q.type==="num"){
+    body=`<div class="numrow"><input type="text" inputmode="decimal" data-q="${id}" value="${esc(v||"")}" placeholder="${esc(q.placeholder||"ta valeur")}" aria-label="Réponse ${esc(q.num)}"><span class="unit">${q.unit||""}</span></div>`;
+  }else if(q.type==="text"){
+    body=`<textarea data-q="${id}" placeholder="${esc(q.placeholder||"Rédige ta réponse en quelques phrases…")}" aria-label="Réponse ${esc(q.num)}">${esc(v||"")}</textarea>`;
+  }else if(q.type==="check"){
+    body=`<label class="choice"><input type="checkbox" data-q="${id}" ${v===true?"checked":""}><span>${q.label||"C'est fait"}</span></label>`;
+  }else if(q.type==="fields"){
+    const vv=v||{};
+    body=`<div class="fields">`+q.fields.map(f=>f.sec?`<div class="fsec">${f.sec}</div>`:`<label class="fl" for="${id}_${f.id}">${f.label}</label><input type="text" inputmode="decimal" id="${id}_${f.id}" data-q="${id}" data-f="${f.id}" value="${esc(vv[f.id]||"")}" placeholder="${esc(f.ph||"")}"><span class="unit">${f.unit||""}</span>`).join("")+`</div>`;
+  }else if(q.type==="grid"){
+    const vv=v||{};
+    body=`<div class="scroll-x"><table class="grid">`+q.rows.map((r,ri)=>`<tr><td>${r.label}</td><td><div class="seg">`+r.options.map((o,oi)=>`<label><input type="radio" name="${id}_${ri}" data-q="${id}" data-r="${ri}" value="${oi}" ${vv[ri]===oi?"checked":""}>${o}</label>`).join("")+`</div></td></tr>`).join("")+`</table></div>`;
+  }
+  return `<div class="q${answered(q)?" ok":""}" id="q-${id}"><div class="q-h"><span class="q-num">${esc(q.num)}</span><div class="q-p">${q.prompt}${q.optional?`<span class="opt">facultatif</span>`:""}</div></div>${body}${q.hint?`<details class="hint"><summary>Coup de pouce</summary><div>${q.hint}</div></details>`:""}</div>`;
+}
+function renderBlock(b,ai){
+  if(b.t==="html")return b.html;
+  if(b.t==="q")return renderQ(b);
+  if(b.t==="step"){const sid=b.id,d=!!S.steps[sid];return `<div class="step${d?" done":""}"><input type="checkbox" id="st-${sid}" data-step="${sid}" ${d?"checked":""}><label for="st-${sid}"><span class="tag">${b.tag||"Sur le logiciel"}</span>${b.text}</label></div>`;}
+  if(b.t==="widget")return `<div class="widget" id="w-${b.name}"></div>`;
+  return "";
+}
+function startBox(){
+  if(S.start)return `<div class="note"><p><b>Épreuve lancée.</b> Copie de ${esc(S.name)}${S.binome?" et "+esc(S.binome):""}. Bon travail !</p></div>`;
+  return `<div class="start" id="startbox"><h3>Avant de commencer</h3><p>Écris ton nom puis lance l'épreuve. Le chronomètre de ${TP.duree/60} h démarre aussitôt et ne s'arrête plus. Tes réponses sont enregistrées automatiquement sur cet ordinateur.</p>
+  <div class="row"><label>Nom et prénom<input type="text" id="inName" autocomplete="name"></label><label>Binôme (si besoin)<input type="text" id="inBin"></label></div>
+  <p class="err" id="startErr"></p><button class="btn go" type="button" id="bStart">Lancer l'épreuve</button></div>`;
+}
+function buildPanels(){
+  let h=`<section class="panel" id="p-accueil" role="tabpanel"><div class="col">${TP.accueil}${startBox()}</div></section>`;
+  TP.activites.forEach((a,ai)=>{
+    const nx=ai<TP.activites.length-1?`a${ai+2}`:"corr";
+    h+=`<section class="panel" id="p-a${ai+1}" role="tabpanel"><div class="col"><div class="act-head"><span class="act-n">${ai+1}</span><div><h2>${a.titre}</h2><p class="dur">${a.duree||""}</p></div></div>${a.blocks.map(b=>renderBlock(b,ai)).join("")}
+    <div class="act-foot">${ai>0?`<button class="btn alt" type="button" data-go="a${ai}">Activité précédente</button>`:`<span></span>`}<button class="btn" type="button" data-go="${nx}">${nx==="corr"?"Terminer et demander la correction":"Activité suivante"}</button></div></div></section>`;
+  });
+  h+=`<section class="panel" id="p-corr" role="tabpanel"></section>`;
+  $("#main").innerHTML=h;
+  TP.activites.forEach(a=>a.blocks.forEach(b=>{if(b.t==="widget"&&WIDGETS[b.name])WIDGETS[b.name]($("#w-"+b.name));}));
+}
+
+/* ===== Correction ===== */
+function within(x,v,tol,rel){if(!isFinite(x))return false;return rel?Math.abs(x-v)<=Math.abs(v)*tol:Math.abs(x-v)<=tol;}
+function evalFormula(f,vals){try{const ks=Object.keys(vals);return Function(...ks,"return ("+f+");")(...ks.map(k=>vals[k]));}catch(e){return NaN;}}
+function gradeFields(q,g){
+  const v=S.ans[q.id]||{},vals={};q.fields.forEach(f=>{if(!f.sec)vals[f.id]=num(v[f.id]);});
+  let ok=0,tot=0;
+  const rows=q.fields.map(f=>{
+    if(f.sec)return `<tr><th colspan="4" style="color:var(--sea)">${f.sec}</th></tr>`;
+    const c=g.f[f.id]||{},x=vals[f.id];let exp="—",ver=`<span class="v na">mesure</span>`;
+    if(c.kind==="exact"){tot++;exp=fmt(c.v,6)+" "+(f.unit||"");if(within(x,c.v,c.tol,c.rel)){ok++;ver=`<span class="v ok">juste</span>`;}else ver=`<span class="v ko">à revoir</span>`;}
+    else if(c.kind==="ref"){exp=`réf. prof : ${fmt(c.v)} ${f.unit||""}`;if(c.sign){tot++;if(isFinite(x)&&Math.sign(x)===c.sign){ok++;ver=`<span class="v ok">bon signe</span>`;}else ver=`<span class="v ko">signe ?</span>`;}}
+    else if(c.kind==="calc"){tot++;const e=evalFormula(c.formula,vals);exp=`${fmt(e)} ${f.unit||""} <small>(d'après tes mesures)</small>`;if(within(x,e,c.tol||0.05,true)||within(x,e,0.05,false)){ok++;ver=`<span class="v ok">calcul juste</span>`;}else ver=`<span class="v ko">calcul à revoir</span>`;}
+    return `<tr><td>${f.label}</td><td><b>${isFinite(x)?fmt(x,6)+" "+(f.unit||""):"—"}</b></td><td>${exp}</td><td>${ver}</td></tr>`;
+  }).join("");
+  return {ok,tot,html:`<div class="scroll-x"><table class="ct"><tr><th>Grandeur</th><th>Ta valeur</th><th>Attendu</th><th></th></tr>${rows}</table></div>`};
+}
+function buildCorr(){
+  const P=$("#p-corr");
+  if(!S.unlocked||!CORR){
+    const miss=REQ.filter(q=>!answered(q));
+    const can=miss.length===0||timeUp();
+    P.innerHTML=`<div class="lockbox"><h2>Correction verrouillée</h2>
+    ${!S.start?`<p>Lance d'abord l'épreuve depuis la page « Mise en situation ».</p>`:
+      miss.length?`<p>Il te reste <b>${miss.length} question${miss.length>1?"s":""}</b> à traiter avant de pouvoir demander la correction :</p><ul class="missing">${miss.map(q=>`<li><button type="button" data-jump="${q.id}">Activité ${q.act+1} · Q${esc(q.num)}</button></li>`).join("")}</ul>`:
+      `<p><b>Toutes les questions sont traitées.</b> Relis-toi, puis appelle ton professeur : il saisira le mot de passe pour afficher la correction. Après validation, tu ne pourras plus modifier tes réponses.</p>`}
+    ${timeUp()&&miss.length?`<p>Le temps est écoulé : ton professeur peut afficher la correction.</p>`:""}
+    <button class="btn go" type="button" id="bAsk" ${can&&S.start?"":"disabled"}>Faire valider par le professeur</button></div>`;
+    return;
+  }
+  let ok=0,tot=0,out="";
+  TP.activites.forEach((a,ai)=>{
+    out+=`<h3>Activité ${ai+1} · ${a.titre}</h3>`;
+    a.blocks.filter(b=>b.t==="q").forEach(q=>{
+      const c=CORR.q[q.id]||{},g=c.grade||{type:"self"},v=S.ans[q.id];
+      let mine="",ver="",extra="";
+      if(q.type==="qcm"){mine=typeof v==="number"?q.options[v]:"—";if(g.type==="qcm"){tot++;if(v===g.ok){ok++;ver=`<span class="v ok">juste</span>`;}else ver=`<span class="v ko">à revoir</span>`;}}
+      else if(q.type==="num"){mine=isFinite(num(v))?esc(v)+" "+(q.unit||""):"—";if(g.type==="num"){tot++;if(within(num(v),g.v,g.tol,g.rel)){ok++;ver=`<span class="v ok">juste</span>`;}else ver=`<span class="v ko">à revoir</span>`;}}
+      else if(q.type==="text"){mine=v&&v.trim()?esc(v):"—";}
+      else if(q.type==="check"){mine=v?"Fait":"Non fait";}
+      else if(q.type==="fields"){const r=gradeFields(q,g);ok+=r.ok;tot+=r.tot;extra=r.html;const k=r.tot?`${r.ok}/${r.tot}`:"";ver=r.tot?`<span class="v ${r.ok===r.tot?"ok":r.ok?"mid":"ko"}">${k}</span>`:"";}
+      else if(q.type==="grid"){const vv=v||{};let gk=0;extra=`<div class="scroll-x"><table class="ct"><tr><th></th><th>Ta réponse</th><th>Attendu</th><th></th></tr>`+q.rows.map((r,ri)=>{const good=g.ok&&vv[ri]===g.ok[ri];if(g.ok){tot++;if(good){ok++;gk++;}}return `<tr><td>${r.label}</td><td><b>${typeof vv[ri]==="number"?r.options[vv[ri]]:"—"}</b></td><td>${g.ok?r.options[g.ok[ri]]:""}</td><td>${g.ok?(good?`<span class="v ok">juste</span>`:`<span class="v ko">à revoir</span>`):""}</td></tr>`;}).join("")+`</table></div>`;ver=g.ok?`<span class="v ${gk===q.rows.length?"ok":gk?"mid":"ko"}">${gk}/${q.rows.length}</span>`:"";}
+      const se=S.self[q.id];
+      const selfUI=(q.type==="text")?`<div class="selfev">Auto-évaluation : <button type="button" class="a ${se==="a"?"on":""}" data-self="${q.id}" data-v="a">Acquis</button><button type="button" class="b ${se==="b"?"on":""}" data-self="${q.id}" data-v="b">En partie</button><button type="button" class="c ${se==="c"?"on":""}" data-self="${q.id}" data-v="c">À revoir</button></div>`:"";
+      if(q.type==="text"&&!ver)ver=`<span class="v na">à comparer</span>`;
+      out+=`<div class="cq"><div class="cq-h"><b>Q${esc(q.num)}</b><span class="pr">${q.short||""}</span>${ver}</div>
+      ${extra?extra:`<div class="mine"><span class="lab">Ta réponse</span>${mine}</div>`}
+      <div class="sol"><span class="lab">Correction</span>${c.html||""}</div>${selfUI}</div>`;
+    });
+    if(CORR.bilan&&CORR.bilan[ai])out+=`<div class="note">${CORR.bilan[ai]}</div>`;
+  });
+  P.innerHTML=`<div class="col"><div class="score"><span class="big">${ok}/${tot}</span><div><p><b style="color:#fff">Points vérifiés automatiquement</b></p><p>Les réponses rédigées sont à comparer avec la correction : utilise l'auto-évaluation sous chacune.</p><p>Copie de ${esc(S.name)}${S.binome?" et "+esc(S.binome):""}</p></div></div>${out}${CORR.fin?`<div class="note key">${CORR.fin}</div>`:""}</div>`;
+}
+
+/* ===== Navigation ===== */
+function show(id){
+  const t=tabs.find(x=>x.id===id);if(!t)id="accueil";
+  if(id!=="accueil"&&id!=="corr"&&!S.start)id="accueil";
+  S.tab=id;save();
+  document.querySelectorAll(".tab").forEach(b=>b.setAttribute("aria-selected",b.dataset.tab===id?"true":"false"));
+  document.querySelectorAll(".panel").forEach(p=>p.classList.toggle("on",p.id==="p-"+id));
+  if(id==="corr")buildCorr();
+}
+function refreshTabs(){
+  tabs.forEach(t=>{const b=$("#t-"+t.id);if(t.ai!=null)b.disabled=!S.start;});
+  $("#lockic").textContent=S.unlocked?"":"🔒";
+  TP.activites.forEach((a,ai)=>{const qs=REQ.filter(q=>q.act===ai),n=qs.filter(answered).length,el=$("#c-a"+(ai+1));if(el){el.textContent=qs.length?`${n}/${qs.length}`:"bonus";el.classList.toggle("full",qs.length>0&&n===qs.length);}});
+  const n=REQ.filter(answered).length;
+  $("#progt").textContent=`${n} / ${REQ.length} questions`;
+  $("#prog i").style.width=(REQ.length?n/REQ.length*100:0)+"%";
+  $("#prog").classList.toggle("full",n===REQ.length);
+  $("#who").textContent=S.name?(S.name+(S.binome?" & "+S.binome:"")):"";
+}
+function applyLock(){
+  const L=locked();
+  document.querySelectorAll("#main [data-q],#main [data-step]").forEach(el=>el.disabled=L);
+  $("#timeup").classList.toggle("on",!!timeUp()&&!S.unlocked);
+}
+
+/* ===== Chrono ===== */
+let wasUp=false;
+function tick(){
+  const r=remaining(),tot=TP.duree*60+S.extra*60;
+  const rr=Math.max(0,r),h=Math.floor(rr/3600),m=Math.floor(rr%3600/60),s=rr%60;
+  const cm=Math.ceil(rr/60),txt=Math.floor(cm/60)+":"+String(cm%60).padStart(2,"0"),full=h+":"+String(m).padStart(2,"0")+":"+String(s).padStart(2,"0");
+  $("#clockt").textContent=S.start?txt:(TP.duree/60)+" h";
+  $("#clocks").textContent=!S.start?"à lancer":r<=0?"terminé":"restant";
+  const frac=S.start?Math.max(0,r)/tot:1;
+  const ring=$("#ring");ring.style.strokeDashoffset=String(326.7*(1-frac));
+  ring.setAttribute("stroke",!S.start||r>1200?"#E9B10A":r>300?"#F08A24":"#E0483B");
+  const mt=$("#minit");mt.textContent=S.start?(r>0?full:"0:00:00"):"";
+  mt.className="mini-t"+(S.start&&r<=300?" late":S.start&&r<=1200?" warn":"");
+  const up=!!timeUp();
+  if(up!==wasUp){wasUp=up;applyLock();if(S.tab==="corr")buildCorr();if(up)toast("Temps écoulé");}
+}
+
+/* ===== Événements ===== */
+document.addEventListener("input",e=>{
+  const el=e.target,qid=el.dataset.q;
+  if(!qid||locked())return;
+  const q=QS.find(x=>x.id===qid);
+  if(q.type==="num"||q.type==="text")S.ans[qid]=el.value;
+  else if(q.type==="fields"){S.ans[qid]=S.ans[qid]||{};S.ans[qid][el.dataset.f]=el.value;}
+  save();mark(q);
+});
+document.addEventListener("change",e=>{
+  const el=e.target;
+  if(el.dataset.step){if(locked()){el.checked=!el.checked;return;}S.steps[el.dataset.step]=el.checked;el.closest(".step").classList.toggle("done",el.checked);save();return;}
+  const qid=el.dataset.q;if(!qid||locked())return;
+  const q=QS.find(x=>x.id===qid);
+  if(q.type==="qcm")S.ans[qid]=Number(el.value);
+  else if(q.type==="check")S.ans[qid]=el.checked;
+  else if(q.type==="grid"){S.ans[qid]=S.ans[qid]||{};S.ans[qid][el.dataset.r]=Number(el.value);}
+  save();mark(q);
+});
+function mark(q){const box=$("#q-"+q.id);if(box)box.classList.toggle("ok",answered(q));refreshTabs();}
+document.addEventListener("click",e=>{
+  const t=e.target.closest("[data-tab],[data-go],[data-jump],[data-self],#bStart,#bAsk,figure img,[data-close]");
+  if(!t)return;
+  if(t.dataset.tab){show(t.dataset.tab);return;}
+  if(t.dataset.go){show(t.dataset.go);window.scrollTo({top:0,behavior:"smooth"});return;}
+  if(t.dataset.jump){const q=QS.find(x=>x.id===t.dataset.jump);show("a"+(q.act+1));const el=$("#q-"+q.id);el.scrollIntoView({behavior:"smooth",block:"center"});el.classList.remove("flash");void el.offsetWidth;el.classList.add("flash");return;}
+  if(t.dataset.self){S.self[t.dataset.self]=t.dataset.v;save();t.parentElement.querySelectorAll("button").forEach(b=>b.classList.toggle("on",b===t));return;}
+  if(t.id==="bStart"){const n=$("#inName").value.trim();if(n.length<2){$("#startErr").textContent="Écris ton nom et ton prénom pour commencer.";$("#inName").focus();return;}
+    S.name=n;S.binome=$("#inBin").value.trim();S.start=Date.now();save();$("#startbox").outerHTML=startBox();refreshTabs();tick();show("a1");window.scrollTo({top:0});toast("Chronomètre lancé : "+TP.duree/60+" h");return;}
+  if(t.id==="bAsk"){openPw();return;}
+  if(t.matches("figure img")){$("#lbImg").src=t.src;$("#lb").classList.add("on");return;}
+  if(t.hasAttribute("data-close")){t.closest(".modal").classList.remove("on");return;}
+});
+$("#lb").addEventListener("click",()=>$("#lb").classList.remove("on"));
+document.addEventListener("keydown",e=>{if(e.key==="Escape"){document.querySelectorAll(".modal.on,.lb.on").forEach(m=>m.classList.remove("on"));}});
+
+function unlockWith(pw){
+  const d=decrypt(ENC,pw,SALT);if(!d)return false;
+  CORR=d;S.unlocked=true;S.pw=pw;save();applyLock();refreshTabs();show("corr");window.scrollTo({top:0});return true;
+}
+function openPw(){$("#pwIn").value="";$("#pwErr").textContent="";$("#mPw").classList.add("on");setTimeout(()=>$("#pwIn").focus(),50);}
+function submitPw(){const pw=normPw($("#pwIn").value);if(unlockWith(pw)){$("#mPw").classList.remove("on");toast("Correction affichée");}else{$("#pwErr").textContent="Mot de passe incorrect.";$("#pwIn").select();}}
+$("#pwOk").onclick=submitPw;$("#pwCancel").onclick=()=>$("#mPw").classList.remove("on");
+$("#pwIn").addEventListener("keydown",e=>{if(e.key==="Enter")submitPw();});
+
+let tPw=null;
+$("#bTeacher").onclick=()=>{tPw=null;$("#tLogin").hidden=false;$("#tMenu").hidden=true;$("#tIn").value="";$("#tErr").textContent="";$("#mT").classList.add("on");setTimeout(()=>$("#tIn").focus(),50);};
+function tLogin(){const pw=normPw($("#tIn").value);if(checkPw(pw)){tPw=pw;$("#tLogin").hidden=true;$("#tMenu").hidden=false;$("#tWho").textContent=S.name||"(élève non renseigné)";$("#tReset").textContent="Effacer la copie et recommencer";$("#tReset").dataset.armed="";}else{$("#tErr").textContent="Mot de passe incorrect.";}}
+$("#tOk").onclick=tLogin;$("#tIn").addEventListener("keydown",e=>{if(e.key==="Enter")tLogin();});
+$("#tUnlock").onclick=()=>{if(tPw&&unlockWith(tPw)){$("#mT").classList.remove("on");toast("Correction affichée");}};
+$("#tPlus").onclick=()=>{if(!tPw)return;if(!S.start){toast("L'épreuve n'est pas encore lancée");return;}S.extra+=10;save();tick();applyLock();toast("10 minutes ajoutées");};
+$("#tReset").onclick=function(){if(!tPw)return;if(!this.dataset.armed){this.dataset.armed="1";this.textContent="Confirmer : tout effacer";return;}
+  S=blank();CORR=null;save();$("#mT").classList.remove("on");buildPanels();refreshTabs();applyLock();tick();show("accueil");toast("Copie effacée");};
+
+$("#bPrint").onclick=()=>{try{window.print();}catch(e){toast("Impression indisponible ici");}};
+$("#bCopy").onclick=()=>{
+  let t=`${TP.code} · ${TP.titre}\n${S.name}${S.binome?" & "+S.binome:""}\n`;
+  TP.activites.forEach((a,ai)=>{t+=`\n=== Activité ${ai+1} : ${a.titre.replace(/<[^>]+>/g,"")} ===\n`;a.blocks.filter(b=>b.t==="q").forEach(q=>{const v=S.ans[q.id];let s="—";
+    if(q.type==="qcm"&&typeof v==="number")s=q.options[v].replace(/<[^>]+>/g,"");
+    else if(q.type==="num"&&v)s=v+" "+(q.unit||"");
+    else if(q.type==="text"&&v)s=v;
+    else if(q.type==="check")s=v?"fait":"non fait";
+    else if(q.type==="fields"&&v)s=q.fields.filter(f=>!f.sec).map(f=>`${f.label.replace(/<[^>]+>/g,"")} = ${v[f.id]||"—"} ${f.unit||""}`).join(" ; ");
+    else if(q.type==="grid"&&v)s=q.rows.map((r,i)=>`${r.label.replace(/<[^>]+>/g,"")} : ${typeof v[i]==="number"?r.options[v[i]]:"—"}`).join(" ; ");
+    t+=`Q${q.num} : ${s}\n`;});});
+  const done=()=>toast("Réponses copiées");
+  if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(t).then(done,()=>fallback(t));else fallback(t);
+  function fallback(x){const ta=document.createElement("textarea");ta.value=x;document.body.appendChild(ta);ta.select();try{document.execCommand("copy");done();}catch(e){toast("Copie impossible");}ta.remove();}
+};
+let tt=null;function toast(m){const el=$("#toast");el.textContent=m;el.classList.add("on");clearTimeout(tt);tt=setTimeout(()=>el.classList.remove("on"),2200);}
+
+/* ===== Widgets ===== */
+const WIDGETS={};
+WIDGETS.levier=function(root){
+  root.innerHTML=`<h4>Visualiser : bras de levier et effort du pilote</h4>
+  <p style="font-size:15px;margin:0 0 6px">Modèle simplifié, vu de dessus. La barre tourne autour de H ; le pilote, fixé en A, pousse la barre en G. L'effort du pilote est d'autant plus petit que son bras de levier par rapport à H est grand.</p>
+  <div class="ctl"><label>Angle de barre : <b id="lvB">0°</b><input type="range" id="lvBeta" min="-30" max="30" step="1" value="0"></label>
+  <label>Décalage du point d'ancrage A : <b id="lvO">0 mm</b><input type="range" id="lvOff" min="-200" max="200" step="10" value="0"></label></div>
+  <div class="two"><svg class="wsvg" id="lvSvg" viewBox="0 0 380 300" role="img" aria-label="Schéma du pilote et de la barre"></svg>
+  <svg class="wsvg" id="lvPlot" viewBox="0 0 320 300" role="img" aria-label="Courbe de l'effort du pilote"></svg></div>
+  <div class="read"><div>Angle barre / pilote<b id="lvPhi"></b></div><div>Bras de levier<b id="lvD"></b></div><div>Effort du pilote<b id="lvF"></b></div><div>Écart max sur ±30°<b id="lvV"></b></div></div>`;
+  const r=460,dA=600,s=0.36,Hx=300,Hy=215;
+  const q=x=>root.querySelector(x);
+  function geo(b,off){const br=b*Math.PI/180;const G={x:r*Math.sin(br),y:-r*Math.cos(br)};const A={x:-dA,y:-r+off};
+    const ux=G.x-A.x,uy=G.y-A.y,L=Math.hypot(ux,uy);const d=Math.abs(G.x*uy-G.y*ux)/L;
+    const cos=(G.x*ux+G.y*uy)/(r*L);return {G,A,L,d,phi:Math.acos(Math.max(-1,Math.min(1,cos)))*180/Math.PI,eff:r/d};}
+  function draw(){
+    const b=+q("#lvBeta").value,off=+q("#lvOff").value,g=geo(b,off);
+    q("#lvB").textContent=b+"°";q("#lvO").textContent=(off>0?"+":"")+off+" mm";
+    const P=p=>({x:Hx+p.x*s,y:Hy+p.y*s});const G=P(g.G),A=P(g.A);
+    const ux=(G.x-A.x),uy=(G.y-A.y),bx=A.x+ux*.55,by=A.y+uy*.55;
+    const br=b*Math.PI/180,Rx=Hx-Math.sin(br)*55,Ry=Hy+Math.cos(br)*55;
+    q("#lvSvg").innerHTML=`<rect x="20" y="20" width="340" height="${Hy-20}" rx="10" fill="#E3ECEC"/>
+    <line x1="20" y1="${Hy}" x2="360" y2="${Hy}" stroke="#15324B" stroke-width="3"/>
+    <text x="28" y="40" font-size="13" fill="#3E5568">cockpit (vu de dessus)</text>
+    <line x1="${Hx}" y1="${Hy}" x2="${Rx}" y2="${Ry}" stroke="#2C6E7F" stroke-width="10" stroke-linecap="round"/>
+    <text x="${Rx+10}" y="${Ry+4}" font-size="13" fill="#2C6E7F">safran</text>
+    <line x1="${Hx}" y1="${Hy}" x2="${G.x}" y2="${G.y}" stroke="#8A5A2B" stroke-width="8" stroke-linecap="round"/>
+    <line x1="${A.x}" y1="${A.y}" x2="${bx}" y2="${by}" stroke="#15324B" stroke-width="14" stroke-linecap="round"/>
+    <line x1="${bx}" y1="${by}" x2="${G.x}" y2="${G.y}" stroke="#7D8F99" stroke-width="5"/>
+    <circle cx="${A.x}" cy="${A.y}" r="6" fill="#E9B10A" stroke="#15324B" stroke-width="2"/><text x="${A.x-6}" y="${A.y-12}" font-size="14" font-weight="700" fill="#15324B">A</text>
+    <circle cx="${G.x}" cy="${G.y}" r="6" fill="#fff" stroke="#15324B" stroke-width="2"/><text x="${G.x+9}" y="${G.y-6}" font-size="14" font-weight="700" fill="#15324B">G</text>
+    <circle cx="${Hx}" cy="${Hy}" r="7" fill="#15324B"/><text x="${Hx+10}" y="${Hy-8}" font-size="14" font-weight="700" fill="#15324B">H</text>
+    <text x="${(A.x+bx)/2-20}" y="${(A.y+by)/2-14}" font-size="13" fill="#15324B">pilote</text>`;
+    q("#lvPhi").textContent=g.phi.toFixed(0)+"°";q("#lvD").textContent=g.d.toFixed(0)+" mm";
+    q("#lvF").textContent=Math.round(g.eff*100)+" % du mini";
+    let pts=[],mx=1,mn=9;for(let k=-30;k<=30;k++){const e=geo(k,off).eff;pts.push([k,e]);mx=Math.max(mx,e);mn=Math.min(mn,e);}
+    q("#lvV").textContent="+"+Math.round((mx/mn-1)*100)+" %";
+    const top=Math.max(1.25,Math.ceil(mx*20)/20),X=k=>40+(k+30)/60*265,Y=e=>260-(e-1)/(top-1)*220;
+    let grid="";for(let e=1;e<=top+1e-9;e+=0.05){grid+=`<line x1="40" x2="305" y1="${Y(e)}" y2="${Y(e)}" stroke="#D4DEDE"/><text x="34" y="${Y(e)+4}" font-size="11" text-anchor="end" fill="#6B7F8C">${Math.round(e*100)}%</text>`;}
+    [-30,-15,0,15,30].forEach(k=>grid+=`<text x="${X(k)}" y="278" font-size="11" text-anchor="middle" fill="#6B7F8C">${k}°</text>`);
+    q("#lvPlot").innerHTML=`<text x="40" y="22" font-size="13" fill="#15324B" font-weight="600">Effort du pilote (100 % = minimum)</text>${grid}
+    <polyline fill="none" stroke="#2C6E7F" stroke-width="3" points="${pts.map(p=>X(p[0])+","+Y(p[1])).join(" ")}"/>
+    <circle cx="${X(b)}" cy="${Y(g.eff)}" r="6" fill="#E9B10A" stroke="#15324B" stroke-width="2"/>
+    <text x="172" y="296" font-size="12" text-anchor="middle" fill="#3E5568">angle de barre</text>`;
+  }
+  q("#lvBeta").addEventListener("input",draw);q("#lvOff").addEventListener("input",draw);draw();
+};
+
+WIDGETS.fem=function(root){
+  root.innerHTML=`<h4>Outil : calculer E et tracer E = f(I)</h4>
+  <p style="font-size:15px;margin:0 0 8px">Charge le fichier .csv de l'oscilloscope (ou colle son contenu). L'outil calcule E = U − R·I pour chaque point et trace la courbe. Tu peux aussi le faire dans le tableur, comme demandé.</p>
+  <div class="ctl"><label>Fichier CSV<input type="file" id="feFile" accept=".csv,.txt"></label>
+  <label>Résistance d'induit R (Ω)<input type="text" id="feR" value="0,8" inputmode="decimal"></label>
+  <label>Sonde de courant (V par A)<input type="text" id="feK" value="0,1" inputmode="decimal"><small style="color:var(--muted)">Mets 1 si ta colonne est déjà en ampères.</small></label></div>
+  <textarea id="feTxt" placeholder="…ou colle ici les lignes du fichier (temps ; voie 1 ; voie 2)" style="min-height:70px"></textarea>
+  <div class="ctl"><label>Colonne de la tension U<select id="feU"></select></label><label>Colonne de la sonde de courant<select id="feI"></select></label></div>
+  <button class="btn sm" type="button" id="feGo">Calculer et tracer</button> <span id="feInfo" style="font-size:14px;color:var(--muted);margin-left:8px"></span>
+  <canvas class="plot" id="fePlot" style="margin-top:12px"></canvas>`;
+  const q=x=>root.querySelector(x);let rows=[];
+  const n=s=>Number(String(s).trim().replace(",","."));
+  function parse(t){
+    rows=[];t.split(/\r?\n/).forEach(l=>{if(!l.trim())return;let c=/[;\t]/.test(l)?l.split(/[;\t]/):l.split(",");c=c.map(n);if(c.length>=2&&c.every(x=>isFinite(x)))rows.push(c);});
+    const nc=rows.length?rows[0].length:0;const opts=Array.from({length:nc},(_,i)=>`<option value="${i}">Colonne ${i+1}</option>`).join("");
+    q("#feU").innerHTML=opts;q("#feI").innerHTML=opts;if(nc>=3){q("#feU").value="1";q("#feI").value="2";}else if(nc===2){q("#feU").value="0";q("#feI").value="1";}
+    q("#feInfo").textContent=rows.length?rows.length+" points lus":"Aucune ligne de nombres trouvée.";
+  }
+  q("#feFile").addEventListener("change",e=>{const f=e.target.files[0];if(!f)return;const rd=new FileReader();rd.onload=()=>{q("#feTxt").value="";parse(String(rd.result));};rd.readAsText(f);});
+  q("#feTxt").addEventListener("change",()=>parse(q("#feTxt").value));
+  q("#feGo").addEventListener("click",()=>{
+    if(!rows.length&&q("#feTxt").value)parse(q("#feTxt").value);
+    if(!rows.length){q("#feInfo").textContent="Charge d'abord un fichier.";return;}
+    const R=n(q("#feR").value),k=n(q("#feK").value)||1,iu=+q("#feU").value,ii=+q("#feI").value;
+    const pts=rows.map(r=>{const I=r[ii]/k,U=r[iu];return [I,U-R*I];}).filter(p=>isFinite(p[0])&&isFinite(p[1]));
+    plot(pts);q("#feInfo").textContent=pts.length+" points calculés · E de "+Math.min(...pts.map(p=>p[1])).toFixed(2).replace(".",",")+" à "+Math.max(...pts.map(p=>p[1])).toFixed(2).replace(".",",")+" V";
+  });
+  function plot(pts){
+    const c=q("#fePlot"),dpr=window.devicePixelRatio||1,w=c.clientWidth,h=c.clientHeight;c.width=w*dpr;c.height=h*dpr;const x=c.getContext("2d");x.scale(dpr,dpr);x.clearRect(0,0,w,h);
+    let i0=Math.min(0,...pts.map(p=>p[0])),i1=Math.max(0,...pts.map(p=>p[0])),e0=Math.min(0,...pts.map(p=>p[1])),e1=Math.max(0,...pts.map(p=>p[1]));
+    const pi=(i1-i0)*.05||1,pe=(e1-e0)*.05||1;i0-=pi;i1+=pi;e0-=pe;e1+=pe;
+    const L=48,B=h-34,T=14,Rr=w-14,X=v=>L+(v-i0)/(i1-i0)*(Rr-L),Y=v=>B-(v-e0)/(e1-e0)*(B-T);
+    x.font="12px Barlow, sans-serif";x.fillStyle="#6B7F8C";x.strokeStyle="#D4DEDE";
+    const step=(a,b)=>{const r=(b-a)/6,p=Math.pow(10,Math.floor(Math.log10(r))),m=r/p;return (m<1.5?1:m<3?2:m<7?5:10)*p;};
+    const si=step(i0,i1),se=step(e0,e1);
+    for(let v=Math.ceil(i0/si)*si;v<=i1;v+=si){x.beginPath();x.moveTo(X(v),T);x.lineTo(X(v),B);x.stroke();x.fillText(+v.toFixed(2)+"",X(v)-8,B+16);}
+    for(let v=Math.ceil(e0/se)*se;v<=e1;v+=se){x.beginPath();x.moveTo(L,Y(v));x.lineTo(Rr,Y(v));x.stroke();x.fillText(+v.toFixed(2)+"",6,Y(v)+4);}
+    x.strokeStyle="#15324B";x.lineWidth=1.5;x.beginPath();x.moveTo(X(0),T);x.lineTo(X(0),B);x.moveTo(L,Y(0));x.lineTo(Rr,Y(0));x.stroke();
+    x.fillStyle="#15324B";x.fillText("I (A)",Rr-30,B-6);x.fillText("E (V)",X(0)+6,T+10);
+    x.fillStyle="rgba(44,110,127,.55)";pts.forEach(p=>{x.fillRect(X(p[0])-1.2,Y(p[1])-1.2,2.4,2.4);});
+  }
+};
+
+
+buildPanels();refreshTabs();applyLock();tick();show(S.tab||"accueil");
+setInterval(tick,1000);
+})();
+</script>
+<a href="../index.html" style="position:fixed;bottom:16px;left:16px;z-index:99999;background:#1e3a5f;color:#fff;padding:10px 16px;border-radius:24px;font:600 14px system-ui,sans-serif;text-decoration:none;box-shadow:0 2px 8px rgba(0,0,0,.25)">← Sommaire</a></body>
+</html>

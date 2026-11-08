@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Évaluation — Moment d'une force : le panier de basket</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Kalam:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--paper:#FBFBF7;--ink:#1C2B6E;--text:#22252B;--muted:#5E6470;--rule:#D9DBE3;--force:#D7261E;--struct:#3F74B8;--ok:#23936B;--hl:#FFF2B8}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--paper);color:var(--text)}
+body{font:17px/1.55 "Atkinson Hyperlegible",system-ui,sans-serif}
+.wrap{max-width:980px;margin:0 auto;padding:26px 20px 60px}
+header{border-bottom:2px solid var(--ink);padding-bottom:14px;margin-bottom:20px;display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;align-items:end}
+header h1{font-size:1.8rem;line-height:1.15;margin:0;color:var(--ink)}
+header p{margin:4px 0 0;color:var(--muted)}
+.ident{display:grid;grid-template-columns:1fr 1fr 110px;gap:10px;margin-bottom:18px}
+.ident div{border:1.5px solid var(--ink);border-radius:4px;padding:6px 10px;font-size:.9rem;color:var(--muted);min-height:44px}
+.bar{display:flex;flex-wrap:wrap;gap:8px}
+.bar button{font:inherit;font-size:.9rem;font-weight:700;color:var(--ink);background:#fff;border:1.5px solid var(--ink);border-radius:4px;padding:6px 12px;cursor:pointer}
+.bar button[aria-pressed="true"]{background:var(--ink);color:#fff}
+button:focus-visible{outline:3px solid var(--struct);outline-offset:2px}
+.consignes{font-size:.93rem;color:var(--muted);border-left:3px solid var(--rule);padding-left:10px;margin:0 0 22px}
+h2{font-size:1.25rem;color:var(--ink);margin:30px 0 8px;display:flex;justify-content:space-between;gap:10px;border-bottom:1px solid var(--rule);padding-bottom:4px}
+h2 small{font-weight:400;color:var(--muted);font-size:.9rem}
+.q{margin:16px 0 4px}
+.q .num{font-weight:700;color:var(--ink)}
+.pts{float:right;font-size:.85rem;color:var(--muted);margin-left:10px}
+.answer{border-bottom:1px dotted #B9BCC6;height:30px}
+.qcm{list-style:none;padding:0;margin:6px 0 0}
+.qcm li{margin:3px 0;padding-left:1.8em;text-indent:-1.8em}
+.qcm li::before{content:"☐ ";font-size:1.05em}
+body.prof .qcm li.good{background:#EAF7F0}
+body.prof .qcm li.good::before{content:"☑ ";color:var(--ok)}
+.cor{display:none;margin:8px 0 6px;border:1.5px solid var(--ok);background:#F2FAF5;border-radius:4px;padding:8px 12px}
+body.prof .cor{display:block}
+body.prof .answer{display:none}
+.cor p{margin:.35em 0}
+.cor .bar-note{font-size:.85rem;color:var(--ok);font-weight:700}
+.res{display:inline-block;font-family:Kalam,cursive;font-weight:700;font-size:1.15rem;color:var(--ink);border:2px solid var(--ink);padding:0 8px;border-radius:3px;margin:2px 0}
+.eq{white-space:nowrap;overflow-x:auto;line-height:2}
+.v{position:relative;display:inline-block;font-style:italic;padding-top:.15em;text-indent:0}
+.v::after{content:"\2192";position:absolute;left:50%;top:-.62em;transform:translateX(-50%) scaleX(1.25);font-size:.72em;font-style:normal}
+.mv{position:relative;display:inline-block;padding-top:.3em;text-indent:0}
+.mv::before{content:"";position:absolute;left:0;right:.3em;top:.1em;border-top:1.3px solid currentColor}
+.mv::after{content:"";position:absolute;right:0;top:-.12em;border:.22em solid transparent;border-left:.4em solid currentColor}
+sub{font-size:.7em}
+.situ{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:22px;align-items:start}
+@media (max-width:760px){.situ{grid-template-columns:1fr}.ident{grid-template-columns:1fr}}
+.fig{background:#fff;border:1px solid var(--rule);border-radius:6px;padding:8px}
+.fig svg{width:100%;height:auto;display:block}
+table{border-collapse:collapse;background:#fff;font-size:.93rem;width:100%}
+th,td{border:1.5px solid var(--ink);padding:5px 8px;text-align:center}
+th{color:var(--ink)}
+.tw{overflow-x:auto}
+.total{margin-top:30px;text-align:right;font-weight:700;color:var(--ink)}
+.schema{background:#fff;border:1px dashed var(--rule);height:170px;border-radius:4px;margin-top:6px}
+body.prof .schema{display:none}
+.cor svg{max-width:360px;width:100%;height:auto;display:block;margin:6px 0}
+svg text{font-family:"Atkinson Hyperlegible",sans-serif}
+@media print{
+  body{background:#fff;font-size:12pt}
+  .bar,.noprint{display:none!important}
+  .wrap{padding:0}
+  .q,.cor{break-inside:avoid}
+  .fig{border:none}
+}
+
+/* Saisie en ligne et verrouillage du corrigé */
+.saisie{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center;margin:8px 0 4px;padding:8px 10px;background:#F4F6FB;border:1px solid var(--rule);border-radius:4px;font-size:.92rem}
+.saisie::before{content:"Ta réponse :";font-weight:700;color:var(--ink)}
+.fld{display:inline-flex;align-items:center;gap:6px}
+.fld input{font:inherit;width:8.5em;padding:4px 7px;border:1.5px solid #B9BCC6;border-radius:4px}
+.fld select{font:inherit;padding:3px 6px;border:1.5px solid #B9BCC6;border-radius:4px}
+.fld span{color:var(--muted)}
+.qcm li{cursor:pointer;border-radius:3px}
+.qcm li:hover{background:#F1F3F8}
+.qcm li[aria-checked="true"]{background:#E4EAF6;font-weight:700}
+.qcm li[aria-checked="true"]::before{content:"☒ ";color:var(--ink)}
+.qcm li:focus-visible{outline:3px solid var(--struct);outline-offset:1px}
+.valid{margin-top:30px;background:#fff;border:2px solid var(--ink);border-radius:6px;padding:14px 16px}
+.valid h2{margin:0 0 6px;border:none}
+.valid p{margin:.3em 0}
+.valid .row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:8px}
+.valid button{font:inherit;font-size:.92rem;font-weight:700;color:#fff;background:var(--ink);border:1.5px solid var(--ink);border-radius:4px;padding:6px 14px;cursor:pointer}
+#msg{font-weight:700}
+#msg.ok{color:var(--ok)} #msg.ko{color:#B3261E}
+.gauge{height:10px;background:#E3E6EE;border-radius:5px;overflow:hidden;max-width:340px;margin-top:6px}
+.gauge div{height:100%;width:0;background:var(--ok);transition:width .3s}
+#prof:disabled{opacity:.5;cursor:not-allowed}
+details.ens{margin-top:12px;font-size:.85rem;color:var(--muted)}
+details.ens input{font:inherit;padding:3px 6px;width:9em;border:1.5px solid #B9BCC6;border-radius:4px}
+details.ens button{font:inherit;font-size:.85rem;padding:3px 10px;background:#fff;color:var(--ink);border:1.5px solid var(--ink);border-radius:4px;cursor:pointer}
+@media print{.saisie,.valid{display:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div>
+    <h1>Évaluation : moment d'une force</h1>
+    <p>Le panier de basket · Durée 55 min · Calculatrice autorisée</p>
+  </div>
+  <div class="bar noprint">
+    <button id="prof" aria-pressed="false" disabled title="Au moins 5 bonnes réponses nécessaires">🔒 Corrigé verrouillé</button>
+    <button onclick="window.print()">Imprimer</button>
+  </div>
+</header>
+
+<div class="ident"><div>Nom :</div><div>Prénom et classe :</div><div>Note : &nbsp;&nbsp;&nbsp;/ 20</div></div>
+
+<p class="consignes">Toute réponse doit être justifiée. Les expressions littérales sont demandées avant toute application numérique. Les résultats sont donnés avec leur unité, arrondis à 0,1 près.</p>
+
+<!-- ================= EXERCICE 1 ================= -->
+<h2>Exercice 1 : questions de cours <small>4 points</small></h2>
+<p style="margin:0;color:var(--muted);font-size:.93rem">Coche la seule bonne réponse. Une bonne réponse rapporte 1 point, une mauvaise ou une absence de réponse 0.</p>
+
+<div class="q"><span class="num">1.1</span> L'unité du moment d'une force dans le système international est :<span class="pts">1 pt</span>
+  <ul class="qcm" data-q="q1"><li>le N/m</li><li>le N·m</li><li>le N·m²</li><li>le joule par radian</li></ul></div>
+
+<div class="q"><span class="num">1.2</span> Le moment d'une force <span class="v">F</span> en un point P est nul lorsque :<span class="pts">1 pt</span>
+  <ul class="qcm" data-q="q2"><li>la force est verticale</li><li>le point P est le point d'application de la force</li><li>la droite support de la force passe par P</li><li>la force est perpendiculaire au segment reliant P au point d'application</li></ul></div>
+
+<div class="q"><span class="num">1.3</span> Le bras de levier d'une force par rapport à un point P est :<span class="pts">1 pt</span>
+  <ul class="qcm" data-q="q3"><li>la distance entre P et le point d'application de la force</li><li>la distance entre P et la droite support de la force, mesurée perpendiculairement</li><li>la longueur du vecteur force</li><li>l'angle entre la force et l'horizontale</li></ul></div>
+
+<div class="q"><span class="num">1.4</span> Dans un repère (<span class="v">x</span>, <span class="v">y</span>, <span class="v">z</span>) direct, un moment porté par +<span class="v">z</span> tend à faire tourner le solide :<span class="pts">1 pt</span>
+  <ul class="qcm" data-q="q4"><li>dans le sens horaire</li><li>dans le sens trigonométrique (anti-horaire)</li><li>autour de l'axe <span class="v">x</span></li><li>dans un sens qui dépend de l'intensité de la force</li></ul></div>
+
+<!-- ================= EXERCICE 2 ================= -->
+<h2>Exercice 2 : le panier de basket <small>16 points</small></h2>
+
+<div class="situ">
+  <div>
+    <p>Un panier de basket est fixé à une hauteur <em>h</em> du sol par une potence CD. Lors d'un « dunk », un joueur s'accroche au bord E du cercle et exerce sur lui une force <span class="v">F</span>, inclinée d'un angle α par rapport à la verticale (voir schéma).</p>
+    <p>On étudie les moments de cette force aux points A, B, C et D de la structure. Le problème est plan : tous les moments sont portés par l'axe <span class="v">z</span>, sortant de la feuille.</p>
+    <div class="tw"><table>
+      <tr><th>Donnée</th><th>Valeur</th></tr>
+      <tr><td>Intensité ‖<span class="v">F</span>‖ = F</td><td>1600 N</td></tr>
+      <tr><td>Angle α (avec la verticale)</td><td>30°</td></tr>
+      <tr><td>a (distance mât – panneau)</td><td>1,80 m</td></tr>
+      <tr><td>b (distance panneau – bord E du cercle)</td><td>0,60 m</td></tr>
+      <tr><td>c (distance verticale B – A)</td><td>0,25 m</td></tr>
+      <tr><td>h (hauteur du cercle)</td><td>3,05 m</td></tr>
+    </table></div>
+  </div>
+
+  <div class="fig">
+  <svg viewBox="0 0 400 440" role="img" aria-label="Schéma du panier de basket : mât CD, bras CB, panneau en B, cercle de A à E, force F en E inclinée de alpha par rapport à la verticale">
+    <defs>
+      <marker id="aF" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10z" fill="#D7261E"/></marker>
+      <marker id="aD" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,1 L10,5 L0,9z" fill="#5E6470"/></marker>
+      <marker id="aX" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10z" fill="#7B5AA6"/></marker>
+    </defs>
+    <rect x="30" y="410" width="340" height="10" fill="#9A4E12"/>
+    <rect x="50" y="70" width="20" height="340" fill="#3F74B8"/>
+    <rect x="60" y="70" width="180" height="20" fill="#3F74B8"/>
+    <rect x="236" y="30" width="8" height="100" fill="#2A2A2A"/>
+    <line x1="244" y1="105" x2="300" y2="105" stroke="#E07A1F" stroke-width="5"/>
+    <path d="M246,108 L298,108 L288,150 L256,150z" fill="none" stroke="#9AA0AA" stroke-width="1.2" stroke-dasharray="4 3"/>
+    <g fill="#fff" stroke="#22252B" stroke-width="1.8"><circle cx="60" cy="80" r="4"/><circle cx="240" cy="80" r="4"/><circle cx="240" cy="105" r="4"/><circle cx="60" cy="410" r="4"/><circle cx="300" cy="105" r="4"/></g>
+    <g font-size="15" font-weight="700" fill="#22252B"><text x="40" y="66">C</text><text x="222" y="66">B</text><text x="222" y="124">A</text><text x="74" y="402">D</text><text x="306" y="122">E</text></g>
+    <!-- force -->
+    <line x1="340" y1="35.7" x2="302" y2="101.5" stroke="#D7261E" stroke-width="4" marker-end="url(#aF)"/>
+    <text x="346" y="36" font-size="16" font-weight="700" font-style="italic" fill="#D7261E">F</text>
+    <line x1="300" y1="105" x2="300" y2="30" stroke="#22252B" stroke-width="1" stroke-dasharray="3 3"/>
+    <path d="M300,62 A43,43 0 0 1 321.5,67.8" fill="none" stroke="#22252B" stroke-width="1.2"/>
+    <text x="304" y="56" font-size="14">α</text>
+    <!-- cotes -->
+    <g stroke="#5E6470" stroke-width="1.1" fill="none">
+      <line x1="62" y1="170" x2="238" y2="170" marker-start="url(#aD)" marker-end="url(#aD)"/>
+      <line x1="240" y1="112" x2="240" y2="178" stroke-dasharray="3 3"/>
+      <line x1="244" y1="22" x2="298" y2="22" marker-start="url(#aD)" marker-end="url(#aD)"/>
+      <line x1="200" y1="82" x2="200" y2="103" marker-start="url(#aD)" marker-end="url(#aD)"/>
+      <line x1="195" y1="105" x2="236" y2="105" stroke-dasharray="3 3"/>
+      <line x1="355" y1="107" x2="355" y2="408" marker-start="url(#aD)" marker-end="url(#aD)"/>
+      <line x1="304" y1="105" x2="362" y2="105" stroke-dasharray="3 3"/>
+    </g>
+    <g font-size="14" fill="#22252B" font-style="italic"><text x="145" y="164">a</text><text x="266" y="17">b</text><text x="186" y="98">c</text><text x="362" y="262">h</text></g>
+    <!-- axes -->
+    <g stroke="#7B5AA6" stroke-width="2"><line x1="120" y1="360" x2="120" y2="310" marker-end="url(#aX)"/><line x1="120" y1="360" x2="170" y2="360" marker-end="url(#aX)"/></g>
+    <g fill="#7B5AA6" font-size="14" font-style="italic"><text x="126" y="314">y</text><text x="166" y="378">x</text><text x="104" y="376">z ⊙</text></g>
+  </svg>
+  </div>
+</div>
+
+<!-- Q1 -->
+<div class="q"><span class="num">2.1</span> Écrire <span class="v">F</span> dans la base (<span class="v">x</span>, <span class="v">y</span>), en fonction de F et α. Calculer ensuite ses deux composantes.<span class="pts">3 pts</span></div>
+<div class="answer"></div><div class="answer"></div>
+<div class="saisie"><label class="fld">F<sub>x</sub> =<input class="rep" data-k="fx" inputmode="decimal" autocomplete="off"><span>N</span></label><label class="fld">F<sub>y</sub> =<input class="rep" data-k="fy" inputmode="decimal" autocomplete="off"><span>N</span></label></div>
+<div class="cor">
+  <p class="eq"><span class="v">F</span> = −F sin α · <span class="v">x</span> − F cos α · <span class="v">y</span> = −F (sin α <span class="v">x</span> + cos α <span class="v">y</span>)</p>
+  <p class="eq">F<sub>x</sub> = −1600 × sin 30° &nbsp;→ <span class="res">Fx = −800 N</span> &nbsp;&nbsp; F<sub>y</sub> = −1600 × cos 30° &nbsp;→ <span class="res">Fy = −1385,6 N</span></p>
+  <p class="bar-note">Barème : 2 pts pour l'expression (1 pt par composante, signes compris) ; 1 pt pour les valeurs.</p>
+</div>
+
+<!-- Q2 -->
+<div class="q"><span class="num">2.2</span> Méthode du bras de levier. Déterminer la distance d<sub>A</sub> entre le point A et la droite support de <span class="v">F</span>. En déduire la norme du moment de <span class="v">F</span> en A et préciser son sens de rotation.<span class="pts">2 pts</span></div>
+<div class="answer"></div><div class="answer"></div>
+<div class="saisie"><label class="fld">d<sub>A</sub> =<input class="rep" data-k="da" inputmode="decimal" autocomplete="off"><span>m</span></label><label class="fld">|M<sub>A</sub>| =<input class="rep" data-k="ma" inputmode="decimal" autocomplete="off"><span>N·m</span></label></div>
+<div class="cor">
+  <p>La droite support passe par E, avec AE = b horizontal. L'angle entre (AE) et la droite support vaut 90° − α, donc d<sub>A</sub> = b · sin(90° − α) = b cos α.</p>
+  <p class="eq">d<sub>A</sub> = 0,60 × cos 30° = 0,520 m &nbsp;⇒&nbsp; |M<sub>A</sub>| = F · d<sub>A</sub> = 1600 × 0,520 &nbsp;→ <span class="res">|MA| = 831,4 N·m</span></p>
+  <p>La force tend à faire tourner le cercle autour de A dans le sens horaire : le moment est négatif sur <span class="v">z</span>.</p>
+  <p class="bar-note">Barème : 1 pt pour d<sub>A</sub>, 0,5 pt pour la valeur, 0,5 pt pour le sens.</p>
+</div>
+
+<!-- Q3 -->
+<div class="q"><span class="num">2.3</span> Méthode vectorielle. Exprimer littéralement les moments <span class="mv">M<sub>A</sub></span>(<span class="v">F</span>), <span class="mv">M<sub>B</sub></span>(<span class="v">F</span>), <span class="mv">M<sub>C</sub></span>(<span class="v">F</span>) et <span class="mv">M<sub>D</sub></span>(<span class="v">F</span>) en fonction de F, a, b, c, h et α.<span class="pts">4 pts</span></div>
+<div class="answer"></div><div class="answer"></div><div class="answer"></div><div class="answer"></div>
+<div class="cor">
+  <p>On utilise <span class="mv">M<sub>P</sub></span>(<span class="v">F</span>) = <span class="mv">PE</span> ∧ <span class="v">F</span>, soit dans le plan : M<sub>P</sub> = x<sub>PE</sub> · F<sub>y</sub> − y<sub>PE</sub> · F<sub>x</sub>.</p>
+  <div class="tw"><table>
+    <tr><th>Point</th><th><span class="mv">PE</span></th><th>Moment sur <span class="v">z</span></th></tr>
+    <tr><td>A</td><td>( b ; 0 )</td><td>−b F cos α</td></tr>
+    <tr><td>B</td><td>( b ; −c )</td><td>F (−c sin α − b cos α)</td></tr>
+    <tr><td>C</td><td>( a + b ; −c )</td><td>F (−c sin α − (a + b) cos α)</td></tr>
+    <tr><td>D</td><td>( a + b ; h )</td><td>F (h sin α − (a + b) cos α)</td></tr>
+  </table></div>
+  <p class="bar-note">Barème : 1 pt par moment (0,5 pt si une erreur de signe).</p>
+</div>
+
+<!-- Q4 -->
+<div class="q"><span class="num">2.4</span> Faire l'application numérique pour les quatre moments. Vérifier la cohérence avec la question 2.2.<span class="pts">3 pts</span></div>
+<div class="answer"></div><div class="answer"></div><div class="answer"></div>
+<div class="saisie"><label class="fld">M<sub>B</sub> =<input class="rep" data-k="mb" inputmode="decimal" autocomplete="off"><span>N·m</span></label><label class="fld">M<sub>C</sub> =<input class="rep" data-k="mc" inputmode="decimal" autocomplete="off"><span>N·m</span></label><label class="fld">M<sub>D</sub> =<input class="rep" data-k="md" inputmode="decimal" autocomplete="off"><span>N·m</span></label></div>
+<div class="cor">
+  <p class="eq">M<sub>A</sub> = −0,60 × 1385,6 &nbsp;→ <span class="res">MA = −831,4 N·m</span> &nbsp;(identique à 2.2)</p>
+  <p class="eq">M<sub>B</sub> = −(0,25 × 800 + 0,60 × 1385,6) &nbsp;→ <span class="res">MB = −1031,4 N·m</span></p>
+  <p class="eq">M<sub>C</sub> = −(0,25 × 800 + 2,40 × 1385,6) &nbsp;→ <span class="res">MC = −3525,5 N·m</span></p>
+  <p class="eq">M<sub>D</sub> = 3,05 × 800 − 2,40 × 1385,6 = 2440 − 3325,5 &nbsp;→ <span class="res">MD = −885,5 N·m</span></p>
+  <p class="bar-note">Barème : 0,75 pt par valeur avec unité.</p>
+</div>
+
+<!-- Q5 -->
+<div class="q"><span class="num">2.5</span> En quel point la structure est-elle la plus sollicitée ? Expliquer pourquoi le moment en D, pourtant le point le plus éloigné de E, est beaucoup plus faible qu'en C.<span class="pts">1 pt</span></div>
+<div class="answer"></div><div class="answer"></div>
+<div class="saisie"><label class="fld">Point le plus sollicité :<select class="rep" data-k="pt"><option value=""></option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option></select></label></div>
+<div class="cor">
+  <p>Le moment est maximal en valeur absolue en <strong>C</strong> (3525,5 N·m) : c'est l'angle du mât qui est le plus sollicité.</p>
+  <p>Le moment ne dépend pas de la distance au point d'application, mais de la distance à la <strong>droite support</strong> de la force. Prolongée vers le bas, la droite support de <span class="v">F</span> passe près de D : le bras de levier en D est petit (d<sub>D</sub> = 885,5 / 1600 ≈ 0,55 m), alors qu'en C il vaut 3525,5 / 1600 ≈ 2,20 m.</p>
+</div>
+
+<!-- Q6 -->
+<div class="q"><span class="num">2.6</span> À quelle condition géométrique le moment en D serait-il nul ? Faire un schéma. En déduire l'expression littérale de l'angle α qui annule <span class="mv">M<sub>D</sub></span>(<span class="v">F</span>), puis sa valeur numérique.<span class="pts">3 pts</span></div>
+<div class="schema"></div>
+<div class="answer"></div><div class="answer"></div>
+<div class="saisie"><label class="fld">α =<input class="rep" data-k="al" inputmode="decimal" autocomplete="off"><span>°</span></label></div>
+<div class="cor">
+  <p>Le moment en D est nul si la <strong>droite support de <span class="v">F</span> passe par D</strong> : le bras de levier est alors nul.</p>
+  <svg viewBox="0 0 300 250" role="img" aria-label="Schéma : la droite support de F passe par D">
+    <defs><marker id="aF2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10z" fill="#D7261E"/></marker></defs>
+    <rect x="20" y="228" width="260" height="6" fill="#9A4E12"/>
+    <line x1="40" y1="228" x2="40" y2="30" stroke="#3F74B8" stroke-width="8"/>
+    <line x1="40" y1="30" x2="170" y2="30" stroke="#3F74B8" stroke-width="8"/>
+    <line x1="170" y1="45" x2="210" y2="45" stroke="#E07A1F" stroke-width="4"/>
+    <line x1="210" y1="45" x2="40" y2="228" stroke="#D7261E" stroke-width="1.3" stroke-dasharray="6 4"/>
+    <line x1="245" y1="7.3" x2="212" y2="43" stroke="#D7261E" stroke-width="3.5" marker-end="url(#aF2)"/>
+    <line x1="210" y1="45" x2="210" y2="228" stroke="#5E6470" stroke-dasharray="3 3"/>
+    <line x1="40" y1="236" x2="210" y2="236" stroke="#5E6470"/>
+    <path d="M210,85 A40,40 0 0 1 182.8,74.3" fill="none" stroke="#22252B"/>
+    <g font-size="13" fill="#22252B"><text x="28" y="222" font-weight="700">D</text><text x="214" y="42" font-weight="700">E</text><text x="188" y="100">α</text>
+    <text x="110" y="249" font-style="italic">a + b</text><text x="216" y="150" font-style="italic">h</text><text x="248" y="14" fill="#D7261E" font-weight="700" font-style="italic">F</text></g>
+  </svg>
+  <p class="eq">M<sub>D</sub> = 0 &nbsp;⇔&nbsp; h sin α − (a + b) cos α = 0 &nbsp;⇔&nbsp; tan α = (a + b) / h</p>
+  <p class="eq">α = arctan( (a + b) / h ) = arctan( 2,40 / 3,05 ) &nbsp;→ <span class="res">α ≈ 38,2°</span></p>
+  <p class="bar-note">Barème : 1 pt condition et schéma, 1 pt expression littérale, 1 pt valeur numérique.</p>
+</div>
+
+<section class="valid" aria-labelledby="validT">
+  <h2 id="validT">Valider mes réponses</h2>
+  <p>Réponds au QCM en cliquant sur ta réponse et remplis les cases « Ta réponse ». Tu peux utiliser une virgule ou un point. Le corrigé se débloque à partir de <strong>5 bonnes réponses</strong>.</p>
+  <div class="row"><button id="check">Vérifier mes réponses</button></div>
+  <div class="gauge" aria-hidden="true"><div></div></div>
+  <p id="msg" aria-live="polite"></p>
+  <details class="ens"><summary>Accès enseignant</summary>
+    <label>Code : <input id="ensCode" type="password" autocomplete="off"></label> <button id="ensOk">Débloquer</button>
+  </details>
+</section>
+
+<p class="total">Total : 20 points</p>
+</div>
+
+<script>
+(function(){
+  const D = JSON.parse(decodeURIComponent(escape(atob('eyJxIjogeyJxMSI6IDEsICJxMiI6IDIsICJxMyI6IDEsICJxNCI6IDF9LCAibiI6IHsiZngiOiAtODAwLCAiZnkiOiAtMTM4NS42LCAiZGEiOiAwLjUyLCAibWEiOiA4MzEuNCwgIm1iIjogLTEwMzEuNCwgIm1jIjogLTM1MjUuNSwgIm1kIjogLTg4NS41LCAicHQiOiAiQyIsICJhbCI6IDM4LjJ9LCAibWluIjogNSwgImMiOiAiU0lQUk9GMjYifQ=='))));
+  const body = document.body, prof = document.getElementById('prof');
+  const msg = document.getElementById('msg'), gauge = document.querySelector('.gauge div');
+  let unlocked = false;
+
+  /* QCM cliquables */
+  document.querySelectorAll('ul.qcm').forEach(ul => {
+    ul.setAttribute('role','radiogroup');
+    const lis = [...ul.children];
+    lis.forEach((li,i) => {
+      li.setAttribute('role','radio'); li.setAttribute('aria-checked','false'); li.tabIndex = 0;
+      const pick = () => { if(body.classList.contains('prof')) return;
+        lis.forEach(l => l.setAttribute('aria-checked','false')); li.setAttribute('aria-checked','true'); };
+      li.addEventListener('click', pick);
+      li.addEventListener('keydown', e => { if(e.key===' '||e.key==='Enter'){ e.preventDefault(); pick(); } });
+    });
+  });
+
+  function num(v){ return parseFloat(String(v).trim().replace(/\s/g,'').replace(',','.')); }
+  function score(){
+    let ok = 0, total = 0;
+    document.querySelectorAll('ul.qcm').forEach(ul => {
+      total++;
+      const i = [...ul.children].findIndex(li => li.getAttribute('aria-checked')==='true');
+      if(i === D.q[ul.dataset.q]) ok++;
+    });
+    document.querySelectorAll('.rep').forEach(el => {
+      total++;
+      const a = D.n[el.dataset.k];
+      if(typeof a === 'string'){ if(el.value === a) ok++; return; }
+      const v = num(el.value); if(isNaN(v)) return;
+      const tol = a === 0 ? 0.5 : Math.abs(a) * 0.01;
+      if(Math.abs(v - a) <= tol) ok++;
+    });
+    return {ok, total};
+  }
+  function unlock(){
+    unlocked = true; prof.disabled = false; prof.title = '';
+    prof.textContent = 'Afficher le corrigé';
+    document.querySelectorAll('ul.qcm').forEach(ul => ul.children[D.q[ul.dataset.q]].classList.add('good'));
+  }
+  document.getElementById('check').addEventListener('click', () => {
+    const {ok, total} = score();
+    gauge.style.width = Math.min(100, ok / D.min * 100) + '%';
+    if(ok >= D.min){
+      msg.className = 'ok';
+      msg.textContent = ok + ' bonne' + (ok>1?'s':'') + ' réponse' + (ok>1?'s':'') + ' sur ' + total + '. Le corrigé est débloqué : clique sur « Afficher le corrigé » en haut de la page.';
+      if(!unlocked) unlock();
+    } else {
+      msg.className = 'ko';
+      msg.textContent = ok + ' bonne' + (ok>1?'s':'') + ' réponse' + (ok>1?'s':'') + ' sur ' + total + '. Il en faut au moins ' + D.min + ' pour débloquer le corrigé. Revois tes calculs et réessaie.';
+    }
+  });
+  document.getElementById('ensOk').addEventListener('click', () => {
+    const f = document.getElementById('ensCode');
+    if(f.value.trim().toUpperCase() === D.c){ unlock(); f.value=''; msg.className='ok'; msg.textContent='Accès enseignant : corrigé débloqué.'; }
+    else { f.value=''; f.placeholder='Code incorrect'; }
+  });
+  prof.addEventListener('click', () => {
+    if(!unlocked) return;
+    const on = body.classList.toggle('prof');
+    prof.setAttribute('aria-pressed', on);
+    prof.textContent = on ? 'Masquer le corrigé' : 'Afficher le corrigé';
+  });
+})();
+</script>
+<a href="../index.html" style="position:fixed;bottom:16px;left:16px;z-index:99999;background:#1e3a5f;color:#fff;padding:10px 16px;border-radius:24px;font:600 14px system-ui,sans-serif;text-decoration:none;box-shadow:0 2px 8px rgba(0,0,0,.25)">← Sommaire</a></body>
+</html>

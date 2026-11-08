@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Synthèse énergétique · 1ère SI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#EEF1F4; --panel:#FFFFFF; --ink:#1C2A39; --muted:#5B6B7C; --line:#C9D2DC;
+  --elec:#2563C9; --chem:#2E9E6B; --meca:#D97F12; --pneu:#0E9AA7; --ecart:#B03A6F; --loss:#C8453A;
+  --elec-soft:#E3ECFA; --chem-soft:#E1F3EA; --meca-soft:#FBEEDC; --pneu-soft:#DDF2F4; --ecart-soft:#F6E3EC;
+  --display:"Barlow Condensed","Arial Narrow",Arial,sans-serif;
+  --body:"Source Sans 3","Segoe UI",Arial,sans-serif;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#141B24; --panel:#1C2531; --ink:#E6ECF2; --muted:#9AA9B8; --line:#33414F;
+    --elec:#6C9CF0; --chem:#4CC08A; --meca:#F0A145; --pneu:#3EC3CF; --ecart:#E0709F; --loss:#EE7066;
+    --elec-soft:#1E2E4A; --chem-soft:#183528; --meca-soft:#3A2A14; --pneu-soft:#15353A; --ecart-soft:#3A1D2B;
+  }
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-behavior:smooth; scroll-padding-top:calc(64px + env(safe-area-inset-top,0px))}
+body{margin:0; background:var(--paper); color:var(--ink); font-family:var(--body); font-size:17px; line-height:1.55}
+h1,h2,h3{font-family:var(--display); line-height:1.1; margin:0}
+h2{font-size:clamp(2rem,4vw,2.8rem); font-weight:700}
+h3{font-size:1.45rem; font-weight:600; margin:1.6rem 0 .6rem}
+p{margin:.5rem 0; max-width:72ch}
+button,input,select{font:inherit; color:inherit}
+:focus-visible{outline:3px solid var(--elec); outline-offset:2px}
+
+/* navigation */
+nav{position:sticky; top:env(safe-area-inset-top,0px); z-index:10; background:var(--paper); border-bottom:1px solid var(--line)}
+nav ul{list-style:none; margin:0 auto; padding:.55rem 1rem; display:flex; gap:.4rem; overflow-x:auto; max-width:1100px}
+nav a{display:block; white-space:nowrap; text-decoration:none; color:var(--ink); font-family:var(--display); font-weight:600; font-size:1.1rem; padding:.3rem .8rem; border-radius:999px; border:2px solid transparent}
+nav a:hover{border-color:var(--c,var(--ink))}
+nav a.on{background:var(--c); color:#fff}
+
+main{max-width:1100px; margin:0 auto; padding:0 1rem 4rem}
+
+/* hero */
+.hero{padding:2.5rem 0 1rem}
+.hero h1{font-size:clamp(2.6rem,7vw,4.8rem); font-weight:700; letter-spacing:-.01em}
+.hero p{color:var(--muted); font-size:1.15rem}
+.chain-wrap{overflow-x:auto; margin-top:1rem}
+.chain{width:100%; min-width:640px; height:auto; display:block}
+.chain .blk{cursor:pointer}
+.chain .blk rect{transition:transform .2s}
+.chain .blk:hover rect,.chain .blk:focus rect{stroke-width:4}
+.chain text{font-family:var(--display)}
+
+/* sections */
+section.sec{padding:2.5rem 0 1rem; border-top:6px solid var(--c)}
+section.sec + section.sec{margin-top:2rem}
+.sec-head{display:flex; gap:1rem; align-items:baseline; flex-wrap:wrap}
+.sec-head .tag{font-family:var(--display); font-size:1.1rem; color:var(--c); font-weight:600}
+.lead{font-size:1.1rem; color:var(--muted)}
+
+.grid{display:grid; gap:1rem; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); margin:1rem 0}
+.f{background:var(--panel); border-left:5px solid var(--c); padding:.8rem 1rem; border-radius:0 8px 8px 0}
+.f .eq{font-family:Cambria,"Times New Roman",serif; font-size:1.45rem; font-style:italic; margin:.1rem 0 .3rem}
+.f .eq sub{font-size:.65em}
+.f small{color:var(--muted); display:block; line-height:1.4}
+
+/* simulator */
+.lab{background:var(--panel); border:2px solid var(--c); border-radius:14px; padding:1.2rem; margin:1.4rem 0; display:grid; gap:1.2rem; grid-template-columns:minmax(240px,1fr) minmax(260px,1.3fr)}
+@media (max-width:760px){.lab{grid-template-columns:1fr}}
+.lab h3{margin-top:0; color:var(--c)}
+.ctrl{margin:.7rem 0}
+.ctrl label{display:flex; justify-content:space-between; font-weight:600; font-size:.95rem}
+.ctrl label output{font-family:var(--display); font-size:1.15rem; color:var(--c)}
+input[type=range]{width:100%; accent-color:var(--c)}
+input[type=number]{width:100%; padding:.35rem .5rem; border:1px solid var(--line); border-radius:6px; background:var(--paper)}
+.res{display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); gap:.5rem; margin-top:.6rem}
+.res div{background:var(--soft); border-radius:8px; padding:.45rem .6rem}
+.res b{display:block; font-family:var(--display); font-size:1.35rem; line-height:1.1}
+.res span{font-size:.85rem; color:var(--muted)}
+.btn{background:var(--c); color:#fff; border:0; border-radius:8px; padding:.5rem 1rem; font-weight:700; cursor:pointer}
+.btn.ghost{background:transparent; color:var(--c); border:2px solid var(--c)}
+.seg{display:inline-flex; border:2px solid var(--c); border-radius:8px; overflow:hidden}
+.seg button{background:transparent; border:0; padding:.4rem .8rem; cursor:pointer; font-weight:600}
+.seg button[aria-pressed=true]{background:var(--c); color:#fff}
+.note{font-size:.95rem; color:var(--muted); border-left:3px solid var(--line); padding-left:.7rem}
+.warn{color:var(--loss); font-weight:600}
+
+/* batteries */
+.packs{display:grid; gap:10px; justify-content:start; margin:.6rem 0}
+.cell{width:54px; height:40px; border:3px solid var(--ink); border-radius:5px; position:relative; background:var(--paper)}
+.cell::before{content:""; position:absolute; top:-8px; left:8px; width:10px; height:5px; background:var(--ink); box-shadow:26px 0 0 var(--ink)}
+.cell i{position:absolute; left:0; bottom:0; top:0; background:var(--chem); width:var(--lvl,100%); transition:width .3s}
+
+/* power bar */
+.pbar{display:flex; height:34px; border-radius:6px; overflow:hidden; margin:.5rem 0; font-size:.8rem; font-weight:700; color:#fff}
+.pbar div{display:flex; align-items:center; justify-content:center; transition:flex-grow .3s; min-width:0; overflow:hidden; white-space:nowrap}
+
+/* quadrants */
+.quad{display:grid; grid-template-columns:1fr 1fr; gap:4px; max-width:460px; position:relative}
+.quad button{background:var(--panel); border:2px solid var(--line); border-radius:8px; padding:.7rem; text-align:left; cursor:pointer; min-height:90px}
+.quad button.on{border-color:var(--c); background:var(--soft)}
+.quad button b{font-family:var(--display); font-size:1.15rem}
+.quad .mot{color:var(--elec)} .quad .gen{color:var(--chem)}
+
+/* écarts */
+.ec-svg{width:100%; max-width:720px; height:auto}
+.ec-svg .ec{cursor:pointer}
+.ec-card{background:var(--soft); padding:.8rem 1rem; border-radius:8px; min-height:5rem}
+
+/* quiz */
+.q{background:var(--panel); border-radius:10px; padding:1rem; margin:.8rem 0; border:1px solid var(--line)}
+.q p{font-weight:600; margin-top:0}
+.q .opts{display:flex; flex-wrap:wrap; gap:.4rem}
+.q .opts button{border:2px solid var(--line); background:var(--paper); border-radius:8px; padding:.4rem .8rem; cursor:pointer}
+.q .opts button.ok{border-color:var(--chem); background:var(--chem-soft)}
+.q .opts button.ko{border-color:var(--loss); text-decoration:line-through}
+.q .fb{margin-top:.5rem; font-size:.95rem; min-height:1.2em}
+.score{font-family:var(--display); font-size:2rem}
+
+table{border-collapse:collapse; width:100%}
+.tw{overflow-x:auto}
+td,th{border:1px solid var(--line); padding:.45rem .6rem; text-align:left; vertical-align:top}
+th{background:var(--soft)}
+
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *{transition:none!important; animation:none!important}
+}
+</style>
+</head>
+<body>
+
+<nav aria-label="Sections">
+  <ul>
+    <li><a href="#batteries" style="--c:var(--chem)">Batteries</a></li>
+    <li><a href="#mcc" style="--c:var(--elec)">Moteur CC</a></li>
+    <li><a href="#masy" style="--c:var(--elec)">Moteur asynchrone</a></li>
+    <li><a href="#verins" style="--c:var(--pneu)">Vérins</a></li>
+    <li><a href="#ecarts" style="--c:var(--ecart)">Écarts</a></li>
+    <li><a href="#quiz" style="--c:var(--meca)">Quiz</a></li>
+  </ul>
+</nav>
+
+<main>
+<header class="hero">
+  <h1>Stocker, convertir, mesurer</h1>
+  <p>Synthèse de la partie énergétique : batteries, moteurs électriques, vérins pneumatiques et analyse des écarts. Clique sur un bloc de la chaîne pour aller à la fiche.</p>
+
+  <div class="chain-wrap">
+  <svg class="chain" viewBox="0 0 900 250" role="img" aria-label="Chaîne d'énergie d'une trottinette électrique : batterie, moteur, roue, avec les pertes">
+    <defs>
+      <marker id="ar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10z" fill="var(--muted)"/></marker>
+    </defs>
+    <!-- flux -->
+    <path id="p1" d="M40,95 L150,95" stroke="var(--elec)" stroke-width="4" fill="none" marker-end="url(#ar)"/>
+    <path id="p2" d="M320,95 L440,95" stroke="var(--elec)" stroke-width="6" fill="none" marker-end="url(#ar)"/>
+    <path id="p3" d="M610,95 L730,95" stroke="var(--meca)" stroke-width="5" fill="none" marker-end="url(#ar)"/>
+    <path d="M235,135 L235,205" stroke="var(--loss)" stroke-width="2" stroke-dasharray="5 4" fill="none" marker-end="url(#ar)"/>
+    <path d="M525,135 L525,205" stroke="var(--loss)" stroke-width="3" stroke-dasharray="5 4" fill="none" marker-end="url(#ar)"/>
+    <text x="42" y="80" font-size="16" fill="var(--muted)">recharge</text>
+    <text x="330" y="80" font-size="17" fill="var(--elec)">énergie électrique</text>
+    <text x="620" y="80" font-size="17" fill="var(--meca)">énergie mécanique</text>
+    <text x="245" y="200" font-size="16" fill="var(--loss)">pertes (chaleur)</text>
+    <text x="535" y="200" font-size="16" fill="var(--loss)">pj + pc</text>
+
+    <g class="blk" tabindex="0" data-go="batteries" role="link" aria-label="Aller aux batteries">
+      <rect x="155" y="55" width="160" height="80" rx="12" fill="var(--chem-soft)" stroke="var(--chem)" stroke-width="3"/>
+      <text x="235" y="92" text-anchor="middle" font-size="26" font-weight="700" fill="var(--chem)">Batterie</text>
+      <text x="235" y="118" text-anchor="middle" font-size="17" fill="var(--ink)">stocker · E = Q × U</text>
+    </g>
+    <g class="blk" tabindex="0" data-go="mcc" role="link" aria-label="Aller au moteur">
+      <rect x="445" y="55" width="160" height="80" rx="12" fill="var(--elec-soft)" stroke="var(--elec)" stroke-width="3"/>
+      <text x="525" y="92" text-anchor="middle" font-size="26" font-weight="700" fill="var(--elec)">Moteur</text>
+      <text x="525" y="118" text-anchor="middle" font-size="17" fill="var(--ink)">convertir · η = Pu / Pa</text>
+    </g>
+    <g class="blk" tabindex="0" data-go="ecarts" role="link" aria-label="Aller à l'analyse des écarts">
+      <circle cx="790" cy="95" r="50" fill="var(--meca-soft)" stroke="var(--meca)" stroke-width="3"/>
+      <circle cx="790" cy="95" r="12" fill="var(--meca)"/>
+      <g id="spokes" stroke="var(--meca)" stroke-width="3">
+        <line x1="790" y1="50" x2="790" y2="140"/><line x1="745" y1="95" x2="835" y2="95"/>
+        <line x1="758" y1="63" x2="822" y2="127"/><line x1="822" y1="63" x2="758" y2="127"/>
+      </g>
+      <text x="790" y="170" text-anchor="middle" font-size="20" font-weight="700" fill="var(--meca)">Roue</text>
+    </g>
+    <g id="particles"></g>
+  </svg>
+  </div>
+</header>
+
+<!-- ============ BATTERIES ============ -->
+<section class="sec" id="batteries" style="--c:var(--chem); --soft:var(--chem-soft)">
+  <div class="sec-head"><h2>Les batteries</h2><span class="tag">stocker l'énergie électrique pour la restituer plus tard</span></div>
+  <p class="lead">Une batterie est un accumulateur électrochimique : la conversion électrique ⇄ chimique est réversible. Une pile ne se recharge pas, ce n'est donc pas un accumulateur. Technologies courantes : plomb-acide, Ni-Cd, Ni-MH, lithium-ion.</p>
+
+  <div class="grid">
+    <div class="f"><div class="eq">Q = i × t</div><small>Q capacité [A·h] · i courant fourni [A] · t autonomie [h]</small></div>
+    <div class="f"><div class="eq">E = Q × U</div><small>E énergie [W·h] · U tension aux bornes [V]</small></div>
+    <div class="f"><div class="eq">1 W·h = 3600 J</div><small>car 1 J = 1 W·s = 1 N·m</small></div>
+    <div class="f"><div class="eq">1 A·h = 3600 C</div><small>car 1 C = 1 A·s</small></div>
+  </div>
+
+  <div class="lab">
+    <div>
+      <h3>Monte ton pack</h3>
+      <p class="note">En <b>série</b> les tensions s'ajoutent, en <b>parallèle</b> les capacités s'ajoutent.</p>
+      <div class="ctrl"><label>Élément : tension <output id="bU">12 V</output></label><input type="range" id="bUin" min="3.6" max="24" step="0.1" value="12"></div>
+      <div class="ctrl"><label>Élément : capacité <output id="bQ">100 A·h</output></label><input type="range" id="bQin" min="5" max="200" step="5" value="100"></div>
+      <div class="ctrl"><label>Éléments en série <output id="bS">2</output></label><input type="range" id="bSin" min="1" max="4" value="2"></div>
+      <div class="ctrl"><label>Branches en parallèle <output id="bP">1</output></label><input type="range" id="bPin" min="1" max="4" value="1"></div>
+      <div class="ctrl"><label>Courant consommé <output id="bI">10 A</output></label><input type="range" id="bIin" min="1" max="100" value="10"></div>
+      <div class="ctrl"><label>Part de capacité utilisée <output id="bD">90 %</output></label><input type="range" id="bDin" min="50" max="100" step="5" value="90"></div>
+    </div>
+    <div>
+      <div class="packs" id="packs" aria-hidden="true"></div>
+      <div class="res">
+        <div><b id="rU">24 V</b><span>tension du pack</span></div>
+        <div><b id="rQ">100 A·h</b><span>capacité du pack</span></div>
+        <div><b id="rE">2400 W·h</b><span>énergie stockée</span></div>
+        <div><b id="rJ">8,64 MJ</b><span>soit en joules</span></div>
+        <div><b id="rQu">90 A·h</b><span>capacité réellement utilisée</span></div>
+        <div><b id="rT">9 h</b><span>autonomie t = Q / i</span></div>
+      </div>
+      <p class="note" id="bTxt"></p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ MOTEUR CC ============ -->
+<section class="sec" id="mcc" style="--c:var(--elec); --soft:var(--elec-soft)">
+  <div class="sec-head"><h2>Le moteur à courant continu</h2><span class="tag">énergie électrique → énergie mécanique</span></div>
+  <p class="lead">Il est constitué d'un <b>stator</b> (inducteur) et d'un <b>rotor</b> (induit).</p>
+
+  <div class="grid">
+    <div class="f"><div class="eq">U = E + R × I</div><small>modèle électrique équivalent · R résistance de l'induit [Ω]</small></div>
+    <div class="f"><div class="eq">E = K × ω</div><small>force électromotrice [V] · K [V/(rad/s)] · ω [rad/s]</small></div>
+    <div class="f"><div class="eq">C<sub>em</sub> = K × I</div><small>couple électromagnétique [N·m] · K [N·m/A]</small></div>
+    <div class="f"><div class="eq">P<sub>em</sub> = E × I = C<sub>em</sub> × ω</div><small>puissance électromagnétique [W]</small></div>
+    <div class="f"><div class="eq">P<sub>a</sub> = U × I</div><small>puissance absorbée (électrique) [W]</small></div>
+    <div class="f"><div class="eq">P<sub>u</sub> = C<sub>u</sub> × ω</div><small>puissance utile (mécanique) · C<sub>u</sub> = C<sub>em</sub> − C<sub>pertes</sub></small></div>
+    <div class="f"><div class="eq">P<sub>u</sub> = P<sub>a</sub> − p<sub>j</sub> − p<sub>c</sub></div><small>p<sub>j</sub> = R × I² pertes Joule · p<sub>c</sub> pertes constantes (méca. + magn.)</small></div>
+    <div class="f"><div class="eq">η = P<sub>u</sub> / P<sub>a</sub></div><small>rendement, toujours inférieur à 1</small></div>
+  </div>
+
+  <div class="lab">
+    <div>
+      <h3>Banc d'essai du moteur</h3>
+      <div class="ctrl"><label>Tension U <output id="mU">24 V</output></label><input type="range" id="mUin" min="6" max="48" step="0.5" value="24"></div>
+      <div class="ctrl"><label>Courant I <output id="mI">10 A</output></label><input type="range" id="mIin" min="0.5" max="30" step="0.5" value="10"></div>
+      <div class="ctrl"><label>Résistance d'induit R <output id="mR">0,30 Ω</output></label><input type="range" id="mRin" min="0.05" max="1.5" step="0.05" value="0.3"></div>
+      <div class="ctrl"><label>Constante K <output id="mK">0,100 V/(rad/s)</output></label><input type="range" id="mKin" min="0.02" max="0.4" step="0.005" value="0.1"></div>
+      <div class="ctrl"><label>Pertes constantes p<sub>c</sub> <output id="mP">15 W</output></label><input type="range" id="mPin" min="0" max="80" value="15"></div>
+    </div>
+    <div>
+      <p style="margin:0;font-weight:600">Bilan des puissances</p>
+      <div class="pbar" id="pbar">
+        <div id="bPu" style="background:var(--meca)">Pu</div>
+        <div id="bPj" style="background:var(--loss)">pj</div>
+        <div id="bPc" style="background:#8A5A9E">pc</div>
+      </div>
+      <div class="res">
+        <div><b id="oE">–</b><span>E = U − R·I</span></div>
+        <div><b id="oW">–</b><span>ω = E / K</span></div>
+        <div><b id="oN">–</b><span>N = ω × 60 / 2π</span></div>
+        <div><b id="oC">–</b><span>C<sub>em</sub> = K·I</span></div>
+        <div><b id="oPa">–</b><span>P<sub>a</sub> = U·I</span></div>
+        <div><b id="oPj">–</b><span>p<sub>j</sub> = R·I²</span></div>
+        <div><b id="oPem">–</b><span>P<sub>em</sub> = E·I</span></div>
+        <div><b id="oPu">–</b><span>P<sub>u</sub> = P<sub>em</sub> − p<sub>c</sub></span></div>
+        <div><b id="oCu">–</b><span>C<sub>u</sub> = P<sub>u</sub> / ω</span></div>
+        <div><b id="oEta">–</b><span>η = P<sub>u</sub> / P<sub>a</sub></span></div>
+      </div>
+      <p class="warn" id="mWarn"></p>
+    </div>
+  </div>
+
+  <h3>Les 4 quadrants de fonctionnement</h3>
+  <p>La puissance mécanique P<sub>m</sub> = C × ω. Son signe dit si la machine consomme (moteur) ou restitue (génératrice) de l'énergie. Clique sur un quadrant.</p>
+  <div class="lab" style="grid-template-columns:auto 1fr">
+    <div class="quad" id="quad">
+      <button data-q="4"><b>4ᵉ quadrant</b><br>ω &gt; 0, C &lt; 0<br><span class="gen">Génératrice</span></button>
+      <button data-q="1" class="on"><b>1ᵉʳ quadrant</b><br>ω &gt; 0, C &gt; 0<br><span class="mot">Moteur</span></button>
+      <button data-q="3"><b>3ᵉ quadrant</b><br>ω &lt; 0, C &lt; 0<br><span class="mot">Moteur</span></button>
+      <button data-q="2"><b>2ᵉ quadrant</b><br>ω &lt; 0, C &gt; 0<br><span class="gen">Génératrice</span></button>
+    </div>
+    <div class="ec-card" id="quadTxt" aria-live="polite"></div>
+  </div>
+</section>
+
+<!-- ============ MOTEUR ASYNCHRONE ============ -->
+<section class="sec" id="masy" style="--c:var(--elec); --soft:var(--elec-soft)">
+  <div class="sec-head"><h2>Le moteur asynchrone</h2><span class="tag">alimenté par un réseau triphasé</span></div>
+  <p class="lead">Comme le moteur CC, il comporte un stator (inducteur) et un rotor (induit). Le rotor tourne un peu moins vite que le champ tournant : c'est le glissement.</p>
+
+  <div class="grid">
+    <div class="f"><div class="eq">N<sub>s</sub> = 60 × f / p</div><small>vitesse de synchronisme [tr/min] · f [Hz] · p nombre de paires de pôles</small></div>
+    <div class="f"><div class="eq">g = (N<sub>s</sub> − N) / N<sub>s</sub></div><small>= (ω<sub>s</sub> − ω) / ω<sub>s</sub> · N vitesse du rotor</small></div>
+    <div class="f"><div class="eq">P<sub>a</sub> = √3 × U × I × cos φ</div><small>U tension entre phases · I courant en ligne · φ déphasage</small></div>
+    <div class="f"><div class="eq">P<sub>u</sub> = C<sub>u</sub> × ω &nbsp; η = P<sub>u</sub>/P<sub>a</sub></div><small>ω = 2π N / 60 [rad/s]</small></div>
+  </div>
+
+  <div class="lab">
+    <div>
+      <h3>Plaque signalétique</h3>
+      <div class="ctrl"><label>Fréquence f</label>
+        <div class="seg" id="aF"><button aria-pressed="true" data-v="50">50 Hz</button><button aria-pressed="false" data-v="60">60 Hz</button></div></div>
+      <div class="ctrl"><label>Paires de pôles p <output id="aP">2</output></label><input type="range" id="aPin" min="1" max="4" value="2"></div>
+      <div class="ctrl"><label>Vitesse du rotor N <output id="aN">1440 tr/min</output></label><input type="range" id="aNin" min="300" max="3600" step="5" value="1440"></div>
+      <div class="ctrl"><label>Courant en ligne I <output id="aI">5 A</output></label><input type="range" id="aIin" min="1" max="20" step="0.5" value="5"></div>
+      <div class="ctrl"><label>cos φ <output id="aPhi">0,82</output></label><input type="range" id="aPhiin" min="0.5" max="0.95" step="0.01" value="0.82"></div>
+      <div class="ctrl"><label>Couple utile C<sub>u</sub> <output id="aC">15 N·m</output></label><input type="range" id="aCin" min="1" max="60" step="0.5" value="15"></div>
+      <p class="note">Tension entre phases fixée à U = 400 V.</p>
+    </div>
+    <div>
+      <div class="res">
+        <div><b id="aNs">–</b><span>N<sub>s</sub></span></div>
+        <div><b id="aG">–</b><span>glissement g</span></div>
+        <div><b id="aW">–</b><span>ω du rotor</span></div>
+        <div><b id="aPa">–</b><span>P<sub>a</sub></span></div>
+        <div><b id="aPu">–</b><span>P<sub>u</sub></span></div>
+        <div><b id="aEta">–</b><span>η</span></div>
+      </div>
+      <p class="warn" id="aWarn"></p>
+      <p class="note">Exemples de la fiche : 50 Hz et p = 1 → N<sub>s</sub> = 3000 tr/min ; 60 Hz et p = 1 → N<sub>s</sub> = 3600 tr/min.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ VÉRINS ============ -->
+<section class="sec" id="verins" style="--c:var(--pneu); --soft:var(--pneu-soft)">
+  <div class="sec-head"><h2>Les vérins pneumatiques</h2><span class="tag">air comprimé → énergie mécanique</span></div>
+  <p class="lead">L'air comprimé (usuellement entre 4 et 8 bar) alimente des actionneurs qui peuvent soulever, pousser, tirer, serrer, tourner, bloquer, percuter, aspirer… Un vérin comprend un <b>piston</b>, une <b>tige</b> fixée sur une face du piston et un <b>corps</b> (tube) percé pour laisser passer la tige.</p>
+
+  <div class="tw"><table>
+    <tr><th>Simple effet</th><th>Double effet</th></tr>
+    <tr><td>L'air n'arrive que d'un seul côté du piston. Le retour se fait par un <b>ressort de rappel</b>. Utilisé quand le retour de la tige se fait à vide.</td>
+        <td>L'air arrive alternativement de chaque côté du piston (chambre arrière / chambre avant). Utilisé quand la sortie <b>et</b> le retour se font en charge.</td></tr>
+  </table></div>
+
+  <div class="grid">
+    <div class="f"><div class="eq">F = p × S</div><small>F [N] · p pression [Pa] · S surface [m²]</small></div>
+    <div class="f"><div class="eq">1 bar = 10⁵ Pa</div><small>= 1 daN/cm² · 1 Pa = 1 N/m²</small></div>
+    <div class="f"><div class="eq">1 daN = 10 N</div><small>S = π D² / 4 pour un piston de diamètre D</small></div>
+  </div>
+
+  <div class="lab">
+    <div>
+      <h3>Pilote le vérin</h3>
+      <div class="ctrl"><div class="seg" id="vType"><button aria-pressed="false" data-v="se">Simple effet</button><button aria-pressed="true" data-v="de">Double effet</button></div></div>
+      <div class="ctrl"><label>Pression p <output id="vP">6 bar</output></label><input type="range" id="vPin" min="1" max="10" step="0.5" value="6"></div>
+      <div class="ctrl"><label>Diamètre du piston D <output id="vD">50 mm</output></label><input type="range" id="vDin" min="10" max="100" step="2" value="50"></div>
+      <div class="ctrl"><label>Diamètre de la tige d <output id="vd">20 mm</output></label><input type="range" id="vdin" min="4" max="40" step="1" value="20"></div>
+      <p><button class="btn" id="vOut">Sortir la tige</button> <button class="btn ghost" id="vIn">Rentrer la tige</button></p>
+    </div>
+    <div>
+      <svg viewBox="0 0 420 150" style="width:100%;height:auto" role="img" aria-label="Vérin animé">
+        <rect x="20" y="30" width="260" height="80" rx="4" fill="none" stroke="var(--ink)" stroke-width="3"/>
+        <rect id="chA" x="23" y="33" width="0" height="74" fill="var(--pneu)" opacity=".35"/>
+        <rect id="chB" x="23" y="33" width="0" height="74" fill="var(--pneu)" opacity=".35"/>
+        <path id="spring" d="" fill="none" stroke="var(--meca)" stroke-width="3"/>
+        <g id="piston">
+          <rect x="0" y="33" width="16" height="74" fill="var(--muted)"/>
+          <rect x="16" y="62" width="260" height="16" fill="var(--muted)"/>
+        </g>
+        <circle cx="30" cy="125" r="6" fill="var(--pneu)"/><text x="40" y="130" font-size="13" fill="var(--muted)">arrière</text>
+        <circle id="portB" cx="265" cy="125" r="6" fill="var(--pneu)"/><text id="portBt" x="200" y="130" font-size="13" fill="var(--muted)">avant</text>
+      </svg>
+      <div class="res">
+        <div><b id="vS">–</b><span>S piston</span></div>
+        <div><b id="vF">–</b><span>force en sortie</span></div>
+        <div><b id="vFr">–</b><span>force en rentrée</span></div>
+      </div>
+      <p class="note" id="vTxt"></p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ ÉCARTS ============ -->
+<section class="sec" id="ecarts" style="--c:var(--ecart); --soft:var(--ecart-soft)">
+  <div class="sec-head"><h2>Analyser les écarts</h2><span class="tag">comparer souhaité, réel et simulé</span></div>
+  <p class="lead">Un écart est la différence constatée entre deux valeurs. Clique sur un écart pour voir à quoi il sert.</p>
+
+  <div class="lab" style="grid-template-columns:1.4fr 1fr">
+    <svg class="ec-svg" viewBox="0 0 560 250" role="img" aria-label="Les trois domaines et les trois écarts">
+      <g font-size="15">
+        <rect x="5" y="15" width="120" height="44" rx="6" fill="var(--panel)" stroke="var(--chem)" stroke-width="2"/><text x="65" y="42" text-anchor="middle" fill="var(--chem)">Système souhaité</text>
+        <path d="M135,22 L290,22 L290,12 L320,37 L290,62 L290,52 L135,52z" fill="var(--chem)"/><text x="215" y="42" text-anchor="middle" fill="#fff" font-weight="700">Client</text>
+        <rect x="330" y="15" width="130" height="44" rx="6" fill="var(--panel)" stroke="var(--chem)" stroke-width="2"/><text x="395" y="42" text-anchor="middle" fill="var(--chem)">Perf. attendues</text>
+
+        <rect x="5" y="103" width="120" height="44" rx="6" fill="var(--panel)" stroke="#9C3FC4" stroke-width="2"/><text x="65" y="130" text-anchor="middle" fill="#9C3FC4">Système réel</text>
+        <path d="M135,110 L290,110 L290,100 L320,125 L290,150 L290,140 L135,140z" fill="#9C3FC4"/><text x="215" y="130" text-anchor="middle" fill="#fff" font-weight="700">Laboratoire</text>
+        <rect x="330" y="103" width="130" height="44" rx="6" fill="var(--panel)" stroke="#9C3FC4" stroke-width="2"/><text x="395" y="130" text-anchor="middle" fill="#9C3FC4">Perf. mesurées</text>
+
+        <rect x="5" y="191" width="120" height="44" rx="6" fill="var(--panel)" stroke="var(--elec)" stroke-width="2"/><text x="65" y="218" text-anchor="middle" fill="var(--elec)">Système simulé</text>
+        <path d="M135,198 L290,198 L290,188 L320,213 L290,238 L290,228 L135,228z" fill="var(--elec)"/><text x="215" y="218" text-anchor="middle" fill="#fff" font-weight="700">Simulation</text>
+        <rect x="330" y="191" width="130" height="44" rx="6" fill="var(--panel)" stroke="var(--elec)" stroke-width="2"/><text x="395" y="218" text-anchor="middle" fill="var(--elec)">Perf. simulées</text>
+      </g>
+      <g class="ec" tabindex="0" data-e="1" role="button" aria-label="Écart 1">
+        <line x1="485" y1="40" x2="485" y2="122" stroke="var(--ecart)" stroke-width="10"/><rect x="470" y="65" width="30" height="34" rx="4" fill="var(--ecart)"/><text x="485" y="88" text-anchor="middle" fill="#fff" font-size="16" font-weight="700">1</text>
+      </g>
+      <g class="ec" tabindex="0" data-e="2" role="button" aria-label="Écart 2">
+        <line x1="485" y1="128" x2="485" y2="212" stroke="var(--ecart)" stroke-width="10"/><rect x="470" y="153" width="30" height="34" rx="4" fill="var(--ecart)"/><text x="485" y="176" text-anchor="middle" fill="#fff" font-size="16" font-weight="700">2</text>
+      </g>
+      <g class="ec" tabindex="0" data-e="3" role="button" aria-label="Écart 3">
+        <line x1="530" y1="40" x2="530" y2="212" stroke="var(--ecart)" stroke-width="10"/><rect x="515" y="109" width="30" height="34" rx="4" fill="var(--ecart)"/><text x="530" y="132" text-anchor="middle" fill="#fff" font-size="16" font-weight="700">3</text>
+      </g>
+    </svg>
+    <div class="ec-card" id="ecTxt" aria-live="polite"></div>
+  </div>
+
+  <div class="grid">
+    <div class="f"><div class="eq">ε<sub>absolu</sub> = |v<sub>attendue</sub> − v<sub>mesurée</sub>|</div><small>même unité que les valeurs comparées</small></div>
+    <div class="f"><div class="eq">ε<sub>relatif</sub> = ε<sub>absolu</sub> × 100 / v<sub>attendue</sub></div><small>en %, permet de juger si l'écart est acceptable</small></div>
+  </div>
+  <p class="note">Réel ↔ simulé : les écarts viennent souvent des <b>hypothèses simplificatrices</b> du modèle. Mesuré ↔ attendu : ils peuvent venir des <b>appareils de mesure</b>.</p>
+
+  <div class="lab">
+    <div>
+      <h3>Calcule un écart</h3>
+      <p class="note">Exemple : autonomie annoncée d'une trottinette 25 km, mesurée 22 km.</p>
+      <div class="ctrl"><label for="eA">Valeur attendue</label><input type="number" id="eA" value="25" step="any"></div>
+      <div class="ctrl"><label for="eM">Valeur mesurée (ou simulée)</label><input type="number" id="eM" value="22" step="any"></div>
+    </div>
+    <div>
+      <div class="res">
+        <div><b id="eAbs">–</b><span>écart absolu</span></div>
+        <div><b id="eRel">–</b><span>écart relatif</span></div>
+      </div>
+      <div class="pbar" style="background:var(--paper);color:var(--ink)"><div id="eBar" style="background:var(--ecart);color:#fff"></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ QUIZ ============ -->
+<section class="sec" id="quiz" style="--c:var(--meca); --soft:var(--meca-soft)">
+  <div class="sec-head"><h2>Vérifie tes acquis</h2><span class="score" id="score">0 / 0</span></div>
+  <div id="qz"></div>
+  <p><button class="btn" id="qReset">Recommencer le quiz</button></p>
+</section>
+</main>
+
+<script>
+(function(){
+const $=id=>document.getElementById(id);
+const nf=(x,d=0)=>isFinite(x)?x.toLocaleString('fr-FR',{minimumFractionDigits:d,maximumFractionDigits:d}):'–';
+const reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ---- hero : particules + roue ---- */
+const svgNS='http://www.w3.org/2000/svg';
+if(!reduce){
+  const g=$('particles');
+  [['p1','var(--elec)',2.2],['p2','var(--elec)',1.6],['p3','var(--meca)',1.6]].forEach(([p,c,dur])=>{
+    for(let k=0;k<3;k++){
+      const ci=document.createElementNS(svgNS,'circle'); ci.setAttribute('r','5'); ci.setAttribute('fill',c);
+      const am=document.createElementNS(svgNS,'animateMotion'); am.setAttribute('dur',dur+'s'); am.setAttribute('repeatCount','indefinite'); am.setAttribute('begin',(k*dur/3)+'s');
+      const mp=document.createElementNS(svgNS,'mpath'); mp.setAttribute('href','#'+p); mp.setAttributeNS('http://www.w3.org/1999/xlink','xlink:href','#'+p);
+      am.appendChild(mp); ci.appendChild(am); g.appendChild(ci);
+    }
+  });
+  const sp=$('spokes'); const at=document.createElementNS(svgNS,'animateTransform');
+  at.setAttribute('attributeName','transform'); at.setAttribute('type','rotate'); at.setAttribute('from','0 790 95'); at.setAttribute('to','360 790 95'); at.setAttribute('dur','3s'); at.setAttribute('repeatCount','indefinite');
+  sp.appendChild(at);
+}
+document.querySelectorAll('.blk').forEach(b=>{
+  const go=()=>$(b.dataset.go).scrollIntoView({behavior:reduce?'auto':'smooth'});
+  b.addEventListener('click',go); b.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();go();}});
+});
+
+/* ---- nav active ---- */
+const links=[...document.querySelectorAll('nav a')];
+const io=new IntersectionObserver(es=>es.forEach(e=>{ if(e.isIntersecting){ links.forEach(a=>a.classList.toggle('on',a.getAttribute('href')==='#'+e.target.id)); }}),{rootMargin:'-40% 0px -55% 0px'});
+document.querySelectorAll('section.sec').forEach(s=>io.observe(s));
+
+const bind=(ids,fn)=>ids.forEach(i=>$(i).addEventListener('input',fn));
+
+/* ---- batteries ---- */
+function bat(){
+  const U=+$('bUin').value,Q=+$('bQin').value,S=+$('bSin').value,P=+$('bPin').value,I=+$('bIin').value,D=+$('bDin').value;
+  $('bU').textContent=nf(U,1)+' V'; $('bQ').textContent=Q+' A·h'; $('bS').textContent=S; $('bP').textContent=P; $('bI').textContent=I+' A'; $('bD').textContent=D+' %';
+  const Ut=U*S,Qt=Q*P,E=Ut*Qt,Qu=Qt*D/100,t=Qu/I;
+  $('rU').textContent=nf(Ut,1)+' V'; $('rQ').textContent=nf(Qt)+' A·h'; $('rE').textContent=nf(E)+' W·h';
+  $('rJ').textContent=nf(E*3600/1e6,2)+' MJ'; $('rQu').textContent=nf(Qu,1)+' A·h';
+  const h=Math.floor(t),m=Math.round((t-h)*60);
+  $('rT').textContent=h+' h '+String(m).padStart(2,'0');
+  const pk=$('packs'); pk.style.gridTemplateColumns=`repeat(${S},54px)`; pk.innerHTML='';
+  for(let i=0;i<S*P;i++){const c=document.createElement('div');c.className='cell';c.innerHTML=`<i style="--lvl:${D}%"></i>`;pk.appendChild(c);}
+  $('bTxt').innerHTML=`${S} en série × ${P} en parallèle = ${S*P} éléments. Autonomie : t = ${nf(Qu,1)} / ${I} = ${nf(t,2)} h.`;
+}
+bind(['bUin','bQin','bSin','bPin','bIin','bDin'],bat); bat();
+
+/* ---- moteur CC ---- */
+function mcc(){
+  const U=+$('mUin').value,I=+$('mIin').value,R=+$('mRin').value,K=+$('mKin').value,pc=+$('mPin').value;
+  $('mU').textContent=nf(U,1)+' V'; $('mI').textContent=nf(I,1)+' A'; $('mR').textContent=nf(R,2)+' Ω'; $('mK').textContent=nf(K,3)+' V/(rad/s)'; $('mP').textContent=pc+' W';
+  const E=U-R*I, w=E/K, N=w*60/(2*Math.PI), Cem=K*I, Pa=U*I, pj=R*I*I, Pem=E*I, Pu=Pem-pc, Cu=Pu/w, eta=Pu/Pa;
+  const ok=E>0&&Pu>0;
+  $('oE').textContent=nf(E,1)+' V'; $('oW').textContent=ok?nf(w,1)+' rad/s':'–'; $('oN').textContent=ok?nf(N)+' tr/min':'–';
+  $('oC').textContent=nf(Cem,2)+' N·m'; $('oPa').textContent=nf(Pa,1)+' W'; $('oPj').textContent=nf(pj,1)+' W';
+  $('oPem').textContent=nf(Pem,1)+' W'; $('oPu').textContent=ok?nf(Pu,1)+' W':'–'; $('oCu').textContent=ok?nf(Cu,2)+' N·m':'–'; $('oEta').textContent=ok?nf(eta*100,1)+' %':'–';
+  $('mWarn').textContent=E<=0?'E ≤ 0 : les pertes Joule R·I² absorbent toute la tension, le moteur ne tourne pas. Baisse I ou R.':(Pu<=0?'Pu ≤ 0 : les pertes constantes dépassent la puissance électromagnétique.':'');
+  const a=Math.max(Pu,0),b=Math.min(pj,Pa),c=Math.max(Math.min(pc,Pa-b),0);
+  $('bPu').style.flexGrow=a; $('bPj').style.flexGrow=b; $('bPc').style.flexGrow=c;
+  $('bPu').textContent=a/Pa>.12?'Pu '+nf(a)+' W':''; $('bPj').textContent=b/Pa>.12?'pj '+nf(b)+' W':''; $('bPc').textContent=c/Pa>.12?'pc '+nf(c)+' W':'';
+}
+bind(['mUin','mIin','mRin','mKin','mPin'],mcc); mcc();
+
+const quadInfo={
+ 1:'<b>1ᵉʳ quadrant : moteur en marche avant.</b><br>ω > 0 et C > 0 (U > 0 et I > 0) donc P<sub>m</sub> > 0. La machine reçoit de l\'énergie électrique et fournit de l\'énergie mécanique. Exemple : la trottinette accélère.',
+ 2:'<b>2ᵉ quadrant : génératrice en marche arrière.</b><br>ω < 0 et C > 0 (U < 0 et I > 0) donc P<sub>m</sub> < 0. La machine freine un mouvement arrière et renvoie de l\'énergie.',
+ 3:'<b>3ᵉ quadrant : moteur en marche arrière.</b><br>ω < 0 et C < 0 (U < 0 et I < 0) donc P<sub>m</sub> > 0. Même rôle qu\'au 1ᵉʳ quadrant, sens de rotation inversé.',
+ 4:'<b>4ᵉ quadrant : génératrice en marche avant.</b><br>ω > 0 et C < 0 (U > 0 et I < 0) donc P<sub>m</sub> < 0. C\'est le freinage récupératif : dans une descente, le moteur recharge la batterie.'
+};
+const qb=[...document.querySelectorAll('#quad button')];
+function setQ(n){qb.forEach(b=>b.classList.toggle('on',b.dataset.q==n)); $('quadTxt').innerHTML=quadInfo[n];}
+qb.forEach(b=>b.addEventListener('click',()=>setQ(b.dataset.q))); setQ(1);
+
+/* ---- moteur asynchrone ---- */
+let f=50;
+document.querySelectorAll('#aF button').forEach(b=>b.addEventListener('click',()=>{f=+b.dataset.v; document.querySelectorAll('#aF button').forEach(x=>x.setAttribute('aria-pressed',x===b)); asy();}));
+function asy(){
+  const p=+$('aPin').value,N=+$('aNin').value,I=+$('aIin').value,phi=+$('aPhiin').value,Cu=+$('aCin').value,U=400;
+  $('aP').textContent=p; $('aN').textContent=N+' tr/min'; $('aI').textContent=nf(I,1)+' A'; $('aPhi').textContent=nf(phi,2); $('aC').textContent=nf(Cu,1)+' N·m';
+  const Ns=60*f/p, g=(Ns-N)/Ns, w=2*Math.PI*N/60, Pa=Math.sqrt(3)*U*I*phi, Pu=Cu*w, eta=Pu/Pa;
+  $('aNs').textContent=nf(Ns)+' tr/min'; $('aG').textContent=nf(g*100,1)+' %'; $('aW').textContent=nf(w,1)+' rad/s';
+  $('aPa').textContent=nf(Pa)+' W'; $('aPu').textContent=nf(Pu)+' W'; $('aEta').textContent=nf(eta*100,1)+' %';
+  let w8='';
+  if(N>=Ns) w8='N ≥ Ns : en fonctionnement moteur, le rotor tourne toujours moins vite que le champ (g > 0).';
+  else if(g>0.15) w8='Glissement élevé : en régime normal, g vaut en général quelques %.';
+  if(eta>=1) w8+=' η ≥ 100 % est impossible : augmente I ou diminue Cu.';
+  $('aWarn').textContent=w8;
+}
+bind(['aPin','aNin','aIin','aPhiin','aCin'],asy); asy();
+
+/* ---- vérins ---- */
+let vt='de', out=false;
+document.querySelectorAll('#vType button').forEach(b=>b.addEventListener('click',()=>{vt=b.dataset.v; document.querySelectorAll('#vType button').forEach(x=>x.setAttribute('aria-pressed',x===b)); vDraw(); ver();}));
+function vDraw(){
+  const x=out?150:24; // position piston
+  $('piston').style.transform=`translate(${x}px,0px)`;
+  const se=vt==='se';
+  // chambre arrière sous pression quand la tige sort ; chambre avant quand elle rentre (double effet)
+  $('chA').setAttribute('width', out? x-23 : 0);
+  $('chB').setAttribute('x', x+16); $('chB').setAttribute('width', (!out&&!se)? 277-(x+16) : 0);
+  $('portB').style.display=se?'none':''; $('portBt').style.display=se?'none':'';
+  if(se){ // ressort de x+16 à 277
+    const x0=x+16,x1=277,n=8,step=(x1-x0)/n; let d=`M${x0},40`;
+    for(let i=0;i<n;i++){ d+=` L${x0+step*(i+.5)},${i%2?40:100} `; } d+=` L${x1},70`;
+    $('spring').setAttribute('d',d);
+  } else $('spring').setAttribute('d','');
+}
+$('piston').style.transition='transform .6s ease'; 
+$('vOut').addEventListener('click',()=>{out=true;vDraw();ver();});
+$('vIn').addEventListener('click',()=>{out=false;vDraw();ver();});
+function ver(){
+  const p=+$('vPin').value,D=+$('vDin').value; let d=+$('vdin').value;
+  if(d>=D){d=D-2;$('vdin').value=d;}
+  $('vP').textContent=nf(p,1)+' bar'+(p<4||p>8?' (hors 4–8 bar)':''); $('vD').textContent=D+' mm'; $('vd').textContent=d+' mm';
+  const S=Math.PI*(D/1000)**2/4, Sa=Math.PI*((D/1000)**2-(d/1000)**2)/4, F=p*1e5*S, Fr=p*1e5*Sa;
+  $('vS').textContent=nf(S*1e4,2)+' cm²'; $('vF').textContent=nf(F)+' N';
+  $('vFr').textContent= vt==='se'?'ressort':nf(Fr)+' N';
+  $('vTxt').innerHTML=`F = p × S = ${nf(p*1e5)} Pa × ${nf(S,6)} m² = <b>${nf(F)} N</b> soit ${nf(F/10,1)} daN.<br>`+
+   (vt==='se'?'Simple effet : la rentrée est assurée par le ressort, sans air ; le vérin ne pousse que dans un sens.'
+             :`Double effet : en rentrée, l'air pousse sur la surface annulaire π(D² − d²)/4 = ${nf(Sa*1e4,2)} cm², la force est donc plus faible.`)+
+   `<br>État : tige ${out?'sortie':'rentrée'}.`;
+}
+bind(['vPin','vDin','vdin'],ver); vDraw(); ver();
+
+/* ---- écarts ---- */
+const ecInfo={
+ 1:'<b>Écart 1 : attendu ↔ mesuré.</b><br>Tâche : vérifier les performances attendues d\'un système.<br>Méthode : comparer le cahier des charges aux performances expérimentales.',
+ 2:'<b>Écart 2 : mesuré ↔ simulé.</b><br>Tâche : proposer et valider un modèle à partir d\'essais.<br>Méthode : comparer les mesures du laboratoire aux résultats de simulation.',
+ 3:'<b>Écart 3 : simulé ↔ attendu.</b><br>Tâche : prévoir les performances d\'un système par la modélisation.<br>Méthode : comparer la simulation au cahier des charges.'
+};
+const ecs=[...document.querySelectorAll('.ec')];
+function setE(n){ecs.forEach(e=>e.style.opacity=e.dataset.e==n?1:.35); $('ecTxt').innerHTML=ecInfo[n];}
+ecs.forEach(e=>{e.addEventListener('click',()=>setE(e.dataset.e)); e.addEventListener('keydown',k=>{if(k.key==='Enter'||k.key===' '){k.preventDefault();setE(e.dataset.e);}});}); setE(1);
+function ecart(){
+  const a=parseFloat($('eA').value),m=parseFloat($('eM').value);
+  if(!isFinite(a)||!isFinite(m)||a===0){$('eAbs').textContent='–';$('eRel').textContent=a===0?'v attendue ≠ 0':'–';$('eBar').style.width='0';return;}
+  const ab=Math.abs(a-m),r=ab*100/Math.abs(a);
+  $('eAbs').textContent=nf(ab,2); $('eRel').textContent=nf(r,1)+' %';
+  $('eBar').style.width=Math.min(r,100)+'%'; $('eBar').textContent=r>=8?nf(r,1)+' %':'';
+}
+bind(['eA','eM'],ecart); ecart();
+
+/* ---- quiz ---- */
+const Q=[
+ ['Deux batteries 12 V – 100 A·h associées en série donnent :',['12 V – 200 A·h','24 V – 100 A·h','24 V – 200 A·h'],1,'En série, les tensions s\'ajoutent, la capacité reste la même.'],
+ ['Énergie stockée dans une batterie 36 V – 10 A·h ?',['3,6 W·h','360 W·h','46 W·h'],1,'E = Q × U = 10 × 36 = 360 W·h.'],
+ ['Une batterie de 20 A·h débite 4 A. Autonomie théorique ?',['5 h','80 h','0,2 h'],0,'t = Q / i = 20 / 4 = 5 h.'],
+ ['Dans un moteur CC, la force électromotrice E est proportionnelle à :',['au courant I','à la vitesse ω','à la résistance R'],1,'E = K × ω. Le couple, lui, est proportionnel à I.'],
+ ['U = 12 V, R = 1 Ω, I = 2 A. Que vaut E ?',['14 V','10 V','6 V'],1,'U = E + R·I donc E = 12 − 1 × 2 = 10 V.'],
+ ['Pa = 200 W et Pu = 150 W. Rendement ?',['75 %','133 %','50 W'],0,'η = Pu / Pa = 150 / 200 = 0,75.'],
+ ['Moteur asynchrone, 50 Hz, p = 2. Vitesse de synchronisme ?',['3000 tr/min','1500 tr/min','750 tr/min'],1,'Ns = 60 × 50 / 2 = 1500 tr/min.'],
+ ['ω > 0 et C < 0 : la machine fonctionne en…',['moteur','génératrice'],1,'Pm = C × ω < 0 : 4ᵉ quadrant, freinage avec récupération.'],
+ ['Vérin : p = 5 bar, S = 10 cm². Force de sortie ?',['50 N','500 N','5000 N'],1,'5 bar = 5 daN/cm², donc F = 5 × 10 = 50 daN = 500 N.'],
+ ['Autonomie attendue 30 km, mesurée 27 km. Écart relatif ?',['3 %','10 %','11 %'],1,'ε absolu = 3 km ; ε relatif = 3 × 100 / 30 = 10 %.']
+];
+let good=0,done=0;
+function quiz(){
+  good=0;done=0; const z=$('qz'); z.innerHTML='';
+  Q.forEach(([q,o,c,ex],i)=>{
+    const d=document.createElement('div'); d.className='q';
+    d.innerHTML=`<p>${i+1}. ${q}</p><div class="opts"></div><div class="fb" aria-live="polite"></div>`;
+    const os=d.querySelector('.opts');
+    o.forEach((t,j)=>{const b=document.createElement('button'); b.textContent=t;
+      b.addEventListener('click',()=>{
+        if(d.dataset.done) return; d.dataset.done=1; done++;
+        const bs=os.querySelectorAll('button'); bs[c].classList.add('ok');
+        if(j===c){good++; d.querySelector('.fb').innerHTML='<b style="color:var(--chem)">Juste.</b> '+ex;}
+        else{b.classList.add('ko'); d.querySelector('.fb').innerHTML='<b style="color:var(--loss)">Pas tout à fait.</b> '+ex;}
+        bs.forEach(x=>x.disabled=true); $('score').textContent=good+' / '+done;
+      }); os.appendChild(b);});
+    z.appendChild(d);
+  });
+  $('score').textContent='0 / 0';
+}
+$('qReset').addEventListener('click',quiz); quiz();
+})();
+</script>
+<a href="../index.html" style="position:fixed;bottom:16px;left:16px;z-index:99999;background:#1e3a5f;color:#fff;padding:10px 16px;border-radius:24px;font:600 14px system-ui,sans-serif;text-decoration:none;box-shadow:0 2px 8px rgba(0,0,0,.25)">← Sommaire</a></body>
+</html>

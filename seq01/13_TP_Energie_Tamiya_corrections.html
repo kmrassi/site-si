@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Correction des TP Tamiya · 1ère SI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#EEF1F4; --panel:#FFFFFF; --ink:#1C2A39; --muted:#5B6B7C; --line:#C9D2DC;
+  --elec:#2563C9; --chem:#2E9E6B; --meca:#D97F12; --h2:#0E9AA7; --ecart:#B03A6F; --loss:#C8453A; --bat:#7A4FC4;
+  --elec-soft:#E3ECFA; --chem-soft:#E1F3EA; --meca-soft:#FBEEDC; --h2-soft:#DDF2F4; --ecart-soft:#F6E3EC; --bat-soft:#EDE5FA;
+  --display:"Barlow Condensed","Arial Narrow",Arial,sans-serif;
+  --body:"Source Sans 3","Segoe UI",Arial,sans-serif;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#141B24; --panel:#1C2531; --ink:#E6ECF2; --muted:#9AA9B8; --line:#33414F;
+    --elec:#6C9CF0; --chem:#4CC08A; --meca:#F0A145; --h2:#3EC3CF; --ecart:#E0709F; --loss:#EE7066; --bat:#A988E8;
+    --elec-soft:#1E2E4A; --chem-soft:#183528; --meca-soft:#3A2A14; --h2-soft:#15353A; --ecart-soft:#3A1D2B; --bat-soft:#2A2140;
+  }
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-behavior:smooth; scroll-padding-top:calc(64px + env(safe-area-inset-top,0px))}
+body{margin:0; background:var(--paper); color:var(--ink); font-family:var(--body); font-size:17px; line-height:1.55}
+h1,h2,h3{font-family:var(--display); line-height:1.1; margin:0}
+h2{font-size:clamp(2rem,4vw,2.8rem); font-weight:700}
+h3{font-size:1.45rem; font-weight:600; margin:1.8rem 0 .6rem}
+p{margin:.5rem 0; max-width:74ch}
+button,input,select{font:inherit; color:inherit}
+:focus-visible{outline:3px solid var(--elec); outline-offset:2px}
+a{color:var(--elec)}
+
+nav{position:sticky; top:env(safe-area-inset-top,0px); z-index:10; background:var(--paper); border-bottom:1px solid var(--line)}
+nav ul{list-style:none; margin:0 auto; padding:.55rem 1rem; display:flex; gap:.4rem; overflow-x:auto; max-width:1100px; align-items:center}
+nav a{display:block; white-space:nowrap; text-decoration:none; color:var(--ink); font-family:var(--display); font-weight:600; font-size:1.1rem; padding:.3rem .8rem; border-radius:999px; border:2px solid transparent}
+nav a:hover{border-color:var(--c,var(--ink))}
+nav a.on{background:var(--c); color:#fff}
+nav li.sp{flex:1}
+nav .tog{white-space:nowrap; border:2px solid var(--ink); background:transparent; border-radius:999px; padding:.25rem .8rem; cursor:pointer; font-weight:600; font-size:.9rem}
+
+main{max-width:1100px; margin:0 auto; padding:0 1rem 4rem}
+.hero{padding:2.5rem 0 1.2rem}
+.hero h1{font-size:clamp(2.6rem,7vw,4.6rem); font-weight:700}
+.hero p{color:var(--muted); font-size:1.15rem}
+.car-wrap{overflow-x:auto; margin-top:1rem}
+.car{width:100%; min-width:620px; height:auto; display:block}
+.car text{font-family:var(--display)}
+.car .blk{cursor:pointer}
+
+section.sec{padding:2.5rem 0 1rem; border-top:6px solid var(--c); margin-top:2rem}
+.sec-head{display:flex; gap:1rem; align-items:baseline; flex-wrap:wrap}
+.sec-head .tag{font-family:var(--display); font-size:1.1rem; color:var(--c); font-weight:600}
+.lead{font-size:1.1rem; color:var(--muted)}
+
+/* questions */
+details.q{background:var(--panel); border-radius:10px; margin:.7rem 0; border:1px solid var(--line); border-left:5px solid var(--c)}
+details.q summary{cursor:pointer; padding:.8rem 1rem; list-style:none; display:flex; gap:.8rem; align-items:baseline}
+details.q summary::-webkit-details-marker{display:none}
+details.q summary .n{font-family:var(--display); font-weight:700; font-size:1.2rem; color:var(--c); min-width:3.2rem}
+details.q summary .t{flex:1; font-weight:600}
+details.q summary .s{font-size:.85rem; color:var(--muted); white-space:nowrap}
+details.q summary .s::after{content:"Voir la correction"}
+details.q[open] summary .s::after{content:"Masquer"}
+details.q .body{padding:0 1rem 1rem 1rem; border-top:1px dashed var(--line)}
+.ans{color:var(--c); font-weight:700}
+.calc{font-family:Cambria,"Times New Roman",serif; font-size:1.15rem; background:var(--soft); padding:.5rem .8rem; border-radius:6px; margin:.5rem 0; overflow-x:auto}
+.calc sub{font-size:.7em}
+.note{font-size:.95rem; color:var(--muted); border-left:3px solid var(--line); padding-left:.7rem}
+.warn{color:var(--loss); font-weight:600}
+
+.tw{overflow-x:auto; margin:.6rem 0}
+table{border-collapse:collapse; width:100%}
+td,th{border:1px solid var(--line); padding:.45rem .6rem; text-align:left; vertical-align:top}
+th{background:var(--soft)}
+td.ok{color:var(--c); font-weight:700; text-align:center}
+
+.grid{display:grid; gap:1rem; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); margin:1rem 0}
+.f{background:var(--panel); border-left:5px solid var(--c); padding:.8rem 1rem; border-radius:0 8px 8px 0}
+.f .eq{font-family:Cambria,"Times New Roman",serif; font-size:1.35rem; font-style:italic; margin:.1rem 0 .3rem}
+.f small{color:var(--muted); display:block; line-height:1.4}
+
+.lab{background:var(--panel); border:2px solid var(--c); border-radius:14px; padding:1.2rem; margin:1.4rem 0; display:grid; gap:1.2rem; grid-template-columns:minmax(240px,1fr) minmax(260px,1.4fr)}
+@media (max-width:760px){.lab{grid-template-columns:1fr}}
+.lab h3{margin-top:0; color:var(--c)}
+.ctrl{margin:.65rem 0}
+.ctrl label{display:flex; justify-content:space-between; font-weight:600; font-size:.95rem; gap:.5rem}
+.ctrl label output{font-family:var(--display); font-size:1.15rem; color:var(--c)}
+input[type=range]{width:100%; accent-color:var(--c)}
+.res{display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); gap:.5rem; margin-top:.6rem}
+.res div{background:var(--soft); border-radius:8px; padding:.45rem .6rem}
+.res b{display:block; font-family:var(--display); font-size:1.35rem; line-height:1.1}
+.res span{font-size:.85rem; color:var(--muted)}
+.btn{background:var(--c); color:#fff; border:0; border-radius:8px; padding:.5rem 1rem; font-weight:700; cursor:pointer}
+.btn.ghost{background:transparent; color:var(--c); border:2px solid var(--c)}
+.chk{display:flex; gap:.5rem; align-items:center; margin:.4rem 0}
+
+/* grille de cases (1.2.2) */
+.cbx td{text-align:center}
+.cbx td:first-child{text-align:left}
+.cbx input{width:20px; height:20px; accent-color:var(--c)}
+.cbx tr.good td{background:var(--chem-soft)} .cbx tr.bad td{background:var(--ecart-soft)}
+
+/* timeline 1.5 */
+.phases{display:flex; flex-wrap:wrap; gap:.35rem; margin:.6rem 0}
+.phases button{border:2px solid var(--c); background:transparent; border-radius:8px; padding:.35rem .7rem; cursor:pointer; font-weight:600}
+.phases button[aria-pressed=true]{background:var(--c); color:#fff}
+.tl{width:100%; height:auto; display:block}
+.tl text{font-family:var(--display)}
+.flow{width:100%; max-width:560px; height:auto}
+.flow text{font-family:var(--display)}
+.flow .ar{stroke-width:4; fill:none; opacity:.18; transition:opacity .3s}
+.flow .ar.on{opacity:1; stroke-dasharray:10 7; animation:run 0.8s linear infinite}
+@keyframes run{to{stroke-dashoffset:-17}}
+.flow .lb{opacity:.3; transition:opacity .3s} .flow .lb.on{opacity:1}
+
+/* chaîne de puissance */
+.chain{display:flex; align-items:stretch; gap:0; overflow-x:auto; margin:.8rem 0; padding-bottom:.3rem}
+.chain .bk{background:var(--soft); border:2px solid var(--c); border-radius:10px; padding:.6rem .8rem; min-width:125px; text-align:center; font-family:var(--display); font-weight:700; font-size:1.2rem; display:flex; align-items:center; justify-content:center}
+.chain .lk{min-width:150px; display:flex; flex-direction:column; justify-content:center; font-size:.92rem; padding:0 .5rem; position:relative}
+.chain .lk::after{content:""; position:absolute; left:.3rem; right:.3rem; top:50%; border-top:3px solid var(--c)}
+.chain .lk span{display:block; background:var(--panel); position:relative; z-index:1; margin:.15rem 0; padding:0 .2rem}
+.chain .lk .top{margin-bottom:1rem} .chain .lk .bot{margin-top:1rem}
+.pbar{display:flex; height:30px; border-radius:6px; overflow:hidden; margin:.35rem 0; font-size:.8rem; font-weight:700; color:#fff}
+.pbar div{display:flex; align-items:center; justify-content:center; white-space:nowrap; overflow:hidden; transition:flex-grow .3s}
+canvas{width:100%; height:auto; display:block; background:var(--paper); border-radius:8px}
+
+/* quiz */
+.qz{background:var(--panel); border-radius:10px; padding:1rem; margin:.8rem 0; border:1px solid var(--line)}
+.qz p{font-weight:600; margin-top:0}
+.qz .opts{display:flex; flex-wrap:wrap; gap:.4rem}
+.qz .opts button{border:2px solid var(--line); background:var(--paper); border-radius:8px; padding:.4rem .8rem; cursor:pointer}
+.qz .opts button.ok{border-color:var(--chem); background:var(--chem-soft)}
+.qz .opts button.ko{border-color:var(--loss); text-decoration:line-through}
+.qz .fb{margin-top:.5rem; font-size:.95rem; min-height:1.2em}
+.score{font-family:var(--display); font-size:2rem}
+
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *{transition:none!important; animation:none!important}
+}
+@media print{nav,.tog{display:none} details.q{break-inside:avoid}}
+</style>
+</head>
+<body>
+
+<nav aria-label="Sections">
+  <ul>
+    <li><a href="#tp12" style="--c:var(--chem)">1.2 Énergies à bord</a></li>
+    <li><a href="#tp15" style="--c:var(--bat)">1.5 Flux d'énergie</a></li>
+    <li><a href="#tppr" style="--c:var(--elec)">Puissance et rendement</a></li>
+    <li><a href="#modes" style="--c:var(--h2)">Modes de propulsion</a></li>
+    <li><a href="#quiz" style="--c:var(--meca)">Quiz</a></li>
+    <li class="sp"></li>
+    <li><button class="tog" id="all">Tout afficher</button></li>
+  </ul>
+</nav>
+
+<main>
+<header class="hero">
+  <h1>Tamiya H-Cell : les corrections</h1>
+  <p>Synthèse corrigée des trois TP de la séquence « Les nouvelles mobilités individuelles ». Cherche d'abord chaque question, puis ouvre la correction. Clique sur un organe de la voiture pour aller au TP qui l'étudie.</p>
+
+  <div class="car-wrap">
+  <svg class="car" viewBox="0 0 900 230" role="img" aria-label="Architecture énergétique de la Tamiya H-Cell">
+    <defs><marker id="m1" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0L10,5L0,10z" fill="var(--muted)"/></marker></defs>
+    <path d="M40,165 Q60,95 170,85 L300,55 Q460,25 620,60 L790,95 Q860,110 865,165 Z" fill="none" stroke="var(--line)" stroke-width="3"/>
+    <circle cx="190" cy="170" r="36" fill="var(--panel)" stroke="var(--ink)" stroke-width="4"/>
+    <circle cx="720" cy="170" r="36" fill="var(--panel)" stroke="var(--ink)" stroke-width="4"/>
+    <g id="w1" stroke="var(--meca)" stroke-width="3"><line x1="720" y1="140" x2="720" y2="200"/><line x1="690" y1="170" x2="750" y2="170"/></g>
+    <path d="M210,120 L300,120" stroke="var(--h2)" stroke-width="4" marker-end="url(#m1)"/>
+    <path d="M430,120 L500,120" stroke="var(--elec)" stroke-width="4" marker-end="url(#m1)"/>
+    <path d="M380,190 L380,150" stroke="var(--bat)" stroke-width="4" marker-end="url(#m1)"/>
+    <path d="M620,120 L700,150" stroke="var(--meca)" stroke-width="4" marker-end="url(#m1)"/>
+    <g class="blk" tabindex="0" data-go="tp12" role="link" aria-label="Hydrostick : TP 1.2">
+      <rect x="110" y="98" width="100" height="44" rx="22" fill="var(--h2-soft)" stroke="var(--h2)" stroke-width="3"/>
+      <text x="160" y="126" text-anchor="middle" font-size="19" font-weight="700" fill="var(--h2)">Hydrostick</text></g>
+    <g class="blk" tabindex="0" data-go="modes" role="link" aria-label="Pile à combustible : modes de propulsion">
+      <rect x="305" y="95" width="125" height="50" rx="8" fill="var(--h2-soft)" stroke="var(--h2)" stroke-width="3"/>
+      <text x="367" y="126" text-anchor="middle" font-size="19" font-weight="700" fill="var(--h2)">Pile à combustible</text></g>
+    <g class="blk" tabindex="0" data-go="tp15" role="link" aria-label="Batterie : TP 1.5">
+      <rect x="300" y="190" width="160" height="34" rx="8" fill="var(--bat-soft)" stroke="var(--bat)" stroke-width="3"/>
+      <text x="380" y="213" text-anchor="middle" font-size="18" font-weight="700" fill="var(--bat)">Batterie NiMH 7,2 V</text></g>
+    <g class="blk" tabindex="0" data-go="tppr" role="link" aria-label="Moteur et réducteur : TP puissance et rendement">
+      <rect x="505" y="95" width="115" height="50" rx="8" fill="var(--elec-soft)" stroke="var(--elec)" stroke-width="3"/>
+      <text x="562" y="126" text-anchor="middle" font-size="19" font-weight="700" fill="var(--elec)">Moteur + réducteur</text></g>
+    <text x="240" y="112" font-size="14" fill="var(--h2)">H₂</text>
+    <text x="440" y="112" font-size="14" fill="var(--elec)">U, I</text>
+    <text x="640" y="118" font-size="14" fill="var(--meca)">C, ω</text>
+  </svg>
+  </div>
+</header>
+
+<!-- =================== TP 1.2 =================== -->
+<section class="sec" id="tp12" style="--c:var(--chem); --soft:var(--chem-soft)">
+  <div class="sec-head"><h2>TP 1.2 : l'énergie à bord du véhicule</h2><span class="tag">identifier, stocker, transporter, quantifier</span></div>
+  <p class="lead">L'énergie ne se crée pas et ne se perd pas : elle se transforme. La voiture exploite une énergie d'entrée pour vaincre les résistances à l'avancement ; cette énergie se retrouve, transformée, en sortie.</p>
+
+  <details class="q"><summary><span class="n">1.2.1</span><span class="t">Où est stockée l'énergie d'entrée ?</span><span class="s"></span></summary><div class="body">
+    <p>Le véhicule est hybride et possède <span class="ans">deux sources d'énergie</span> : la <span class="ans">batterie</span> (pack d'accumulateurs) et la <span class="ans">cartouche Hydrostick</span> (hydrogène).</p>
+    <p class="note">Le moteur, le servomoteur, le variateur et la roue ne stockent pas d'énergie : ils la convertissent ou la transmettent.</p>
+  </div></details>
+
+  <details class="q"><summary><span class="n">1.2.2</span><span class="t">Quelle forme d'énergie est stockée dans chaque élément ?</span><span class="s"></span></summary><div class="body">
+    <p>Coche d'abord tes réponses, puis vérifie.</p>
+    <div class="tw"><table class="cbx" id="cbx">
+      <tr><th>Forme d'énergie</th><th>Pack accumulateur</th><th>Cartouche Hydrostick</th></tr>
+    </table></div>
+    <p><button class="btn" id="cbxOk">Vérifier</button> <button class="btn ghost" id="cbxSol">Afficher la solution</button></p>
+    <p id="cbxTxt" aria-live="polite"></p>
+  </div></details>
+
+  <details class="q"><summary><span class="n">1.2.3</span><span class="t">Citer d'autres formes d'énergie</span><span class="s"></span></summary><div class="body">
+    <p>Énergie thermique, cinétique, potentielle (contrepoids et levier), de déformation (ressort armé), hydraulique (barrage), pneumatique (bouteille d'air comprimé), nucléaire, solaire, éolienne, issue de la biomasse.</p>
+  </div></details>
+
+  <details class="q"><summary><span class="n">1.2.4</span><span class="t">D'où vient l'énergie stockée et sous quelle forme ?</span><span class="s"></span></summary><div class="body">
+    <div class="tw"><table>
+      <tr><th></th><th>Batterie</th><th>Cartouche</th></tr>
+      <tr><th>Où est prélevée l'énergie ?</th><td class="ans">Chargeur alimenté en énergie électrique</td><td class="ans">Station de recharge (électrolyse) alimentée en énergie électrique</td></tr>
+      <tr><th>Forme stockée</th><td class="ans">Chimique</td><td class="ans">Chimique</td></tr>
+    </table></div>
+    <p class="note">L'électrolyse casse l'eau H₂O en hydrogène et oxygène grâce à de l'énergie électrique. La pile fait l'inverse : elle recombine H₂ et O₂ et rend de l'eau et de l'énergie électrique. L'hydrogène est retenu dans un hydrure métallique, comme dans une éponge.</p>
+  </div></details>
+
+  <details class="q"><summary><span class="n">1.2.5</span><span class="t">Comment l'énergie est-elle transportée dans la voiture ?</span><span class="s"></span></summary><div class="body">
+    <div class="tw"><table>
+      <tr><th></th><th>A : sortie de la batterie</th><th>B : sortie d'une cartouche</th></tr>
+      <tr><th>Moyen de transport</th><td class="ans">Fils conducteurs</td><td class="ans">Tuyaux</td></tr>
+    </table></div>
+  </div></details>
+
+  <details class="q"><summary><span class="n">1.2.6</span><span class="t">Quelle énergie en sortie ? Où est-elle passée ?</span><span class="s"></span></summary><div class="body">
+    <p><b>A.</b> Une <span class="ans">énergie mécanique</span>, mesurable sur les <span class="ans">roues</span>.</p>
+    <p><b>B.</b> Elle a servi à <span class="ans">déplacer la voiture</span> en s'opposant aux résistances (roulement, air, frottements internes). Comme la voiture est à l'arrêt à la fin, cette énergie a fini transformée en <b>chaleur</b> dans les frottements et les pertes.</p>
+  </div></details>
+
+  <details class="q"><summary><span class="n">1.2.7</span><span class="t">Relevés du tableau de bord et vérification</span><span class="s"></span></summary><div class="body">
+    <div class="tw"><table>
+      <tr><th>E consommée (J)</th><th>P moyenne (W)</th><th>I moyen (A)</th><th>U moyenne (V)</th><th>Durée t (s)</th></tr>
+      <tr><td class="ans">176 J</td><td class="ans">6,2 W</td><td class="ans">0,85 A</td><td class="ans">≈ 7 V (6,7 à 7,6 V)</td><td class="ans">28 s</td></tr>
+    </table></div>
+    <div class="calc">E = P<sub>moy</sub> × t = 6,2 × 28 ≈ 174 J &nbsp;(affiché : 176 J)</div>
+    <div class="calc">P<sub>moy</sub> = U × I = 7,15 × 0,85 ≈ 6 W &nbsp;(affiché : 6,2 W)</div>
+    <p class="note">Les valeurs sont cohérentes à quelques % près : les moyennes affichées sont arrondies et la tension varie pendant le parcours.</p>
+  </div></details>
+
+  <div class="grid">
+    <div class="f"><div class="eq">E = P × t</div><small>E [J], P [W], t [s] — ou E [kW·h], P [kW], t [h]</small></div>
+    <div class="f"><div class="eq">1 kW·h = 3 600 000 J</div><small>1 MJ ≈ un quart d'heure de radiateur de 1000 W</small></div>
+    <div class="f"><div class="eq">P = U × I &nbsp; P = F × V</div><small>électrique · mécanique en translation</small></div>
+    <div class="f"><div class="eq">H₂ : 10 000 J/L</div><small>dont 40 % récupérés par la pile, soit 4 000 J/L</small></div>
+  </div>
+
+  <details class="q"><summary><span class="n">1.2.8</span><span class="t">Énergies stockées dans la batterie et la cartouche</span><span class="s"></span></summary><div class="body">
+    <p>Batterie : 7,2 V et 1800 mA·h = 1,8 A·h. Elle peut fournir 1,8 A pendant 1 h, soit 1,8 × 3600 A pendant 1 s.</p>
+    <div class="calc">E<sub>batterie</sub> = U × Q = 7,2 × 1,8 × 3600 = <b>46 656 J</b></div>
+    <p>Cartouche : 1 g d'hydrogène, soit 10 L. Un litre donne 4 000 J en sortie de pile.</p>
+    <div class="calc">E<sub>cartouche</sub> = 4 000 × 10 = <b>40 000 J</b></div>
+  </div></details>
+
+  <details class="q"><summary><span class="n">1.2.9</span><span class="t">Puissance de déplacement et autonomie</span><span class="s"></span></summary><div class="body">
+    <p><b>A.</b> Effort de propulsion 8 N à 20 km/h ≈ 5,5 m/s :</p>
+    <div class="calc">P = F × V = 8 × 5,5 = <b>44 W</b></div>
+    <p><b>B.</b> Autonomie t = E / P, convertie en minutes (partie entière) :</p>
+    <div class="tw"><table>
+      <tr><th></th><th>Système parfait (aucune perte)</th><th>Système réel (40 % de pertes)</th></tr>
+      <tr><th>Batterie seule</th><td>46 656 / 44 / 60 = <span class="ans">17 min</span></td><td>46 656 × 0,6 / 44 / 60 = <span class="ans">10 min</span></td></tr>
+      <tr><th>Deux cartouches</th><td>80 000 / 44 / 60 = <span class="ans">30 min</span></td><td>80 000 × 0,6 / 44 / 60 = <span class="ans">18 min</span></td></tr>
+    </table></div>
+    <p class="note">Les 40 % de pertes sont une hypothèse arbitraire ; des mesures permettent ensuite de les évaluer plus finement.</p>
+  </div></details>
+
+  <div class="lab">
+    <div>
+      <h3>Calculateur d'autonomie</h3>
+      <div class="ctrl"><label>Effort de propulsion F <output id="aF">8 N</output></label><input type="range" id="aFin" min="2" max="15" step="0.5" value="8"></div>
+      <div class="ctrl"><label>Vitesse V <output id="aV">5,5 m/s</output></label><input type="range" id="aVin" min="1" max="8" step="0.1" value="5.5"></div>
+      <div class="ctrl"><label>Pertes entre stockage et roues <output id="aL">40 %</output></label><input type="range" id="aLin" min="0" max="70" step="5" value="40"></div>
+      <label class="chk"><input type="checkbox" id="aB" checked> Batterie 7,2 V – 1800 mA·h</label>
+      <div class="ctrl"><label>Nombre de cartouches <output id="aC">2</output></label><input type="range" id="aCin" min="0" max="4" value="2"></div>
+    </div>
+    <div>
+      <div class="res">
+        <div><b id="rP">–</b><span>P = F × V</span></div>
+        <div><b id="rE">–</b><span>énergie embarquée</span></div>
+        <div><b id="rT0">–</b><span>autonomie, système parfait</span></div>
+        <div><b id="rT1">–</b><span>autonomie, système réel</span></div>
+        <div><b id="rD">–</b><span>distance réelle possible</span></div>
+      </div>
+      <p class="note" id="aTxt"></p>
+    </div>
+  </div>
+</section>
+
+<!-- =================== TP 1.5 =================== -->
+<section class="sec" id="tp15" style="--c:var(--bat); --soft:var(--bat-soft)">
+  <div class="sec-head"><h2>TP 1.5 : l'évolution des flux d'énergie</h2><span class="tag">gérer la batterie et la pile ensemble</span></div>
+  <p class="lead">Avec la batterie seule, la TT-01 tient environ 15 minutes. La pile à hydrogène seule ne suit pas les « conduites gourmandes » (pente, accélération). L'hybride combine les deux et peut en théorie atteindre 50 minutes.</p>
+
+  <details class="q"><summary><span class="n">1.5.1</span><span class="t">Caractéristiques de l'accumulateur</span><span class="s"></span></summary><div class="body">
+    <div class="tw"><table><tr><th>Tension</th><td class="ans">7,2 V</td></tr><tr><th>Capacité</th><td class="ans">1800 mA·h</td></tr></table></div>
+  </div></details>
+
+  <details class="q" open><summary><span class="n">1.5.2</span><span class="t">Lire les relevés : qui fournit quoi, et quand ?</span><span class="s"></span></summary><div class="body">
+    <p>E1 : énergie fournie par l'accumulateur au moteur. E2 : énergie fournie par la pile au moteur. E3 : énergie fournie par la pile pour charger l'accumulateur. Choisis une phase.</p>
+    <div class="phases" id="phases"></div>
+    <svg class="tl" id="tl" viewBox="0 0 620 300" role="img" aria-label="Relevés d'énergie du moteur, de la pile et de la batterie"></svg>
+    <div class="lab" style="margin-top:.6rem">
+      <svg class="flow" viewBox="0 0 520 220" role="img" aria-label="Flux entre batterie, pile, variateur et moteur">
+        <defs><marker id="m2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0,0L10,5L0,10z" fill="context-stroke"/></marker></defs>
+        <rect x="10" y="20" width="120" height="56" rx="8" fill="var(--bat-soft)" stroke="var(--bat)" stroke-width="2"/><text x="70" y="54" text-anchor="middle" font-size="19" fill="var(--bat)" font-weight="700">Batterie</text>
+        <rect x="10" y="144" width="120" height="56" rx="8" fill="var(--h2-soft)" stroke="var(--h2)" stroke-width="2"/><text x="70" y="170" text-anchor="middle" font-size="18" fill="var(--h2)" font-weight="700">Pile à</text><text x="70" y="190" text-anchor="middle" font-size="18" fill="var(--h2)" font-weight="700">combustible</text>
+        <rect x="245" y="82" width="110" height="56" rx="8" fill="var(--panel)" stroke="var(--ink)" stroke-width="2"/><text x="300" y="106" text-anchor="middle" font-size="18" fill="var(--ink)">Variateur</text><text x="300" y="126" text-anchor="middle" font-size="18" fill="var(--ink)">de vitesse</text>
+        <rect x="420" y="82" width="90" height="56" rx="8" fill="var(--elec-soft)" stroke="var(--elec)" stroke-width="2"/><text x="465" y="116" text-anchor="middle" font-size="19" fill="var(--elec)" font-weight="700">Moteur</text>
+        <path id="fE1" class="ar" d="M130,48 L190,48 L190,100 L240,100" stroke="var(--loss)" marker-end="url(#m2)"/>
+        <path id="fE2" class="ar" d="M130,172 L190,172 L190,122 L240,122" stroke="var(--h2)" marker-end="url(#m2)"/>
+        <path id="fE3" class="ar" d="M100,144 L100,82" stroke="var(--bat)" marker-end="url(#m2)"/>
+        <path id="fEM" class="ar" d="M355,110 L415,110" stroke="var(--chem)" marker-end="url(#m2)"/>
+        <text id="lE1" class="lb" x="200" y="42" font-size="18" fill="var(--loss)" font-weight="700">E1</text>
+        <text id="lE2" class="lb" x="200" y="192" font-size="18" fill="var(--h2)" font-weight="700">E2</text>
+        <text id="lE3" class="lb" x="108" y="118" font-size="18" fill="var(--bat)" font-weight="700">E3</text>
+        <text id="lEM" class="lb" x="360" y="100" font-size="16" fill="var(--chem)" font-weight="700">E1 + E2</text>
+      </svg>
+      <div>
+        <h3 id="phT"></h3>
+        <p><b>Moteur :</b> <span id="phM"></span></p>
+        <p><b>Pile à combustible :</b> <span id="phP" class="ans"></span></p>
+        <p><b>Batterie :</b> <span id="phB" class="ans"></span></p>
+      </div>
+    </div>
+    <div class="tw"><table style="font-size:.9rem">
+      <tr><th></th><th>1 → 2</th><th>2 → 3</th><th>3 → 4</th><th>4 → 5</th><th>5 → 6</th><th>après 6</th></tr>
+      <tr><th>Moteur</th><td>à l'arrêt</td><td>démarre</td><td>vitesse constante</td><td colspan="2">vitesse plus faible</td><td>à l'arrêt</td></tr>
+      <tr><th>Pile</th><td>E3 vers la batterie</td><td>E2 au moteur (accélération)</td><td>E2 au moteur</td><td>E2 au moteur + E3 vers la batterie</td><td>E2 au moteur</td><td>ne fournit rien</td></tr>
+      <tr><th>Batterie</th><td>reçoit E3</td><td>fournit E1 en complément</td><td>ne fournit rien</td><td>reçoit E3</td><td>ne fournit rien</td><td>ne fournit rien</td></tr>
+    </table></div>
+  </div></details>
+
+  <details class="q"><summary><span class="n">1.5.3</span><span class="t">Compléter le diagramme de blocs internes (SysML)</span><span class="s"></span></summary><div class="body">
+    <svg viewBox="0 0 700 250" style="width:100%;max-width:700px;height:auto" role="img" aria-label="Diagramme de blocs internes corrigé">
+      <g style="font-family:var(--display)" font-size="16">
+      <rect x="5" y="5" width="690" height="240" fill="none" stroke="var(--line)"/>
+      <rect x="30" y="50" width="110" height="60" fill="var(--h2-soft)" stroke="var(--h2)" stroke-width="2"/><text x="85" y="72" text-anchor="middle" fill="var(--h2)" font-weight="700">Hydrostick</text><text x="110" y="97" fill="var(--ink)">H2</text>
+      <rect x="220" y="40" width="130" height="80" fill="var(--h2-soft)" stroke="var(--h2)" stroke-width="2"/><text x="285" y="60" text-anchor="middle" fill="var(--h2)" font-weight="700">Pile à combustible</text>
+      <text x="235" y="82" fill="var(--ink)">O2</text><text x="235" y="107" fill="var(--ink)">H2</text><text x="310" y="82" fill="var(--ink)">H2O</text><text x="315" y="107" fill="var(--ink)">U/i</text>
+      <rect x="30" y="165" width="110" height="55" fill="var(--bat-soft)" stroke="var(--bat)" stroke-width="2"/><text x="85" y="187" text-anchor="middle" fill="var(--bat)" font-weight="700">Batterie</text><text x="105" y="210" fill="var(--ink)">U/i</text>
+      <rect x="440" y="100" width="120" height="75" fill="var(--ecart-soft)" stroke="var(--loss)" stroke-width="2"/><text x="500" y="120" text-anchor="middle" fill="var(--loss)" font-weight="700">Gestion énergie</text>
+      <text x="455" y="143" fill="var(--ink)">U/i</text><text x="455" y="165" fill="var(--ink)">U/i</text><text x="525" y="153" fill="var(--ink)">U/i</text>
+      <path d="M140,102 L180,102 L180,102 L218,102" stroke="var(--h2)" stroke-width="2" fill="none" marker-end="url(#m2)"/>
+      <path d="M8,30 L200,30 L200,77 L218,77" stroke="var(--muted)" stroke-width="2" fill="none" marker-end="url(#m2)"/>
+      <path d="M352,77 L390,77 L390,25 L690,25" stroke="var(--muted)" stroke-width="2" fill="none" marker-end="url(#m2)"/>
+      <path d="M352,102 L400,102 L400,138 L438,138" stroke="var(--elec)" stroke-width="2" fill="none" marker-end="url(#m2)"/>
+      <path d="M142,202 L420,202 L420,160 L438,160" stroke="var(--bat)" stroke-width="2" fill="none" marker-start="url(#m2)" marker-end="url(#m2)"/>
+      <path d="M562,148 L690,148" stroke="var(--chem)" stroke-width="2" fill="none" marker-end="url(#m2)"/>
+      <text x="150" y="95" font-size="13" fill="var(--h2)">hydrogène</text><text x="60" y="24" font-size="13" fill="var(--muted)">oxygène</text><text x="560" y="19" font-size="13" fill="var(--muted)">rejet d'eau</text>
+      <rect x="360" y="108" width="68" height="22" fill="#F5D90A"/><text x="394" y="124" text-anchor="middle" fill="#1C2A39" font-weight="700">E2 · E3</text>
+      <rect x="240" y="180" width="68" height="22" fill="#F5D90A"/><text x="274" y="196" text-anchor="middle" fill="#1C2A39" font-weight="700">E1 · E3</text>
+      <rect x="590" y="122" width="80" height="22" fill="#F5D90A"/><text x="630" y="138" text-anchor="middle" fill="#1C2A39" font-weight="700">E1 + E2</text>
+      </g>
+    </svg>
+    <p>Le port de la batterie est <span class="ans">bidirectionnel</span> (double flèche) : elle fournit E1 ou reçoit E3. Tous les autres ports ont un sens unique : la pile fournit E2 et E3, la gestion d'énergie délivre E1 + E2 à la propulsion.</p>
+  </div></details>
+
+  <details class="q"><summary><span class="n">1.5.4 · 1.5.5</span><span class="t">Essais : accumulateur partiellement déchargé puis plein</span><span class="s"></span></summary><div class="body">
+    <p class="note">Ces deux questions sont des essais : les courbes dépendent de ta conduite. Voici ce qu'on doit observer.</p>
+    <div class="tw"><table>
+      <tr><th></th><th>Accumulateur partiellement déchargé</th><th>Accumulateur pleinement chargé</th></tr>
+      <tr><th>À l'arrêt</th><td>La pile charge la batterie (E3 bien visible).</td><td>La batterie n'a pas besoin de charge : E3 faible ou nul.</td></tr>
+      <tr><th>Accélération</th><td>La batterie complète la pile (pic E1).</td><td>Idem : pic E1 de la batterie.</td></tr>
+      <tr><th>Vitesse stable</th><td>La pile alimente le moteur (E2) et envoie son surplus à la batterie (E3).</td><td>La pile alimente seule le moteur (E2).</td></tr>
+      <tr><th>Bilan batterie</th><td>Énergie batterie négative : elle a reçu plus qu'elle n'a fourni.</td><td>Énergie batterie proche de 0 ou positive.</td></tr>
+    </table></div>
+  </div></details>
+</section>
+
+<!-- =================== TP PUISSANCE ET RENDEMENT =================== -->
+<section class="sec" id="tppr" style="--c:var(--elec); --soft:var(--elec-soft)">
+  <div class="sec-head"><h2>TP : énergies, puissances et rendement</h2><span class="tag">modèle multiphysique et chaîne de puissance</span></div>
+  <p class="lead">On complète le modèle (OpenModelica ou Simulink) de la Tamiya, on compare la vitesse simulée à celle du constructeur, puis on remplit la chaîne de puissance.</p>
+
+  <div class="tw"><table style="font-size:.95rem">
+    <tr><th>Batterie</th><td>7,2 V – 4 000 mA·h, R<sub>batterie</sub> = 0,14 Ω</td><th>Moteur</th><td>R<sub>interne</sub> = 0,19 Ω, L = 0,1 mH, K = 0,004 N·m/A, J = 2,6·10⁻⁶ kg·m²</td></tr>
+    <tr><th>Masse m</th><td>1,55 kg</td><th>Roue</th><td>rayon 3 cm</td></tr>
+    <tr><th>C<sub>r</sub></th><td>0,165</td><th>ρ<sub>air</sub> · S·C<sub>x</sub></th><td>1,2 kg/m³ · 0,00678 m²</td></tr>
+    <tr><th>Engrenages</th><td>Z1 = 19, Z2 = 61, Z3 = 15, Z4 = 39</td><th>η réducteur</th><td>98 %</td></tr>
+  </table></div>
+
+  <details class="q"><summary><span class="n">Q1</span><span class="t">Force électromotrice de la batterie</span><span class="s"></span></summary><div class="body">
+    <p>Loi des mailles sur le modèle de la batterie (générateur) : la tension aux bornes est la fem moins la chute de tension dans la résistance interne.</p>
+    <div class="calc">V<sub>Bat</sub> = fem − V<sub>R</sub> &nbsp;avec&nbsp; V<sub>R</sub> = R × I (loi d'Ohm)</div>
+    <div class="calc">fem = V<sub>Bat</sub> + R × I = 7,2 + 0,14 × 2,38 = 7,2 + 0,33 ≈ <b>7,53 V</b></div>
+  </div></details>
+
+  <details class="q"><summary><span class="n">Q2</span><span class="t">Résistance au roulement</span><span class="s"></span></summary><div class="body">
+    <div class="calc">R<sub>r</sub> = C<sub>r</sub> × m × g = 0,165 × 1,55 × 9,81 ≈ <b>2,51 N</b></div>
+    <p>Dans le modèle, cette force est entrée en <b>négatif</b> car elle s'oppose au mouvement. Même chose pour la résistance de l'air, écrite dans un bloc RealExpression :</p>
+    <div class="calc">R<sub>a</sub> = ½ ρ S C<sub>x</sub> V² &nbsp;→&nbsp; −0.5*1.2*0.00678*masse.v*masse.v</div>
+  </div></details>
+
+  <details class="q"><summary><span class="n">Q3</span><span class="t">Raison et ratio du réducteur</span><span class="s"></span></summary><div class="body">
+    <p>Deux étages d'engrenages : les pignons menants sont Z1 et Z3, les roues menées Z2 et Z4.</p>
+    <div class="calc">r = (Z1 × Z3) / (Z2 × Z4) = (19 × 15) / (61 × 39) = 285 / 2379 ≈ <b>0,120</b></div>
+    <div class="calc">k = 1 / r ≈ <b>8,35</b> &nbsp;(le moteur tourne 8,35 fois plus vite que la roue)</div>
+  </div></details>
+
+  <details class="q"><summary><span class="n">Q4</span><span class="t">Écart entre la vitesse attendue et la vitesse simulée</span><span class="s"></span></summary><div class="body">
+    <p>Avec le modèle complété (fem 7,53 V, R<sub>r</sub> = 2,51 N et R<sub>a</sub>), la vitesse se stabilise vers <span class="ans">6,06 m/s ≈ 21,8 km/h</span> en moins de 5 s. Le constructeur annonce 23 km/h.</p>
+    <div class="calc">ε<sub>absolu</sub> = |23 − 21,8| ≈ <b>1,2 km/h</b> &nbsp;&nbsp; ε<sub>relatif</sub> = 1,2 × 100 / 23 ≈ <b>5 %</b></div>
+    <p><b>Justification</b> : c'est un écart entre attendu et simulé. Il vient des <b>hypothèses simplificatrices</b> du modèle : valeur de C<sub>r</sub> approximative, sol parfait, pertes du moteur et du réducteur ignorées ou idéalisées, tension de batterie supposée constante, conditions d'essai du constructeur inconnues (batterie pleine à 8,4 V, surface…).</p>
+    <p class="note">La capture de la correction Simulink montre un palier vers 6,7 m/s ≈ 24 km/h avec ses propres réglages (effort résistant de 1,5 N). L'écart reste de l'ordre de 5 % : l'ordre de grandeur est bon.</p>
+  </div></details>
+
+  <div class="lab">
+    <div>
+      <h3>Rejoue la simulation</h3>
+      <p class="note">Modèle simplifié (inductance négligée, résolution pas à pas sur 5 s). Change un paramètre et observe le palier.</p>
+      <div class="ctrl"><label>fem batterie <output id="sU">7,53 V</output></label><input type="range" id="sUin" min="6" max="8.6" step="0.01" value="7.53"></div>
+      <div class="ctrl"><label>Coefficient C<sub>r</sub> <output id="sC">0,165</output></label><input type="range" id="sCin" min="0" max="0.3" step="0.005" value="0.165"></div>
+      <div class="ctrl"><label>Masse m <output id="sM">1,55 kg</output></label><input type="range" id="sMin" min="1" max="3" step="0.05" value="1.55"></div>
+      <div class="ctrl"><label>Ratio k <output id="sK">8,35</output></label><input type="range" id="sKin" min="4" max="14" step="0.01" value="8.35"></div>
+      <label class="chk"><input type="checkbox" id="sA" checked> Résistance de l'air R<sub>a</sub></label>
+      <p><button class="btn ghost" id="sR">Valeurs du TP</button></p>
+    </div>
+    <div>
+      <canvas id="cv" width="640" height="320" aria-label="Courbe de vitesse simulée"></canvas>
+      <div class="res">
+        <div><b id="sV">–</b><span>vitesse finale</span></div>
+        <div><b id="sI">–</b><span>courant final</span></div>
+        <div><b id="sEa">–</b><span>écart absolu / 23 km/h</span></div>
+        <div><b id="sEr">–</b><span>écart relatif</span></div>
+      </div>
+    </div>
+  </div>
+
+  <details class="q"><summary><span class="n">Q5</span><span class="t">Compléter la chaîne de puissance</span><span class="s"></span></summary><div class="body">
+    <p>On part des données : U<sub>m</sub> ≈ 7,2 V aux bornes du moteur et I<sub>m</sub> = 2,38 A. On remonte ensuite la chaîne.</p>
+    <div class="calc">E = U<sub>m</sub> − R<sub>interne</sub> × I<sub>m</sub> = 7,2 − 0,19 × 2,38 ≈ 6,75 V &nbsp;→&nbsp; ω<sub>m</sub> = E / K ≈ 1687 rad/s &nbsp;→&nbsp; <b>N<sub>m</sub> ≈ 16 100 tr/min</b></div>
+    <div class="calc">C<sub>m</sub> = K × I<sub>m</sub> = 0,004 × 2,38 ≈ <b>9,5·10⁻³ N·m</b></div>
+    <div class="calc">N<sub>r</sub> = r × N<sub>m</sub> ≈ <b>1 930 tr/min</b> &nbsp;(ω<sub>r</sub> ≈ 202 rad/s)</div>
+    <div class="calc">C<sub>re</sub> = C<sub>m</sub> × k × η = 0,0095 × 8,35 × 0,98 ≈ <b>0,078 N·m</b></div>
+    <div class="calc">D<sub>roue</sub> = <b>6 cm</b> &nbsp; V = ω<sub>r</sub> × R = 202 × 0,03 ≈ <b>6,06 m/s ≈ 21,8 km/h</b></div>
+    <div class="calc">F = C<sub>re</sub> / R = 0,078 / 0,03 ≈ <b>2,6 N</b></div>
+    <p>Contrôle : la voiture a besoin de R<sub>r</sub> + R<sub>a</sub> = 2,51 + 0,15 ≈ 2,66 N à cette vitesse. On retrouve bien l'effort calculé, et la même vitesse que la simulation. Rendement global moteur + réducteur : P<sub>u</sub> / P<sub>a</sub> = (2,6 × 6,06) / (7,2 × 2,38) ≈ 15,7 / 17,1 ≈ <b>92 %</b>.</p>
+  </div></details>
+
+  <div class="lab" style="grid-template-columns:1fr">
+    <div>
+      <h3>Chaîne de puissance interactive</h3>
+      <div class="grid" style="margin:.2rem 0">
+        <div class="ctrl"><label>U<sub>m</sub> <output id="cU">7,2 V</output></label><input type="range" id="cUin" min="5" max="8.4" step="0.05" value="7.2"></div>
+        <div class="ctrl"><label>I<sub>m</sub> <output id="cI">2,38 A</output></label><input type="range" id="cIin" min="0.5" max="6" step="0.02" value="2.38"></div>
+        <div class="ctrl"><label>η réducteur <output id="cE">98 %</output></label><input type="range" id="cEin" min="70" max="100" value="98"></div>
+      </div>
+      <div class="chain">
+        <div class="lk"><span class="top" id="kUm"></span><span class="bot" id="kIm"></span></div>
+        <div class="bk">Moteur</div>
+        <div class="lk"><span class="top" id="kNm"></span><span class="bot" id="kCm"></span></div>
+        <div class="bk">Réducteur<br>r ≈ 0,120</div>
+        <div class="lk"><span class="top" id="kNr"></span><span class="bot" id="kCr"></span></div>
+        <div class="bk">Roue<br>D = 6 cm</div>
+        <div class="lk"><span class="top" id="kV"></span><span class="bot" id="kF"></span></div>
+      </div>
+      <p style="margin:.4rem 0 0;font-weight:600">Puissance à chaque étage</p>
+      <div id="pw"></div>
+      <p class="note" id="cTxt"></p>
+    </div>
+  </div>
+</section>
+
+<!-- =================== MODES DE PROPULSION =================== -->
+<section class="sec" id="modes" style="--c:var(--h2); --soft:var(--h2-soft)">
+  <div class="sec-head"><h2>Batterie, hydrogène ou hybride ?</h2><span class="tag">synthèse sur la Tamiya TT02 H-Cell</span></div>
+
+  <div class="tw"><table>
+    <tr><th>Critère</th><th>Batterie seule</th><th>Pile à hydrogène seule</th><th>Hybride batterie + pile</th></tr>
+    <tr><th>Source principale</th><td>Batterie (stockage)</td><td>Pile (production)</td><td>Pile en base, batterie en soutien et tampon</td></tr>
+    <tr><th>Point fort</th><td>Simple, réponse immédiate</td><td>Rejette seulement de l'eau, recharge rapide</td><td>Meilleure autonomie, gestion optimisée</td></tr>
+    <tr><th>Point faible</th><td>Autonomie limitée, recharge lente</td><td>Suit mal les pics de puissance, infrastructure H₂ spécifique</td><td>Gestion électronique complexe</td></tr>
+    <tr><th>Gestion de l'énergie</th><td>Décharge simple</td><td>Flux continu</td><td>Lissage des demandes, récupération d'énergie</td></tr>
+    <tr><th>Ce qu'on y étudie</th><td>Grandeurs électriques, autonomie</td><td>Fonctionnement de la pile, courbe I(V)</td><td>Optimisation des flux et efficacité</td></tr>
+  </table></div>
+
+  <div class="grid">
+    <div class="f"><div class="eq">E<sub>totale</sub> = E<sub>PAC</sub> + E<sub>batterie</sub></div><small>E<sub>batterie</sub> est négative quand la batterie se charge (par la pile ou par le freinage)</small></div>
+    <div class="f"><div class="eq">Croisière</div><small>La pile alimente le moteur ; son surplus recharge la batterie.</small></div>
+    <div class="f"><div class="eq">Accélération</div><small>La batterie fournit le pic ; la pile garde sa production de base sans être surchargée.</small></div>
+    <div class="f"><div class="eq">Freinage</div><small>Le moteur devient génératrice : l'énergie cinétique recharge la batterie.</small></div>
+  </div>
+
+  <div class="lab">
+    <div>
+      <h3>Joue le contrôleur d'énergie</h3>
+      <div class="ctrl"><label>Puissance demandée par le moteur <output id="hD">20 W</output></label><input type="range" id="hDin" min="-20" max="50" value="20"></div>
+      <div class="ctrl"><label>Production de base de la pile <output id="hP">12 W</output></label><input type="range" id="hPin" min="4" max="20" value="12"></div>
+      <label class="chk"><input type="checkbox" id="hF"> Batterie pleine</label>
+      <p class="note">Une valeur négative correspond à un freinage : le moteur renvoie de l'énergie.</p>
+    </div>
+    <div>
+      <div class="res">
+        <div><b id="hPac">–</b><span>P<sub>PAC</sub></span></div>
+        <div><b id="hBat">–</b><span>P<sub>batterie</sub></span></div>
+        <div><b id="hTot">–</b><span>P<sub>moteur</sub> = P<sub>PAC</sub> + P<sub>batterie</sub></span></div>
+      </div>
+      <p id="hPh" class="ans" style="font-family:var(--display);font-size:1.4rem;margin-top:.8rem"></p>
+      <p id="hTxt"></p>
+    </div>
+  </div>
+  <p>Pour aller plus loin : <a href="https://www.youtube.com/watch?v=UBRtY3grlM0" target="_blank" rel="noopener">Comment fonctionne un moteur à hydrogène ? (C'est pas sorcier)</a></p>
+</section>
+
+<!-- =================== QUIZ =================== -->
+<section class="sec" id="quiz" style="--c:var(--meca); --soft:var(--meca-soft)">
+  <div class="sec-head"><h2>Vérifie tes acquis</h2><span class="score" id="score">0 / 0</span></div>
+  <div id="qz"></div>
+  <p><button class="btn" id="qReset">Recommencer le quiz</button></p>
+</section>
+</main>
+
+<script>
+(function(){
+const $=id=>document.getElementById(id);
+const nf=(x,d=0)=>isFinite(x)?x.toLocaleString('fr-FR',{minimumFractionDigits:d,maximumFractionDigits:d}):'–';
+const reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const bind=(ids,fn)=>ids.forEach(i=>$(i).addEventListener('input',fn));
+
+/* hero */
+if(!reduce){const at=document.createElementNS('http://www.w3.org/2000/svg','animateTransform');
+  at.setAttribute('attributeName','transform');at.setAttribute('type','rotate');at.setAttribute('from','0 720 170');at.setAttribute('to','360 720 170');at.setAttribute('dur','1.5s');at.setAttribute('repeatCount','indefinite');$('w1').appendChild(at);}
+document.querySelectorAll('.blk').forEach(b=>{const go=()=>$(b.dataset.go).scrollIntoView({behavior:reduce?'auto':'smooth'});
+  b.addEventListener('click',go);b.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();go();}});});
+
+/* nav */
+const links=[...document.querySelectorAll('nav a')];
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting)links.forEach(a=>a.classList.toggle('on',a.getAttribute('href')==='#'+e.target.id));}),{rootMargin:'-40% 0px -55% 0px'});
+document.querySelectorAll('section.sec').forEach(s=>io.observe(s));
+let allOpen=false;
+$('all').addEventListener('click',()=>{allOpen=!allOpen;document.querySelectorAll('details.q').forEach(d=>d.open=allOpen);$('all').textContent=allOpen?'Tout masquer':'Tout afficher';});
+
+/* 1.2.2 cases à cocher */
+const forms=[['Électrique',1,0],['Thermique',0,0],['Cinétique',0,0],['Chimique',1,1],['Potentielle',0,0],['De déformation',0,0],['Hydraulique',0,0],['Pneumatique',0,0],['Nucléaire, solaire, éolienne',0,0],['Biomasse',0,0]];
+const tb=$('cbx');
+forms.forEach((f,i)=>{const tr=document.createElement('tr');tr.innerHTML=`<td>${f[0]}</td><td><input type="checkbox" aria-label="${f[0]} – pack" data-i="${i}" data-c="1"></td><td><input type="checkbox" aria-label="${f[0]} – Hydrostick" data-i="${i}" data-c="2"></td>`;tb.appendChild(tr);});
+$('cbxOk').addEventListener('click',()=>{let ok=0;[...tb.querySelectorAll('tr')].slice(1).forEach((tr,i)=>{const c=tr.querySelectorAll('input');const g=(+c[0].checked===forms[i][1])&&(+c[1].checked===forms[i][2]);tr.className=g?'good':'bad';ok+=g;});
+  $('cbxTxt').innerHTML=ok===forms.length?'<b class="ans">Tout est juste.</b> La batterie stocke de l\'énergie chimique qu\'elle restitue sous forme électrique ; l\'Hydrostick stocke de l\'énergie chimique (l\'hydrogène).':`${ok} ligne(s) juste(s) sur ${forms.length}. Les lignes en rose sont à revoir.`;});
+$('cbxSol').addEventListener('click',()=>{[...tb.querySelectorAll('tr')].slice(1).forEach((tr,i)=>{const c=tr.querySelectorAll('input');c[0].checked=!!forms[i][1];c[1].checked=!!forms[i][2];tr.className='';});
+  $('cbxTxt').innerHTML='Pack accumulateur : énergie <b>chimique</b>, restituée en énergie <b>électrique</b>. Cartouche Hydrostick : énergie <b>chimique</b>.';});
+
+/* autonomie */
+function auto(){const F=+$('aFin').value,V=+$('aVin').value,L=+$('aLin').value,nc=+$('aCin').value,b=$('aB').checked;
+  $('aF').textContent=nf(F,1)+' N';$('aV').textContent=nf(V,1)+' m/s ('+nf(V*3.6)+' km/h)';$('aL').textContent=L+' %';$('aC').textContent=nc;
+  const P=F*V,E=(b?46656:0)+nc*40000,t0=E/P,t1=E*(1-L/100)/P;
+  $('rP').textContent=nf(P,1)+' W';$('rE').textContent=nf(E)+' J';
+  $('rT0').textContent=E?Math.floor(t0/60)+' min':'–';$('rT1').textContent=E?Math.floor(t1/60)+' min':'–';$('rD').textContent=E?nf(V*t1/1000,1)+' km':'–';
+  $('aTxt').innerHTML=E?`t = ${nf(E)}${L?' × '+nf(1-L/100,2):''} / ${nf(P,1)} = ${nf(t1)} s soit ${nf(t1/60,1)} min.`:'<span class="warn">Aucune source d\'énergie : coche la batterie ou ajoute une cartouche.</span>';}
+bind(['aFin','aVin','aLin','aCin'],auto);$('aB').addEventListener('change',auto);auto();
+
+/* 1.5 timeline */
+const X=[40,170,210,370,470,560,610];
+const PH=[
+ {t:'De 1 à 2',m:'est à l\'arrêt',p:'fournit E3 à la batterie pour la charger',b:'reçoit E3 de la pile pour se charger',on:['E3'],mot:0,pac:30,bat:-30},
+ {t:'De 2 à 3',m:'démarre',p:'fournit E2 au moteur pour l\'accélération',b:'fournit E1 au moteur, en complément de E2',on:['E1','E2','EM'],mot:70,pac:45,bat:35},
+ {t:'De 3 à 4',m:'évolue à vitesse constante',p:'fournit E2 au moteur',b:'ne fournit pas d\'énergie',on:['E2','EM'],mot:40,pac:40,bat:0},
+ {t:'De 4 à 5',m:'évolue à vitesse plus faible',p:'fournit E2 au moteur et E3 à la batterie',b:'reçoit E3 de la pile pour se charger',on:['E2','E3','EM'],mot:25,pac:40,bat:-15},
+ {t:'De 5 à 6',m:'évolue à vitesse plus faible',p:'fournit E2 au moteur',b:'ne fournit pas d\'énergie',on:['E2','EM'],mot:25,pac:25,bat:0},
+ {t:'Après 6',m:'est à l\'arrêt',p:'ne fournit pas d\'énergie',b:'ne fournit pas d\'énergie',on:[],mot:0,pac:0,bat:0}];
+const tl=$('tl'),NS='http://www.w3.org/2000/svg';
+const rows=[{y:80,k:'mot',c:'var(--chem)',l:'Moteur : énergie consommée'},{y:170,k:'pac',c:'var(--h2)',l:'Pile : fournie au moteur ou à la batterie'},{y:250,k:'bat',c:'var(--loss)',l:'Batterie : fournie (+) ou reçue (−)'}];
+let cur=0;
+function drawTL(){tl.innerHTML='';
+  const hl=document.createElementNS(NS,'rect');hl.setAttribute('x',X[cur]);hl.setAttribute('width',X[cur+1]-X[cur]);hl.setAttribute('y',10);hl.setAttribute('height',270);hl.setAttribute('fill','var(--soft)');tl.appendChild(hl);
+  rows.forEach(r=>{
+    const t=document.createElementNS(NS,'text');t.setAttribute('x',X[0]);t.setAttribute('y',r.y-55);t.setAttribute('font-size','15');t.setAttribute('fill',r.c);t.textContent=r.l;tl.appendChild(t);
+    PH.forEach((p,i)=>{const v=p[r.k];if(!v)return;const rc=document.createElementNS(NS,'rect');rc.setAttribute('x',X[i]);rc.setAttribute('width',X[i+1]-X[i]);
+      rc.setAttribute('y',v>0?r.y-v*.6:r.y);rc.setAttribute('height',Math.abs(v)*.6);
+      rc.setAttribute('fill',r.k==='bat'&&v<0?'var(--h2)':r.c);rc.setAttribute('opacity',i===cur?1:.45);tl.appendChild(rc);});
+    const ax=document.createElementNS(NS,'line');ax.setAttribute('x1',X[0]);ax.setAttribute('x2',X[6]);ax.setAttribute('y1',r.y);ax.setAttribute('y2',r.y);ax.setAttribute('stroke','var(--ink)');ax.setAttribute('stroke-width','2');tl.appendChild(ax);});
+  for(let i=0;i<6;i++){const t=document.createElementNS(NS,'text');t.setAttribute('x',X[i]);t.setAttribute('y',292);t.setAttribute('font-size','16');t.setAttribute('text-anchor','middle');t.setAttribute('fill','var(--ink)');t.textContent=i+1;tl.appendChild(t);
+    const ln=document.createElementNS(NS,'line');ln.setAttribute('x1',X[i]);ln.setAttribute('x2',X[i]);ln.setAttribute('y1',15);ln.setAttribute('y2',275);ln.setAttribute('stroke','var(--line)');ln.setAttribute('stroke-dasharray','3 4');tl.appendChild(ln);}
+}
+const pb=$('phases');
+PH.forEach((p,i)=>{const b=document.createElement('button');b.textContent=p.t;b.setAttribute('aria-pressed',i===0);b.addEventListener('click',()=>setPh(i));pb.appendChild(b);});
+function setPh(i){cur=i;[...pb.children].forEach((b,j)=>b.setAttribute('aria-pressed',j===i));const p=PH[i];
+  $('phT').textContent=p.t;$('phM').textContent=p.m;$('phP').textContent=p.p;$('phB').textContent=p.b;
+  ['E1','E2','E3','EM'].forEach(k=>{$('f'+k).classList.toggle('on',p.on.includes(k));$('l'+k).classList.toggle('on',p.on.includes(k));});drawTL();}
+setPh(0);
+
+/* simulation vitesse */
+const cv=$('cv'),cx=cv.getContext('2d');
+function sim(){const U=+$('sUin').value,Cr=+$('sCin').value,m=+$('sMin').value,k=+$('sKin').value,air=$('sA').checked;
+  $('sU').textContent=nf(U,2)+' V';$('sC').textContent=nf(Cr,3);$('sM').textContent=nf(m,2)+' kg';$('sK').textContent=nf(k,2);
+  const K=.004,R=.33,Rw=.03,J=2.6e-6,meq=m+J*k*k/(Rw*Rw),dt=.001,Rr=Cr*m*9.81;
+  let v=0,I=0;const pts=[];
+  for(let i=0;i<=5000;i++){const wm=v*k/Rw;I=(U-K*wm)/R;const Fm=K*I*k/Rw;
+    let Fres=air?.5*1.2*.00678*v*v:0; if(v>1e-6)Fres+=Rr; else Fres+=Math.min(Rr,Math.max(Fm,0));
+    v=Math.max(0,v+(Fm-Fres)/meq*dt); if(i%25===0)pts.push([i*dt,v*3.6]);}
+  const W=cv.width,H=cv.height,pl=48,pr=12,pt=14,pbm=34,ymax=30;
+  const sx=t=>pl+t/5*(W-pl-pr),sy=y=>H-pbm-y/ymax*(H-pt-pbm);
+  cx.clearRect(0,0,W,H);cx.font='14px '+css('--body');cx.fillStyle=css('--muted');cx.strokeStyle=css('--line');cx.lineWidth=1;
+  for(let y=0;y<=ymax;y+=5){cx.beginPath();cx.moveTo(pl,sy(y));cx.lineTo(W-pr,sy(y));cx.stroke();cx.fillText(y,pl-26,sy(y)+5);}
+  for(let t=0;t<=5;t++){cx.fillText(t+' s',sx(t)-8,H-12);}
+  cx.save();cx.setLineDash([6,5]);cx.strokeStyle=css('--ecart');cx.lineWidth=2;cx.beginPath();cx.moveTo(pl,sy(23));cx.lineTo(W-pr,sy(23));cx.stroke();cx.restore();
+  cx.fillStyle=css('--ecart');cx.fillText('23 km/h annoncés',W-150,sy(23)-6);
+  cx.strokeStyle=css('--elec');cx.lineWidth=3;cx.beginPath();pts.forEach((p,i)=>i?cx.lineTo(sx(p[0]),sy(Math.min(p[1],ymax))):cx.moveTo(sx(p[0]),sy(p[1])));cx.stroke();
+  cx.fillStyle=css('--muted');cx.fillText('km/h',6,14);
+  const vf=pts[pts.length-1][1];$('sV').textContent=nf(vf,1)+' km/h';$('sI').textContent=nf(I,2)+' A';
+  $('sEa').textContent=nf(Math.abs(23-vf),1)+' km/h';$('sEr').textContent=nf(Math.abs(23-vf)*100/23,1)+' %';}
+bind(['sUin','sCin','sMin','sKin'],sim);$('sA').addEventListener('change',sim);
+$('sR').addEventListener('click',()=>{$('sUin').value=7.53;$('sCin').value=.165;$('sMin').value=1.55;$('sKin').value=8.35;$('sA').checked=true;sim();});
+sim();
+if(window.matchMedia)window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',sim);
+
+/* chaîne de puissance */
+function chain(){const Um=+$('cUin').value,Im=+$('cIin').value,eta=+$('cEin').value/100;
+  $('cU').textContent=nf(Um,2)+' V';$('cI').textContent=nf(Im,2)+' A';$('cE').textContent=Math.round(eta*100)+' %';
+  const K=.004,Ri=.19,k=19*15/(61*39),kk=1/k,Rw=.03;
+  const E=Um-Ri*Im,wm=E/K,Nm=wm*30/Math.PI,Cm=K*Im,wr=wm/kk,Nr=wr*30/Math.PI,Cre=Cm*kk*eta,V=wr*Rw,F=Cre/Rw;
+  const ok=E>0;
+  $('kUm').textContent='Um = '+nf(Um,2)+' V';$('kIm').textContent='Im = '+nf(Im,2)+' A';
+  $('kNm').textContent='Nm = '+(ok?nf(Nm)+' tr/min':'–');$('kCm').textContent='Cm = '+nf(Cm*1000,1)+'·10⁻³ N·m';
+  $('kNr').textContent='Nr = '+(ok?nf(Nr)+' tr/min':'–');$('kCr').textContent='Cre = '+nf(Cre,3)+' N·m';
+  $('kV').textContent='V = '+(ok?nf(V,2)+' m/s':'–');$('kF').textContent='F = '+nf(F,2)+' N';
+  const Pa=Um*Im,Pm=Cm*wm,Pr=Cre*wr,st=[['Électrique Pa = Um·Im',Pa,'var(--elec)'],['Moteur Pm = Cm·ωm',Pm,'var(--bat)'],['Roue Pu = F·V',Pr,'var(--meca)']];
+  $('pw').innerHTML=ok?st.map(s=>`<div class="pbar"><div style="flex-grow:${s[1]};background:${s[2]}">${s[0]} : ${nf(s[1],1)} W</div><div style="flex-grow:${Pa-s[1]};background:var(--line)"></div></div>`).join(''):'';
+  const need=2.509+.5*1.2*.00678*V*V;
+  $('cTxt').innerHTML=ok?`Pertes Joule moteur R·I² = ${nf(Ri*Im*Im,2)} W · pertes réducteur = ${nf(Pm-Pr,2)} W · rendement global η = ${nf(Pr/Pa*100,1)} %.<br>À ${nf(V*3.6,1)} km/h la voiture a besoin de R<sub>r</sub> + R<sub>a</sub> ≈ ${nf(need,2)} N : `+
+    (Math.abs(F-need)/need<.05?'<b>la chaîne est équilibrée</b>, la vitesse est stable.':(F>need?'le moteur fournit plus d\'effort que nécessaire, <b>la voiture accélère</b>.':'l\'effort est insuffisant, <b>la voiture ralentit</b>.'))
+    :'<span class="warn">E ≤ 0 : la chute de tension R·I dépasse Um, le moteur ne peut pas tourner.</span>';}
+bind(['cUin','cIin','cEin'],chain);chain();
+
+/* hybride */
+function hyb(){const D=+$('hDin').value,Pb=+$('hPin').value,full=$('hF').checked;
+  $('hD').textContent=D+' W';$('hP').textContent=Pb+' W';
+  let pac,bat,ph,txt;
+  if(D<0){pac=full?0:Pb;bat=full?0:D-pac;ph='Freinage';
+    txt=full?'Batterie pleine : l\'énergie de freinage ne peut pas être stockée, elle est dissipée.':`Le moteur fonctionne en génératrice et renvoie ${-D} W. La batterie reçoit ${-bat} W (freinage + pile) : P<sub>batterie</sub> est négative.`;}
+  else if(D>Pb){pac=Pb;bat=D-Pb;ph='Accélération / pic de puissance';txt=`La pile reste à sa production de base (${Pb} W). La batterie fournit le complément de ${bat} W.`+(full?'':'');}
+  else{pac=full?D:Pb;bat=D-pac;ph=D===0?'Arrêt':'Croisière';
+    txt=full?`La batterie est pleine : la pile ne fournit que ce que le moteur demande (${D} W).`:(bat<0?`La pile couvre la demande et envoie son surplus de ${-bat} W vers la batterie (E3).`:'La pile couvre exactement la demande.');}
+  $('hPac').textContent=nf(pac)+' W';$('hBat').textContent=(bat>0?'+':'')+nf(bat)+' W';$('hTot').textContent=nf(pac+bat)+' W';
+  $('hPh').textContent=ph;$('hTxt').innerHTML=txt;}
+bind(['hDin','hPin'],hyb);$('hF').addEventListener('change',hyb);hyb();
+
+/* quiz */
+const Q=[
+ ['Sous quelle forme l\'Hydrostick stocke-t-il son énergie ?',['Électrique','Chimique','Pneumatique'],1,'L\'hydrogène est absorbé dans un hydrure métallique : c\'est de l\'énergie chimique.'],
+ ['Énergie d\'une batterie 7,2 V – 1800 mA·h ?',['12 960 J','46 656 J','1 296 J'],1,'E = 7,2 × 1,8 × 3600 = 46 656 J.'],
+ ['F = 8 N à 5,5 m/s. Puissance nécessaire ?',['1,45 W','44 W','13,5 W'],1,'P = F × V = 8 × 5,5 = 44 W.'],
+ ['Pendant une accélération en hybride, qui fournit le pic de puissance ?',['La batterie','La pile seule','Personne'],0,'La batterie délivre le pic (E1) ; la pile garde sa production de base.'],
+ ['Voiture à l\'arrêt, batterie partiellement déchargée. Que fait la pile ?',['Rien','Elle charge la batterie (E3)','Elle alimente le moteur'],1,'C\'est la phase 1 → 2 : la pile envoie E3 à la batterie.'],
+ ['Z1 = 19, Z2 = 61, Z3 = 15, Z4 = 39. Raison r du réducteur ?',['≈ 8,35','≈ 0,120','≈ 0,31'],1,'r = (19 × 15) / (61 × 39) ≈ 0,120 ; le ratio k = 1/r ≈ 8,35.'],
+ ['Résistance au roulement : Cr = 0,165, m = 1,55 kg, g = 9,81 m/s² ?',['0,26 N','2,51 N','25 N'],1,'Rr = Cr × m × g ≈ 2,51 N.'],
+ ['fem d\'une batterie : V = 7,2 V, R = 0,14 Ω, I = 2,38 A ?',['6,87 V','7,53 V','7,2 V'],1,'fem = V + R·I = 7,2 + 0,33 ≈ 7,53 V.'],
+ ['Attendu 23 km/h, simulé 21,8 km/h. Écart relatif ?',['1,2 %','5,2 %','95 %'],1,'1,2 × 100 / 23 ≈ 5,2 %.'],
+ ['Dans E_totale = E_PAC + E_batterie, E_batterie < 0 signifie :',['la batterie se charge','la batterie est vide','la pile est en panne'],0,'Une énergie batterie négative indique qu\'elle reçoit de l\'énergie (pile ou freinage).']
+];
+let good=0,done=0;
+function quiz(){good=0;done=0;const z=$('qz');z.innerHTML='';
+  Q.forEach(([q,o,c,ex],i)=>{const d=document.createElement('div');d.className='qz';
+    d.innerHTML=`<p>${i+1}. ${q}</p><div class="opts"></div><div class="fb" aria-live="polite"></div>`;const os=d.querySelector('.opts');
+    o.forEach((t,j)=>{const b=document.createElement('button');b.textContent=t;b.addEventListener('click',()=>{if(d.dataset.done)return;d.dataset.done=1;done++;
+      const bs=os.querySelectorAll('button');bs[c].classList.add('ok');
+      if(j===c){good++;d.querySelector('.fb').innerHTML='<b style="color:var(--chem)">Juste.</b> '+ex;}else{b.classList.add('ko');d.querySelector('.fb').innerHTML='<b style="color:var(--loss)">Pas tout à fait.</b> '+ex;}
+      bs.forEach(x=>x.disabled=true);$('score').textContent=good+' / '+done;});os.appendChild(b);});z.appendChild(d);});
+  $('score').textContent='0 / 0';}
+$('qReset').addEventListener('click',quiz);quiz();
+})();
+</script>
+<a href="../index.html" style="position:fixed;bottom:16px;left:16px;z-index:99999;background:#1e3a5f;color:#fff;padding:10px 16px;border-radius:24px;font:600 14px system-ui,sans-serif;text-decoration:none;box-shadow:0 2px 8px rgba(0,0,0,.25)">← Sommaire</a></body>
+</html>

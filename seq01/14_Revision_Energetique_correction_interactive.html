@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Révision Énergétique</title>
+<style>
+:root{
+  --bg:#f6f7f4; --card:#ffffff; --ink:#1d2421; --muted:#5d6763; --line:#dde2dd;
+  --accent:#6a9a1f; --accent-soft:#eef5e1; --blue:#1f6aa5; --blue-soft:#e6f0f8;
+  --warn:#b4570f; --warn-soft:#fdf0e3; --key:#7a3fa3; --key-soft:#f3ecf8;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#151917; --card:#1e2421; --ink:#e7ece9; --muted:#a2aca7; --line:#323b37;
+    --accent:#9ccc4f; --accent-soft:#25301a; --blue:#6fb0e4; --blue-soft:#18283a;
+    --warn:#f0a35e; --warn-soft:#33261a; --key:#c79bea; --key-soft:#2b2234;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#151917; --card:#1e2421; --ink:#e7ece9; --muted:#a2aca7; --line:#323b37;
+  --accent:#9ccc4f; --accent-soft:#25301a; --blue:#6fb0e4; --blue-soft:#18283a;
+  --warn:#f0a35e; --warn-soft:#33261a; --key:#c79bea; --key-soft:#2b2234;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.layout{display:grid;grid-template-columns:270px 1fr;max-width:1180px;margin:0 auto;gap:28px;padding:24px 16px}
+nav{position:sticky;top:16px;align-self:start;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px}
+nav h2{font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:0 0 10px}
+nav ol{list-style:none;margin:0;padding:0}
+nav a{display:flex;gap:10px;align-items:center;padding:7px 10px;border-radius:8px;color:var(--ink);text-decoration:none;font-size:.95rem}
+nav a:hover{background:var(--accent-soft)}
+nav .n{flex:none;width:24px;height:24px;border-radius:50%;background:var(--blue);color:#fff;display:grid;place-items:center;font-size:.8rem;font-weight:700}
+nav .n.k{background:var(--key)}
+.tools{margin-top:14px;display:flex;flex-direction:column;gap:8px;border-top:1px solid var(--line);padding-top:14px}
+button{font:inherit;cursor:pointer;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--ink);padding:7px 12px}
+button:hover{border-color:var(--accent)}
+button:disabled{opacity:.45;cursor:not-allowed}
+.prof{margin-top:8px;border-top:1px dashed var(--line);padding-top:8px}
+.prof .link{border:none;background:none;color:var(--muted);font-size:.85rem;padding:2px 0}
+.prof .link:hover{color:var(--ink);text-decoration:underline}
+.prow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:6px}
+.prow input{flex:1 1 180px;max-width:260px;font:inherit;font-size:.9rem;border:1px solid var(--line);border-radius:8px;padding:7px 10px;background:var(--bg);color:var(--ink)}
+.pmsg{font-size:.85rem;color:var(--warn)}
+.pmsg.okc{color:var(--accent);font-weight:600}
+nav{max-height:calc(100vh - 32px);overflow-y:auto}
+[hidden]{display:none!important}
+#resetAll.confirm{border-color:var(--warn);color:var(--warn)}
+header.top{grid-column:1/-1;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px 24px;border-left:6px solid var(--accent)}
+header.top small{color:var(--accent);font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+header.top h1{margin:4px 0 6px;font-size:1.7rem}
+header.top p{margin:0;color:var(--muted)}
+main{min-width:0}
+section{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px 24px;margin-bottom:24px;scroll-margin-top:16px}
+section>h2{margin:0 0 4px;font-size:1.35rem;display:flex;gap:12px;align-items:center}
+section>h2 .n{width:34px;height:34px;border-radius:50%;background:var(--blue);color:#fff;display:grid;place-items:center;font-size:1rem;flex:none}
+.ctx{color:var(--muted);margin:0 0 16px}
+h3{font-size:1.05rem;color:var(--blue);margin:20px 0 8px}
+.q{border:1px solid var(--line);border-radius:10px;margin:10px 0;overflow:hidden}
+.q>summary{list-style:none;cursor:pointer;padding:11px 14px;display:flex;gap:10px;align-items:center;font-weight:600}
+.q>summary::-webkit-details-marker{display:none}
+.q>summary .qn{flex:none;background:var(--blue-soft);color:var(--blue);border-radius:6px;padding:1px 8px;font-size:.9rem}
+.q>summary::after{content:"Voir la correction ▾";margin-left:auto;font-size:.8rem;font-weight:500;color:var(--accent);white-space:nowrap}
+.q[open]>summary::after{content:"Masquer ▴"}
+.q[open]>summary{background:var(--accent-soft)}
+body.locked .q>summary{cursor:not-allowed;color:var(--muted)}
+body.locked .q>summary::after{content:"🔒 Verrouillée";color:var(--muted)}
+/* Bloc question + réponse */
+.qa{border:1px solid var(--line);border-radius:10px;margin:12px 0;padding:12px 14px 4px}
+.qa.done{border-color:var(--accent)}
+.qa-h{display:flex;gap:10px;align-items:center;font-weight:600;margin-bottom:8px}
+.qa-h .qn{flex:none;background:var(--blue-soft);color:var(--blue);border-radius:6px;padding:1px 8px;font-size:.9rem}
+.qa-h .st{margin-left:auto;font-size:.8rem;font-weight:600;white-space:nowrap;color:var(--muted)}
+.qa.done .qa-h .st{color:var(--accent)}
+.ans{display:flex;gap:8px;align-items:flex-start}
+.ans textarea{flex:1;font:inherit;font-size:.95rem;min-height:42px;resize:vertical;border:1px solid var(--line);border-radius:8px;padding:8px 10px;background:var(--bg);color:var(--ink)}
+.ans textarea:focus{outline:2px solid var(--blue);border-color:transparent}
+.ans button{flex:none;background:var(--blue);color:#fff;border-color:var(--blue);font-weight:600}
+.ans button:disabled{opacity:.45;cursor:not-allowed}
+.qa .q{margin:10px -14px 0;border:none;border-top:1px dashed var(--line);border-radius:0 0 10px 10px}
+/* Bandeau de progression */
+.prog{position:sticky;top:0;z-index:5;background:var(--card);border:2px solid var(--warn);border-radius:14px;padding:14px 18px;margin-bottom:24px;box-shadow:0 4px 14px rgba(0,0,0,.06)}
+.prog.ok{border-color:var(--accent)}
+.prog p{margin:0 0 8px}
+.prog .bar{height:12px;border-radius:20px;background:var(--line);overflow:hidden;position:relative}
+.prog .fill{height:100%;width:0;background:var(--warn);border-radius:20px;transition:width .3s}
+.prog.ok .fill{background:var(--accent)}
+.prog .mark{position:absolute;top:-3px;bottom:-3px;width:3px;background:var(--ink);left:90%}
+.prog .nums{display:flex;justify-content:space-between;font-size:.82rem;color:var(--muted);margin-top:5px}
+.mini{font-size:.85rem;color:var(--muted);margin-top:6px}
+.mini .mbar{height:6px;border-radius:6px;background:var(--line);overflow:hidden;margin-top:4px}
+.mini .mfill{height:100%;width:0;background:var(--warn)}
+body:not(.locked) .mini .mfill{background:var(--accent)}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(150%);background:var(--accent);color:#fff;font-weight:700;padding:12px 20px;border-radius:12px;transition:transform .35s;z-index:20;max-width:calc(100% - 32px);text-align:center}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.sol{padding:12px 16px 14px;border-top:1px solid var(--line);overflow-x:auto}
+.m{font-family:"Cambria Math","STIX Two Math","Times New Roman",serif;font-size:1.08rem;margin:6px 0;white-space:nowrap}
+.f{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;margin:0 3px}
+.f>span:first-child{border-bottom:1.5px solid currentColor;padding:0 4px}
+.f>span:last-child{padding:0 4px}
+.res{display:inline-block;background:var(--accent-soft);border:1px solid var(--accent);border-radius:6px;padding:0 7px;font-weight:700}
+.warn{background:var(--warn-soft);border-left:4px solid var(--warn);padding:8px 12px;border-radius:6px;margin:10px 0;font-size:.93rem}
+.warn b{color:var(--warn)}
+.key{background:var(--key-soft);border-left:4px solid var(--key);border-radius:8px;padding:12px 16px;margin-top:18px}
+.key h4{margin:0 0 6px;color:var(--key);font-size:.95rem;text-transform:uppercase;letter-spacing:.05em}
+.key ul{margin:0;padding-left:20px}
+.key li{margin:3px 0}
+.chain{display:flex;align-items:stretch;gap:0;overflow-x:auto;padding:10px 0 4px;font-size:.85rem}
+.chain .bx{flex:none;border:2px solid var(--blue);border-radius:8px;padding:8px 10px;text-align:center;min-width:110px;background:var(--blue-soft)}
+.chain .bx b{display:block;font-size:.9rem}
+.chain .bx em{font-style:normal;color:var(--muted);font-size:.8rem}
+.chain .ar{flex:none;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:0 6px;min-width:96px;color:var(--muted);font-size:.78rem;text-align:center}
+.chain .ar::after{content:"";display:block;width:100%;height:2px;background:var(--accent);margin:4px 0;position:relative}
+.chain .src{border-color:var(--accent);background:var(--accent-soft)}
+table{border-collapse:collapse;width:100%;margin:8px 0;font-size:.93rem}
+th,td{border:1px solid var(--line);padding:7px 10px;text-align:left;vertical-align:top}
+th{background:var(--blue-soft);color:var(--blue)}
+#fiche{border-left:6px solid var(--key)}
+#fiche h2 .n{background:var(--key)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.card{border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+.card h4{margin:0 0 6px;color:var(--key)}
+.card p{margin:4px 0}
+.quiz .opt{display:block;width:100%;text-align:left;margin:5px 0}
+.quiz .opt.ok{border-color:var(--accent);background:var(--accent-soft)}
+.quiz .opt.ko{border-color:var(--warn);background:var(--warn-soft)}
+.quiz .fb{min-height:1.4em;font-size:.92rem;color:var(--muted)}
+.tag{font-size:.75rem;background:var(--blue-soft);color:var(--blue);border-radius:20px;padding:1px 9px;margin-left:6px;font-weight:600}
+@media (max-width:860px){
+  .layout{grid-template-columns:1fr;gap:16px}
+  nav{position:static;max-height:none}
+  .grid2{grid-template-columns:1fr}
+  section{padding:18px 16px}
+  .q>summary::after{content:"▾"}
+  .q[open]>summary::after{content:"▴"}
+  body.locked .q>summary::after{content:"🔒"}
+  .ans{flex-direction:column}.ans button{align-self:flex-end}
+}
+@media print{
+  nav,.prog{display:none}.layout{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="layout">
+
+<header class="top">
+  <small>Spé SI · Séquence 1 · Énergétique – Transmission de puissance</small>
+  <h1>Énergies, puissance, rendement — Correction interactive</h1>
+  <p>Écris ta réponse sous chaque question, puis clique sur <b>Valider</b>. 🔒 <b>Les corrections restent verrouillées tant que tu n'as pas répondu à au moins 90 % des questions.</b> La fiche <b>À retenir</b> et le quiz en bas sont accessibles tout de suite.</p>
+</header>
+
+<nav aria-label="Sommaire">
+  <h2>Sommaire</h2>
+  <ol>
+    <li><a href="#ex1"><span class="n">1</span>Panneaux PV et solaire</a></li>
+    <li><a href="#ex2"><span class="n">2</span>Volet battant motorisé</a></li>
+    <li><a href="#ex3"><span class="n">3</span>Bowling</a></li>
+    <li><a href="#ex4"><span class="n">4</span>Robot tondeuse</a></li>
+    <li><a href="#ex5"><span class="n">5</span>Table élévatrice</a></li>
+    <li><a href="#ex6"><span class="n">6</span>Bilan énergétique Zoé</a></li>
+    <li><a href="#fiche"><span class="n k">★</span>À retenir pour l'éval</a></li>
+    <li><a href="#quiz"><span class="n k">?</span>Quiz express</a></li>
+  </ol>
+  <div class="mini"><span id="miniTxt">0 réponse</span><div class="mbar"><div class="mfill" id="miniFill"></div></div></div>
+  <div class="tools">
+    <button id="openAll" disabled>Tout afficher</button>
+    <button id="closeAll">Tout masquer</button>
+    <button id="resetAll">Effacer mes réponses</button>
+  </div>
+</nav>
+
+<main>
+
+<div class="prog" id="prog" role="status" aria-live="polite">
+  <p id="progMsg"></p>
+  <div class="bar"><div class="fill" id="progFill"></div><div class="mark" title="Seuil de 90 %"></div></div>
+  <div class="nums"><span id="progNum"></span><span>Seuil : 90 %</span></div>
+  <div class="prof">
+    <button id="profToggle" type="button" class="link">🔑 Accès professeur</button>
+    <div id="profBox" class="prow" hidden>
+      <input type="password" id="profCode" placeholder="Code de déverrouillage" autocomplete="off" aria-label="Code professeur">
+      <button id="profBtn" type="button">Déverrouiller</button>
+      <span id="profMsg" class="pmsg"></span>
+    </div>
+    <div id="profOn" class="prow" hidden>
+      <span class="pmsg okc">🔓 Déverrouillé par le professeur</span>
+      <button id="profOff" type="button">Reverrouiller</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ EXERCICE 1 ============ -->
+<section id="ex1">
+  <h2><span class="n">1</span>Panneau photovoltaïque et panneau solaire</h2>
+  <p class="ctx">Chaîne d'énergie, rendement de chaque bloc et rendement global.</p>
+
+  <h3>Partie A — Panneau photovoltaïque</h3>
+  <div class="chain">
+    <div class="bx src"><b>Soleil</b><em>E₁ = 10</em></div>
+    <div class="ar">E₂ = 1,9</div>
+    <div class="bx"><b>Régulateur + batterie</b></div>
+    <div class="ar">E₅ = 1,37</div>
+    <div class="bx"><b>Onduleur</b></div>
+    <div class="ar">E₆ = 1,29</div>
+    <div class="bx"><b>Moteur</b></div>
+    <div class="ar">E₇ = 1,1</div>
+  </div>
+
+  <details class="q"><summary><span class="qn">A.1</span>Rendement du panneau</summary><div class="sol">
+    <div class="m">η<sub>panneau</sub> = <span class="f"><span>E₂</span><span>E₁</span></span> = <span class="f"><span>1,9</span><span>10</span></span> = 0,19 = <span class="res">19 %</span></div>
+  </div></details>
+  <details class="q"><summary><span class="qn">A.2</span>Rendement régulateur – batterie</summary><div class="sol">
+    <div class="m">η<sub>rég-batt</sub> = <span class="f"><span>E₅</span><span>E₂</span></span> = <span class="f"><span>1,37</span><span>1,9</span></span> = 0,721 = <span class="res">72,1 %</span></div>
+  </div></details>
+  <details class="q"><summary><span class="qn">A.3</span>Rendement de l'onduleur</summary><div class="sol">
+    <div class="m">η<sub>onduleur</sub> = <span class="f"><span>E₆</span><span>E₅</span></span> = <span class="f"><span>1,29</span><span>1,37</span></span> = 0,942 = <span class="res">94,2 %</span></div>
+  </div></details>
+  <details class="q"><summary><span class="qn">A.4</span>Rendement du moteur</summary><div class="sol">
+    <div class="m">η<sub>moteur</sub> = <span class="f"><span>E₇</span><span>E₆</span></span> = <span class="f"><span>1,1</span><span>1,29</span></span> = 0,853 = <span class="res">85,3 %</span></div>
+  </div></details>
+  <details class="q"><summary><span class="qn">A.5</span>Rendement global</summary><div class="sol">
+    <div class="m">η<sub>global</sub> = η<sub>panneau</sub> × η<sub>rég-batt</sub> × η<sub>onduleur</sub> × η<sub>moteur</sub></div>
+    <div class="m">η<sub>global</sub> = 0,19 × 0,721 × 0,942 × 0,853 = 0,11 = <span class="res">11 %</span></div>
+    <p>Vérification : on retrouve aussi <span class="m">E₇ / E₁ = 1,1 / 10 = 0,11</span>.</p>
+  </div></details>
+
+  <h3>Partie B — Panneau solaire (thermique)</h3>
+  <details class="q"><summary><span class="qn">B.1</span>Énergie thermique pour chauffer l'eau</summary><div class="sol">
+    <div class="m">E<sub>th</sub> = m · c · ΔT = 20 × 1,02 × 4 100 × (40 − 15)</div>
+    <div class="m">E<sub>th</sub> = 2 091 kJ = <span class="f"><span>2 091 000</span><span>3 600</span></span> ≈ <span class="res">580 W·h</span></div>
+    <p>Rappel : 1 W·h = 3 600 J.</p>
+  </div></details>
+  <details class="q"><summary><span class="qn">B.2</span>Énergie solaire reçue</summary><div class="sol">
+    <div class="m">E<sub>solaire</sub> = 2 × 800 = <span class="res">1 600 W·h</span></div>
+  </div></details>
+  <details class="q"><summary><span class="qn">B.3</span>Rendement du panneau solaire</summary><div class="sol">
+    <div class="m">η = <span class="f"><span>E<sub>th</sub></span><span>E<sub>solaire</sub></span></span> = <span class="f"><span>580</span><span>1 600</span></span> = 0,36 = <span class="res">36 %</span></div>
+  </div></details>
+  <details class="q"><summary><span class="qn">B.4</span>Comparer les deux panneaux</summary><div class="sol">
+    <p>Un panneau <b>photovoltaïque</b> convertit l'énergie de rayonnement en énergie <b>électrique</b>. Un panneau <b>solaire</b> (capteur solaire) convertit l'énergie de rayonnement en énergie <b>thermique</b>.</p>
+    <p>Le panneau solaire a un bien meilleur rendement : 36 % contre 11 %, soit environ <b>trois fois plus</b>.</p>
+  </div></details>
+
+  <div class="key"><h4>À retenir</h4><ul>
+    <li>Rendement d'un bloc : <b>η = sortie / entrée</b> (toujours &lt; 1).</li>
+    <li>Rendement global d'une chaîne : <b>on multiplie</b> les rendements.</li>
+    <li>Énergie thermique : <b>E = m·c·ΔT</b> ; conversion <b>1 W·h = 3 600 J</b>.</li>
+  </ul></div>
+</section>
+
+<!-- ============ EXERCICE 2 ============ -->
+<section id="ex2">
+  <h2><span class="n">2</span>Volet battant motorisé</h2>
+  <p class="ctx">Puissance électrique, couple, vitesse de rotation et rapports de réduction dans une chaîne de transmission.</p>
+
+  <div class="chain">
+    <div class="bx src"><b>Pa</b><em>122,81 W</em></div>
+    <div class="ar">→</div>
+    <div class="bx"><b>Moteur</b><em>η = 0,57</em></div>
+    <div class="ar">70 W<br>76,4 rad/s</div>
+    <div class="bx"><b>Réducteur épicycloïdal</b><em>η = 0,35 · r₁ = 1/46</em></div>
+    <div class="ar">24,5 W<br>1,66 rad/s</div>
+    <div class="bx"><b>Engrenages</b><em>η = 0,95 · r₂ = 1</em></div>
+    <div class="ar">23,275 W<br>1,66 rad/s</div>
+    <div class="bx"><b>Roue et vis sans fin</b><em>η = 0,5 · r₃ = 1/6</em></div>
+    <div class="ar">11,64 W<br>0,28 rad/s</div>
+  </div>
+
+  <details class="q"><summary><span class="qn">1</span>Puissance absorbée et intensité</summary><div class="sol">
+    <div class="m">P<sub>a</sub> = <span class="f"><span>P<sub>mot</sub></span><span>η<sub>mot</sub></span></span> = <span class="f"><span>70</span><span>0,57</span></span> = <span class="res">122,81 W</span></div>
+    <div class="m">P<sub>a</sub> = U · I &nbsp;⇒&nbsp; I = <span class="f"><span>P<sub>a</sub></span><span>U</span></span> = <span class="res">0,534 A = 534 mA</span></div>
+  </div></details>
+  <details class="q"><summary><span class="qn">2</span>Vitesse angulaire et couple moteur</summary><div class="sol">
+    <div class="m">ω<sub>mot</sub> = <span class="f"><span>π · N<sub>mot</sub></span><span>30</span></span> = <span class="f"><span>π × 730</span><span>30</span></span> ≈ <span class="res">76,4 rad/s</span></div>
+    <div class="m">P<sub>mot</sub> = C<sub>mot</sub> · ω<sub>mot</sub> &nbsp;⇒&nbsp; C<sub>mot</sub> = <span class="f"><span>70</span><span>76,4</span></span> = <span class="res">0,92 N·m</span></div>
+  </div></details>
+  <details class="q"><summary><span class="qn">3</span>Sortie du réducteur épicycloïdal</summary><div class="sol">
+    <div class="m">P<sub>épi</sub> = P<sub>mot</sub> · η<sub>épi</sub> = 70 × 0,35 = <span class="res">24,5 W</span></div>
+    <div class="m">N<sub>épi</sub> = N<sub>mot</sub> · r₁ = <span class="f"><span>730</span><span>46</span></span> = <span class="res">15,87 tr/min</span></div>
+    <div class="m">η<sub>épi</sub> = <span class="f"><span>C<sub>épi</sub> · ω<sub>épi</sub></span><span>C<sub>mot</sub> · ω<sub>mot</sub></span></span> = <span class="f"><span>C<sub>épi</sub></span><span>C<sub>mot</sub></span></span> · r₁</div>
+    <div class="m">C<sub>épi</sub> = <span class="f"><span>η<sub>épi</sub> · C<sub>mot</sub></span><span>r₁</span></span> = 0,35 × 0,92 × 46 = <span class="res">14,81 N·m</span></div>
+    <p>Le réducteur <b>diminue la vitesse</b> mais <b>augmente le couple</b>.</p>
+  </div></details>
+  <details class="q"><summary><span class="qn">4</span>Puissance après les engrenages</summary><div class="sol">
+    <div class="m">P<sub>engr</sub> = P<sub>épi</sub> · η<sub>engr</sub> = 24,5 × 0,95 = <span class="res">23,275 W</span></div>
+  </div></details>
+  <details class="q"><summary><span class="qn">5</span>Sortie roue et vis sans fin</summary><div class="sol">
+    <div class="m">P<sub>roue-vis</sub> = 23,275 × 0,5 = <span class="res">11,64 W</span></div>
+    <div class="m">N<sub>engr</sub> = N<sub>épi</sub> = 15,87 tr/min &nbsp;(r₂ = 1)</div>
+    <div class="m">N<sub>roue-vis</sub> = N<sub>épi</sub> · r₃ = <span class="f"><span>15,87</span><span>6</span></span> = <span class="res">2,645 tr/min</span></div>
+    <div class="warn"><b>Coquille corrigée :</b> le document original écrit 15,78 au lieu de 15,87 ; le résultat 2,645 tr/min est bien juste.</div>
+  </div></details>
+  <details class="q"><summary><span class="qn">6</span>Rendement global et rapport global</summary><div class="sol">
+    <div class="m">η<sub>global</sub> = 0,57 × 0,35 × 0,95 × 0,5 = 0,095 = <span class="res">9,5 %</span></div>
+    <div class="m">r<sub>global</sub> = r₁ × r₂ × r₃ = <span class="f"><span>1</span><span>46</span></span> × 1 × <span class="f"><span>1</span><span>6</span></span> = <span class="res">0,0036</span></div>
+  </div></details>
+  <details class="q"><summary><span class="qn">7</span>Vitesses angulaires</summary><div class="sol">
+    <div class="m">ω<sub>épi</sub> = <span class="f"><span>π × 15,87</span><span>30</span></span> = <span class="res">1,66 rad/s</span> = ω<sub>engr</sub></div>
+    <div class="m">ω<sub>roue-vis</sub> = <span class="f"><span>π × 2,645</span><span>30</span></span> = <span class="res">0,28 rad/s</span></div>
+    <div class="warn"><b>Coquille corrigée :</b> le document note « ω<sub>épi</sub> » pour la dernière ligne ; il s'agit de ω<sub>roue-vis</sub>.</div>
+  </div></details>
+
+  <div class="key"><h4>À retenir</h4><ul>
+    <li>Puissance électrique : <b>P = U·I</b> ; puissance mécanique de rotation : <b>P = C·ω</b>.</li>
+    <li>Conversion : <b>ω = π·N / 30</b> (ω en rad/s, N en tr/min).</li>
+    <li>Rapport de réduction : <b>r = N<sub>sortie</sub> / N<sub>entrée</sub></b> ; dans une chaîne, <b>r<sub>global</sub> = r₁ × r₂ × r₃</b>.</li>
+    <li>Dans un réducteur : <b>C<sub>sortie</sub> = η · C<sub>entrée</sub> / r</b> → la vitesse baisse, le couple augmente.</li>
+  </ul></div>
+</section>
+
+<!-- ============ EXERCICE 3 ============ -->
+<section id="ex3">
+  <h2><span class="n">3</span>Bowling</h2>
+  <p class="ctx">Théorème de l'énergie cinétique, énergie d'un ressort, roulement sans glissement.</p>
+
+  <details class="q"><summary><span class="qn">1</span>Raideur du ressort</summary><div class="sol">
+    <div class="m">E<sub>C3</sub> − E<sub>C1</sub> = W<sub>ressort</sub> − W<sub>poids</sub></div>
+    <div class="m">0 = ½ · k · Δl² − m · g · h</div>
+    <div class="m">k = <span class="f"><span>2 · m · g · h</span><span>Δl²</span></span> = <span class="f"><span>2 × 10 × 9,81 × 0,8</span><span>0,1²</span></span> = <span class="res">15 696 N/m</span> ≈ 15,7 N/mm</div>
+  </div></details>
+  <details class="q"><summary><span class="qn">2</span>Relation vitesse / vitesse angulaire</summary><div class="sol">
+    <div class="m">V = ω · R &nbsp;⇒&nbsp; <span class="res">ω = <span class="f"><span>V</span><span>R</span></span></span></div>
+    <p>Valable quand la boule <b>roule sans glisser</b>.</p>
+  </div></details>
+  <details class="q"><summary><span class="qn">3</span>Vitesse de la boule</summary><div class="sol">
+    <div class="m">E<sub>C3</sub> − E<sub>C2</sub> = W<sub>poids</sub></div>
+    <div class="m">−½ · m · V² − ½ · J · ω² = −m · g · h</div>
+    <div class="m">On remplace ω par V/R : &nbsp;(½ m + ½ <span class="f"><span>J</span><span>R²</span></span>) · V² = m · g · h</div>
+    <div class="m">V = √( <span class="f"><span>2 · m · g · h</span><span>m + J/R²</span></span> ) = √( <span class="f"><span>2 × 10 × 9,81 × 0,8</span><span>10 + 0,055 / 0,125²</span></span> ) = <span class="res">3,41 m/s</span></div>
+  </div></details>
+
+  <div class="key"><h4>À retenir</h4><ul>
+    <li>Théorème de l'énergie cinétique : <b>ΔE<sub>c</sub> = somme des travaux</b>.</li>
+    <li>Énergie cinétique : translation <b>½·m·V²</b> ; rotation <b>½·J·ω²</b>.</li>
+    <li>Énergie d'un ressort : <b>½·k·Δl²</b> ; travail du poids : <b>m·g·h</b>.</li>
+  </ul></div>
+</section>
+
+<!-- ============ EXERCICE 4 ============ -->
+<section id="ex4">
+  <h2><span class="n">4</span>Robot tondeuse</h2>
+  <p class="ctx">Roue, réducteur à engrenages, batterie et autonomie.</p>
+
+  <div class="chain">
+    <div class="bx src"><b>Batterie</b><em>24 V · 26 A·h</em></div>
+    <div class="ar">U<sub>mot</sub>, I<sub>mot</sub></div>
+    <div class="bx"><b>Moteur</b><em>N ≈ 4 600 tr/min</em></div>
+    <div class="ar">C<sub>mot</sub></div>
+    <div class="bx"><b>Réducteur</b><em>r ≈ 0,0086</em></div>
+    <div class="ar">C<sub>r</sub> · 39,8 tr/min</div>
+    <div class="bx"><b>Roue</b><em>D = 0,24 m</em></div>
+    <div class="ar">V = 0,5 m/s</div>
+  </div>
+
+  <details class="q"><summary><span class="qn">1</span>Vitesse de rotation de la roue</summary><div class="sol">
+    <div class="m">V = ω<sub>roue</sub> × R &nbsp;et&nbsp; ω<sub>roue</sub> = <span class="f"><span>π · N<sub>roue</sub></span><span>30</span></span></div>
+    <div class="m">N<sub>roue</sub> = <span class="f"><span>30 · V</span><span>π · R</span></span> = <span class="f"><span>30 × 0,5</span><span>π × 0,12</span></span> = <span class="res">39,8 tr/min</span></div>
+  </div></details>
+  <details class="q"><summary><span class="qn">2</span>Rapport de réduction</summary><div class="sol">
+    <div class="m">r = <span class="f"><span>Z₁ × Z₃ × Z₅</span><span>Z₂ × Z₄ × Z₆</span></span> = <span class="f"><span>11 × 20 × 20</span><span>97 × 75 × 70</span></span> = <span class="res">0,0086</span></div>
+    <p>Produit des dents des roues <b>menantes</b> divisé par produit des dents des roues <b>menées</b>.</p>
+  </div></details>
+  <details class="q"><summary><span class="qn">3</span>Vitesse du moteur</summary><div class="sol">
+    <div class="m">N<sub>mot</sub> = <span class="f"><span>N<sub>roue</sub></span><span>r</span></span> = <span class="f"><span>39,81</span><span>0,0086</span></span> ≈ <span class="res">4 629 tr/min</span></div>
+    <p>Avec r non arrondi (0,00864), on trouve environ 4 605 tr/min : les deux réponses sont acceptables.</p>
+  </div></details>
+  <details class="q"><summary><span class="qn">4</span>Schéma de la chaîne</summary><div class="sol">
+    <p>Voir le schéma en haut de l'exercice : Moteur → Réducteur (r = 0,0086) → Roue (D = 0,24 m), avec N<sub>mot</sub> ≈ 4 629 tr/min, N<sub>r</sub> = 39,8 tr/min et V = 0,5 m/s.</p>
+  </div></details>
+  <details class="q"><summary><span class="qn">5</span>Puissance totale consommée</summary><div class="sol">
+    <div class="m">P<sub>totale</sub> = 50,4 × 2 + 69 × 3 = <span class="res">307,8 W</span></div>
+  </div></details>
+  <details class="q"><summary><span class="qn">6</span>Énergie de la batterie et autonomie</summary><div class="sol">
+    <div class="m">E<sub>batt</sub> = U · Q = 24 × 26 = <span class="res">624 W·h</span></div>
+    <div class="m">E<sub>batt</sub> = P<sub>totale</sub> · t &nbsp;⇒&nbsp; t = <span class="f"><span>624</span><span>307,8</span></span> = <span class="res">2,03 h</span></div>
+  </div></details>
+  <details class="q"><summary><span class="qn">7</span>Conclusion</summary><div class="sol">
+    <p>Il faut 2,03 h pour tondre 200 m², ce qui correspond aux données du constructeur. En revanche, avec du dénivelé ou de l'herbe un peu haute, l'autonomie pourrait être insuffisante.</p>
+  </div></details>
+
+  <div class="key"><h4>À retenir</h4><ul>
+    <li>Roue : <b>V = ω·R</b> (attention : R = D / 2).</li>
+    <li>Train d'engrenages : <b>r = Π Z<sub>menantes</sub> / Π Z<sub>menées</sub></b>.</li>
+    <li>Énergie d'une batterie : <b>E = U·Q</b> (W·h = V × A·h) ; autonomie : <b>t = E / P</b>.</li>
+  </ul></div>
+</section>
+
+<!-- ============ EXERCICE 5 ============ -->
+<section id="ex5">
+  <h2><span class="n">5</span>Table élévatrice</h2>
+  <p class="ctx">Chaîne hydraulique : moteur → pompe → vérin. On remonte la chaîne à partir de la puissance utile.</p>
+
+  <div class="chain">
+    <div class="bx src"><b>Réseau</b><em>P<sub>a</sub></em></div>
+    <div class="ar">→</div>
+    <div class="bx"><b>Moteur</b><em>η = 0,85</em></div>
+    <div class="ar">P<sub>ap</sub></div>
+    <div class="bx"><b>Pompe</b><em>η = 0,8</em></div>
+    <div class="ar">P<sub>av</sub> = p·Q</div>
+    <div class="bx"><b>Vérin</b><em>η = 0,9</em></div>
+    <div class="ar">P<sub>u</sub> = 1 500 W</div>
+  </div>
+
+  <details class="q"><summary><span class="qn">1</span>Puissances en remontant la chaîne</summary><div class="sol">
+    <div class="m">P<sub>av</sub> = <span class="f"><span>P<sub>u</sub></span><span>η<sub>v</sub></span></span> = <span class="f"><span>1 500</span><span>0,9</span></span> = <span class="res">1 666,67 W</span></div>
+    <div class="m">P<sub>ap</sub> = <span class="f"><span>P<sub>av</sub></span><span>η<sub>p</sub></span></span> = <span class="f"><span>1 666,67</span><span>0,8</span></span> = <span class="res">2 083,34 W</span></div>
+    <div class="m">P<sub>a</sub> = <span class="f"><span>P<sub>ap</sub></span><span>η<sub>mot</sub></span></span> = <span class="f"><span>2 083,34</span><span>0,85</span></span> = <span class="res">2 450,99 W</span></div>
+    <p>On <b>divise</b> par le rendement quand on remonte vers l'entrée.</p>
+  </div></details>
+  <details class="q"><summary><span class="qn">2</span>Pression dans le circuit</summary><div class="sol">
+    <div class="m">P<sub>av</sub> = p · Q &nbsp;⇒&nbsp; p = <span class="f"><span>1 666,67</span><span>0,0565 × 10⁻³</span></span> = 29,5 × 10⁶ Pa = <span class="res">29,5 MPa = 295 bar</span></div>
+    <div class="warn"><b>Coquille corrigée :</b> le document écrit « 16 667,67 » au numérateur ; c'est bien 1 666,67 W. Le résultat 295 bar est juste. (Q est ici en m³/s.)</div>
+  </div></details>
+  <details class="q"><summary><span class="qn">3</span>Vitesse de la pompe</summary><div class="sol">
+    <div class="m">Q = <span class="f"><span>V · N<sub>p</sub></span><span>60</span></span> &nbsp;⇒&nbsp; N<sub>p</sub> = <span class="f"><span>60 × 0,0565</span><span>0,01</span></span> = <span class="res">339 tr/min</span></div>
+    <p>Ici Q est en L/s et V (cylindrée) en L/tr.</p>
+  </div></details>
+  <details class="q"><summary><span class="qn">4</span>Couple sur l'arbre de la pompe</summary><div class="sol">
+    <div class="m">P<sub>ap</sub> = C · ω = C · <span class="f"><span>π · N<sub>p</sub></span><span>30</span></span></div>
+    <div class="m">C = <span class="f"><span>30 × 2 083,34</span><span>π × 339</span></span> = <span class="res">58,7 N·m</span></div>
+  </div></details>
+
+  <div class="key"><h4>À retenir</h4><ul>
+    <li>Puissance hydraulique : <b>P = p·Q</b> (Pa × m³/s = W).</li>
+    <li><b>1 bar = 10⁵ Pa</b> ; 1 MPa = 10 bar.</li>
+    <li>Débit d'une pompe : <b>Q = cylindrée × N</b> (attention aux unités : /60 si N en tr/min).</li>
+    <li>Remonter une chaîne : P<sub>entrée</sub> = P<sub>sortie</sub> / η.</li>
+  </ul></div>
+</section>
+
+<!-- ============ EXERCICE 6 ============ -->
+<section id="ex6">
+  <h2><span class="n">6</span>Bilan énergétique Zoé</h2>
+  <p class="ctx">Comparer une voiture électrique (Zoé) et une voiture thermique (Clio), puis calculer l'autonomie.</p>
+
+  <details class="q"><summary><span class="qn">1</span>Chaîne d'énergie de la Zoé</summary><div class="sol">
+    <div class="chain">
+      <div class="bx src"><b>Prise</b><em>Énergie électrique</em></div>
+      <div class="ar">électrique</div>
+      <div class="bx"><b>Moteur électrique</b><em>η = 90 %</em></div>
+      <div class="ar">méca. rotation</div>
+      <div class="bx"><b>Transmission</b><em>η = 99 %</em></div>
+      <div class="ar">méca. rotation</div>
+      <div class="bx"><b>Roue</b></div>
+      <div class="ar">méca. translation</div>
+    </div>
+  </div></details>
+  <details class="q"><summary><span class="qn">2</span>Rendement global de la Zoé</summary><div class="sol">
+    <div class="m">η<sub>global</sub> = 0,9 × 0,99 = 0,891 = <span class="res">89,1 %</span></div>
+  </div></details>
+  <details class="q"><summary><span class="qn">3</span>Chaîne d'énergie de la Clio</summary><div class="sol">
+    <div class="chain">
+      <div class="bx src"><b>Carburant</b><em>Énergie chimique</em></div>
+      <div class="ar">chimique</div>
+      <div class="bx"><b>Moteur thermique</b><em>η = 30 %</em></div>
+      <div class="ar">méca. rotation</div>
+      <div class="bx"><b>Boîte de vitesses</b><em>η = 95 %</em></div>
+      <div class="ar">méca. rotation</div>
+      <div class="bx"><b>Transmission</b><em>η = 99 %</em></div>
+      <div class="ar">méca. rotation</div>
+      <div class="bx"><b>Roue</b></div>
+      <div class="ar">méca. translation</div>
+    </div>
+  </div></details>
+  <details class="q"><summary><span class="qn">4</span>Rendement global de la Clio</summary><div class="sol">
+    <div class="m">η<sub>global</sub> = 0,3 × 0,95 × 0,99 = 0,282 = <span class="res">28,2 %</span></div>
+  </div></details>
+  <details class="q"><summary><span class="qn">5</span>Comparaison</summary><div class="sol">
+    <p>La Zoé a un bien meilleur rendement que la Clio : <b>plus de trois fois plus élevé</b>.</p>
+  </div></details>
+  <details class="q"><summary><span class="qn">6</span>Origine de la différence</summary><div class="sol">
+    <p>Le moteur thermique de la Clio a de très grandes <b>pertes thermiques</b> (chaleur). On ajoute les pertes de la boîte de vitesses. Ces pertes expliquent la grande différence de rendement.</p>
+  </div></details>
+  <details class="q"><summary><span class="qn">7</span>Énergie en sortie du moteur</summary><div class="sol">
+    <div class="m">E<sub>mot</sub> = E<sub>batt</sub> · η<sub>mot</sub> = 41 000 × 0,9 = <span class="res">36,9 kW·h</span></div>
+    <p>(E<sub>batt</sub> = 41 kW·h ; le document écrit « 4 100 », c'est une faute de frappe.)</p>
+  </div></details>
+  <details class="q"><summary><span class="qn">8</span>Énergie disponible à la roue</summary><div class="sol">
+    <div class="m">E<sub>roue</sub> = E<sub>mot</sub> · η<sub>trans</sub> = 36,9 × 0,99 = <span class="res">36,53 kW·h</span></div>
+  </div></details>
+  <details class="q"><summary><span class="qn">9</span>Puissance résistante à vitesse max</summary><div class="sol">
+    <div class="m">V<sub>max</sub> = 135 km/h = <span class="f"><span>135</span><span>3,6</span></span> = 37,5 m/s</div>
+    <div class="m">P<sub>résist</sub> = ½ · V³ · ρ · S · C<sub>x</sub> + m · g · C<sub>r</sub> · V</div>
+    <div class="m">P<sub>résist</sub> = ½ × 37,5³ × 1,2 × 0,75 + 1 580 × 9,81 × 0,0065 × 37,5 = <span class="res">27 508,55 W</span></div>
+    <p>1<sup>er</sup> terme : résistance de l'<b>air</b> ; 2<sup>e</sup> terme : résistance au <b>roulement</b> des pneus.</p>
+  </div></details>
+  <details class="q"><summary><span class="qn">10</span>Autonomie à vitesse max</summary><div class="sol">
+    <div class="m">t = <span class="f"><span>E<sub>roue</sub></span><span>P<sub>résist</sub></span></span> = <span class="f"><span>36 531</span><span>27 508,55</span></span> = 1,33 h ≈ <span class="res">1 h 20 min</span></div>
+    <div class="warn"><b>Erreur corrigée :</b> le document indique 1 h 29 min 48 s. Or 0,33 h × 60 ≈ 19,7 min, donc <b>1,33 h ≈ 1 h 19 min 41 s</b>.</div>
+  </div></details>
+  <details class="q"><summary><span class="qn">11</span>Puissance résistante en montée (pente 10°)</summary><div class="sol">
+    <div class="m">V<sub>pente</sub> = 21,43 m/s</div>
+    <div class="m">P<sub>résist</sub> = ½ · V³ · ρ · S · C<sub>x</sub> + m · g · C<sub>r</sub> · V + m · g · V · sin α</div>
+    <div class="m">P<sub>résist</sub> = ½ · V³ · ρ · S · C<sub>x</sub> + m · g · V · (C<sub>r</sub> + sin α) = <span class="res">64 266,88 W</span></div>
+  </div></details>
+  <details class="q"><summary><span class="qn">12</span>Autonomie en montée</summary><div class="sol">
+    <div class="m">t = <span class="f"><span>36 531</span><span>64 266,88</span></span> = 0,57 h ≈ <span class="res">34 min</span></div>
+    <p>En pente continue de 10°, l'autonomie est <b>plus que divisée par 2</b> et la vitesse passe de 135 km/h à 77,15 km/h. La pente influe donc beaucoup sur l'autonomie et sur la vitesse.</p>
+  </div></details>
+
+  <div class="key"><h4>À retenir</h4><ul>
+    <li>Savoir tracer une <b>chaîne d'énergie</b> en nommant la forme d'énergie entre chaque bloc.</li>
+    <li>Conversion : <b>km/h ÷ 3,6 = m/s</b>.</li>
+    <li>Résistances à l'avancement : air <b>½·ρ·S·C<sub>x</sub>·V²</b> (force) ; roulement <b>m·g·C<sub>r</sub></b> ; pente <b>m·g·sin α</b>. Puissance = force × V.</li>
+    <li>Autonomie : <b>t = E / P</b>. Conversion d'heures : 0,33 h × 60 = 19,8 min.</li>
+  </ul></div>
+</section>
+
+<!-- ============ FICHE ============ -->
+<section id="fiche">
+  <h2><span class="n">★</span>À retenir pour l'évaluation</h2>
+  <p class="ctx">Les formules et méthodes utilisées dans les 6 exercices.</p>
+
+  <h3>Les puissances selon le type d'énergie</h3>
+  <table>
+    <tr><th>Domaine</th><th>Puissance</th><th>Grandeurs (unités)</th></tr>
+    <tr><td>Électrique</td><td><b>P = U · I</b></td><td>U (V), I (A)</td></tr>
+    <tr><td>Mécanique — rotation</td><td><b>P = C · ω</b></td><td>C (N·m), ω (rad/s)</td></tr>
+    <tr><td>Mécanique — translation</td><td><b>P = F · V</b></td><td>F (N), V (m/s)</td></tr>
+    <tr><td>Hydraulique</td><td><b>P = p · Q</b></td><td>p (Pa), Q (m³/s)</td></tr>
+  </table>
+
+  <div class="grid2" style="margin-top:14px">
+    <div class="card"><h4>Rendement</h4>
+      <p><b>η = P<sub>sortie</sub> / P<sub>entrée</sub></b> (ou avec les énergies)</p>
+      <p>Toujours entre 0 et 1 (ou 0 et 100 %).</p>
+      <p>Chaîne : <b>η<sub>global</sub> = η₁ × η₂ × η₃…</b></p>
+      <p>Descendre la chaîne : × η · Remonter : ÷ η</p>
+    </div>
+    <div class="card"><h4>Rotation &amp; réducteurs</h4>
+      <p><b>ω = π · N / 30</b> (N en tr/min)</p>
+      <p><b>r = N<sub>sortie</sub> / N<sub>entrée</sub></b></p>
+      <p>Engrenages : <b>r = ΠZ<sub>menantes</sub> / ΠZ<sub>menées</sub></b></p>
+      <p>r<sub>global</sub> = r₁ × r₂ × r₃ · <b>C<sub>s</sub> = η · C<sub>e</sub> / r</b></p>
+    </div>
+    <div class="card"><h4>Énergies</h4>
+      <p>Cinétique : <b>½·m·V²</b> et <b>½·J·ω²</b></p>
+      <p>Potentielle : <b>m·g·h</b> · Ressort : <b>½·k·Δl²</b></p>
+      <p>Thermique : <b>m·c·ΔT</b></p>
+      <p>Batterie : <b>E = U·Q</b> · Énergie / temps : <b>E = P·t</b></p>
+    </div>
+    <div class="card"><h4>Conversions utiles</h4>
+      <p>1 W·h = 3 600 J · 1 kW·h = 3,6 MJ</p>
+      <p>km/h ÷ 3,6 = m/s</p>
+      <p>1 bar = 10⁵ Pa · 1 MPa = 10 bar</p>
+      <p>Roue : <b>V = ω·R</b> avec R = D/2</p>
+    </div>
+  </div>
+
+  <div class="key"><h4>Méthode en 4 étapes</h4><ul>
+    <li><b>1.</b> Tracer la chaîne d'énergie (blocs + formes d'énergie + rendements).</li>
+    <li><b>2.</b> Repérer le sens du calcul : vers la sortie (× η) ou vers l'entrée (÷ η).</li>
+    <li><b>3.</b> Mettre toutes les grandeurs en unités SI <b>avant</b> de calculer.</li>
+    <li><b>4.</b> Vérifier la cohérence : un rendement &lt; 1, un réducteur baisse la vitesse et augmente le couple.</li>
+  </ul></div>
+</section>
+
+<!-- ============ QUIZ ============ -->
+<section id="quiz" class="quiz">
+  <h2><span class="n" style="background:var(--key)">?</span>Quiz express <span class="tag" id="score">0 / 6</span></h2>
+  <p class="ctx">Vérifie que tu as retenu l'essentiel.</p>
+  <div id="qz"></div>
+  <button id="resetQ" style="margin-top:10px">Recommencer</button>
+</section>
+
+</main>
+</div>
+
+<div class="toast" id="toast">🔓 Bravo ! Tu as répondu à 90 % des questions : les corrections sont débloquées.</div>
+
+<script>
+/* ===== Verrouillage des corrections (90 %) ===== */
+const SEUIL=0.9, KEY='rev-energetique-seq1';
+const details=[...document.querySelectorAll('details.q')];
+const total=details.length, need=Math.ceil(total*SEUIL);
+let saved={};
+try{saved=JSON.parse(localStorage.getItem(KEY))||{}}catch(e){saved={}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(saved))}catch(e){}}
+
+/* Construit, pour chaque question : titre + zone de réponse + bouton Valider + correction */
+details.forEach((d,i)=>{
+  const id='q'+i, sum=d.querySelector('summary');
+  const wrap=document.createElement('div');wrap.className='qa';
+  const h=document.createElement('div');h.className='qa-h';
+  h.innerHTML=sum.innerHTML+'<span class="st">À faire</span>';
+  sum.textContent='Correction';
+  const a=document.createElement('div');a.className='ans';
+  const ta=document.createElement('textarea');ta.rows=1;ta.placeholder='Ta réponse (calcul + résultat avec l\'unité)…';
+  ta.setAttribute('aria-label','Réponse '+h.querySelector('.qn').textContent);
+  const bt=document.createElement('button');bt.textContent='Valider';
+  a.append(ta,bt);
+  d.parentNode.insertBefore(wrap,d);wrap.append(h,a,d);
+
+  const st=h.querySelector('.st');
+  function mark(done){wrap.classList.toggle('done',done);st.textContent=done?'✔ Répondu':'À faire'}
+  if(saved[id]){ta.value=saved[id];mark(true)}
+  bt.disabled=!ta.value.trim();
+  ta.addEventListener('input',()=>{
+    bt.disabled=!ta.value.trim();
+    if(saved[id]&&ta.value.trim()!==saved[id]){bt.textContent='Mettre à jour'}
+  });
+  bt.onclick=()=>{
+    const v=ta.value.trim();if(!v)return;
+    saved[id]=v;save();mark(true);bt.textContent='Valider';update();
+  };
+  /* Empêche d'ouvrir la correction tant que c'est verrouillé */
+  sum.addEventListener('click',e=>{
+    if(document.body.classList.contains('locked')){
+      e.preventDefault();
+      const n=need-answered();
+      flash('🔒 Correction verrouillée : réponds encore à '+n+' question'+(n>1?'s':'')+' pour la débloquer.',false);
+    }
+  });
+});
+
+function answered(){return details.filter((d,i)=>saved['q'+i]).length}
+
+/* ===== Code professeur (seule une empreinte du code est stockée ici) ===== */
+const PROF_KEY=KEY+'-prof', PROF_H='137h5pq1oawv4m';
+function hcode(s){let h=5381;for(const c of s)h=((h*33)^c.charCodeAt(0))>>>0;let g=0;for(const c of 'sel-SI'+s)g=(g*31+c.charCodeAt(0))>>>0;return h.toString(36)+g.toString(36)}
+let profUnlocked=false;
+try{profUnlocked=localStorage.getItem(PROF_KEY)===PROF_H}catch(e){}
+function profUI(){
+  document.getElementById('profOn').hidden=!profUnlocked;
+  document.getElementById('profToggle').hidden=profUnlocked;
+  if(profUnlocked)document.getElementById('profBox').hidden=true;
+}
+document.getElementById('profToggle').onclick=()=>{
+  const b=document.getElementById('profBox');b.hidden=!b.hidden;
+  if(!b.hidden)document.getElementById('profCode').focus();
+};
+function tryProf(){
+  const inp=document.getElementById('profCode'),msg=document.getElementById('profMsg');
+  if(hcode(inp.value.trim())===PROF_H){
+    profUnlocked=true;try{localStorage.setItem(PROF_KEY,PROF_H)}catch(e){}
+    inp.value='';msg.textContent='';profUI();update();
+    flash('🔓 Corrections déverrouillées par le professeur.',true);
+  }else{msg.textContent='Code incorrect.';inp.select()}
+}
+document.getElementById('profBtn').onclick=tryProf;
+document.getElementById('profCode').addEventListener('keydown',e=>{if(e.key==='Enter')tryProf()});
+document.getElementById('profOff').onclick=()=>{
+  profUnlocked=false;try{localStorage.removeItem(PROF_KEY)}catch(e){}
+  profUI();update();
+};
+
+let wasUnlocked=null;
+function update(){
+  const n=answered(), pct=Math.round(n/total*100), ok=n>=need||profUnlocked;
+  document.body.classList.toggle('locked',!ok);
+  document.getElementById('prog').classList.toggle('ok',ok);
+  document.getElementById('progFill').style.width=pct+'%';
+  document.getElementById('miniFill').style.width=pct+'%';
+  document.getElementById('progNum').textContent=n+' / '+total+' questions répondues ('+pct+' %)';
+  document.getElementById('miniTxt').textContent=n+' / '+total+' réponses'+(ok?' · 🔓':' · 🔒');
+  document.getElementById('progMsg').innerHTML=(profUnlocked&&n<need)
+    ? '🔓 <b>Corrections déverrouillées par le professeur.</b> Compare tes réponses avec la correction, question par question.'
+    : ok
+    ? '🔓 <b>Corrections débloquées !</b> Compare maintenant tes réponses avec la correction, question par question.'
+    : '🔒 <b>Corrections verrouillées.</b> Réponds à au moins <b>'+need+' questions sur '+total+'</b> (90 %) pour les débloquer. Il t\'en reste <b>'+(need-n)+'</b>.';
+  document.getElementById('openAll').disabled=!ok;
+  if(!ok)details.forEach(d=>d.open=false);
+  if(wasUnlocked===false&&ok&&!profUnlocked)flash(null,true);
+  wasUnlocked=ok;
+}
+let tt;
+function flash(msg,good){
+  const t=document.getElementById('toast');
+  t.textContent=msg||'🔓 Bravo ! Tu as répondu à 90 % des questions : les corrections sont débloquées.';
+  t.style.background=good?'var(--accent)':'var(--warn)';
+  t.classList.add('show');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('show'),3500);
+}
+document.getElementById('openAll').onclick=()=>{if(!document.body.classList.contains('locked'))details.forEach(d=>d.open=true)};
+document.getElementById('closeAll').onclick=()=>details.forEach(d=>d.open=false);
+/* Effacement en deux clics (les boîtes de dialogue sont souvent bloquées dans Google Sites) */
+let rt;
+document.getElementById('resetAll').onclick=function(){
+  if(!this.classList.contains('confirm')){
+    this.classList.add('confirm');this.textContent='Confirmer l\'effacement ?';
+    clearTimeout(rt);rt=setTimeout(()=>{this.classList.remove('confirm');this.textContent='Effacer mes réponses'},4000);
+    return;
+  }
+  saved={};save();location.reload();
+};
+profUI();
+update();
+
+const Q=[
+ {q:"Une chaîne a trois blocs de rendements 0,9 ; 0,8 et 0,5. Rendement global ?",o:["0,36","2,2","0,73","0,5"],a:0,e:"On multiplie : 0,9 × 0,8 × 0,5 = 0,36."},
+ {q:"Un moteur tourne à 1 500 tr/min. Sa vitesse angulaire ω vaut environ :",o:["157 rad/s","50 rad/s","25 rad/s","9 000 rad/s"],a:0,e:"ω = π × 1 500 / 30 ≈ 157 rad/s."},
+ {q:"Puissance mécanique de rotation :",o:["P = C · ω","P = U · I","P = p · Q","P = C / ω"],a:0,e:"P = C·ω avec C en N·m et ω en rad/s."},
+ {q:"Un réducteur fait baisser la vitesse. Que devient le couple ?",o:["Il augmente","Il diminue","Il ne change pas","Il s'annule"],a:0,e:"La puissance se conserve (aux pertes près) : si ω baisse, C augmente."},
+ {q:"Une batterie 12 V – 50 A·h stocke :",o:["600 W·h","62 W·h","4,2 W·h","50 W·h"],a:0,e:"E = U·Q = 12 × 50 = 600 W·h."},
+ {q:"On connaît la puissance utile en sortie. Pour trouver la puissance en entrée d'un bloc :",o:["On divise par η","On multiplie par η","On ajoute η","On soustrait η"],a:0,e:"P_entrée = P_sortie / η (on remonte la chaîne)."}
+];
+let score=0;
+function shuffle(a){return a.map(v=>[Math.random(),v]).sort((x,y)=>x[0]-y[0]).map(v=>v[1])}
+function buildQuiz(){
+  score=0;document.getElementById('score').textContent='0 / '+Q.length;
+  const box=document.getElementById('qz');box.innerHTML='';
+  Q.forEach((it,i)=>{
+    const d=document.createElement('div');d.className='card';d.style.margin='10px 0';
+    d.innerHTML='<p><b>'+(i+1)+'.</b> '+it.q+'</p>';
+    const fb=document.createElement('div');fb.className='fb';
+    shuffle(it.o.map((t,k)=>({t,k}))).forEach(op=>{
+      const b=document.createElement('button');b.className='opt';b.textContent=op.t;
+      b.onclick=()=>{
+        if(d.dataset.done)return;d.dataset.done=1;
+        if(op.k===it.a){b.classList.add('ok');score++;fb.textContent='✔ Bravo ! '+it.e}
+        else{b.classList.add('ko');fb.textContent='✘ '+it.e;
+          [...d.querySelectorAll('.opt')].find(x=>x.textContent===it.o[it.a]).classList.add('ok')}
+        document.getElementById('score').textContent=score+' / '+Q.length;
+      };
+      d.appendChild(b);
+    });
+    d.appendChild(fb);box.appendChild(d);
+  });
+}
+document.getElementById('resetQ').onclick=buildQuiz;
+buildQuiz();
+</script>
+<a href="../index.html" style="position:fixed;bottom:16px;left:16px;z-index:99999;background:#1e3a5f;color:#fff;padding:10px 16px;border-radius:24px;font:600 14px system-ui,sans-serif;text-decoration:none;box-shadow:0 2px 8px rgba(0,0,0,.25)">← Sommaire</a></body>
+</html>

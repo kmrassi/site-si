@@ -1,0 +1,432 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Corrigé interactif – Devoir SI</title>
+<style>
+:root{
+  --bg:#f4f6fb; --card:#fff; --ink:#1d2433; --muted:#5b6478; --line:#dde2ec;
+  --acc:#1f6feb; --acc-soft:#e8f0fe; --good:#178a3e; --good-soft:#e6f4ea;
+  --bad:#c62828; --bad-soft:#fdecea; --warn:#b45309; --res:#c62828;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink);line-height:1.5}
+header{position:sticky;top:0;z-index:10;background:var(--ink);color:#fff;box-shadow:0 2px 8px rgba(0,0,0,.2)}
+.bar{max-width:980px;margin:0 auto;padding:10px 16px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
+.bar h1{font-size:1.05rem;margin:0}
+.tabs{display:flex;gap:6px;flex-wrap:wrap}
+.tab{background:transparent;border:1px solid #5b6478;color:#fff;padding:6px 12px;border-radius:999px;cursor:pointer;font-size:.9rem}
+.tab[aria-selected=true]{background:var(--acc);border-color:var(--acc)}
+.tools{display:flex;gap:8px;align-items:center;font-size:.85rem}
+.tools label{display:flex;gap:6px;align-items:center;cursor:pointer}
+.prog{height:4px;background:#2d3548}
+.prog div{height:100%;width:0;background:#4ade80;transition:width .3s}
+main{max-width:980px;margin:0 auto;padding:16px}
+.intro{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 16px;margin-bottom:14px;font-size:.95rem}
+.intro b{color:var(--acc)}
+h2.part{font-size:1.05rem;margin:26px 0 10px;padding:6px 12px;background:var(--acc);color:#fff;border-radius:8px}
+h2.part.bonus{background:#7c3aed}
+.q{background:var(--card);border:1px solid var(--line);border-radius:12px;margin:10px 0;overflow:hidden}
+.q > summary{list-style:none;cursor:pointer;padding:12px 16px;display:flex;gap:10px;align-items:center}
+.q > summary::-webkit-details-marker{display:none}
+.q > summary::before{content:"▸";color:var(--acc);transition:transform .2s;display:inline-block}
+.q[open] > summary::before{transform:rotate(90deg)}
+.num{font-weight:700;color:var(--acc);min-width:2.6em}
+.qt{flex:1}
+.pts{font-size:.78rem;background:var(--acc-soft);color:var(--acc);padding:2px 8px;border-radius:999px;white-space:nowrap}
+.seen .num::after{content:" ✓";color:var(--good)}
+.body{padding:0 16px 14px 16px;border-top:1px solid var(--line)}
+.enonce{color:var(--muted);font-size:.92rem;margin:10px 0}
+.check{display:flex;flex-wrap:wrap;gap:8px;align-items:center;background:#f8fafc;border:1px dashed var(--line);border-radius:10px;padding:8px 10px;margin:8px 0;font-size:.9rem}
+.check input{width:120px;padding:6px 8px;border:1px solid var(--line);border-radius:8px;font-size:.95rem}
+.check button,.btn{border:none;background:var(--acc);color:#fff;padding:6px 12px;border-radius:8px;cursor:pointer;font-size:.88rem}
+.btn.ghost{background:transparent;color:var(--acc);border:1px solid var(--acc)}
+.fb{font-weight:600}
+.fb.ok{color:var(--good)} .fb.ko{color:var(--bad)}
+.steps{margin:10px 0 0;padding:0;list-style:none;counter-reset:st}
+.steps li{counter-increment:st;position:relative;padding:8px 10px 8px 40px;margin:6px 0;background:#fafbfd;border-left:3px solid var(--acc);border-radius:0 8px 8px 0;display:none;animation:in .25s ease}
+.steps li.show{display:block}
+.steps li::before{content:counter(st);position:absolute;left:10px;top:8px;width:20px;height:20px;border-radius:50%;background:var(--acc);color:#fff;font-size:.75rem;display:flex;align-items:center;justify-content:center;font-weight:700}
+.steps .k{display:block;font-size:.78rem;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);margin-bottom:2px}
+@keyframes in{from{opacity:0;transform:translateY(-4px)}to{opacity:1}}
+.ctrl{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+.f{font-family:"Cambria Math","STIX Two Math",Georgia,serif;font-size:1.02rem}
+.r{color:var(--res);font-weight:700}
+.box{display:inline-block;border:2px solid var(--res);border-radius:6px;padding:1px 8px;color:var(--res);font-weight:700}
+.note{background:#fff8e6;border-left:3px solid var(--warn);padding:6px 10px;border-radius:0 8px 8px 0;font-size:.88rem;margin:6px 0}
+.vec{position:relative;display:inline-block;padding-top:.15em}
+.vec::after{content:"";position:absolute;left:0;right:2px;top:0;border-top:1.4px solid currentColor}
+.vec::before{content:"";position:absolute;right:0;top:-3px;border:3.5px solid transparent;border-left:6px solid currentColor;transform:translateX(3px)}
+.tor{display:inline-flex;align-items:center;gap:2px;vertical-align:middle;margin:4px 2px}
+.tor .br{font-size:4.2em;line-height:1;font-weight:200;transform:scaleX(.6);color:var(--ink)}
+.tor table{border-collapse:collapse;font-family:"Cambria Math",Georgia,serif}
+.tor td{padding:1px 10px;text-align:center;min-width:3.4em}
+.tor td:first-child{border-right:1px solid #c9d0dc}
+.tor .pt{align-self:flex-end;font-weight:700;font-size:.9rem;margin-bottom:6px}
+.col{display:inline-flex;align-items:center;vertical-align:middle;font-family:"Cambria Math",Georgia,serif}
+.col .p{font-size:3.4em;font-weight:200;line-height:1;transform:scaleX(.5)}
+.col span.c{display:flex;flex-direction:column;align-items:center;min-width:2.8em}
+table.t{border-collapse:collapse;margin:6px 0;font-size:.9rem}
+table.t th,table.t td{border:1px solid var(--line);padding:4px 8px;text-align:center}
+table.t th{background:#eef2f7}
+.chain{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:8px 0;font-size:.86rem}
+.chain .b{border:1.5px solid #6b7280;border-radius:8px;padding:6px 10px;text-align:center;background:#fff}
+.chain .b.end{border-color:var(--acc);background:var(--acc-soft)}
+.chain .a{color:var(--muted);text-align:center;font-size:.8rem}
+.chain .a b{display:block;color:var(--res)}
+figure{margin:10px 0;text-align:center}
+figure img{max-width:100%;height:auto;border:1px solid var(--line);border-radius:8px;background:#fff}
+figcaption{font-size:.8rem;color:var(--muted)}
+.sim{background:#f3f6ff;border:1px solid #cfdcfb;border-radius:10px;padding:10px 12px;margin:10px 0}
+.sim h4{margin:0 0 6px;font-size:.92rem;color:var(--acc)}
+.sim input[type=range]{width:100%;max-width:360px}
+.sim .out{font-family:"Cambria Math",Georgia,serif}
+.tag{display:inline-block;padding:1px 8px;border-radius:999px;font-weight:700;font-size:.85rem}
+.tag.ok{background:var(--good-soft);color:var(--good)} .tag.ko{background:var(--bad-soft);color:var(--bad)}
+.panel{display:none} .panel.on{display:block}
+footer{text-align:center;color:var(--muted);font-size:.8rem;padding:20px}
+@media (max-width:600px){.bar h1{font-size:.95rem}.tor td{min-width:2.6em;padding:1px 5px}.f{font-size:.95rem}}
+@media print{header{position:static}.steps li{display:block!important}.check,.ctrl{display:none}.q{break-inside:avoid}}
+</style>
+</head>
+<body>
+<header>
+  <div class="bar">
+    <h1>Corrigé interactif – Devoir SI Terminale</h1>
+    <div class="tabs" role="tablist">
+      <button class="tab" role="tab" aria-selected="true" data-p="e1">Épreuve 1 · Barrière</button>
+      <button class="tab" role="tab" aria-selected="false" data-p="e2">Épreuve 2 · Vélo</button>
+    </div>
+    <div class="tools">
+      <label><input type="checkbox" id="all"> Tout afficher</label>
+    </div>
+  </div>
+  <div class="prog"><div id="pg"></div></div>
+</header>
+<main>
+  <div class="intro">Pour chaque question : <b>1.</b> cherche d'abord sur ton brouillon ; <b>2.</b> tape ton résultat dans « Vérifier ma réponse » (tolérance 2 %, la virgule est acceptée) ; <b>3.</b> affiche ensuite la correction <b>étape par étape</b>. Les résultats encadrés en rouge sont ceux attendus sur la copie.</div>
+  <section class="panel on" id="e1"></section>
+  <section class="panel" id="e2"></section>
+</main>
+<footer>Sciences de l'Ingénieur – Terminale · Corrigé détaillé · Résultats arrondis à 3 chiffres significatifs.</footer>
+
+<script>
+const IMG = {"dr2c": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGZvbnQtZmFtaWx5PSJIZWx2ZXRpY2EsIEFyaWFsLCBzYW5zLXNlcmlmIiB2aWV3Qm94PSIwIDAgNzYwIDM0MCIgcm9sZT0iaW1nIiBmb250LXNpemU9IjEzIj48ZGVmcz48bWFya2VyIGlkPSJkYy1mIiB2aWV3Qm94PSIwIDAgMTAgMTAiIHJlZlg9IjkiIHJlZlk9IjUiIG1hcmtlcldpZHRoPSI2IiBtYXJrZXJIZWlnaHQ9IjYiIG9yaWVudD0iYXV0by1zdGFydC1yZXZlcnNlIj48cGF0aCBkPSJNMCAwTDEwIDVMMCAxMHoiIGZpbGw9IiNjNjI4MjgiPjwvcGF0aD48L21hcmtlcj48bWFya2VyIGlkPSJkYy1heCIgdmlld0JveD0iMCAwIDEwIDEwIiByZWZYPSI5IiByZWZZPSI1IiBtYXJrZXJXaWR0aD0iNiIgbWFya2VySGVpZ2h0PSI2IiBvcmllbnQ9ImF1dG8tc3RhcnQtcmV2ZXJzZSI+PHBhdGggZD0iTTAgMEwxMCA1TDAgMTB6IiBmaWxsPSIjNmI3MjgwIj48L3BhdGg+PC9tYXJrZXI+PC9kZWZzPjx0ZXh0IHg9IjI0IiB5PSIzMCIgZm9udC1zaXplPSIxNSIgZm9udC13ZWlnaHQ9IjYwMCIgZmlsbD0iIzFkMjQzMyI+RFIyIGNvcnJpZ8OpIOKAkyBsZXMgYWN0aW9ucyBleHTDqXJpZXVyZXMgc3VyIFMgc+KAmcOpcXVpbGlicmVudDwvdGV4dD48dGV4dCB4PSIyNCIgeT0iNTIiIGZvbnQtc2l6ZT0iMTEuNSIgZmlsbD0iIzViNjQ3OCI+Vml0ZXNzZSBjb25zdGFudGUgOiBsYSBzb21tZSBkZXMgZm9yY2VzIGVzdCBudWxsZSAocHJpbmNpcGUgZOKAmWluZXJ0aWUpLiBMb25ndWV1cnMgbm9uIMOgIGzigJnDqWNoZWxsZS48L3RleHQ+PGc+PHBvbHlnb24gcG9pbnRzPSI0MCwzMDAgNzIwLDE4MCA3MjAsMzIyIDQwLDMyMiIgZmlsbD0iI2VlZjJmNyI+PC9wb2x5Z29uPjxsaW5lIHgxPSI0MCIgeTE9IjMwMCIgeDI9IjcyMCIgeTI9IjE4MCIgc3Ryb2tlPSIjNmI3MjgwIiBzdHJva2Utd2lkdGg9IjIiPjwvbGluZT48bGluZSB4MT0iNDAiIHkxPSIzMDAiIHgyPSIyMzAiIHkyPSIzMDAiIHN0cm9rZT0iIzZiNzI4MCIgc3Ryb2tlLXdpZHRoPSIxIiBzdHJva2UtZGFzaGFycmF5PSI1IDQiPjwvbGluZT48cGF0aCBkPSJNMTUwIDMwMEExMTAgMTEwIDAgMCAwIDE0OC4zIDI4MC45IiBmaWxsPSJub25lIiBzdHJva2U9IiM2YjcyODAiIHN0cm9rZS13aWR0aD0iMS4yNSI+PC9wYXRoPjwvZz48dGV4dCB4PSIxNjAiIHk9IjI5NCIgZmlsbD0iIzFkMjQzMyI+zrE8L3RleHQ+PGcgdHJhbnNmb3JtPSJyb3RhdGUoLTEwIDM4MCAyNDApIiBmaWxsPSJub25lIiBzdHJva2U9IiM1YjY0NzgiIHN0cm9rZS13aWR0aD0iMiI+PGNpcmNsZSBjeD0iMzMwIiBjeT0iMjEwIiByPSIzMCI+PC9jaXJjbGU+PGNpcmNsZSBjeD0iNDMwIiBjeT0iMjEwIiByPSIzMCI+PC9jaXJjbGU+PHBhdGggZD0iTTMzMCAyMTBMMzc4IDIxMkwzNjQgMTYwWiBNMzY0IDE2MEw0MTggMTY1TDM3OCAyMTIgTTQxOCAxNjVMNDMwIDIxMCBNNDE4IDE2NUw0MjIgMTQ4TDQzNiAxNDggTTM1MiAxNTdMMzc0IDE1NyI+PC9wYXRoPjwvZz48Y2lyY2xlIGN4PSIzNzIiIGN5PSIxMTgiIHI9IjQiIGZpbGw9IiMxZDI0MzMiPjwvY2lyY2xlPjx0ZXh0IHg9IjM4MiIgeT0iMTEyIiBmb250LXdlaWdodD0iNjAwIiBmaWxsPSIjMWQyNDMzIj5HPC90ZXh0PjxnIHN0cm9rZT0iI2M2MjgyOCIgc3Ryb2tlLXdpZHRoPSIyLjI1Ij48bGluZSB4MT0iMzcyIiB5MT0iMTIyIiB4Mj0iMzcyIiB5Mj0iMjA2IiBtYXJrZXItZW5kPSJ1cmwoI2RjLWYpIj48L2xpbmU+PGxpbmUgeDE9IjMzMC44IiB5MT0iMjQ4LjciIHgyPSIzMTguNiIgeTI9IjE3OS44IiBtYXJrZXItZW5kPSJ1cmwoI2RjLWYpIj48L2xpbmU+PGxpbmUgeDE9IjQyOS4yIiB5MT0iMjMxLjMiIHgyPSI0MTciIHkyPSIxNjIuNCIgbWFya2VyLWVuZD0idXJsKCNkYy1mKSI+PC9saW5lPjxsaW5lIHgxPSIzMzAuOCIgeTE9IjI0OC43IiB4Mj0iMzcwLjIiIHkyPSIyNDEuNyIgbWFya2VyLWVuZD0idXJsKCNkYy1mKSI+PC9saW5lPjxsaW5lIHgxPSI0MjkuMiIgeTE9IjIzMS4zIiB4Mj0iMzk5LjciIHkyPSIyMzYuNSIgbWFya2VyLWVuZD0idXJsKCNkYy1mKSI+PC9saW5lPjxsaW5lIHgxPSIzNzIiIHkxPSIxMTgiIHgyPSIzMTIuOSIgeTI9IjEyOC40IiBtYXJrZXItZW5kPSJ1cmwoI2RjLWYpIj48L2xpbmU+PC9nPjx0ZXh0IHg9IjM2NCIgeT0iMTQyIiB0ZXh0LWFuY2hvcj0iZW5kIiBmb250LXdlaWdodD0iNjAwIiBmaWxsPSIjYzYyODI4Ij5QICg5ODEgTik8L3RleHQ+PHRleHQgeD0iMjk2IiB5PSIxNzYiIHRleHQtYW5jaG9yPSJlbmQiIGZvbnQtd2VpZ2h0PSI2MDAiIGZpbGw9IiNjNjI4MjgiPk5fQTwvdGV4dD48dGV4dCB4PSI0NDQiIHk9IjE1MCIgZm9udC13ZWlnaHQ9IjYwMCIgZmlsbD0iI2M2MjgyOCI+Tl9CPC90ZXh0Pjx0ZXh0IHg9IjM0MCIgeT0iMjcyIiBmb250LXdlaWdodD0iNjAwIiBmaWxsPSIjYzYyODI4Ij5GX3QgKDc0LDEgTik8L3RleHQ+PHRleHQgeD0iNDQwIiB5PSIyNTYiIGZvbnQtd2VpZ2h0PSI2MDAiIGZpbGw9IiNjNjI4MjgiPkZfcnI8L3RleHQ+PHRleHQgeD0iMzA2IiB5PSIxMjIiIHRleHQtYW5jaG9yPSJlbmQiIGZvbnQtd2VpZ2h0PSI2MDAiIGZpbGw9IiNjNjI4MjgiPkZfYWlyICg3LDUgTik8L3RleHQ+PHRleHQgeD0iMjUwIiB5PSIzMTQiIGZvbnQtc2l6ZT0iMTEuNSIgZmlsbD0iIzViNjQ3OCI+QSwgQiA6IGNvbnRhY3RzIGRlcyByb3Vlcy4gTl9BLCBOX0IgOiBhY3Rpb25zIG5vcm1hbGVzIGR1IHNvbC4gRl9yciA6IHJvdWxlbWVudC48L3RleHQ+PGcgc3Ryb2tlPSIjNmI3MjgwIiBzdHJva2Utd2lkdGg9IjEuMjUiPjxsaW5lIHgxPSI2MDAiIHkxPSIyOTAiIHgyPSI2NDkiIHkyPSIyODEuMyIgbWFya2VyLWVuZD0idXJsKCNkYy1heCkiPjwvbGluZT48bGluZSB4MT0iNjAwIiB5MT0iMjkwIiB4Mj0iNTkxLjMiIHkyPSIyNDAuOCIgbWFya2VyLWVuZD0idXJsKCNkYy1heCkiPjwvbGluZT48L2c+PHRleHQgeD0iNjU1IiB5PSIyODQiIGZpbGw9IiMxZDI0MzMiPng8L3RleHQ+PHRleHQgeD0iNTg1IiB5PSIyMzgiIHRleHQtYW5jaG9yPSJlbmQiIGZpbGw9IiMxZDI0MzMiPnk8L3RleHQ+PC9zdmc+", "cone": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA3NjAgMzMwIiBmb250LWZhbWlseT0iSGVsdmV0aWNhLCBBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxMyI+CjxkZWZzPgo8bWFya2VyIGlkPSJmIiB2aWV3Qm94PSIwIDAgMTAgMTAiIHJlZlg9IjkiIHJlZlk9IjUiIG1hcmtlcldpZHRoPSI2IiBtYXJrZXJIZWlnaHQ9IjYiIG9yaWVudD0iYXV0by1zdGFydC1yZXZlcnNlIj48cGF0aCBkPSJNMCAwTDEwIDVMMCAxMHoiIGZpbGw9IiNjNjI4MjgiLz48L21hcmtlcj4KPG1hcmtlciBpZD0iYXgiIHZpZXdCb3g9IjAgMCAxMCAxMCIgcmVmWD0iOSIgcmVmWT0iNSIgbWFya2VyV2lkdGg9IjYiIG1hcmtlckhlaWdodD0iNiIgb3JpZW50PSJhdXRvLXN0YXJ0LXJldmVyc2UiPjxwYXRoIGQ9Ik0wIDBMMTAgNUwwIDEweiIgZmlsbD0iIzZiNzI4MCIvPjwvbWFya2VyPgo8L2RlZnM+Cjx0ZXh0IHg9IjI0IiB5PSIzMCIgZm9udC1zaXplPSIxNSIgZm9udC13ZWlnaHQ9IjYwMCIgZmlsbD0iIzFkMjQzMyI+QTcgY29ycmlnw6kg4oCTIGPDtG5lIGQnYWRow6lyZW5jZSBkZSBsYSByb3VlIGFycmnDqHJlIChjb250YWN0IEEpPC90ZXh0Pgo8dGV4dCB4PSIyNCIgeT0iNTAiIGZvbnQtc2l6ZT0iMTEuNSIgZmlsbD0iIzViNjQ3OCI+UmVww6hyZSBsacOpIMOgIGxhIHJvdXRlLiBMZSBjw7RuZSBhIHBvdXIgYXhlIGxhIG5vcm1hbGUgZW4gQSBldCBwb3VyIGRlbWktYW5nbGUgz4YgKHRhbiDPhiA9IGYpLjwvdGV4dD4KPHBvbHlnb24gcG9pbnRzPSIzODAsMjcwIDI2Ni40LDEwNy44IDQ5My42LDEwNy44IiBmaWxsPSIjMWY2ZmViIiBmaWxsLW9wYWNpdHk9IjAuMTIiIHN0cm9rZT0iIzFmNmZlYiIgc3Ryb2tlLXdpZHRoPSIxLjUiLz4KPGxpbmUgeDE9IjM4MCIgeTE9IjI3MCIgeDI9IjM2MC4xIiB5Mj0iNzEiIHN0cm9rZT0iI2M2MjgyOCIgc3Ryb2tlLXdpZHRoPSIxLjUiIHN0cm9rZS1kYXNoYXJyYXk9IjYgNCIvPgo8bGluZSB4MT0iMzgwIiB5MT0iMjcwIiB4Mj0iMzk5LjkiIHkyPSI3MSIgc3Ryb2tlPSIjYzYyODI4IiBzdHJva2Utd2lkdGg9IjEuNSIgc3Ryb2tlLWRhc2hhcnJheT0iNiA0Ii8+CjxsaW5lIHgxPSIzODAiIHkxPSIyNzAiIHgyPSIzODAiIHkyPSI4MCIgc3Ryb2tlPSIjNmI3MjgwIiBzdHJva2Utd2lkdGg9IjEiIHN0cm9rZS1kYXNoYXJyYXk9IjMgMyIvPgo8bGluZSB4MT0iMzgwIiB5MT0iMjcwIiB4Mj0iNDAwIiB5Mj0iMTExLjMiIHN0cm9rZT0iI2M2MjgyOCIgc3Ryb2tlLXdpZHRoPSIyLjUiIG1hcmtlci1lbmQ9InVybCgjZikiLz4KPGxpbmUgeDE9IjM4MCIgeTE9IjI3MCIgeDI9IjM4MCIgeTI9IjExNSIgc3Ryb2tlPSIjMWQyNDMzIiBzdHJva2Utd2lkdGg9IjEuNSIgbWFya2VyLWVuZD0idXJsKCNheCkiLz4KPGxpbmUgeDE9IjM4MCIgeTE9IjI3MCIgeDI9IjQyMCIgeTI9IjI3MCIgc3Ryb2tlPSIjMWQyNDMzIiBzdHJva2Utd2lkdGg9IjEuNSIgbWFya2VyLWVuZD0idXJsKCNheCkiLz4KPGxpbmUgeDE9IjE1MCIgeTE9IjI3MCIgeDI9IjYxMCIgeTI9IjI3MCIgc3Ryb2tlPSIjNmI3MjgwIiBzdHJva2Utd2lkdGg9IjIiLz4KPHBvbHlnb24gcG9pbnRzPSIxNTAsMjcwIDYxMCwyNzAgNjEwLDI5MCAxNTAsMjkwIiBmaWxsPSIjZWVmMmY3Ii8+CjxjaXJjbGUgY3g9IjM4MCIgY3k9IjI3MCIgcj0iNCIgZmlsbD0iIzFkMjQzMyIvPgo8dGV4dCB4PSIzNjYiIHk9IjI4OCIgZm9udC13ZWlnaHQ9IjYwMCIgZmlsbD0iIzFkMjQzMyI+QTwvdGV4dD4KPHRleHQgeD0iNDIwIiB5PSIxOTAiIGZvbnQtd2VpZ2h0PSI2MDAiIGZpbGw9IiNjNjI4MjgiPlJfQSAozrggPSA3LDLCsCk8L3RleHQ+Cjx0ZXh0IHg9IjM1MiIgeT0iMTMyIiB0ZXh0LWFuY2hvcj0iZW5kIiBmb250LXNpemU9IjEyIiBmaWxsPSIjMWQyNDMzIj5OX0EgPSA1ODcgTjwvdGV4dD4KPHRleHQgeD0iNDI0IiB5PSIyNjIiIGZvbnQtc2l6ZT0iMTIiIGZpbGw9IiMxZDI0MzMiPkZfdCA9IDc0LDEgTjwvdGV4dD4KPHRleHQgeD0iNTA1IiB5PSIxNTAiIGZvbnQtc2l6ZT0iMTIiIGZpbGw9IiMxZjZmZWIiPnJvdXRlIHPDqGNoZSA6IM+GID0gMzXCsDwvdGV4dD4KPHRleHQgeD0iNTA1IiB5PSIxNjYiIGZvbnQtc2l6ZT0iMTIiIGZpbGw9IiMxZjZmZWIiPihSX0EgZGVkYW5zIDogcGFzIGRlIGdsaXNzZW1lbnQpPC90ZXh0Pgo8dGV4dCB4PSIxNjAiIHk9IjgwIiBmb250LXNpemU9IjEyIiBmaWxsPSIjYzYyODI4Ij52ZXJnbGFzIDogz4YgPSA1LDfCsDwvdGV4dD4KPHRleHQgeD0iMTYwIiB5PSI5NiIgZm9udC1zaXplPSIxMiIgZmlsbD0iI2M2MjgyOCI+KFJfQSBkZWhvcnMgOiBsYSByb3VlIHBhdGluZSk8L3RleHQ+Cjx0ZXh0IHg9IjI0IiB5PSIzMTUiIGZvbnQtc2l6ZT0iMTEuNSIgZmlsbD0iIzViNjQ3OCI+UGFzIGRlIGdsaXNzZW1lbnQgdGFudCBxdWUgUl9BIHJlc3RlIGRhbnMgbGUgY8O0bmUgOiDOuCDiiaQgz4YsIHNvaXQgRl90IOKJpCBmIMK3IE5fQS4gQW5nbGVzIGV4YWfDqXLDqXMgcG91ciBsYSBsaXNpYmlsaXTDqS48L3RleHQ+Cjwvc3ZnPgo=", "dr6c": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA3NjAgMzYwIiBmb250LWZhbWlseT0iSGVsdmV0aWNhLCBBcmlhbCwgc2Fucy1zZXJpZiI+PHRleHQgeD0iMjQiIHk9IjI4IiBmb250LXNpemU9IjE1IiBmaWxsPSIjMWQyNDMzIiB0ZXh0LWFuY2hvcj0ic3RhcnQiIGZvbnQtd2VpZ2h0PSI2MDAiPkRSNiBjb3JyaWfDqSDigJMgVHJhY2VyIGxhIHZpdGVzc2Ugdih0KTwvdGV4dD48dGV4dCB4PSIyNCIgeT0iNDciIGZvbnQtc2l6ZT0iMTEiIGZpbGw9IiM1YjY0NzgiIHRleHQtYW5jaG9yPSJzdGFydCIgZm9udC13ZWlnaHQ9Im5vcm1hbCI+TCdhaXJlIHNvdXMgbGEgY291cmJlIHYodCkgZXN0IMOpZ2FsZSDDoCBsYSBkaXN0YW5jZSBwYXJjb3VydWUuPC90ZXh0Pjx0ZXh0IHg9IjIxMC4wIiB5PSI2NCIgZm9udC1zaXplPSIxMyIgZmlsbD0iIzFkMjQzMyIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC13ZWlnaHQ9IjYwMCI+RTEg4oCTIETDqW1hcnJhZ2Ugc3VyIGxlIHBsYXQ8L3RleHQ+PGxpbmUgeDE9IjcwLjAiIHkxPSI5MiIgeDI9IjcwLjAiIHkyPSIzMDIiIHN0cm9rZT0iI2Q2ZGJlNCIvPjx0ZXh0IHg9IjcwLjAiIHk9IjMxOCIgZm9udC1zaXplPSIxMSIgZmlsbD0iIzViNjQ3OCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC13ZWlnaHQ9Im5vcm1hbCI+MDwvdGV4dD48bGluZSB4MT0iOTMuMzMzMzMzMzMzMzMzMzMiIHkxPSI5MiIgeDI9IjkzLjMzMzMzMzMzMzMzMzMzIiB5Mj0iMzAyIiBzdHJva2U9IiNkNmRiZTQiLz48bGluZSB4MT0iMTE2LjY2NjY2NjY2NjY2NjY2IiB5MT0iOTIiIHgyPSIxMTYuNjY2NjY2NjY2NjY2NjYiIHkyPSIzMDIiIHN0cm9rZT0iI2Q2ZGJlNCIvPjx0ZXh0IHg9IjExNi42NjY2NjY2NjY2NjY2NiIgeT0iMzE4IiBmb250LXNpemU9IjExIiBmaWxsPSIjNWI2NDc4IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXdlaWdodD0ibm9ybWFsIj4yPC90ZXh0PjxsaW5lIHgxPSIxNDAuMCIgeTE9IjkyIiB4Mj0iMTQwLjAiIHkyPSIzMDIiIHN0cm9rZT0iI2Q2ZGJlNCIvPjxsaW5lIHgxPSIxNjMuMzMzMzMzMzMzMzMzMzEiIHkxPSI5MiIgeDI9IjE2My4zMzMzMzMzMzMzMzMzMSIgeTI9IjMwMiIgc3Ryb2tlPSIjZDZkYmU0Ii8+PHRleHQgeD0iMTYzLjMzMzMzMzMzMzMzMzMxIiB5PSIzMTgiIGZvbnQtc2l6ZT0iMTEiIGZpbGw9IiM1YjY0NzgiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtd2VpZ2h0PSJub3JtYWwiPjQ8L3RleHQ+PGxpbmUgeDE9IjE4Ni42NjY2NjY2NjY2NjY2NiIgeTE9IjkyIiB4Mj0iMTg2LjY2NjY2NjY2NjY2NjY2IiB5Mj0iMzAyIiBzdHJva2U9IiNkNmRiZTQiLz48bGluZSB4MT0iMjEwLjAiIHkxPSI5MiIgeDI9IjIxMC4wIiB5Mj0iMzAyIiBzdHJva2U9IiNkNmRiZTQiLz48dGV4dCB4PSIyMTAuMCIgeT0iMzE4IiBmb250LXNpemU9IjExIiBmaWxsPSIjNWI2NDc4IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXdlaWdodD0ibm9ybWFsIj42PC90ZXh0PjxsaW5lIHgxPSIyMzMuMzMzMzMzMzMzMzMzMzEiIHkxPSI5MiIgeDI9IjIzMy4zMzMzMzMzMzMzMzMzMSIgeTI9IjMwMiIgc3Ryb2tlPSIjZDZkYmU0Ii8+PGxpbmUgeDE9IjI1Ni42NjY2NjY2NjY2NjY2MyIgeTE9IjkyIiB4Mj0iMjU2LjY2NjY2NjY2NjY2NjYzIiB5Mj0iMzAyIiBzdHJva2U9IiNkNmRiZTQiLz48dGV4dCB4PSIyNTYuNjY2NjY2NjY2NjY2NjMiIHk9IjMxOCIgZm9udC1zaXplPSIxMSIgZmlsbD0iIzViNjQ3OCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC13ZWlnaHQ9Im5vcm1hbCI+ODwvdGV4dD48bGluZSB4MT0iMjgwLjAiIHkxPSI5MiIgeDI9IjI4MC4wIiB5Mj0iMzAyIiBzdHJva2U9IiNkNmRiZTQiLz48bGluZSB4MT0iMzAzLjMzMzMzMzMzMzMzMzMiIHkxPSI5MiIgeDI9IjMwMy4zMzMzMzMzMzMzMzMzIiB5Mj0iMzAyIiBzdHJva2U9IiNkNmRiZTQiLz48dGV4dCB4PSIzMDMuMzMzMzMzMzMzMzMzMyIgeT0iMzE4IiBmb250LXNpemU9IjExIiBmaWxsPSIjNWI2NDc4IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXdlaWdodD0ibm9ybWFsIj4xMDwvdGV4dD48bGluZSB4MT0iMzI2LjY2NjY2NjY2NjY2NjYzIiB5MT0iOTIiIHgyPSIzMjYuNjY2NjY2NjY2NjY2NjMiIHkyPSIzMDIiIHN0cm9rZT0iI2Q2ZGJlNCIvPjxsaW5lIHgxPSIzNTAuMCIgeTE9IjkyIiB4Mj0iMzUwLjAiIHkyPSIzMDIiIHN0cm9rZT0iI2Q2ZGJlNCIvPjx0ZXh0IHg9IjM1MC4wIiB5PSIzMTgiIGZvbnQtc2l6ZT0iMTEiIGZpbGw9IiM1YjY0NzgiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtd2VpZ2h0PSJub3JtYWwiPjEyPC90ZXh0PjxsaW5lIHgxPSI3MCIgeTE9IjMwMi4wIiB4Mj0iMzUwIiB5Mj0iMzAyLjAiIHN0cm9rZT0iI2Q2ZGJlNCIvPjx0ZXh0IHg9IjYyIiB5PSIzMDYuMCIgZm9udC1zaXplPSIxMSIgZmlsbD0iIzViNjQ3OCIgdGV4dC1hbmNob3I9ImVuZCIgZm9udC13ZWlnaHQ9Im5vcm1hbCI+MDwvdGV4dD48bGluZSB4MT0iNzAiIHkxPSIyNjcuMCIgeDI9IjM1MCIgeTI9IjI2Ny4wIiBzdHJva2U9IiNkNmRiZTQiLz48dGV4dCB4PSI2MiIgeT0iMjcxLjAiIGZvbnQtc2l6ZT0iMTEiIGZpbGw9IiM1YjY0NzgiIHRleHQtYW5jaG9yPSJlbmQiIGZvbnQtd2VpZ2h0PSJub3JtYWwiPjE8L3RleHQ+PGxpbmUgeDE9IjcwIiB5MT0iMjMyLjAiIHgyPSIzNTAiIHkyPSIyMzIuMCIgc3Ryb2tlPSIjZDZkYmU0Ii8+PHRleHQgeD0iNjIiIHk9IjIzNi4wIiBmb250LXNpemU9IjExIiBmaWxsPSIjNWI2NDc4IiB0ZXh0LWFuY2hvcj0iZW5kIiBmb250LXdlaWdodD0ibm9ybWFsIj4yPC90ZXh0PjxsaW5lIHgxPSI3MCIgeTE9IjE5Ny4wIiB4Mj0iMzUwIiB5Mj0iMTk3LjAiIHN0cm9rZT0iI2Q2ZGJlNCIvPjx0ZXh0IHg9IjYyIiB5PSIyMDEuMCIgZm9udC1zaXplPSIxMSIgZmlsbD0iIzViNjQ3OCIgdGV4dC1hbmNob3I9ImVuZCIgZm9udC13ZWlnaHQ9Im5vcm1hbCI+MzwvdGV4dD48bGluZSB4MT0iNzAiIHkxPSIxNjIuMCIgeDI9IjM1MCIgeTI9IjE2Mi4wIiBzdHJva2U9IiNkNmRiZTQiLz48dGV4dCB4PSI2MiIgeT0iMTY2LjAiIGZvbnQtc2l6ZT0iMTEiIGZpbGw9IiM1YjY0NzgiIHRleHQtYW5jaG9yPSJlbmQiIGZvbnQtd2VpZ2h0PSJub3JtYWwiPjQ8L3RleHQ+PGxpbmUgeDE9IjcwIiB5MT0iMTI3LjAiIHgyPSIzNTAiIHkyPSIxMjcuMCIgc3Ryb2tlPSIjZDZkYmU0Ii8+PHRleHQgeD0iNjIiIHk9IjEzMS4wIiBmb250LXNpemU9IjExIiBmaWxsPSIjNWI2NDc4IiB0ZXh0LWFuY2hvcj0iZW5kIiBmb250LXdlaWdodD0ibm9ybWFsIj41PC90ZXh0PjxsaW5lIHgxPSI3MCIgeTE9IjkyLjAiIHgyPSIzNTAiIHkyPSI5Mi4wIiBzdHJva2U9IiNkNmRiZTQiLz48dGV4dCB4PSI2MiIgeT0iOTYuMCIgZm9udC1zaXplPSIxMSIgZmlsbD0iIzViNjQ3OCIgdGV4dC1hbmNob3I9ImVuZCIgZm9udC13ZWlnaHQ9Im5vcm1hbCI+NjwvdGV4dD48bGluZSB4MT0iNzAiIHkxPSIzMDIiIHgyPSIzNTgiIHkyPSIzMDIiIHN0cm9rZT0iIzFkMjQzMyIgc3Ryb2tlLXdpZHRoPSIxLjUiLz48bGluZSB4MT0iNzAiIHkxPSIzMDIiIHgyPSI3MCIgeTI9Ijg2IiBzdHJva2U9IiMxZDI0MzMiIHN0cm9rZS13aWR0aD0iMS41Ii8+PHRleHQgeD0iMzU0IiB5PSIzMzQiIGZvbnQtc2l6ZT0iMTEiIGZpbGw9IiMxZDI0MzMiIHRleHQtYW5jaG9yPSJlbmQiIGZvbnQtd2VpZ2h0PSJub3JtYWwiPnQgKHMpPC90ZXh0Pjx0ZXh0IHg9Ijc2IiB5PSI4MiIgZm9udC1zaXplPSIxMSIgZmlsbD0iIzFkMjQzMyIgdGV4dC1hbmNob3I9InN0YXJ0IiBmb250LXdlaWdodD0ibm9ybWFsIj52IChtL3MpPC90ZXh0Pjxwb2x5bGluZSBwb2ludHM9IjcwLjAsMzAyLjAgMzAzLjMzMzMzMzMzMzMzMzMsMTI3LjAgMzUwLjAsMTI3LjAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2M2MjgyOCIgc3Ryb2tlLXdpZHRoPSIyLjUiLz48dGV4dCB4PSI1ODUuMCIgeT0iNjQiIGZvbnQtc2l6ZT0iMTMiIGZpbGw9IiMxZDI0MzMiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtd2VpZ2h0PSI2MDAiPkUyIOKAkyBSw6lhY3Rpb24gcHVpcyBmcmVpbmFnZTwvdGV4dD48bGluZSB4MT0iNDUwLjAiIHkxPSI5MiIgeDI9IjQ1MC4wIiB5Mj0iMzAyIiBzdHJva2U9IiNkNmRiZTQiLz48dGV4dCB4PSI0NTAuMCIgeT0iMzE4IiBmb250LXNpemU9IjExIiBmaWxsPSIjNWI2NDc4IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXdlaWdodD0ibm9ybWFsIj4wPC90ZXh0PjxsaW5lIHgxPSI0OTUuMCIgeTE9IjkyIiB4Mj0iNDk1LjAiIHkyPSIzMDIiIHN0cm9rZT0iI2Q2ZGJlNCIvPjxsaW5lIHgxPSI1NDAuMCIgeTE9IjkyIiB4Mj0iNTQwLjAiIHkyPSIzMDIiIHN0cm9rZT0iI2Q2ZGJlNCIvPjx0ZXh0IHg9IjU0MC4wIiB5PSIzMTgiIGZvbnQtc2l6ZT0iMTEiIGZpbGw9IiM1YjY0NzgiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtd2VpZ2h0PSJub3JtYWwiPjI8L3RleHQ+PGxpbmUgeDE9IjU4NS4wIiB5MT0iOTIiIHgyPSI1ODUuMCIgeTI9IjMwMiIgc3Ryb2tlPSIjZDZkYmU0Ii8+PGxpbmUgeDE9IjYzMC4wIiB5MT0iOTIiIHgyPSI2MzAuMCIgeTI9IjMwMiIgc3Ryb2tlPSIjZDZkYmU0Ii8+PHRleHQgeD0iNjMwLjAiIHk9IjMxOCIgZm9udC1zaXplPSIxMSIgZmlsbD0iIzViNjQ3OCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC13ZWlnaHQ9Im5vcm1hbCI+NDwvdGV4dD48bGluZSB4MT0iNjc1LjAiIHkxPSI5MiIgeDI9IjY3NS4wIiB5Mj0iMzAyIiBzdHJva2U9IiNkNmRiZTQiLz48bGluZSB4MT0iNzIwLjAiIHkxPSI5MiIgeDI9IjcyMC4wIiB5Mj0iMzAyIiBzdHJva2U9IiNkNmRiZTQiLz48dGV4dCB4PSI3MjAuMCIgeT0iMzE4IiBmb250LXNpemU9IjExIiBmaWxsPSIjNWI2NDc4IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXdlaWdodD0ibm9ybWFsIj42PC90ZXh0PjxsaW5lIHgxPSI0NTAiIHkxPSIzMDIuMCIgeDI9IjcyMCIgeTI9IjMwMi4wIiBzdHJva2U9IiNkNmRiZTQiLz48dGV4dCB4PSI0NDIiIHk9IjMwNi4wIiBmb250LXNpemU9IjExIiBmaWxsPSIjNWI2NDc4IiB0ZXh0LWFuY2hvcj0iZW5kIiBmb250LXdlaWdodD0ibm9ybWFsIj4wPC90ZXh0PjxsaW5lIHgxPSI0NTAiIHkxPSIyNjcuMCIgeDI9IjcyMCIgeTI9IjI2Ny4wIiBzdHJva2U9IiNkNmRiZTQiLz48dGV4dCB4PSI0NDIiIHk9IjI3MS4wIiBmb250LXNpemU9IjExIiBmaWxsPSIjNWI2NDc4IiB0ZXh0LWFuY2hvcj0iZW5kIiBmb250LXdlaWdodD0ibm9ybWFsIj4xPC90ZXh0PjxsaW5lIHgxPSI0NTAiIHkxPSIyMzIuMCIgeDI9IjcyMCIgeTI9IjIzMi4wIiBzdHJva2U9IiNkNmRiZTQiLz48dGV4dCB4PSI0NDIiIHk9IjIzNi4wIiBmb250LXNpemU9IjExIiBmaWxsPSIjNWI2NDc4IiB0ZXh0LWFuY2hvcj0iZW5kIiBmb250LXdlaWdodD0ibm9ybWFsIj4yPC90ZXh0PjxsaW5lIHgxPSI0NTAiIHkxPSIxOTcuMCIgeDI9IjcyMCIgeTI9IjE5Ny4wIiBzdHJva2U9IiNkNmRiZTQiLz48dGV4dCB4PSI0NDIiIHk9IjIwMS4wIiBmb250LXNpemU9IjExIiBmaWxsPSIjNWI2NDc4IiB0ZXh0LWFuY2hvcj0iZW5kIiBmb250LXdlaWdodD0ibm9ybWFsIj4zPC90ZXh0PjxsaW5lIHgxPSI0NTAiIHkxPSIxNjIuMCIgeDI9IjcyMCIgeTI9IjE2Mi4wIiBzdHJva2U9IiNkNmRiZTQiLz48dGV4dCB4PSI0NDIiIHk9IjE2Ni4wIiBmb250LXNpemU9IjExIiBmaWxsPSIjNWI2NDc4IiB0ZXh0LWFuY2hvcj0iZW5kIiBmb250LXdlaWdodD0ibm9ybWFsIj40PC90ZXh0PjxsaW5lIHgxPSI0NTAiIHkxPSIxMjcuMCIgeDI9IjcyMCIgeTI9IjEyNy4wIiBzdHJva2U9IiNkNmRiZTQiLz48dGV4dCB4PSI0NDIiIHk9IjEzMS4wIiBmb250LXNpemU9IjExIiBmaWxsPSIjNWI2NDc4IiB0ZXh0LWFuY2hvcj0iZW5kIiBmb250LXdlaWdodD0ibm9ybWFsIj41PC90ZXh0PjxsaW5lIHgxPSI0NTAiIHkxPSI5Mi4wIiB4Mj0iNzIwIiB5Mj0iOTIuMCIgc3Ryb2tlPSIjZDZkYmU0Ii8+PHRleHQgeD0iNDQyIiB5PSI5Ni4wIiBmb250LXNpemU9IjExIiBmaWxsPSIjNWI2NDc4IiB0ZXh0LWFuY2hvcj0iZW5kIiBmb250LXdlaWdodD0ibm9ybWFsIj42PC90ZXh0PjxsaW5lIHgxPSI0NTAiIHkxPSIzMDIiIHgyPSI3MjgiIHkyPSIzMDIiIHN0cm9rZT0iIzFkMjQzMyIgc3Ryb2tlLXdpZHRoPSIxLjUiLz48bGluZSB4MT0iNDUwIiB5MT0iMzAyIiB4Mj0iNDUwIiB5Mj0iODYiIHN0cm9rZT0iIzFkMjQzMyIgc3Ryb2tlLXdpZHRoPSIxLjUiLz48dGV4dCB4PSI3MjQiIHk9IjMzNCIgZm9udC1zaXplPSIxMSIgZmlsbD0iIzFkMjQzMyIgdGV4dC1hbmNob3I9ImVuZCIgZm9udC13ZWlnaHQ9Im5vcm1hbCI+dCAocyk8L3RleHQ+PHRleHQgeD0iNDU2IiB5PSI4MiIgZm9udC1zaXplPSIxMSIgZmlsbD0iIzFkMjQzMyIgdGV4dC1hbmNob3I9InN0YXJ0IiBmb250LXdlaWdodD0ibm9ybWFsIj52IChtL3MpPC90ZXh0Pjxwb2x5bGluZSBwb2ludHM9IjQ1MC4wLDEyNy4wIDQ5NS4wLDEyNy4wIDY3NS4wLDMwMi4wIDcyMC4wLDMwMi4wIiBmaWxsPSJub25lIiBzdHJva2U9IiNjNjI4MjgiIHN0cm9rZS13aWR0aD0iMi41Ii8+PHRleHQgeD0iMTYwIiB5PSIxODIiIGZvbnQtc2l6ZT0iMTIiIGZpbGw9IiNjNjI4MjgiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtd2VpZ2h0PSI2MDAiPnYgPSAwLDUgwrcgdDwvdGV4dD48dGV4dCB4PSI0NTIiIHk9IjExOCIgZm9udC1zaXplPSIxMSIgZmlsbD0iI2M2MjgyOCIgdGV4dC1hbmNob3I9InN0YXJ0IiBmb250LXdlaWdodD0ibm9ybWFsIj5yw6lhY3Rpb248L3RleHQ+PHRleHQgeD0iNTYwIiB5PSIxODIiIGZvbnQtc2l6ZT0iMTIiIGZpbGw9IiNjNjI4MjgiIHRleHQtYW5jaG9yPSJzdGFydCIgZm9udC13ZWlnaHQ9IjYwMCI+diA9IDUg4oiSIDEsMjUgwrcgKHQg4oiSIDEpPC90ZXh0Pjx0ZXh0IHg9IjIyMCIgeT0iMzQ2IiBmb250LXNpemU9IjExLjUiIGZpbGw9IiNjNjI4MjgiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtd2VpZ2h0PSJub3JtYWwiPmFpcmUgc291cyBsYSBjb3VyYmUgPSB44oKBID0gMjUgbTwvdGV4dD48dGV4dCB4PSI1ODUiIHk9IjM0NiIgZm9udC1zaXplPSIxMS41IiBmaWxsPSIjYzYyODI4IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXdlaWdodD0ibm9ybWFsIj5haXJlID0gNSArIDEwID0gMTUgbTwvdGV4dD48L3N2Zz4="};
+const V = s => `<span class="vec">${s}</span>`;
+const R = s => `<span class="box">${s}</span>`;
+const F = s => `<span class="f">${s}</span>`;
+const col = (a,b,c) => `<span class="col"><span class="p">(</span><span class="c"><span>${a}</span><span>${b}</span><span>${c}</span></span><span class="p">)</span></span>`;
+const T = (name, X, Y, N, pt) => `<span class="tor"><span class="f">{${name}}&nbsp;=</span><span class="br">{</span><table><tr><td>${X}</td><td>0</td></tr><tr><td>${Y}</td><td>0</td></tr><tr><td>0</td><td>${N}</td></tr></table><span class="br">}</span><span class="pt">${pt}</span></span>`;
+const fig = (k, cap) => `<figure><img src="${IMG[k]}" alt="${cap}"><figcaption>${cap}</figcaption></figure>`;
+const S = (k, html) => ({k, html});
+
+const DATA = {
+e1: [
+ {part:"Épreuve 1 – Barrière levante de parking · Partie A : actions mécaniques (7 pts)"},
+ {id:"1A1", t:"Poids de la lisse", p:"0,5 pt", e:"m = 6 kg ; g = 9,81 m/s².", ans:{v:58.9,u:"N"},
+  s:[S("Formule", F("P = m · g")), S("Application numérique", F("P = 6 × 9,81 = 58,86 N")), S("Résultat", R("P ≈ 58,9 N"))]},
+ {id:"1A2", t:"Torseur du poids en G, transport en O", p:"1,5 pt", e:"Écrire {T_pes} en G puis en O. OG = 2 m, x vers l'extrémité de la lisse, y vers le haut.", ans:{v:-117.7,u:"N·m (moment en O, signe compris)"},
+  s:[S("Torseur au point d'application G", `Le poids est vertical vers le bas : ${F(V("R")+" = −58,9 · "+V("y"))}. Son moment en G est nul (la force passe par G).<br>${T("T_pes","0","−58,9","0","G")}`),
+     S("Relation de transport (Varignon)", F(V("M")+"<sub>O</sub> = "+V("M")+"<sub>G</sub> + "+V("OG")+" ∧ "+V("R"))),
+     S("Produit vectoriel en colonnes", `${F(V("OG"))} = 2 · ${V("x")} :&nbsp; ${col("2","0","0")} ∧ ${col("0","−58,9","0")} = ${col("0","0","2 × (−58,9)")} = ${col("0","0","<span class='r'>−117,7</span>")}<br><span class="note">Composante en z : X<sub>1</sub>·Y<sub>2</sub> − Y<sub>1</sub>·X<sub>2</sub> = 2 × (−58,9) − 0 × 0.</span>`),
+     S("Torseur réduit en O", T("T_pes","0","−58,9","<span class='r'>−117,7</span>","O")+"<br>"+R("M<sub>O</sub>(P) = −117,7 · z N·m")),
+     S("Interprétation", "Le signe <b>moins</b> (sens horaire) signifie que le poids tend à faire <b>redescendre</b> la lisse.")]},
+ {id:"1A3", t:"Moment du poids en fonction de l'angle θ", p:"1 pt", e:"La lisse fait un angle θ avec l'horizontale.", ans:{v:-83.2,u:"N·m pour θ = 45°"},
+  s:[S("Nouveau vecteur position", F(V("OG")+" = 2 cos θ · "+V("x")+" + 2 sin θ · "+V("y"))),
+     S("Produit vectoriel", `${col("2 cos θ","2 sin θ","0")} ∧ ${col("0","−58,9","0")} = ${col("0","0","−117,7 · cos θ")}<br><span class="note">Seul le bras de levier horizontal 2 cos θ compte : la composante verticale de ${V("OG")} est parallèle au poids.</span>`),
+     S("Applications", `θ = 45° : ${F("−117,7 × cos 45° = −117,7 × 0,707")} = ${R("−83,2 N·m")}<br>θ = 90° : ${F("cos 90° = 0")} ⇒ ${R("M = 0")} (le poids passe par O).`),
+     S("Conclusion", "Le moteur est le plus sollicité quand la lisse est <b>horizontale</b> (θ = 0°, bras de levier maximal de 2 m).")],
+  sim:"theta"},
+ {id:"1A4", t:"Torseur du ressort, moment en O", p:"1 pt", e:"F_r = 900 N vertical vers le bas en B ; OB = 0,10 m derrière l'axe.", ans:{v:90,u:"N·m"},
+  s:[S("Torseur en B", T("T_ressort","0","−900","0","B")),
+     S("Vecteur position", `B est <b>derrière</b> O : ${F(V("OB")+" = −0,10 · "+V("x"))}`),
+     S("Transport en O", `${col("−0,10","0","0")} ∧ ${col("0","−900","0")} = ${col("0","0","(−0,10)×(−900)")} = ${col("0","0","<span class='r'>+90</span>")}<br>${T("T_ressort","0","−900","<span class='r'>+90</span>","O")}`),
+     S("Rôle du levier derrière l'axe", "Le moment du ressort (+90 N·m) est de <b>sens opposé</b> à celui du poids (−117,7 N·m) : le ressort aide le moteur à lever la lisse.")]},
+ {id:"1A5", t:"Torseur de la liaison pivot", p:"0,5 pt", e:"Pivot parfaite d'axe (O, z), problème plan (x, y).",
+  s:[S("Degrés de liberté", "Une pivot d'axe z autorise la rotation autour de z : elle ne transmet <b>aucun moment selon z</b> (liaison parfaite)."),
+     S("Torseur transmissible (problème plan)", T("T_pivot","X<sub>O</sub>","Y<sub>O</sub>","0","O")),
+     S("Couple moteur", T("T_moteur","0","0","C<sub>s</sub>","O"))]},
+ {id:"1A6", t:"PFS en O : actions du pivot et couple C_s", p:"2 pts", e:"On isole E = {lisse + levier}, lisse horizontale.", ans:{v:27.7,u:"N·m (C_s)"},
+  s:[S("Bilan des actions extérieures", "Poids (en G), ressort (en B), pivot (en O), couple du motoréducteur C<sub>s</sub>."),
+     S("Tous les torseurs réduits au même point O", `${T("T_pes","0","−58,9","−117,7","O")} ${T("T_ressort","0","−900","+90","O")}<br>${T("T_pivot","X<sub>O</sub>","Y<sub>O</sub>","0","O")} ${T("T_moteur","0","0","C<sub>s</sub>","O")}`),
+     S("PFS : la somme est le torseur nul", `Résultante selon x : ${F("X<sub>O</sub> = 0")}<br>Résultante selon y : ${F("Y<sub>O</sub> − 58,9 − 900 = 0")} ⇒ ${R("Y<sub>O</sub> = 959 N")}<br>Moment en O selon z : ${F("C<sub>s</sub> − 117,7 + 90 = 0")} ⇒ ${R("C<sub>s</sub> = 27,7 N·m")}`),
+     S("Remarque", "<span class='note'>On a choisi O car les inconnues X<sub>O</sub> et Y<sub>O</sub> y ont un moment nul : l'équation de moment donne directement C<sub>s</sub>.</span>")]},
+ {id:"1A7", t:"Sans ressort", p:"0,5 pt", e:"Couple sans ressort ; force F_r qui compenserait exactement le poids.", ans:{v:1177,u:"N (F_r)"},
+  s:[S("Sans ressort", `${F("C<sub>s</sub> − 117,7 = 0")} ⇒ ${R("C<sub>s</sub> = 117,7 N·m")}`),
+     S("Compensation totale", `Il faut ${F("F<sub>r</sub> × OB = 117,7")} ⇒ ${F("F<sub>r</sub> = 117,7 / 0,10")} = ${R("1177 N")}`)]},
+
+ {part:"Partie B : transmission de puissance (4 pts)"},
+ {id:"1B1", t:"Chaîne de transmission (DR1)", p:"1 pt", e:"Vis 1 filet / roue 50 dents ; pignon 15 dents / roue 90 dents ; N_m = 1500 tr/min.", ans:{v:30,u:"tr/min (N_roue)"},
+  s:[S("Roue et vis sans fin", `${F("r<sub>1</sub> = nombre de filets / Z<sub>roue</sub> = 1 / 50")} ⇒ ${F("N<sub>roue</sub> = 1500 / 50")} = ${R("30 tr/min")}`),
+     S("Engrenage", `${F("r<sub>2</sub> = Z<sub>menante</sub> / Z<sub>menée</sub> = 15 / 90 = 1/6")} ⇒ ${F("N<sub>lisse</sub> = 30 / 6")} = ${R("5 tr/min")}`),
+     S("DR1 complété", `<div class="chain"><div class="b">Moteur<br>1500 tr/min</div><div class="a">r₁ = 1/50<b>→</b></div><div class="b">Roue-vis<br>30 tr/min</div><div class="a">r₂ = 1/6<b>→</b></div><div class="b">Engrenage<br>5 tr/min</div><div class="a"><b>→</b></div><div class="b end">Lisse<br>5 tr/min</div></div>`)]},
+ {id:"1B2", t:"Rapport global", p:"1 pt", e:"r = N_lisse / N_m.", ans:{v:0.00333,u:"(sans unité)"},
+  s:[S("Étages en série : on multiplie", F("r = r<sub>1</sub> × r<sub>2</sub> = (1/50) × (15/90)")), S("Résultat", R("r = 1/300 ≈ 0,00333"))]},
+ {id:"1B3", t:"Vitesse de rotation de la lisse", p:"0,5 pt", e:"En tr/min puis en rad/s.", ans:{v:0.524,u:"rad/s"},
+  s:[S("En tr/min", `${F("N<sub>lisse</sub> = r · N<sub>m</sub> = 1500 / 300")} = ${R("5 tr/min")}`),
+     S("En rad/s", `${F("ω = 2π · N / 60 = 2π × 5 / 60")} = ${R("0,524 rad/s")}`)]},
+ {id:"1B4", t:"Durée d'ouverture", p:"1 pt", e:"Rotation de 90° ; exigence ≤ 4 s.", ans:{v:3.0,u:"s"},
+  s:[S("Angle en radians", F("90° = π/2 rad = 1,571 rad")),
+     S("Mouvement de rotation uniforme", `${F("t = θ / ω = 1,571 / 0,524")} = ${R("3,0 s")}`),
+     S("Conclusion", "3,0 s ≤ 4 s : <span class='tag ok'>exigence respectée</span>")]},
+ {id:"1B5", t:"Irréversibilité", p:"0,5 pt", e:"Rester en position en cas de coupure.",
+  s:[S("Réponse", "Le système roue et vis sans fin est <b>irréversible</b> : à cause des frottements, la roue (donc la lisse) ne peut pas entraîner la vis. Moteur coupé, la lisse reste bloquée dans sa position.")]},
+
+ {part:"Partie C : énergie et rendement (6 pts)"},
+ {id:"1C1", t:"Puissance utile sur l'axe de la lisse", p:"1 pt", e:"C_s = 27,7 N·m supposé constant.", ans:{v:14.5,u:"W"},
+  s:[S("Formule", F("P<sub>u</sub> = C<sub>s</sub> · ω")), S("Application", `${F("P<sub>u</sub> = 27,7 × 0,524")} = ${R("14,5 W")}`)]},
+ {id:"1C2", t:"Rendement mécanique et puissance moteur", p:"1 pt", e:"η₁ = 0,60 ; η₂ = 0,95.", ans:{v:25.5,u:"W (P_mot)"},
+  s:[S("Rendements en série", `${F("η<sub>méca</sub> = η<sub>1</sub> × η<sub>2</sub> = 0,60 × 0,95")} = ${R("0,57")}`),
+     S("Puissance moteur", `${F("P<sub>mot</sub> = P<sub>u</sub> / η<sub>méca</sub> = 14,5 / 0,57")} = ${R("25,5 W")}`)]},
+ {id:"1C3", t:"Couple sur l'arbre moteur", p:"1 pt", e:"Vérifier par C_mot = C_s · r / η_méca.", ans:{v:0.162,u:"N·m"},
+  s:[S("Vitesse angulaire du moteur", F("ω<sub>m</sub> = 2π × 1500 / 60 = 157,1 rad/s")),
+     S("Couple", `${F("C<sub>mot</sub> = P<sub>mot</sub> / ω<sub>m</sub> = 25,5 / 157,1")} = ${R("0,162 N·m")}`),
+     S("Vérification", F("C<sub>mot</sub> = 27,7 × (1/300) / 0,57 = 0,162 N·m ✓"))]},
+ {id:"1C4", t:"Puissance électrique et intensité", p:"1 pt", e:"η_mot = 0,80 ; U = 24 V ; exigence ≤ 60 W.", ans:{v:31.8,u:"W"},
+  s:[S("Puissance absorbée", `${F("P<sub>élec</sub> = P<sub>mot</sub> / η<sub>mot</sub> = 25,5 / 0,80")} = ${R("31,8 W")}`),
+     S("Intensité", `${F("I = P / U = 31,8 / 24")} = ${R("1,33 A")}`),
+     S("Conclusion", "31,8 W ≤ 60 W : <span class='tag ok'>exigence respectée</span>")]},
+ {id:"1C5", t:"Sans ressort", p:"1 pt", e:"Reprendre C1 à C4 avec C_s = 117,7 N·m.", ans:{v:135,u:"W (P_élec)"},
+  s:[S("Chaîne de calcul", `${F("P<sub>u</sub> = 117,7 × 0,524 = 61,6 W")}<br>${F("P<sub>mot</sub> = 61,6 / 0,57 = 108 W")}<br>${F("C<sub>mot</sub> = 108 / 157,1 = 0,688 N·m")}<br>${F("P<sub>élec</sub> = 108 / 0,80")} = ${R("135 W")}`),
+     S("Conclusion", "135 W > 60 W <span class='tag ko'>non respecté</span>. Le ressort divise la puissance nécessaire par environ 135 / 31,8 ≈ <b>4,2</b>.")]},
+ {id:"1C6", t:"Bilan énergétique d'une ouverture", p:"1 pt", e:"Énergie potentielle gagnée, énergie électrique consommée.", ans:{v:118,u:"J (E_p)"},
+  s:[S("Énergie potentielle", `G passe de la hauteur de l'axe à 2 m au-dessus : ${F("E<sub>p</sub> = P · Δz = 58,9 × 2")} = ${R("118 J")}`),
+     S("Énergie électrique (majorée)", `${F("E<sub>élec</sub> = P<sub>élec</sub> · t = 31,8 × 3,0")} ≈ ${R("95 J")}`),
+     S("Explication", `E<sub>élec</sub> &lt; E<sub>p</sub> car le <b>ressort</b> fournit de l'énergie : B descend de 0,10 m, d'où ${F("W = F<sub>r</sub> × 0,10 = 90 J")}. Cette énergie a été stockée pendant la fermeture (la lisse en descendant tend le ressort).`)]},
+
+ {part:"Partie D : choix du moteur (3 pts)"},
+ {id:"1D1", t:"Moteur adapté avec ressort", p:"1 pt", e:"Comparer avec le document 1.",
+  s:[S("Besoins", "C<sub>mot</sub> = 0,162 N·m ; P<sub>mot</sub> = 25,5 W ; alimentation 24 V."),
+     S("Comparaison", `<table class="t"><tr><th>Moteur</th><th>Couple</th><th>Puissance</th><th>Tension</th><th>Verdict</th></tr><tr><td>A</td><td>0,13 &lt; 0,162</td><td>20 &lt; 25,5</td><td>24 V</td><td><span class="tag ko">non</span></td></tr><tr><td>B</td><td>0,25 ≥ 0,162</td><td>40 ≥ 25,5</td><td>24 V</td><td><span class="tag ok">oui</span></td></tr><tr><td>C</td><td>0,95</td><td>150</td><td>230 V</td><td><span class="tag ko">non (sécurité)</span></td></tr></table>`),
+     S("Réponse", R("Moteur B"))]},
+ {id:"1D2", t:"Moteur sans ressort", p:"1 pt", e:"",
+  s:[S("Besoins", "C<sub>mot</sub> = 0,688 N·m ; P<sub>mot</sub> = 108 W : seul le <b>moteur C</b> convient (0,95 N·m ; 150 W)."),
+     S("Problème", "Il est alimenté en <b>230 V</b> : l'exigence de sécurité (24 V) n'est plus respectée, et la consommation (135 W) dépasse 60 W.")]},
+ {id:"1D3", t:"Réponse à la problématique", p:"1 pt", e:"",
+  s:[S("Éléments attendus", "Le moteur de 40 W (B) suffit <b>grâce au ressort</b>, qui compense 90 / 117,7 ≈ 76 % du moment du poids. Ouverture en 3 s (≤ 4 s), consommation 32 W (≤ 60 W), transmission irréversible. Sans ressort, il faudrait un moteur 230 V plus puissant, non conforme.")]},
+
+ {part:"Question bonus – Dynamique : phase de démarrage (+2 pts)", bonus:true},
+ {id:"1Ea", t:"Moment d'inertie de la lisse", p:"0,5 pt", e:"Tige homogène, rotation autour d'une extrémité : J_O = m · L² / 3.", ans:{v:32,u:"kg·m²"},
+  s:[S("Application", `${F("J<sub>O</sub> = 6 × 4² / 3 = 96 / 3")} = ${R("32 kg·m²")}`)]},
+ {id:"1Eb", t:"Accélération angulaire", p:"0,5 pt", e:"De 0 à ω = 0,524 rad/s en 0,5 s.", ans:{v:1.05,u:"rad/s²"},
+  s:[S("Accélération constante", `${F("θ'' = Δω / Δt = 0,524 / 0,5")} = ${R("1,05 rad/s²")}`)]},
+ {id:"1Ec", t:"PFD en rotation : couple de démarrage", p:"0,5 pt", e:"C_s + M_O(P) + M_O(F_r) = J_O · θ''.", ans:{v:61.2,u:"N·m"},
+  s:[S("Équation", F("C<sub>s</sub> − 117,7 + 90 = 32 × 1,05")),
+     S("Résolution", `${F("C<sub>s</sub> = 27,7 + 33,5")} = ${R("61,2 N·m")}`),
+     S("Comparaison", "C'est plus du <b>double</b> du couple statique (27,7 N·m) : le terme J · θ'' n'est pas négligeable.")]},
+ {id:"1Ed", t:"Couple moteur au démarrage", p:"0,5 pt", e:"r = 1/300 ; η_méca = 0,57 ; couple de démarrage du moteur B : 0,60 N·m (< 2 s).", ans:{v:0.358,u:"N·m"},
+  s:[S("Couple moteur", `${F("C<sub>mot</sub> = 61,2 × (1/300) / 0,57")} = ${R("0,358 N·m")}`),
+     S("Vérification", "0,25 N·m (nominal) &lt; 0,358 N·m &lt; 0,60 N·m (démarrage), pendant 0,5 s &lt; 2 s : <span class='tag ok'>le moteur B convient</span>."),
+     S("Pourquoi la statique ne suffit pas", "L'étude statique ignore J<sub>O</sub> · θ'' : pendant l'accélération, le moteur doit fournir un couple supplémentaire pour mettre la lisse en rotation.")]},
+],
+
+e2: [
+ {part:"Épreuve 2 – Vélo à assistance électrique · Partie A : efforts en côte (8 pts)"},
+ {id:"2A1", t:"Vitesse et angle de la pente", p:"1 pt", e:"v = 18 km/h ; pente 6 % : tan α = 0,06.", ans:{v:3.43,u:"° (angle α)"},
+  s:[S("Vitesse", `${F("v = 18 / 3,6")} = ${R("5 m/s")}`),
+     S("Angle", `${F("α = arctan(0,06)")} = ${R("3,43°")}`),
+     S("Trigonométrie", `${F("sin α = 0,0599")} ; ${F("cos α = 0,998")}<br><span class="note">Pour un petit angle, sin α ≈ tan α et cos α ≈ 1.</span>`)]},
+ {id:"2A2", t:"Bilan des actions extérieures (DR2)", p:"1 pt", e:"S = {cycliste + vélo}.",
+  s:[S("Cinq types d'actions", "<b>P</b> : poids en G, vertical vers le bas ;<br><b>N<sub>A</sub>, N<sub>B</sub></b> : actions normales du sol en A et B ;<br><b>F<sub>t</sub></b> : force motrice du sol sur la roue arrière, parallèle à la route, vers l'avant ;<br><b>F<sub>rr</sub></b> : résistance au roulement, opposée au mouvement ;<br><b>F<sub>air</sub></b> : résistance de l'air, opposée au mouvement."),
+     S("DR2 corrigé", fig("dr2c","DR2 corrigé – actions extérieures sur S"))]},
+ {id:"2A3", t:"Composante du poids le long de la route", p:"1 pt", e:"P_x = m · g · sin α.", ans:{v:58.8,u:"N"},
+  s:[S("Application", `${F("P<sub>x</sub> = 100 × 9,81 × 0,0599")} = ${R("58,8 N")}`)]},
+ {id:"2A4", t:"Résistances au roulement et de l'air", p:"1 pt", e:"C_rr = 0,008 ; ρ = 1,2 kg/m³ ; S·Cx = 0,5 m².", ans:{v:7.83,u:"N (F_rr)"},
+  s:[S("Roulement", `${F("F<sub>rr</sub> = 0,008 × 100 × 9,81 × 0,998")} = ${R("7,83 N")}`),
+     S("Air", `${F("F<sub>air</sub> = ½ × 1,2 × 0,5 × 5²")} = ${F("0,3 × 25")} = ${R("7,5 N")}`)]},
+ {id:"2A5", t:"Force motrice", p:"1 pt", e:"Vitesse constante.", ans:{v:74.1,u:"N"},
+  s:[S("Principe utilisé", "Mouvement rectiligne uniforme ⇒ <b>principe d'inertie</b> : la somme des forces est nulle."),
+     S("Projection selon x (le long de la route)", F("F<sub>t</sub> − P<sub>x</sub> − F<sub>rr</sub> − F<sub>air</sub> = 0")),
+     S("Résultat", `${F("F<sub>t</sub> = 58,8 + 7,83 + 7,5")} = ${R("74,1 N")}`)]},
+ {id:"2A6", t:"Couple et puissance à la roue", p:"1,5 pt", e:"R = 0,34 m.", ans:{v:370,u:"W (P_roue)"},
+  s:[S("Couple", `${F("C<sub>roue</sub> = F<sub>t</sub> · R = 74,1 × 0,34")} = ${R("25,2 N·m")}`),
+     S("Puissance", `${F("P<sub>roue</sub> = F<sub>t</sub> · v = 74,1 × 5")} = ${R("370 W")}`),
+     S("💡 D'où vient la formule P = F · v ?", `On connaît la formule de la puissance en rotation : ${F("P = C · ω")}.<br>
+       • Le couple à la roue vaut ${F("C<sub>roue</sub> = F<sub>t</sub> · R")}.<br>
+       • La roue roule sans glisser, donc ${F("v = R · ω")}, soit ${F("ω = v / R")}.<br>
+       • On remplace dans P = C · ω : ${F("P = (F<sub>t</sub> · R) · (v / R) = F<sub>t</sub> · v")} → les R se simplifient.<br>
+       <b>Conclusion :</b> P = C · ω (rotation de la roue) et P = F · v (translation du vélo) donnent <b>la même puissance</b>. On utilise F · v ici car l'énoncé donne directement la vitesse v du vélo.`),
+     S("✅ Vérification par la rotation de la roue", `${F("ω<sub>roue</sub> = v / R = 5 / 0,34")} = ${F("14,7 rad/s")} &nbsp;puis&nbsp; ${F("P = C · ω = 25,2 × 14,7")} ≈ ${R("370 W")} : même résultat.`)]},
+ {id:"2A7", t:"Adhérence de la roue arrière (cône d'adhérence)", p:"1,5 pt", e:"N_A = 0,6 · P · cos α ; tan φ = f.", ans:{v:7.2,u:"° (angle θ)"},
+  s:[S("a) Action normale en A", `${F("N<sub>A</sub> = 0,6 × 981 × 0,998")} = ${R("587 N")}`),
+     S("b) Inclinaison de R_A", `${F("tan θ = F<sub>t</sub> / N<sub>A</sub> = 74,1 / 587 = 0,126")} ⇒ ${R("θ = 7,2°")}`),
+     S("c) Condition de non-glissement", `${V("R")}<sub>A</sub> doit rester <b>dans le cône d'adhérence</b> (axe : la normale en A, demi-angle φ) : ${F("θ ≤ φ")}, soit ${F("F<sub>t</sub> ≤ f · N<sub>A</sub>")}.`+fig("cone","Cône d'adhérence au point A")),
+     S("d) Selon le revêtement", `<table class="t"><tr><th>Revêtement</th><th>f</th><th>φ = arctan f</th><th>θ ≤ φ ?</th></tr><tr><td>Sec</td><td>0,7</td><td>35,0°</td><td><span class="tag ok">pas de glissement</span></td></tr><tr><td>Mouillé</td><td>0,4</td><td>21,8°</td><td><span class="tag ok">pas de glissement</span></td></tr><tr><td>Gravillons</td><td>0,3</td><td>16,7°</td><td><span class="tag ok">pas de glissement</span></td></tr><tr><td>Verglas</td><td>0,1</td><td>5,7°</td><td><span class="tag ko">patine</span></td></tr></table>Sur le verglas : ${F("f · N<sub>A</sub> = 0,1 × 587 = 58,8 N &lt; 74,1 N")} ⇒ <b>montée impossible</b>.`)],
+  sim:"cone"},
+
+ {part:"Partie B : transmissions (5 pts)"},
+ {id:"2B1", t:"Rapport de la chaîne et vitesse de la roue", p:"1,5 pt", e:"Plateau 42 dents, pignon 18 dents, 60 tr/min.", ans:{v:140,u:"tr/min"},
+  s:[S("Rapport", `${F("N<sub>roue</sub> / N<sub>pédalier</sub> = Z<sub>plateau</sub> / Z<sub>pignon</sub> = 42 / 18")} = ${R("2,33")}`),
+     S("Vitesse de la roue", `${F("N<sub>roue</sub> = 60 × 2,33")} = ${R("140 tr/min")}`),
+     S("En rad/s", `${F("ω<sub>roue</sub> = 2π × 140 / 60")} = ${R("14,7 rad/s")}`)]},
+ {id:"2B2", t:"Vitesse du vélo", p:"0,5 pt", e:"", ans:{v:17.9,u:"km/h"},
+  s:[S("Roulement sans glissement", `${F("v = R · ω = 0,34 × 14,66")} = ${F("4,98 m/s")} = ${R("17,9 km/h")}`),
+     S("Conclusion", "Cohérent avec 18 km/h ✓")]},
+ {id:"2B3", t:"Couple au pédalier et force sur la pédale", p:"1 pt", e:"P_cy = 150 W ; manivelle 0,17 m.", ans:{v:140,u:"N (force sur la pédale)"},
+  s:[S("Vitesse angulaire du pédalier", F("ω<sub>p</sub> = 2π × 60 / 60 = 6,28 rad/s")),
+     S("Couple", `${F("C<sub>p</sub> = P / ω<sub>p</sub> = 150 / 6,28")} = ${R("23,9 N·m")}`),
+     S("Force sur la pédale", `${F("F = C<sub>p</sub> / L = 23,9 / 0,17")} = ${R("140 N")} (soit le poids d'environ 14 kg)`)]},
+ {id:"2B4", t:"Puissance de la cycliste à la roue", p:"0,5 pt", e:"η_ch = 0,95.", ans:{v:142.5,u:"W"},
+  s:[S("Application", `${F("P<sub>cy,roue</sub> = 150 × 0,95")} = ${R("142,5 W")}`)]},
+ {id:"2B5", t:"Puissance et couple du moteur-roue", p:"1,5 pt", e:"Limite réglementaire : 250 W.", ans:{v:228,u:"W"},
+  s:[S("Les puissances s'ajoutent sur la roue", `${F("P<sub>m,roue</sub> = P<sub>roue</sub> − P<sub>cy,roue</sub> = 370 − 142,5")} = ${R("228 W")}`),
+     S("Couple de sortie", `${F("C = P / ω<sub>roue</sub> = 228 / 14,66")} = ${R("15,6 N·m")}`),
+     S("Conclusion", "228 W ≤ 250 W : <span class='tag ok'>réglementation respectée</span>")]},
+
+ {part:"Partie C : énergie et autonomie (4 pts)"},
+ {id:"2C1", t:"Chaîne de puissance (DR3)", p:"0,5 pt", e:"η_mot = 0,85 ; η_red = 0,95.", ans:{v:282,u:"W (P_bat)"},
+  s:[S("On remonte la chaîne depuis la roue", `${F("P<sub>m</sub> = 228 / 0,95 = 240 W")}<br>${F("P<sub>bat</sub> = 240 / 0,85")} = ${R("282 W")}`),
+     S("DR3 complété", `<div class="chain"><div class="b">Batterie</div><div class="a">282 W<b>→</b></div><div class="b">Moteur<br>η = 0,85</div><div class="a">240 W<b>→</b></div><div class="b">Réducteur<br>η = 0,95</div><div class="a">228 W<b>→</b></div><div class="b end">Roue<br>370 W</div></div><div class="chain"><div class="b">Cycliste</div><div class="a">150 W<b>→</b></div><div class="b">Chaîne<br>η = 0,95</div><div class="a">142,5 W<b>→</b></div><div class="b end">Roue</div></div>`)]},
+ {id:"2C2", t:"Intensité à la batterie", p:"0,5 pt", e:"U = 36 V.", ans:{v:7.84,u:"A"},
+  s:[S("Application", `${F("I = P<sub>bat</sub> / U = 282 / 36")} = ${R("7,84 A")}`)]},
+ {id:"2C3", t:"Énergie de la batterie", p:"0,5 pt", e:"36 V – 14 Ah ; 80 % utilisable.", ans:{v:403,u:"Wh (utilisable)"},
+  s:[S("Énergie nominale", `${F("E = U · Q = 36 × 14")} = ${R("504 Wh")}`),
+     S("Énergie utilisable", `${F("0,8 × 504")} = ${R("403 Wh")}`)]},
+ {id:"2C4", t:"Énergie consommée dans la montée", p:"1 pt", e:"2 km à 18 km/h.", ans:{v:31.4,u:"Wh"},
+  s:[S("Durée", `${F("t = d / v = 2000 / 5")} = ${R("400 s")} (6 min 40 s)`),
+     S("Énergie", `${F("E = P<sub>bat</sub> · t = 282 × 400 = 112 800 J")}`),
+     S("Conversion en Wh", `${F("112 800 / 3600")} = ${R("31,4 Wh")}`)]},
+ {id:"2C5", t:"Énergie consommée sur le plat", p:"0,5 pt", e:"6 km à 18 km/h, mode Éco (moteur = 50 %).", ans:{v:15.8,u:"Wh"},
+  s:[S("Force et puissance à la roue", `${F("F = F<sub>rr</sub> + F<sub>air</sub> = 7,85 + 7,5 = 15,35 N")}<br>${F("P<sub>roue</sub> = 15,35 × 5 = 76,7 W")}`),
+     S("Part du moteur", `${F("P<sub>m,roue</sub> = 0,5 × 76,7 = 38,4 W")} ⇒ ${F("P<sub>bat</sub> = 38,4 / (0,95 × 0,85) = 47,5 W")}`),
+     S("Énergie", `${F("t = 6000 / 5 = 1200 s")} ; ${F("E = 47,5 × 1200 / 3600")} = ${R("15,8 Wh")}`)]},
+ {id:"2C6", t:"Autonomie en jours", p:"1 pt", e:"Aller : plat + montée ; retour : descente (moteur arrêté) + plat.", ans:{v:6,u:"jours"},
+  s:[S("Consommation par jour", `${F("31,4 + 15,8 + 15,8")} = ${R("63,0 Wh")}`),
+     S("Nombre de jours", `${F("403 / 63,0 = 6,4")} ⇒ ${R("6 jours complets")}`),
+     S("Conclusion", "6 ≥ 5 jours : <span class='tag ok'>exigence respectée</span>")]},
+
+ {part:"Partie D : bilan énergétique (3 pts)"},
+ {id:"2D1", t:"Rendement batterie → roue", p:"1 pt", e:"", ans:{v:0.81,u:"(ou 81 %)"},
+  s:[S("Rendements en série", `${F("η = 0,85 × 0,95")} = ${R("0,81 (81 %)")}`)]},
+ {id:"2D2", t:"Bilan d'énergie de la montée", p:"1 pt", e:"", ans:{v:117.5,u:"kJ (E_p)"},
+  s:[S("Dénivelé", F("h = 2000 × sin α = 2000 × 0,0599 = 119,8 m")),
+     S("Énergie potentielle", `${F("E<sub>p</sub> = 100 × 9,81 × 119,8")} = ${R("117,5 kJ")}`),
+     S("Énergie fournie à la roue", F("E<sub>roue</sub> = 370,4 × 400 = 148,2 kJ")),
+     S("Pertes", F("(7,83 + 7,5) × 2000 = 30,7 kJ")),
+     S("Vérification", `${F("117,5 + 30,7 = 148,2 kJ")} ✓ : l'énergie fournie = énergie potentielle + pertes.`)]},
+ {id:"2D3", t:"Réponse à la problématique", p:"1 pt", e:"",
+  s:[S("Éléments attendus", "Le moteur fournit 228 W (≤ 250 W) et permet de monter à 18 km/h avec 150 W de la cycliste ; la batterie assure 6 jours de trajets (≥ 5)."),
+     S("Autonomie réelle plus faible", "Vent, arrêts et redémarrages, température basse, vieillissement de la batterie, pneus mal gonflés, mode d'assistance plus élevé…")]},
+
+ {part:"Question bonus – Torseurs et répartition de la charge (+2 pts)", bonus:true},
+ {id:"2T", t:"Torseurs réduits au point A, PFS", p:"2 pts", e:"AG = 0,50·x + 1,00·y ; AB = 1,10·x (base liée à la route).", ans:{v:385,u:"N (N_B)"},
+  s:[S("a) Torseurs en leur point d'application", `${T("T_pes","−58,8","−979","0","G")} ${T("T_air","−7,5","0","0","G")}<br>${T("T_sol→AR","F<sub>t</sub> − F<sub>rr,A</sub>","N<sub>A</sub>","0","A")} ${T("T_sol→AV","−F<sub>rr,B</sub>","N<sub>B</sub>","0","B")}`),
+     S("b) Moment du poids en A", `${col("0,50","1,00","0")} ∧ ${col("−58,8","−979","0")} = ${col("0","0","0,50×(−979) − 1,00×(−58,8)")} = ${col("0","0","<span class='r'>−431</span>")}`),
+     S("b) Moment de l'air en A", `${col("0,50","1,00","0")} ∧ ${col("−7,5","0","0")} = ${col("0","0","0 − 1,00×(−7,5)")} = ${col("0","0","<span class='r'>+7,5</span>")}`),
+     S("b) Moment de l'action en B", `${col("1,10","0","0")} ∧ ${col("−F<sub>rr,B</sub>","N<sub>B</sub>","0")} = ${col("0","0","<span class='r'>1,10 · N<sub>B</sub></span>")}<br><span class="note">L'action en A a un moment nul en A.</span>`),
+     S("b) Torseurs réduits au même point A", `${T("T_pes","−58,8","−979","−431","A")} ${T("T_air","−7,5","0","+7,5","A")}<br>${T("T_sol→AR","F<sub>t</sub> − F<sub>rr,A</sub>","N<sub>A</sub>","0","A")} ${T("T_sol→AV","−F<sub>rr,B</sub>","N<sub>B</sub>","1,10·N<sub>B</sub>","A")}`),
+     S("c) PFS en A", `Moment selon z : ${F("−431 + 7,5 + 1,10 · N<sub>B</sub> = 0")} ⇒ ${R("N<sub>B</sub> = 385 N")}<br>Résultante selon y : ${F("N<sub>A</sub> + N<sub>B</sub> − 979 = 0")} ⇒ ${R("N<sub>A</sub> = 594 N")}`),
+     S("d) Comparaison et choix du point", `${F("594 / 979 = 60,7 %")} ≈ 60 % : l'hypothèse de A7 est justifiée. En A, les inconnues N<sub>A</sub> et F<sub>t</sub> ont un moment nul : l'équation de moment n'a qu'<b>une seule inconnue</b>, N<sub>B</sub>.`)]},
+
+ {part:"Question bonus – Dynamique : démarrage en côte (+2 pts)", bonus:true},
+ {id:"2Pa", t:"Accélération", p:"0,5 pt", e:"De 0 à 18 km/h en 10 s.", ans:{v:0.5,u:"m/s²"},
+  s:[S("Application", `${F("a = Δv / Δt = 5 / 10")} = ${R("0,5 m/s²")}`)]},
+ {id:"2Pb", t:"PFD selon x", p:"0,5 pt", e:"F_t − P_x − F_rr − F_air = m · a.", ans:{v:124.1,u:"N"},
+  s:[S("Isoler F_t", F("F<sub>t</sub> = P<sub>x</sub> + F<sub>rr</sub> + F<sub>air</sub> + m · a")),
+     S("Application", `${F("F<sub>t</sub> = 74,1 + 100 × 0,5")} = ${R("124,1 N")}`)]},
+ {id:"2Pc", t:"Puissance demandée au moteur", p:"0,5 pt", e:"À v = 5 m/s.", ans:{v:478,u:"W"},
+  s:[S("Puissance à la roue", `${F("P<sub>roue</sub> = 124,1 × 5")} = ${R("620 W")}`),
+     S("Part du moteur", `${F("P<sub>m,roue</sub> = 620 − 142,5")} = ${R("478 W")} <span class='tag ko'>&gt; 250 W</span>`)]},
+ {id:"2Pd", t:"Accélération maximale possible", p:"0,5 pt", e:"Moteur limité à 250 W.", ans:{v:0.044,u:"m/s²"},
+  s:[S("Force motrice maximale", F("F<sub>t,max</sub> = (142,5 + 250) / 5 = 78,5 N")),
+     S("Accélération maximale", `${F("a<sub>max</sub> = (78,5 − 74,1) / 100")} = ${R("0,044 m/s²")}`),
+     S("Conclusion", "Il faudrait environ 5 / 0,044 ≈ 114 s : <b>pas réaliste</b>. En côte, presque toute la force motrice sert à compenser le poids.")]},
+
+ {part:"Question bonus – Équations horaires (+2 pts)", bonus:true},
+ {id:"2E1", t:"E1 – Démarrage sur le plat", p:"1 pt", e:"v₀ = 0 ; a₁ = 0,5 m/s² ; origines t = 0 et x = 0 au départ.", ans:{v:25,u:"m (distance x₁)"},
+  s:[S("a) Équations horaires (MRUV)", `${F("v(t) = a · t + v<sub>0</sub>")} ⇒ ${R("v(t) = 0,5 · t")}<br>${F("x(t) = ½ · a · t² + v<sub>0</sub> · t + x<sub>0</sub>")} ⇒ ${R("x(t) = 0,25 · t²")}`),
+     S("b) Durée", `${F("0,5 · t<sub>1</sub> = 5")} ⇒ ${R("t<sub>1</sub> = 10 s")}`),
+     S("b) Distance", `${F("x<sub>1</sub> = 0,25 × 10²")} = ${R("25 m")}`),
+     S("c) Graphique", fig("dr6c","DR6 corrigé – l'aire sous v(t) donne la distance"))],
+  sim:"mruv"},
+ {id:"2E2", t:"E2 – Réaction puis freinage", p:"1 pt", e:"v = 5 m/s ; temps de réaction 1 s ; décélération 1,25 m/s² ; passage piéton à 20 m.", ans:{v:15,u:"m (distance d'arrêt)"},
+  s:[S("a) Pendant le temps de réaction (mouvement uniforme)", `${F("d<sub>r</sub> = v · t = 5 × 1")} = ${R("5 m")}`),
+     S("b) Équations du freinage (a = −1,25 m/s²)", `${R("v(t) = −1,25 · t + 5")}<br>${R("x(t) = −0,625 · t² + 5 · t")}`),
+     S("c) Durée du freinage", `${F("v = 0 ⇒ t<sub>2</sub> = 5 / 1,25")} = ${R("4 s")}`),
+     S("c) Distance de freinage", `${F("x(4) = −0,625 × 16 + 5 × 4 = −10 + 20")} = ${R("10 m")}`),
+     S("c) Conclusion", `Distance d'arrêt : ${F("5 + 10 = 15 m &lt; 20 m")} <span class="tag ok">arrêt 5 m avant le passage</span>`),
+     S("d) PFD : force de freinage", `${F("F = m · |a| = 100 × 1,25")} = ${R("125 N")}`)]},
+]};
+
+/* ---------- small simulations ---------- */
+const SIMS = {
+ theta: () => `<div class="sim"><h4>Simulation : fais varier l'angle de la lisse</h4>
+   <input type="range" min="0" max="90" value="0" step="1" data-sim="theta">
+   <div class="out" id="o-theta"></div></div>`,
+ cone: () => `<div class="sim"><h4>Simulation : fais varier le coefficient d'adhérence f</h4>
+   <input type="range" min="0.05" max="0.9" value="0.7" step="0.01" data-sim="cone">
+   <div class="out" id="o-cone"></div></div>`,
+ mruv: () => `<div class="sim"><h4>Simulation : position et vitesse au cours du démarrage</h4>
+   <input type="range" min="0" max="10" value="0" step="0.5" data-sim="mruv">
+   <div class="out" id="o-mruv"></div></div>`
+};
+const fr = (x,d=1) => x.toFixed(d).replace('.',',');
+function runSim(el){
+  const v = parseFloat(el.value), k = el.dataset.sim;
+  const o = document.getElementById('o-'+k);
+  if(k==='theta'){
+    const m = -117.7*Math.cos(v*Math.PI/180);
+    o.innerHTML = `θ = <b>${v}°</b> &nbsp; → &nbsp; M<sub>O</sub>(P) = −117,7 × cos ${v}° = <b class="r">${fr(m)} N·m</b>`;
+  } else if(k==='cone'){
+    const phi = Math.atan(v)*180/Math.PI, ok = phi >= 7.2;
+    o.innerHTML = `f = <b>${fr(v,2)}</b> → φ = arctan f = <b>${fr(phi)}°</b> ; θ = 7,2° ; f · N<sub>A</sub> = ${fr(v*587,0)} N ${ok?'≥':'&lt;'} 74,1 N → <span class="tag ${ok?'ok':'ko'}">${ok?'pas de glissement':'la roue patine'}</span>`;
+  } else if(k==='mruv'){
+    o.innerHTML = `t = <b>${fr(v)} s</b> → v = 0,5 × ${fr(v)} = <b class="r">${fr(0.5*v,2)} m/s</b> ; x = 0,25 × ${fr(v)}² = <b class="r">${fr(0.25*v*v,2)} m</b>`;
+  }
+}
+
+/* ---------- rendering ---------- */
+const seen = new Set();
+let total = 0;
+function render(key){
+  const host = document.getElementById(key);
+  let html = '';
+  for(const q of DATA[key]){
+    if(q.part){ html += `<h2 class="part${q.bonus?' bonus':''}">${q.part}</h2>`; continue; }
+    total++;
+    const check = q.ans ? `<div class="check"><span>Vérifier ma réponse :</span><input inputmode="decimal" placeholder="valeur" data-v="${q.ans.v}"><span>${q.ans.u}</span><button data-chk>Vérifier</button><span class="fb"></span></div>` : '';
+    html += `<details class="q" data-id="${q.id}"><summary><span class="num">${q.id.slice(1)}</span><span class="qt">${q.t}</span><span class="pts">${q.p}</span></summary>
+      <div class="body">${q.e?`<div class="enonce">${q.e}</div>`:''}${check}
+      ${q.sim?SIMS[q.sim]():''}
+      <ol class="steps">${q.s.map(s=>`<li><span class="k">${s.k}</span>${s.html}</li>`).join('')}</ol>
+      <div class="ctrl"><button class="btn" data-next>Étape suivante ▸</button><button class="btn ghost" data-allq>Toute la correction</button><button class="btn ghost" data-hide>Masquer</button></div></div></details>`;
+  }
+  host.innerHTML = html;
+}
+render('e1'); render('e2');
+document.querySelectorAll('[data-sim]').forEach(el=>{runSim(el); el.addEventListener('input',()=>runSim(el));});
+
+function progress(){ document.getElementById('pg').style.width = (100*seen.size/total)+'%'; }
+function markSeen(d){ const li=[...d.querySelectorAll('.steps li')]; if(li.length && li.every(x=>x.classList.contains('show'))){ seen.add(d.dataset.id); d.classList.add('seen'); progress(); } }
+function updNext(d){ const b=d.querySelector('[data-next]'); const left=d.querySelectorAll('.steps li:not(.show)').length; b.disabled=!left; b.style.opacity=left?1:.4; b.textContent= left?`Étape suivante ▸ (${left})`:'Terminé ✓'; }
+document.querySelectorAll('details.q').forEach(updNext);
+
+document.addEventListener('click', e=>{
+  const d = e.target.closest('details.q'); if(!d) {
+    const tab = e.target.closest('.tab'); if(tab){
+      document.querySelectorAll('.tab').forEach(t=>t.setAttribute('aria-selected', t===tab));
+      document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('on', p.id===tab.dataset.p));
+      window.scrollTo({top:0,behavior:'smooth'});
+    } return; }
+  if(e.target.matches('[data-next]')){ const li=d.querySelector('.steps li:not(.show)'); if(li) li.classList.add('show'); updNext(d); markSeen(d); }
+  if(e.target.matches('[data-allq]')){ d.querySelectorAll('.steps li').forEach(x=>x.classList.add('show')); updNext(d); markSeen(d); }
+  if(e.target.matches('[data-hide]')){ d.querySelectorAll('.steps li').forEach(x=>x.classList.remove('show')); updNext(d); }
+  if(e.target.matches('[data-chk]')){
+    const inp = d.querySelector('.check input'), fb = d.querySelector('.fb');
+    const x = parseFloat(inp.value.replace(',','.').replace(/\s/g,'')), ref = parseFloat(inp.dataset.v);
+    if(isNaN(x)){ fb.className='fb ko'; fb.textContent='Entre un nombre.'; return; }
+    const ok = Math.abs(x-ref) <= Math.max(Math.abs(ref)*0.02, 0.005);
+    fb.className = 'fb ' + (ok?'ok':'ko');
+    fb.textContent = ok ? '✓ Bonne réponse !' : (Math.sign(x)!==Math.sign(ref) && Math.abs(Math.abs(x)-Math.abs(ref))<=Math.abs(ref)*0.02 ? '✗ Attention au signe.' : '✗ Pas encore : regarde la première étape.');
+  }
+});
+document.addEventListener('keydown', e=>{ if(e.key==='Enter' && e.target.matches('.check input')) e.target.closest('.check').querySelector('[data-chk]').click(); });
+
+document.getElementById('all').addEventListener('change', e=>{
+  const on = e.target.checked;
+  document.querySelectorAll('details.q').forEach(d=>{ d.open = on; d.querySelectorAll('.steps li').forEach(x=>x.classList.toggle('show', on)); updNext(d); if(on) markSeen(d); });
+});
+</script>
+<a href="../index.html" style="position:fixed;bottom:16px;left:16px;z-index:99999;background:#1e3a5f;color:#fff;padding:10px 16px;border-radius:24px;font:600 14px system-ui,sans-serif;text-decoration:none;box-shadow:0 2px 8px rgba(0,0,0,.25)">← Sommaire</a></body>
+</html>

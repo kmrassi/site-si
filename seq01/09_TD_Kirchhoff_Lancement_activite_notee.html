@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lancement — Lois de Kirchhoff (Activité notée)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#eef1f0; --paper-raised:#ffffff; --ink:#152238; --ink-soft:#4a5568; --line:#c9d0d3;
+  --copper:#b5652f; --copper-dim:#e7cdb2; --tension:#b8433a; --courant:#2f6690;
+  --ok:#2f7a4f; --ok-bg:#e3f2e8; --bad:#b8433a; --bad-bg:#fbeae8; --radius:3px;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background:
+    linear-gradient(rgba(21,34,56,.06) 1px, transparent 1px) 0 0/28px 28px,
+    linear-gradient(90deg, rgba(21,34,56,.06) 1px, transparent 1px) 0 0/28px 28px,
+    var(--paper);
+  color:var(--ink); font-family:'Source Serif 4', Georgia, serif; font-size:16.5px; line-height:1.62;
+}
+h1,h2,h3,.mono,button,select,.pill,.tag{font-family:'Space Grotesk', sans-serif;}
+
+header.top{
+  padding:34px 5vw 26px; border-bottom:1px solid var(--line); position:sticky; top:0; z-index:10;
+  background:rgba(238,241,240,.94); backdrop-filter:blur(6px);
+}
+header.top .eyebrow{color:var(--copper); font-family:'Space Grotesk'; font-size:.78rem; font-weight:600; margin-bottom:6px;}
+header.top h1{margin:0 0 4px; font-size:1.6rem;}
+header.top .sub{color:var(--ink-soft); font-size:.92rem;}
+.binome{margin-top:14px; display:flex; align-items:center; gap:10px; flex-wrap:wrap;}
+.binome label{font-size:.82rem; color:var(--ink-soft); font-family:'Space Grotesk';}
+.binome input{padding:6px 10px; border:1px solid var(--line); border-radius:var(--radius); font-family:'Source Serif 4'; font-size:.92rem; width:260px; background:var(--paper-raised); color:var(--ink);}
+.score-bar{margin-top:14px; display:flex; align-items:center; gap:14px;}
+.score-bar b{font-family:'Space Grotesk'; font-size:1.05rem;}
+.progress-track{flex:1; max-width:280px; height:8px; background:var(--line); border-radius:6px; overflow:hidden;}
+.progress-fill{height:100%; width:0%; background:var(--copper); transition:width .4s ease;}
+
+main{max-width:900px; margin:0 auto; padding:10px 5vw 90px;}
+.res-links{background:var(--paper-raised); border:1px solid var(--line); border-radius:var(--radius); padding:14px 18px; font-size:.88rem; margin:22px 0 34px;}
+.res-links b{font-family:'Space Grotesk'; font-size:.78rem; text-transform:uppercase; letter-spacing:.03em; color:var(--copper); display:block; margin-bottom:6px;}
+.res-links a{color:var(--courant);}
+
+section.part{margin-top:44px;}
+section.part > h2{
+  font-size:1.25rem; display:flex; align-items:center; gap:12px; border-bottom:2px solid var(--ink); padding-bottom:10px;
+}
+section.part > h2 .num{
+  width:30px; height:30px; border-radius:50%; border:1px solid var(--copper); color:var(--copper);
+  display:flex; align-items:center; justify-content:center; font-size:.9rem; flex:none;
+}
+
+.qcard{background:var(--paper-raised); border:1px solid var(--line); border-radius:var(--radius); padding:18px 20px; margin:18px 0;}
+.qcard .stem{font-weight:600; margin:0 0 12px; font-size:1rem;}
+.qcard textarea{
+  width:100%; min-height:70px; padding:10px 12px; border:1px solid var(--line); border-radius:var(--radius);
+  font-family:'Source Serif 4'; font-size:.95rem; background:var(--paper); color:var(--ink); resize:vertical;
+}
+.qcard input[type=text]{
+  padding:7px 10px; border:1px solid var(--line); border-radius:var(--radius); font-family:'Space Grotesk'; font-size:.92rem;
+  background:var(--paper); color:var(--ink);
+}
+.qcard select{padding:7px 10px; border:1px solid var(--line); border-radius:var(--radius); background:var(--paper); color:var(--ink); font-size:.9rem;}
+.mini-row{display:flex; gap:16px; flex-wrap:wrap; margin-top:6px;}
+.mini{display:flex; flex-direction:column; gap:5px; font-size:.85rem; color:var(--ink-soft);}
+.mini input{width:120px;}
+.answer-row{display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-top:8px;}
+.unit-lbl{font-size:.85rem; color:var(--ink-soft);}
+.check-btn{border:1px solid var(--ink); background:var(--ink); color:var(--paper); padding:7px 16px; border-radius:var(--radius); font-size:.8rem; font-weight:600; cursor:pointer;}
+.check-btn:hover{opacity:.85;}
+.feedback{font-size:.84rem; margin-top:8px; min-height:1.1em;}
+.feedback.ok{color:var(--ok);}
+.feedback.bad{color:var(--bad);}
+.reveal-btn{background:none; border:none; color:var(--courant); font-size:.82rem; cursor:pointer; text-decoration:underline; padding:0; margin-top:10px;}
+.solution{display:none; margin-top:10px; padding:12px 14px; background:var(--ok-bg); border-radius:var(--radius); font-size:.88rem;}
+.solution.show{display:block;}
+.diagram{display:flex; justify-content:center; margin:14px 0;}
+.diagram svg{max-width:100%; height:auto;}
+.pill{display:inline-block; font-size:.68rem; padding:2px 9px; border-radius:20px; background:var(--copper-dim); color:var(--ink); margin-left:8px; font-weight:600; vertical-align:middle;}
+.note{font-size:.8rem; color:var(--ink-soft); font-style:italic; margin-top:8px;}
+.opt{display:flex; align-items:center; gap:10px; padding:9px 12px; border:1px solid var(--line); border-radius:var(--radius); margin-bottom:7px; cursor:pointer; font-size:.92rem;}
+.opt:hover{background:var(--copper-dim);}
+.opt.correct{background:var(--ok-bg); border-color:var(--ok);}
+.opt.wrong{background:var(--bad-bg); border-color:var(--bad);}
+footer.end{padding:40px 5vw 70px; color:var(--ink-soft); font-size:.85rem; text-align:center;}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="eyebrow">SEQ 1 — Nouvelles mobilités individuelles</div>
+  <h1>Lancement — Lois de Kirchhoff</h1>
+  <div class="sub">Activité notée · à compléter à l'aide des apports de connaissances et des 4 vidéos</div>
+  <div class="binome">
+    <label for="binome">Nom du binôme :</label>
+    <input type="text" id="binome" placeholder="Nom, Prénom — Nom, Prénom">
+  </div>
+  <div class="score-bar">
+    <b id="scoreDisplay">Score : 0 / 0</b>
+    <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+  </div>
+</header>
+
+<main>
+
+<div class="res-links">
+  <b>Ressources à utiliser</b>
+  Fichier <i>Apports de connaissances — Lois de Kirchhoff</i> (Classroom) et les 4 vidéos de lancement associées à la séquence.
+</div>
+
+<!-- ===================== PARTIE 1 : QUESTIONS DE COURS ===================== -->
+<section class="part">
+  <h2><span class="num">1</span>Questions de lancement</h2>
+
+  <div class="qcard">
+    <p class="stem">1. Donner une définition précise de ce que représente l'électricité.</p>
+    <textarea id="q1" placeholder="Votre réponse…"></textarea>
+    <div class="answer-row"><button class="check-btn" onclick="checkKeywords('q1', [['electricit','energie'],['electron','circulation','courant'],['conducteur']], 2)">Vérifier</button><span class="feedback" id="fb_q1"></span></div>
+    <button class="reveal-btn" onclick="toggleSol(this)">Voir la réponse modèle</button>
+    <div class="solution">L'électricité est une forme d'énergie qui se manifeste lorsqu'il y a circulation d'électrons à l'intérieur d'un corps conducteur (ou lors de phénomènes naturels comme la foudre).</div>
+  </div>
+
+  <div class="qcard">
+    <p class="stem">2. Donner l'unité de la tension, du courant, de la résistance, de la puissance et de l'énergie.</p>
+    <div class="mini-row">
+      <div class="mini">Tension <input type="text" id="u_tension"></div>
+      <div class="mini">Courant <input type="text" id="u_courant"></div>
+      <div class="mini">Résistance <input type="text" id="u_resistance"></div>
+      <div class="mini">Puissance <input type="text" id="u_puissance"></div>
+      <div class="mini">Énergie <input type="text" id="u_energie"></div>
+    </div>
+    <div class="answer-row"><button class="check-btn" onclick="checkUnits()">Vérifier</button><span class="feedback" id="fb_units"></span></div>
+  </div>
+
+  <div class="qcard">
+    <p class="stem">3. Expliquer ce que représente un dipôle.</p>
+    <textarea id="q3" placeholder="Votre réponse…"></textarea>
+    <div class="answer-row"><button class="check-btn" onclick="checkKeywords('q3', [['2 pole','deux pole','2 pôle'],['branchement','circuler','courant']], 2)">Vérifier</button><span class="feedback" id="fb_q3"></span></div>
+    <button class="reveal-btn" onclick="toggleSol(this)">Voir la réponse modèle</button>
+    <div class="solution">Un dipôle est un système comportant deux pôles de branchement dans lequel peut circuler un courant électrique (ex : une pile, une résistance, ou même plusieurs résistances associées).</div>
+  </div>
+
+  <div class="qcard">
+    <p class="stem">4. Expliquer le rôle d'un générateur et les 2 types de source de tension que l'on trouve.</p>
+    <textarea id="q4" placeholder="Votre réponse…"></textarea>
+    <div class="answer-row"><button class="check-btn" onclick="checkKeywords('q4', [['generateur'],['fournit','source','energie'],['continu'],['alternatif','alternative']], 3)">Vérifier</button><span class="feedback" id="fb_q4"></span></div>
+    <button class="reveal-btn" onclick="toggleSol(this)">Voir la réponse modèle</button>
+    <div class="solution">Un générateur est un dipôle capable de convertir une autre forme d'énergie en énergie électrique ; c'est la source d'énergie du circuit. On distingue le régime <b>continu</b> (tension invariable dans le temps, ex : pile, batterie) et le régime <b>alternatif</b> ou sinusoïdal (tension variable, ex : secteur EDF, alternateur).</div>
+  </div>
+
+  <div class="qcard">
+    <p class="stem">5. Comment branche-t-on un voltmètre, puis un ampèremètre, dans un circuit électrique ?</p>
+    <div class="mini-row">
+      <div class="mini">Voltmètre
+        <select id="s_volt"><option value="">choisir…</option><option value="parallele">en parallèle</option><option value="serie">en série</option></select>
+      </div>
+      <div class="mini">Ampèremètre
+        <select id="s_amp"><option value="">choisir…</option><option value="parallele">en parallèle</option><option value="serie">en série</option></select>
+      </div>
+    </div>
+    <div class="answer-row"><button class="check-btn" onclick="checkBranchement()">Vérifier</button><span class="feedback" id="fb_branch"></span></div>
+  </div>
+
+  <div class="qcard">
+    <p class="stem">6. Expliquer ce que représente la tension, et énoncer la loi des mailles.</p>
+    <textarea id="q6" placeholder="Votre réponse…"></textarea>
+    <div class="answer-row"><button class="check-btn" onclick="checkKeywords('q6', [['difference de potentiel','ddp'],['somme','nulle','0']], 2)">Vérifier</button><span class="feedback" id="fb_q6"></span></div>
+    <button class="reveal-btn" onclick="toggleSol(this)">Voir la réponse modèle</button>
+    <div class="solution">La tension (U) est une différence de potentiel entre deux points d'un circuit ; c'est une grandeur algébrique. <b>Loi des mailles</b> : dans une maille (portion de circuit fermée), la somme algébrique des tensions est nulle — les tensions fléchées dans le sens de parcours choisi comptent positivement, les autres négativement.</div>
+  </div>
+
+  <div class="qcard">
+    <p class="stem">7. Expliquer ce que représente l'intensité, et énoncer la loi des nœuds.</p>
+    <textarea id="q7" placeholder="Votre réponse…"></textarea>
+    <div class="answer-row"><button class="check-btn" onclick="checkKeywords('q7', [['debit','flux','charge'],['somme','entrant','sortant']], 2)">Vérifier</button><span class="feedback" id="fb_q7"></span></div>
+    <button class="reveal-btn" onclick="toggleSol(this)">Voir la réponse modèle</button>
+    <div class="solution">L'intensité (I) représente le débit des charges électriques qui traversent la section d'un conducteur par unité de temps. <b>Loi des nœuds</b> : la somme des intensités des courants qui entrent dans un nœud est égale à la somme des intensités des courants qui en sortent.</div>
+  </div>
+
+  <div class="qcard">
+    <p class="stem">8. Citer les 3 dipôles fondamentaux que l'on trouve dans un circuit électrique.</p>
+    <div class="mini-row">
+      <div class="mini">Dipôle 1 <input type="text" id="d1"></div>
+      <div class="mini">Dipôle 2 <input type="text" id="d2"></div>
+      <div class="mini">Dipôle 3 <input type="text" id="d3"></div>
+    </div>
+    <div class="answer-row"><button class="check-btn" onclick="checkDipoles()">Vérifier</button><span class="feedback" id="fb_dipoles"></span></div>
+    <div class="note">Réponses attendues : résistance, bobine (inductance / self), condensateur — dans n'importe quel ordre.</div>
+  </div>
+</section>
+
+<!-- ===================== PARTIE 2 : LOI DES NOEUDS ===================== -->
+<section class="part">
+  <h2><span class="num">2</span>Exercice — Loi des nœuds</h2>
+  <div class="qcard">
+    <p class="stem">V1 = 10 Vdc alimente R1 = 5 Ω et R2 = 10 Ω en parallèle. Calculer I1, I2, puis appliquer la loi des nœuds pour déterminer I3.</p>
+    <div class="diagram">
+      <svg viewBox="0 0 220 140" width="240">
+        <path d="M40 20 H180 M40 20 V120 M180 20 V120 M40 120 H180" fill="none" stroke="#152238" stroke-width="2"/>
+        <rect x="90" y="50" width="14" height="26" fill="none" stroke="#2f6690" stroke-width="2"/>
+        <text x="97" y="45" text-anchor="middle" font-size="10" font-family="Space Grotesk" fill="#2f6690">R1</text>
+        <rect x="150" y="50" width="14" height="26" fill="none" stroke="#2f6690" stroke-width="2"/>
+        <text x="157" y="45" text-anchor="middle" font-size="10" font-family="Space Grotesk" fill="#2f6690">R2</text>
+        <text x="30" y="72" text-anchor="middle" font-size="10" font-family="Space Grotesk" fill="#4a5568">V1</text>
+        <text x="97" y="30" text-anchor="middle" font-size="9" fill="#4a5568">I1</text>
+        <text x="157" y="30" text-anchor="middle" font-size="9" fill="#4a5568">I2</text>
+        <text x="70" y="14" text-anchor="middle" font-size="9" fill="#4a5568">I3</text>
+      </svg>
+    </div>
+    <div class="answer-row"><label>I1 =</label><input type="text" id="n_i1"><span class="unit-lbl">A</span>
+      <button class="check-btn" onclick="checkNum('n_i1',2,3)">Vérifier</button><span class="feedback" id="fb_n_i1"></span></div>
+    <div class="answer-row"><label>I2 =</label><input type="text" id="n_i2"><span class="unit-lbl">A</span>
+      <button class="check-btn" onclick="checkNum('n_i2',1,3)">Vérifier</button><span class="feedback" id="fb_n_i2"></span></div>
+    <div class="answer-row"><label>I3 =</label><input type="text" id="n_i3"><span class="unit-lbl">A</span>
+      <button class="check-btn" onclick="checkNum('n_i3',3,3)">Vérifier</button><span class="feedback" id="fb_n_i3"></span></div>
+    <button class="reveal-btn" onclick="toggleSol(this)">Voir la méthode</button>
+    <div class="solution">I1 = V1/R1 = 10/5 = 2 A · I2 = V1/R2 = 10/10 = 1 A · loi des nœuds : I3 = I1 + I2 = 3 A.</div>
+  </div>
+</section>
+
+<!-- ===================== PARTIE 3 : LOI DES MAILLES ===================== -->
+<section class="part">
+  <h2><span class="num">3</span>Exercice — Loi des mailles</h2>
+  <div class="qcard">
+    <p class="stem">V1 = 15 Vdc alimente trois résistances en série : R1 = 5 Ω, R2 = 10 Ω et R3 = 15 Ω. Calculer le courant I et vérifier la loi des mailles.</p>
+    <div class="answer-row"><label>I =</label><input type="text" id="m_i"><span class="unit-lbl">A</span>
+      <button class="check-btn" onclick="checkNum('m_i',0.5,3)">Vérifier</button><span class="feedback" id="fb_m_i"></span></div>
+    <div class="answer-row"><label>U<sub>R1</sub> =</label><input type="text" id="m_u1"><span class="unit-lbl">V</span>
+      <button class="check-btn" onclick="checkNum('m_u1',2.5,3)">Vérifier</button><span class="feedback" id="fb_m_u1"></span></div>
+    <div class="answer-row"><label>U<sub>R2</sub> =</label><input type="text" id="m_u2"><span class="unit-lbl">V</span>
+      <button class="check-btn" onclick="checkNum('m_u2',5,3)">Vérifier</button><span class="feedback" id="fb_m_u2"></span></div>
+    <div class="answer-row"><label>U<sub>R3</sub> =</label><input type="text" id="m_u3"><span class="unit-lbl">V</span>
+      <button class="check-btn" onclick="checkNum('m_u3',7.5,3)">Vérifier</button><span class="feedback" id="fb_m_u3"></span></div>
+    <div class="answer-row"><label>Vérification U<sub>R1</sub>+U<sub>R2</sub>+U<sub>R3</sub> =</label><input type="text" id="m_sum"><span class="unit-lbl">V</span>
+      <button class="check-btn" onclick="checkNum('m_sum',15,2)">Vérifier</button><span class="feedback" id="fb_m_sum"></span></div>
+    <button class="reveal-btn" onclick="toggleSol(this)">Voir la méthode</button>
+    <div class="solution">I = V1/(R1+R2+R3) = 15/30 = 0,5 A · U<sub>R1</sub> = 2,5 V · U<sub>R2</sub> = 5 V · U<sub>R3</sub> = 7,5 V. La somme fait 15 V = V1 : la loi des mailles est vérifiée.</div>
+  </div>
+</section>
+
+<!-- ===================== PARTIE 4 : RESISTANCES EQUIVALENTES ===================== -->
+<section class="part">
+  <h2><span class="num">4</span>Résistances équivalentes</h2>
+
+  <div class="qcard">
+    <p class="stem">1. R1 = 520 Ω, R2 = 1,2 kΩ, R3 = 800 Ω. R1 est en série avec l'ensemble (R2 // R3). Calculer R<sub>AB</sub>.</p>
+    <div class="diagram">
+      <svg viewBox="0 0 260 110" width="300">
+        <text x="12" y="24" font-size="11" font-family="Space Grotesk" fill="#152238">A</text>
+        <line x1="20" y1="20" x2="60" y2="20" stroke="#152238" stroke-width="2"/>
+        <rect x="60" y="12" width="46" height="16" fill="none" stroke="#152238" stroke-width="2"/>
+        <text x="83" y="8" text-anchor="middle" font-size="10" font-family="Space Grotesk">R1</text>
+        <line x1="106" y1="20" x2="150" y2="20" stroke="#152238" stroke-width="2"/>
+        <line x1="150" y1="20" x2="150" y2="80" stroke="#152238" stroke-width="2"/>
+        <rect x="142" y="40" width="16" height="30" fill="none" stroke="#152238" stroke-width="2"/>
+        <text x="165" y="58" font-size="10" font-family="Space Grotesk">R2</text>
+        <line x1="150" y1="20" x2="230" y2="20" stroke="#152238" stroke-width="2"/>
+        <line x1="230" y1="20" x2="230" y2="80" stroke="#152238" stroke-width="0"/>
+        <rect x="180" y="72" width="50" height="16" fill="none" stroke="#152238" stroke-width="2"/>
+        <text x="205" y="68" text-anchor="middle" font-size="10" font-family="Space Grotesk">R3</text>
+        <line x1="230" y1="80" x2="150" y2="80" stroke="#152238" stroke-width="2"/>
+        <line x1="150" y1="80" x2="20" y2="80" stroke="#152238" stroke-width="2"/>
+        <text x="12" y="86" font-size="11" font-family="Space Grotesk" fill="#152238">B</text>
+      </svg>
+    </div>
+    <div class="answer-row"><label>R<sub>AB</sub> =</label><input type="text" id="req1"><span class="unit-lbl">Ω</span>
+      <button class="check-btn" onclick="checkNum('req1',1000,2)">Vérifier</button><span class="feedback" id="fb_req1"></span></div>
+    <button class="reveal-btn" onclick="toggleSol(this)">Voir la méthode</button>
+    <div class="solution">R2//R3 = (1200×800)/(1200+800) = 480 Ω. R<sub>AB</sub> = R1 + 480 = 520 + 480 = 1000 Ω = 1 kΩ.</div>
+  </div>
+
+  <div class="qcard">
+    <p class="stem">2. R1 = 33 Ω, R2 = 47 Ω, R3 = 33 Ω, R4 = 47 Ω, R5 = 22 Ω. R5 est en série avec (R1 // R3 // R4), l'ensemble étant en série avec R2. Calculer R<sub>AB</sub>.</p>
+    <div class="answer-row"><label>R<sub>AB</sub> ≈</label><input type="text" id="req2"><span class="unit-lbl">Ω</span>
+      <button class="check-btn" onclick="checkNum('req2',81.2,4)">Vérifier</button><span class="feedback" id="fb_req2"></span></div>
+    <button class="reveal-btn" onclick="toggleSol(this)">Voir la méthode</button>
+    <div class="solution">1/(R1//R3//R4) = 1/33 + 1/33 + 1/47 ⇒ R1//R3//R4 ≈ 12,2 Ω. R<sub>AB</sub> = R5 + 12,2 + R2 = 22 + 12,2 + 47 ≈ 81,2 Ω.</div>
+  </div>
+
+  <div class="qcard">
+    <p class="stem">3. Trois branches en parallèle entre A et B : 3 Ω seule ; 6 Ω + 2 Ω + 1 Ω en série ; 2 Ω + 3 Ω en série. Calculer R<sub>AB</sub>.</p>
+    <div class="answer-row"><label>R<sub>AB</sub> ≈</label><input type="text" id="req3"><span class="unit-lbl">Ω</span>
+      <button class="check-btn" onclick="checkNum('req3',1.55,6)">Vérifier</button><span class="feedback" id="fb_req3"></span></div>
+    <button class="reveal-btn" onclick="toggleSol(this)">Voir la méthode</button>
+    <div class="solution">Branche 1 = 3 Ω · Branche 2 = 6+2+1 = 9 Ω · Branche 3 = 2+3 = 5 Ω, toutes en parallèle : 1/R<sub>AB</sub> = 1/3 + 1/9 + 1/5 ⇒ R<sub>AB</sub> ≈ 1,55 Ω.
+      <div class="note">Le fichier fourni mentionne « les deux circuits ci-dessous » mais un seul schéma était lisible dans le document transmis — n'hésite pas à demander le second à ton professeur si besoin.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== PARTIE 5 : LECTURE APPAREILS DE MESURE ===================== -->
+<section class="part">
+  <h2><span class="num">5</span>Lecture d'appareils de mesure</h2>
+  <p style="color:var(--ink-soft); font-size:.92rem;">Rappel : sur un multimètre, si la valeur affichée est <b>positive</b>, le courant (ou la tension) réel va bien dans le sens de la flèche dessinée. Si elle est <b>négative</b>, le sens réel est <b>opposé</b> à la flèche.</p>
+
+  <div class="qcard">
+    <p class="stem">Ampèremètre — cas 1 : affichage <span class="mono">I = 5 A</span>, flèche pointant vers la borne « + ».</p>
+    <div class="quiz-mcq" data-quiz="a1">
+      <div class="opt" data-correct="true">Le courant réel circule dans le même sens que la flèche (5 A)</div>
+      <div class="opt" data-correct="false">Le courant réel circule en sens opposé à la flèche (5 A)</div>
+    </div>
+  </div>
+  <div class="qcard">
+    <p class="stem">Ampèremètre — cas 2 : affichage <span class="mono">I = −20 mA</span>.</p>
+    <div class="quiz-mcq" data-quiz="a2">
+      <div class="opt" data-correct="false">Le courant réel circule dans le même sens que la flèche (20 mA)</div>
+      <div class="opt" data-correct="true">Le courant réel circule en sens opposé à la flèche (20 mA)</div>
+    </div>
+  </div>
+  <div class="qcard">
+    <p class="stem">Ampèremètre — cas 3 : affichage <span class="mono">I = 60 µA</span>.</p>
+    <div class="quiz-mcq" data-quiz="a3">
+      <div class="opt" data-correct="true">Le courant réel circule dans le même sens que la flèche (60 µA)</div>
+      <div class="opt" data-correct="false">Le courant réel circule en sens opposé à la flèche (60 µA)</div>
+    </div>
+  </div>
+
+  <div class="qcard">
+    <p class="stem">Voltmètre — cas 1 : affichage <span class="mono">U = 12 V</span>. Le point désigné par la pointe de la flèche est…</p>
+    <div class="quiz-mcq" data-quiz="v1">
+      <div class="opt" data-correct="true">à un potentiel plus élevé que l'autre borne</div>
+      <div class="opt" data-correct="false">à un potentiel plus faible que l'autre borne</div>
+    </div>
+  </div>
+  <div class="qcard">
+    <p class="stem">Voltmètre — cas 2 : affichage <span class="mono">U = −100 mV</span>. Le point désigné par la pointe de la flèche est…</p>
+    <div class="quiz-mcq" data-quiz="v2">
+      <div class="opt" data-correct="false">à un potentiel plus élevé que l'autre borne</div>
+      <div class="opt" data-correct="true">à un potentiel plus faible que l'autre borne</div>
+    </div>
+  </div>
+
+  <div class="qcard">
+    <p class="stem">Voltmètre — cas 3 : deux batteries en opposition dans une boucle, de 9 V et 12 V. Que lit le voltmètre placé entre elles ?</p>
+    <div class="answer-row"><label>U =</label><input type="text" id="volt3"><span class="unit-lbl">V</span>
+      <button class="check-btn" onclick="checkNum('volt3',3,5)">Vérifier</button><span class="feedback" id="fb_volt3"></span></div>
+    <button class="reveal-btn" onclick="toggleSol(this)">Voir la méthode</button>
+    <div class="solution">Deux générateurs orientés en opposition dans une même boucle : la tension lue est la différence des deux forces électromotrices, soit 12 − 9 = 3 V.</div>
+  </div>
+  <div class="qcard">
+    <p class="stem">Voltmètre — cas 4 : deux batteries en opposition dans une boucle, de 24 V et 12 V. Que lit le voltmètre placé entre elles ?</p>
+    <div class="answer-row"><label>U =</label><input type="text" id="volt4"><span class="unit-lbl">V</span>
+      <button class="check-btn" onclick="checkNum('volt4',12,5)">Vérifier</button><span class="feedback" id="fb_volt4"></span></div>
+    <button class="reveal-btn" onclick="toggleSol(this)">Voir la méthode</button>
+    <div class="solution">24 − 12 = 12 V.</div>
+  </div>
+</section>
+
+<!-- ===================== PARTIE 6 : MAILLES DE TENSIONS ===================== -->
+<section class="part">
+  <h2><span class="num">6</span>Exercice — Mailles de tensions</h2>
+  <div class="qcard">
+    <p class="stem">En utilisant la loi des mailles, calculer U2 et U3, sachant U = 24 V, U1 = 14 V, U4 = 6 V (U1 et U2 en série dans une branche, U3 et U4 dans l'autre, les deux branches étant en parallèle sous la tension U).</p>
+    <div class="answer-row"><label>U2 =</label><input type="text" id="mt_u2"><span class="unit-lbl">V</span>
+      <button class="check-btn" onclick="checkNum('mt_u2',10,2)">Vérifier</button><span class="feedback" id="fb_mt_u2"></span></div>
+    <div class="answer-row"><label>U3 =</label><input type="text" id="mt_u3"><span class="unit-lbl">V</span>
+      <button class="check-btn" onclick="checkNum('mt_u3',18,2)">Vérifier</button><span class="feedback" id="fb_mt_u3"></span></div>
+    <button class="reveal-btn" onclick="toggleSol(this)">Voir la méthode</button>
+    <div class="solution">Maille 1 : U − U1 − U2 = 0 ⇒ U2 = U − U1 = 24 − 14 = 10 V. Maille 2 : U − U3 − U4 = 0 ⇒ U3 = U − U4 = 24 − 6 = 18 V.
+      <div class="note">Vérifiez le sens des flèches de votre schéma : si la topologie diffère légèrement, la même méthode (Σ U = 0 sur chaque maille) s'applique.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== PARTIE 7 : DIVISEUR DE TENSION ===================== -->
+<section class="part">
+  <h2><span class="num">7</span>Exercice — Diviseur de tension</h2>
+  <div class="qcard">
+    <p class="stem">On dispose d'une batterie E = 9 V et l'on souhaite obtenir U = 5 V en sortie d'un pont diviseur avec R1 = 4,7 kΩ. Déterminer R2.</p>
+    <div class="diagram">
+      <svg viewBox="0 0 160 140" width="170">
+        <line x1="30" y1="10" x2="30" y2="40" stroke="#152238" stroke-width="2"/>
+        <line x1="30" y1="40" x2="90" y2="40" stroke="#152238" stroke-width="2"/>
+        <rect x="82" y="40" width="16" height="30" fill="none" stroke="#152238" stroke-width="2"/>
+        <text x="105" y="58" font-size="10" font-family="Space Grotesk">R1</text>
+        <line x1="90" y1="70" x2="90" y2="100" stroke="#152238" stroke-width="2"/>
+        <rect x="82" y="100" width="16" height="30" fill="none" stroke="#152238" stroke-width="2"/>
+        <text x="105" y="118" font-size="10" font-family="Space Grotesk">R2</text>
+        <line x1="90" y1="130" x2="30" y2="130" stroke="#152238" stroke-width="2"/>
+        <line x1="30" y1="130" x2="30" y2="10" stroke="#152238" stroke-width="0"/>
+        <line x1="30" y1="10" x2="10" y2="10" stroke="#152238" stroke-width="0"/>
+        <text x="14" y="26" font-size="10" font-family="Space Grotesk">E</text>
+        <line x1="90" y1="85" x2="120" y2="85" stroke="#b8433a" stroke-width="1.6"/>
+        <text x="130" y="88" font-size="9" fill="#b8433a" font-family="Space Grotesk">U</text>
+        <line x1="10" y1="10" x2="10" y2="130" stroke="#152238" stroke-width="2"/>
+        <line x1="10" y1="130" x2="30" y2="130" stroke="#152238" stroke-width="2"/>
+      </svg>
+    </div>
+    <div class="answer-row"><label>R2 ≈</label><input type="text" id="dt_r2"><span class="unit-lbl">Ω</span>
+      <button class="check-btn" onclick="checkNum('dt_r2',5875,3)">Vérifier</button><span class="feedback" id="fb_dt_r2"></span></div>
+    <button class="reveal-btn" onclick="toggleSol(this)">Voir la méthode</button>
+    <div class="solution">U = E × R2/(R1+R2) ⇒ U(R1+R2) = E·R2 ⇒ U·R1 = R2(E−U) ⇒ R2 = U·R1/(E−U) = 5 × 4700 / (9−5) = 23500/4 = 5875 Ω ≈ 5,9 kΩ.</div>
+  </div>
+</section>
+
+<footer class="end">Activité reconstituée à partir du document « Lancement lois de Kirchhoff » — vérifiez vos réponses ouvertes avec votre professeur, les corrections automatiques reposent sur des mots-clés et des tolérances de calcul.</footer>
+
+<script>
+let correctFirstTry = 0;
+const seenTried = new Set();
+
+function normalize(s){
+  return s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
+}
+
+function updateScore(){
+  document.getElementById('scoreDisplay').textContent = 'Score : ' + correctFirstTry + ' / ' + seenTried.size;
+  const pct = seenTried.size ? Math.round(100*correctFirstTry/seenTried.size) : 0;
+  document.getElementById('progressFill').style.width = pct + '%';
+}
+
+function registerResult(key, ok){
+  if(!seenTried.has(key)){
+    seenTried.add(key);
+    if(ok) correctFirstTry++;
+    updateScore();
+  }
+}
+
+function checkNum(id, expected, tolPct){
+  const inp = document.getElementById(id);
+  const fb = document.getElementById('fb_' + id);
+  const raw = inp.value.replace(',', '.').trim();
+  const val = parseFloat(raw);
+  if(isNaN(val)){ fb.textContent = 'Entrez un nombre.'; fb.className='feedback bad'; return; }
+  const tol = Math.abs(expected) * (tolPct/100) + 0.01;
+  const ok = Math.abs(val - expected) <= tol;
+  registerResult(id, ok);
+  fb.textContent = ok ? '✓ correct' : '✗ à revoir (attendu ≈ ' + expected + ')';
+  fb.className = 'feedback ' + (ok ? 'ok' : 'bad');
+}
+
+function checkKeywords(id, groups, minHits){
+  const ta = document.getElementById(id);
+  const fb = document.getElementById('fb_' + id);
+  const text = normalize(ta.value);
+  let hits = 0;
+  groups.forEach(g=>{
+    if(g.some(kw => text.includes(normalize(kw)))) hits++;
+  });
+  const ok = hits >= minHits && text.length > 5;
+  registerResult(id, ok);
+  fb.textContent = ok ? '✓ éléments clés présents' : '✗ complétez votre réponse (relisez les apports de connaissances)';
+  fb.className = 'feedback ' + (ok ? 'ok' : 'bad');
+}
+
+function checkUnits(){
+  const map = {u_tension:['v','volt','volts'], u_courant:['a','ampere','amperes','ampère','ampères'],
+    u_resistance:['ohm','ohms','\u03a9'], u_puissance:['w','watt','watts'], u_energie:['j','joule','joules']};
+  let correct = 0;
+  Object.keys(map).forEach(id=>{
+    const val = normalize(document.getElementById(id).value);
+    if(map[id].some(a=>normalize(a)===val)) correct++;
+  });
+  const ok = correct === 5;
+  registerResult('units', ok);
+  document.getElementById('fb_units').textContent = correct + ' / 5 unités correctes';
+  document.getElementById('fb_units').className = 'feedback ' + (ok ? 'ok' : 'bad');
+}
+
+function checkBranchement(){
+  const v = document.getElementById('s_volt').value;
+  const a = document.getElementById('s_amp').value;
+  const ok = v === 'parallele' && a === 'serie';
+  registerResult('branch', ok);
+  document.getElementById('fb_branch').textContent = ok ? '✓ correct' : '✗ voltmètre → parallèle, ampèremètre → série';
+  document.getElementById('fb_branch').className = 'feedback ' + (ok ? 'ok' : 'bad');
+}
+
+function checkDipoles(){
+  const accepted = [
+    ['resistance','resistor'],
+    ['bobine','inductance','self'],
+    ['condensateur','capacite','capacité']
+  ];
+  const vals = ['d1','d2','d3'].map(id => normalize(document.getElementById(id).value));
+  let matched = 0;
+  const used = [false,false,false];
+  vals.forEach(v=>{
+    for(let i=0;i<accepted.length;i++){
+      if(!used[i] && accepted[i].some(a=>normalize(a)===v)){ used[i]=true; matched++; break; }
+    }
+  });
+  const ok = matched === 3;
+  registerResult('dipoles', ok);
+  document.getElementById('fb_dipoles').textContent = matched + ' / 3 dipôles reconnus';
+  document.getElementById('fb_dipoles').className = 'feedback ' + (ok ? 'ok' : 'bad');
+}
+
+function toggleSol(btn){
+  const sol = btn.nextElementSibling;
+  sol.classList.toggle('show');
+  btn.textContent = sol.classList.contains('show') ? 'Masquer la méthode' : (btn.dataset.label || 'Voir la méthode');
+}
+
+document.querySelectorAll('.quiz-mcq').forEach(q=>{
+  const key = q.getAttribute('data-quiz');
+  let answered = false;
+  q.querySelectorAll('.opt').forEach(opt=>{
+    opt.addEventListener('click', ()=>{
+      if(answered) return;
+      answered = true;
+      const isCorrect = opt.getAttribute('data-correct') === 'true';
+      q.querySelectorAll('.opt').forEach(o=>{
+        if(o.getAttribute('data-correct') === 'true') o.classList.add('correct');
+        else if(o === opt) o.classList.add('wrong');
+      });
+      registerResult(key, isCorrect);
+    });
+  });
+});
+
+updateScore();
+</script>
+<a href="../index.html" style="position:fixed;bottom:16px;left:16px;z-index:99999;background:#1e3a5f;color:#fff;padding:10px 16px;border-radius:24px;font:600 14px system-ui,sans-serif;text-decoration:none;box-shadow:0 2px 8px rgba(0,0,0,.25)">← Sommaire</a></body>
+</html>

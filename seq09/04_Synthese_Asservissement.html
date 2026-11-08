@@ -1,0 +1,1516 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Asservissement — Document de Synthèse</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;600&family=Playfair+Display:ital,wght@0,700;1,400&family=Source+Sans+3:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0f14;
+    --surface: #13161f;
+    --surface2: #1a1e2a;
+    --border: #2a2f3f;
+    --accent: #00d4aa;
+    --accent2: #ff6b35;
+    --accent3: #7c8cf8;
+    --text: #e2e5f0;
+    --text-muted: #6b7280;
+    --text-dim: #9ca3af;
+    --gold: #f0c040;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Source Sans 3', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    font-size: 15px;
+  }
+
+  /* ─── HEADER ─── */
+  header {
+    padding: 80px 60px 60px;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+  }
+  header::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse 80% 60% at 60% 40%, rgba(0,212,170,0.06) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .header-tag {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: .2em;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .header-tag::before {
+    content: '';
+    width: 32px; height: 1px;
+    background: var(--accent);
+  }
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.4rem, 5vw, 4rem);
+    font-weight: 700;
+    line-height: 1.1;
+    margin-bottom: 16px;
+  }
+  h1 em {
+    font-style: italic;
+    color: var(--accent);
+  }
+  .header-sub {
+    font-size: 1rem;
+    color: var(--text-dim);
+    font-weight: 300;
+    max-width: 600px;
+  }
+
+  /* ─── LAYOUT ─── */
+  .toc-wrap {
+    display: flex;
+    gap: 0;
+  }
+  nav.toc {
+    width: 240px;
+    flex-shrink: 0;
+    padding: 40px 28px;
+    border-right: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+  }
+  nav.toc h3 {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    color: var(--text-muted);
+    letter-spacing: .2em;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+  nav.toc a {
+    display: block;
+    font-size: 12.5px;
+    color: var(--text-muted);
+    text-decoration: none;
+    padding: 5px 0;
+    border-left: 2px solid transparent;
+    padding-left: 12px;
+    transition: all .2s;
+    line-height: 1.4;
+  }
+  nav.toc a:hover {
+    color: var(--accent);
+    border-left-color: var(--accent);
+  }
+  nav.toc .toc-section { margin-top: 14px; }
+  nav.toc .toc-number {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 9px;
+    color: var(--accent);
+    margin-right: 4px;
+  }
+
+  main {
+    flex: 1;
+    padding: 60px 70px;
+    max-width: 900px;
+  }
+
+  /* ─── SECTIONS ─── */
+  section { margin-bottom: 72px; }
+  .section-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    color: var(--accent);
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.9rem;
+    font-weight: 700;
+    margin-bottom: 28px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--border);
+    line-height: 1.2;
+  }
+  h3 {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--accent3);
+    margin: 28px 0 10px;
+    letter-spacing: .02em;
+  }
+  p { margin-bottom: 14px; color: var(--text-dim); }
+  strong { color: var(--text); }
+
+  /* ─── FORMULA BLOCKS ─── */
+  .formula {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 6px 6px 0;
+    padding: 20px 24px;
+    margin: 20px 0;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 1rem;
+    text-align: center;
+    letter-spacing: .03em;
+    color: var(--gold);
+    position: relative;
+    overflow-x: auto;
+  }
+  .formula .label {
+    position: absolute;
+    top: 8px; right: 14px;
+    font-size: 9px;
+    color: var(--text-muted);
+    letter-spacing: .15em;
+    text-transform: uppercase;
+  }
+  .formula-group { display: flex; flex-direction: column; gap: 4px; }
+  .formula-note {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-family: 'IBM Plex Mono', monospace;
+    text-align: center;
+    margin-top: 6px;
+  }
+
+  /* ─── INFO CARDS ─── */
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 14px;
+    margin: 22px 0;
+  }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 18px 20px;
+    transition: border-color .2s;
+  }
+  .card:hover { border-color: var(--accent3); }
+  .card-icon {
+    font-size: 1.4rem;
+    margin-bottom: 10px;
+  }
+  .card-title {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--accent3);
+    text-transform: uppercase;
+    letter-spacing: .1em;
+    margin-bottom: 6px;
+  }
+  .card p { font-size: 13px; margin: 0; }
+
+  /* ─── TABLE ─── */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 22px 0;
+    font-size: 13.5px;
+  }
+  thead tr {
+    background: var(--surface2);
+    border-bottom: 2px solid var(--accent);
+  }
+  th {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10.5px;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: .12em;
+    padding: 12px 16px;
+    text-align: left;
+  }
+  td {
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text-dim);
+    vertical-align: top;
+  }
+  tr:hover td { background: var(--surface); }
+  td:first-child { font-family: 'IBM Plex Mono', monospace; font-size: 12.5px; color: var(--gold); }
+
+  /* ─── CALLOUT ─── */
+  .callout {
+    border: 1px solid;
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin: 22px 0;
+    font-size: 13.5px;
+    display: flex; gap: 14px; align-items: flex-start;
+  }
+  .callout.info { border-color: rgba(124,140,248,.4); background: rgba(124,140,248,.06); }
+  .callout.warn { border-color: rgba(255,107,53,.4); background: rgba(255,107,53,.06); }
+  .callout.tip  { border-color: rgba(0,212,170,.4);  background: rgba(0,212,170,.06); }
+  .callout-icon { font-size: 1.2rem; flex-shrink: 0; margin-top: 1px; }
+  .callout p { margin: 0; }
+
+  /* ─── DIAGRAM (ASCII / visual) ─── */
+  .diagram {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 28px 20px;
+    margin: 22px 0;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12.5px;
+    line-height: 1.8;
+    color: var(--text-dim);
+    overflow-x: auto;
+    white-space: pre;
+  }
+  .diagram .highlight { color: var(--accent); }
+  .diagram .hl2 { color: var(--accent2); }
+  .diagram .hl3 { color: var(--gold); }
+
+  /* ─── BODE / RESPONSE SKETCH ─── */
+  .sketch-wrap {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin: 22px 0;
+  }
+  .sketch {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px;
+  }
+  .sketch-title {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: .15em;
+    margin-bottom: 10px;
+  }
+  canvas { width: 100%; border-radius: 4px; }
+
+  /* ─── PARAM LIST ─── */
+  .param-list { list-style: none; margin: 16px 0; }
+  .param-list li {
+    display: flex; gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 13.5px;
+  }
+  .param-list li:last-child { border: none; }
+  .param-sym {
+    font-family: 'IBM Plex Mono', monospace;
+    color: var(--gold);
+    min-width: 50px;
+    font-size: 13px;
+  }
+  .param-desc { color: var(--text-dim); }
+
+  /* ─── CODE TABS ─── */
+  .tab-bar {
+    display: flex;
+    gap: 0;
+    border-bottom: 2px solid var(--border);
+    margin-bottom: 0;
+  }
+  .tab-btn {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    padding: 10px 22px;
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    transition: all .2s;
+  }
+  .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .tab-btn:hover:not(.active) { color: var(--text-dim); }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* ─── SYNTAX HIGHLIGHT ─── */
+  pre.code-block {
+    background: #0a0c11;
+    border: 1px solid var(--border);
+    border-top: none;
+    border-radius: 0 0 8px 8px;
+    padding: 28px 28px 24px;
+    overflow-x: auto;
+    margin: 0 0 24px;
+    line-height: 1.7;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12.5px;
+    counter-reset: line;
+  }
+  pre.code-block .ln {
+    display: inline-block;
+    width: 2.2em;
+    color: #3d4558;
+    user-select: none;
+    text-align: right;
+    margin-right: 18px;
+  }
+  .kw  { color: #7c8cf8; }   /* keywords */
+  .ty  { color: #00d4aa; }   /* types */
+  .fn  { color: #f0c040; }   /* functions */
+  .cm  { color: #4b5a6e; font-style: italic; }  /* comments */
+  .st  { color: #a8d8a0; }   /* strings */
+  .nm  { color: #ff9f7e; }   /* numbers / params */
+  .pp  { color: #c07aff; }   /* preprocessor / decorators */
+  .op  { color: #e2e5f0; }   /* operators / punctuation */
+
+  /* param annotation boxes */
+  .param-annot {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin: 20px 0 28px;
+  }
+  .pa {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid;
+    border-radius: 0 6px 6px 0;
+    padding: 13px 16px;
+    font-size: 13px;
+  }
+  .pa.kw-c  { border-left-color: #7c8cf8; }
+  .pa.fn-c  { border-left-color: #f0c040; }
+  .pa.nm-c  { border-left-color: #ff9f7e; }
+  .pa.ty-c  { border-left-color: #00d4aa; }
+  .pa-sym {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    margin-bottom: 4px;
+  }
+  .pa p { font-size: 12.5px; margin: 0; color: var(--text-dim); }
+  @media(max-width:700px){ .param-annot{ grid-template-columns:1fr; } }
+
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 30px 60px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--text-muted);
+    display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px;
+  }
+
+  @media (max-width: 860px) {
+    .toc-wrap { flex-direction: column; }
+    nav.toc { width: 100%; height: auto; position: static; border-right: none; border-bottom: 1px solid var(--border); }
+    main { padding: 40px 24px; }
+    header { padding: 50px 24px 40px; }
+    .sketch-wrap { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <a href="../index.html#seq09" style="position:relative;z-index:1;display:inline-block;margin-bottom:22px;font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--accent);text-decoration:none;border:1px solid var(--border);border-radius:6px;padding:6px 12px">← Retour à la Séquence 9</a>
+  <div class="header-tag">Automatique — Systèmes Linéaires</div>
+  <h1>Systèmes d'<em>Asservissement</em></h1>
+  <p class="header-sub">Document de synthèse : fonctions de transfert, réponses temporelles et fréquentielles, stabilité et correcteurs.</p>
+</header>
+
+<div class="toc-wrap">
+
+  <!-- TABLE DES MATIÈRES -->
+  <nav class="toc">
+    <h3>Sommaire</h3>
+    <div class="toc-section"><a href="#intro"><span class="toc-number">01</span>Principes généraux</a></div>
+    <div class="toc-section"><a href="#ft"><span class="toc-number">02</span>Fonction de transfert</a></div>
+    <div class="toc-section"><a href="#ordre1"><span class="toc-number">03</span>Systèmes 1er ordre</a></div>
+    <div class="toc-section"><a href="#ordre2"><span class="toc-number">04</span>Systèmes 2e ordre</a></div>
+    <div class="toc-section"><a href="#boucle"><span class="toc-number">05</span>Boucle fermée & erreurs</a></div>
+    <div class="toc-section"><a href="#stabilite"><span class="toc-number">06</span>Stabilité</a></div>
+    <div class="toc-section"><a href="#bode"><span class="toc-number">07</span>Diagrammes de Bode</a></div>
+    <div class="toc-section"><a href="#correcteurs"><span class="toc-number">08</span>Correcteurs</a></div>
+    <div class="toc-section"><a href="#tr5"><span class="toc-number">09</span>Temps de réponse à 5%</a></div>
+    <div class="toc-section"><a href="#recap"><span class="toc-number">10</span>Tableau récapitulatif</a></div>
+    <div class="toc-section"><a href="#code"><span class="toc-number">11</span>Code C++ &amp; Python — Balancier</a></div>
+  </nav>
+
+  <main>
+
+    <!-- 01 INTRODUCTION -->
+    <section id="intro">
+      <div class="section-label">01 — Introduction</div>
+      <h2>Principes généraux de l'asservissement</h2>
+      <p>Un système asservi est un système de commande en <strong>boucle fermée</strong> dont l'objectif est de faire suivre à une grandeur de sortie une grandeur de consigne, en dépit des perturbations et des incertitudes.</p>
+
+      <div class="diagram"><span class="highlight">  Consigne r(t)        Erreur ε(t)        Commande u(t)        Sortie y(t)
+         ───────►  ⊕ ──────►  Correcteur C(p) ──────►  Procédé G(p) ──────►
+                   ↑─────────────────────────────────────────────────────────┘</span>
+<span class="hl2">                                  Retour (H(p) ou 1)</span></div>
+
+      <div class="card-grid">
+        <div class="card">
+          <div class="card-icon">🎯</div>
+          <div class="card-title">Précision</div>
+          <p>Annuler ou réduire l'erreur en régime permanent entre consigne et sortie.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon">⚡</div>
+          <div class="card-title">Rapidité</div>
+          <p>Atteindre le régime permanent le plus vite possible (temps de réponse).</p>
+        </div>
+        <div class="card">
+          <div class="card-icon">🔄</div>
+          <div class="card-title">Stabilité</div>
+          <p>Garantir que la sortie converge sans oscillations divergentes.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon">🛡️</div>
+          <div class="card-title">Robustesse</div>
+          <p>Conserver les performances malgré les variations du procédé.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 02 FONCTION DE TRANSFERT -->
+    <section id="ft">
+      <div class="section-label">02 — Généralités</div>
+      <h2>Fonction de transfert</h2>
+      <p>En utilisant la <strong>transformée de Laplace</strong>, la fonction de transfert d'un système linéaire invariant (LTI) est définie par :</p>
+
+      <div class="formula">
+        <span class="label">Définition</span>
+        H(p) = Y(p) / E(p)
+        <div class="formula-note">Y(p) : sortie  |  E(p) : entrée  |  p : variable complexe de Laplace</div>
+      </div>
+
+      <h3>Forme générale</h3>
+      <div class="formula">
+        H(p) = K · [ b_m·p^m + ... + b_1·p + b_0 ] / [ a_n·p^n + ... + a_1·p + a_0 ]
+        <div class="formula-note">n ≥ m pour un système causal (physiquement réalisable)</div>
+      </div>
+
+      <ul class="param-list">
+        <li><span class="param-sym">K</span><span class="param-desc">Gain statique du système (valeur à p = 0)</span></li>
+        <li><span class="param-sym">n</span><span class="param-desc">Ordre du système = degré du dénominateur</span></li>
+        <li><span class="param-sym">Pôles</span><span class="param-desc">Racines du dénominateur → déterminent la stabilité</span></li>
+        <li><span class="param-sym">Zéros</span><span class="param-desc">Racines du numérateur → influencent la réponse</span></li>
+        <li><span class="param-sym">Classe</span><span class="param-desc">Nombre d'intégrateurs en boucle ouverte (puissance de p au dénominateur)</span></li>
+      </ul>
+
+      <div class="callout info">
+        <span class="callout-icon">ℹ️</span>
+        <p><strong>Classe :</strong> un système de classe α contient un facteur p<sup>α</sup> au dénominateur, ce qui détermine les erreurs en régime permanent (voir §5).</p>
+      </div>
+    </section>
+
+    <!-- 03 ORDRE 1 -->
+    <section id="ordre1">
+      <div class="section-label">03 — Premier ordre</div>
+      <h2>Systèmes du 1<sup>er</sup> ordre</h2>
+      <p>Modèle canonique d'un système du premier ordre :</p>
+
+      <div class="formula">
+        H(p) = K / (1 + τ·p)
+        <div class="formula-note">K : gain statique  |  τ : constante de temps (s)</div>
+      </div>
+
+      <h3>Réponse indicielle (entrée échelon de valeur E)</h3>
+      <p>La sortie en régime temporel est :</p>
+      <div class="formula">
+        y(t) = K·E · (1 − e^(−t/τ))·u(t)
+        <div class="formula-note">u(t) : échelon unité (Heaviside)</div>
+      </div>
+
+      <h3>Caractéristiques temporelles</h3>
+      <div class="card-grid">
+        <div class="card">
+          <div class="card-title">t = τ</div>
+          <p>y(τ) = 63,2 % de la valeur finale</p>
+        </div>
+        <div class="card">
+          <div class="card-title">t = 3τ</div>
+          <p>y(3τ) = 95 % — début de régime établi</p>
+        </div>
+        <div class="card">
+          <div class="card-title">t = 5τ</div>
+          <p>y(5τ) ≈ 99,3 % — régime permanent atteint</p>
+        </div>
+        <div class="card">
+          <div class="card-title">Tangente</div>
+          <p>La tangente à l'origine coupe la valeur finale en t = τ</p>
+        </div>
+      </div>
+
+      <h3>Réponse fréquentielle</h3>
+      <div class="formula">
+        H(jω) = K / (1 + jωτ)
+        <div class="formula-group">
+          <div>|H(jω)| = K / √(1 + ω²τ²)</div>
+          <div>∠H(jω) = −arctan(ωτ)</div>
+        </div>
+        <div class="formula-note">Fréquence de coupure : ω_c = 1/τ  →  |H| = K/√2  (−3 dB)</div>
+      </div>
+
+      <canvas id="c1" height="140" style="background:var(--surface);border-radius:6px;margin-top:14px;"></canvas>
+      <p style="font-size:11.5px;text-align:center;margin-top:6px;color:var(--text-muted);font-family:'IBM Plex Mono',monospace;">Réponse indicielle normalisée (K=1, τ=1 s)</p>
+    </section>
+
+    <!-- 04 ORDRE 2 -->
+    <section id="ordre2">
+      <div class="section-label">04 — Deuxième ordre</div>
+      <h2>Systèmes du 2<sup>e</sup> ordre</h2>
+      <p>Forme canonique :</p>
+
+      <div class="formula">
+        H(p) = K·ω_n² / (p² + 2ξω_n·p + ω_n²)
+        <div class="formula-note">ω_n : pulsation propre (rad/s)  |  ξ : coefficient d'amortissement (sans dimension)</div>
+      </div>
+
+      <ul class="param-list">
+        <li><span class="param-sym">ω_n</span><span class="param-desc">Pulsation propre non amortie — détermine la rapidité</span></li>
+        <li><span class="param-sym">ξ</span><span class="param-desc">Coefficient d'amortissement — détermine le dépassement</span></li>
+        <li><span class="param-sym">ω_p</span><span class="param-desc">Pulsation propre amortie : ω_p = ω_n·√(1−ξ²)  (si ξ &lt; 1)</span></li>
+      </ul>
+
+      <h3>Régimes selon ξ</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Condition</th>
+            <th>Régime</th>
+            <th>Pôles</th>
+            <th>Comportement</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>0 &lt; ξ &lt; 1</td>
+            <td>Sous-amorti</td>
+            <td>Complexes conjugués</td>
+            <td>Oscillations amorties, dépassement</td>
+          </tr>
+          <tr>
+            <td>ξ = 1</td>
+            <td>Critiquement amorti</td>
+            <td>Réel double −ω_n</td>
+            <td>Retour le plus rapide sans oscillation</td>
+          </tr>
+          <tr>
+            <td>ξ &gt; 1</td>
+            <td>Sur-amorti</td>
+            <td>Réels distincts négatifs</td>
+            <td>Pas d'oscillation, retour lent</td>
+          </tr>
+          <tr>
+            <td>ξ = 0</td>
+            <td>Non amorti</td>
+            <td>Imaginaires purs ±jω_n</td>
+            <td>Oscillations permanentes</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Formules clés (régime sous-amorti, 0 &lt; ξ &lt; 1)</h3>
+
+      <div class="formula">
+        Dépassement : D% = exp(−πξ / √(1−ξ²)) × 100
+        <div class="formula-note">Ex : ξ = 0.5 → D% ≈ 16.3%  |  ξ = 0.707 → D% ≈ 4.3%</div>
+      </div>
+
+      <div class="formula">
+        Temps de pic : t_p = π / ω_p = π / (ω_n·√(1−ξ²))
+      </div>
+
+      <div class="formula">
+        Temps de réponse à 5% : t_r5 ≈ 3 / (ξ·ω_n)
+        <div class="formula-note">Approximation valable pour 0.3 &lt; ξ &lt; 0.8</div>
+      </div>
+
+      <canvas id="c2" height="160" style="background:var(--surface);border-radius:6px;margin-top:14px;"></canvas>
+      <p style="font-size:11.5px;text-align:center;margin-top:6px;color:var(--text-muted);font-family:'IBM Plex Mono',monospace;">Réponse indicielle pour ξ = 0.3 / 0.7 / 1.0 (ω_n = 1, K = 1)</p>
+    </section>
+
+    <!-- 05 BOUCLE FERMÉE -->
+    <section id="boucle">
+      <div class="section-label">05 — Boucle fermée</div>
+      <h2>Boucle fermée & erreurs en régime permanent</h2>
+
+      <h3>Transmittance en boucle fermée</h3>
+      <p>Pour un retour unitaire H = 1 et un correcteur C(p) en série avec le procédé G(p) :</p>
+      <div class="formula">
+        F(p) = C(p)·G(p) / (1 + C(p)·G(p))
+        <div class="formula-note">F(p) : FTBF  |  C(p)·G(p) : FTBO (boucle ouverte)</div>
+      </div>
+
+      <h3>Erreur de position (entrée échelon)</h3>
+      <div class="formula">
+        ε_p = lim[p→0] p·E(p) / (1 + FTBO(p)) = 1 / (1 + K_p)
+        <div class="formula-note">K_p = lim[p→0] FTBO(p) — gain de position</div>
+      </div>
+
+      <h3>Erreur de vitesse (entrée rampe)</h3>
+      <div class="formula">
+        ε_v = 1 / K_v  où  K_v = lim[p→0] p·FTBO(p)
+        <div class="formula-note">Nulle si la FTBO contient au moins un intégrateur (classe ≥ 1)</div>
+      </div>
+
+      <h3>Erreur d'accélération (entrée parabolique)</h3>
+      <div class="formula">
+        ε_a = 1 / K_a  où  K_a = lim[p→0] p²·FTBO(p)
+        <div class="formula-note">Nulle si classe ≥ 2</div>
+      </div>
+
+      <table>
+        <thead>
+          <tr><th>Classe</th><th>Échelon</th><th>Rampe</th><th>Parabolique</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>0</td><td>finie (≠0)</td><td>∞</td><td>∞</td></tr>
+          <tr><td>1</td><td>0</td><td>finie (≠0)</td><td>∞</td></tr>
+          <tr><td>2</td><td>0</td><td>0</td><td>finie (≠0)</td></tr>
+        </tbody>
+      </table>
+
+      <div class="callout tip">
+        <span class="callout-icon">💡</span>
+        <p>Pour annuler l'erreur de position, il suffit qu'il y ait au moins un intégrateur (1/p) dans la boucle ouverte (correcteur ou procédé).</p>
+      </div>
+    </section>
+
+    <!-- 06 STABILITÉ -->
+    <section id="stabilite">
+      <div class="section-label">06 — Stabilité</div>
+      <h2>Stabilité des systèmes asservis</h2>
+      <p>Un système LTI est stable si et seulement si <strong>tous ses pôles ont une partie réelle strictement négative</strong> (plan gauche du plan complexe).</p>
+
+      <h3>Critère de Routh-Hurwitz</h3>
+      <p>Permet de vérifier la stabilité sans calculer les pôles. Pour un polynôme caractéristique <em>a_n·p^n + … + a_0</em>, on construit le tableau de Routh. <strong>Condition nécessaire :</strong> tous les coefficients doivent être de même signe et non nuls.</p>
+
+      <div class="callout warn">
+        <span class="callout-icon">⚠️</span>
+        <p>Si un élément de la 1re colonne du tableau de Routh change de signe, le nombre de changements de signe = nombre de pôles à partie réelle positive → système instable.</p>
+      </div>
+
+      <h3>Marges de stabilité (domaine fréquentiel)</h3>
+
+      <div class="card-grid">
+        <div class="card">
+          <div class="card-title">Marge de gain M_G</div>
+          <p>M_G = −|FTBO(jω_φ)|_dB, où ω_φ est la pulsation de déphasage −180°. <strong>Valeur typique : M_G ≥ 6 dB.</strong></p>
+        </div>
+        <div class="card">
+          <div class="card-title">Marge de phase M_φ</div>
+          <p>M_φ = 180° + ∠FTBO(jω_c), où ω_c est la pulsation de coupure (|FTBO| = 0 dB). <strong>Valeur typique : M_φ ≥ 45°.</strong></p>
+        </div>
+      </div>
+
+      <h3>Critère de Nyquist</h3>
+      <p>Tracé du lieu de Nyquist de la FTBO dans le plan complexe. Le système en boucle fermée est stable si le point critique <strong>(−1, j0)</strong> n'est pas encerclé (règle simplifiée pour systèmes stables en BO).</p>
+    </section>
+
+    <!-- 07 BODE -->
+    <section id="bode">
+      <div class="section-label">07 — Fréquentiel</div>
+      <h2>Diagrammes de Bode</h2>
+      <p>Représentation de <strong>|H(jω)|</strong> en dB et de <strong>∠H(jω)</strong> en degrés en fonction de log(ω).</p>
+
+      <table>
+        <thead>
+          <tr><th>Élément</th><th>Module (dB/décade)</th><th>Phase</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Gain K</td><td>20·log(K) — horizontal</td><td>0° (K&gt;0) ou ±180°</td></tr>
+          <tr><td>Intégrateur 1/p</td><td>−20 dB/déc</td><td>−90°</td></tr>
+          <tr><td>Dérivateur p</td><td>+20 dB/déc</td><td>+90°</td></tr>
+          <tr><td>1er ordre 1/(1+τp)</td><td>0 puis −20 dB/déc (ω=1/τ)</td><td>0° → −90°</td></tr>
+          <tr><td>2e ordre (sous-amorti)</td><td>0 puis −40 dB/déc (ω=ω_n)</td><td>0° → −180°, pic à ω_n</td></tr>
+          <tr><td>Retard pur e^(−Tp)</td><td>0 dB (pas d'effet)</td><td>−ω·T (rad)</td></tr>
+        </tbody>
+      </table>
+
+      <div class="callout info">
+        <span class="callout-icon">📐</span>
+        <p><strong>Asymptotes :</strong> les diagrammes de Bode se construisent par addition des diagrammes asymptotiques de chaque facteur. La pente totale en haute fréquence vaut −20·(n−m) dB/décade.</p>
+      </div>
+    </section>
+
+    <!-- 08 CORRECTEURS -->
+    <section id="correcteurs">
+      <div class="section-label">08 — Correcteurs</div>
+      <h2>Correcteurs classiques</h2>
+
+      <h3>Correcteur Proportionnel (P)</h3>
+      <div class="formula">C(p) = K_p</div>
+      <p>Simple et rapide, augmente le gain → réduit l'erreur statique mais peut déstabiliser.</p>
+
+      <h3>Correcteur Intégral (I)</h3>
+      <div class="formula">C(p) = K_i / p</div>
+      <p>Annule l'erreur statique pour une entrée échelon (classe +1). Ralentit le système et peut créer de l'instabilité.</p>
+
+      <h3>Correcteur Dérivé (D)</h3>
+      <div class="formula">C(p) = K_d · p</div>
+      <p>Anticipe les variations → améliore la marge de phase. Amplifie le bruit hautes fréquences — utilisé filtré.</p>
+
+      <h3>Correcteur PID</h3>
+      <div class="formula">
+        C(p) = K_p · (1 + 1/(T_i·p) + T_d·p)
+        <div class="formula-note">T_i : temps d'intégration  |  T_d : temps de dérivation</div>
+      </div>
+
+      <div class="card-grid">
+        <div class="card">
+          <div class="card-title">Action P</div>
+          <p>Réduit l'erreur, accélère la réponse. Risque d'oscillations si trop élevé.</p>
+        </div>
+        <div class="card">
+          <div class="card-title">Action I</div>
+          <p>Élimine l'erreur statique. Ralentit et peut déstabiliser (phénomène windup).</p>
+        </div>
+        <div class="card">
+          <div class="card-title">Action D</div>
+          <p>Améliore la marge de phase, amortit les oscillations. Sensible au bruit.</p>
+        </div>
+      </div>
+
+      <h3>Correcteur à avance de phase</h3>
+      <div class="formula">
+        C(p) = K · (1 + aτp) / (1 + τp)   avec a &gt; 1
+        <div class="formula-note">Augmente la marge de phase — améliore la rapidité</div>
+      </div>
+
+      <h3>Correcteur à retard de phase</h3>
+      <div class="formula">
+        C(p) = K · (1 + bτp) / (1 + τp)   avec b &lt; 1
+        <div class="formula-note">Réduit le gain haute fréquence — améliore la précision</div>
+      </div>
+
+      <h3>Méthode de réglage de Ziegler-Nichols</h3>
+      <table>
+        <thead>
+          <tr><th>Type</th><th>K_p</th><th>T_i</th><th>T_d</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>P</td><td>T/(K·L)</td><td>—</td><td>—</td></tr>
+          <tr><td>PI</td><td>0.9·T/(K·L)</td><td>3.3·L</td><td>—</td></tr>
+          <tr><td>PID</td><td>1.2·T/(K·L)</td><td>2·L</td><td>0.5·L</td></tr>
+        </tbody>
+      </table>
+      <p style="font-size:12.5px;">K : gain, T : constante de temps, L : retard pur du procédé identifié par réponse indicielle.</p>
+    </section>
+
+    <!-- 09 TEMPS DE RÉPONSE À 5% -->
+    <section id="tr5">
+      <div class="section-label">09 — Temps de réponse</div>
+      <h2>Temps de réponse à 5%</h2>
+      <p>Le <strong>temps de réponse à 5%</strong> (noté t<sub>r5%</sub>) est le temps à partir duquel la sortie reste définitivement dans la bande ±5 % autour de la valeur finale. C'est le critère de rapidité le plus couramment utilisé en automatique.</p>
+
+      <div class="formula">
+        |y(t) − y_∞| ≤ 0.05 · y_∞   pour tout t ≥ t_r5%
+        <div class="formula-note">y_∞ : valeur finale en régime permanent</div>
+      </div>
+
+      <div class="card-grid">
+        <div class="card">
+          <div class="card-title">1er ordre</div>
+          <p>t_r5% = 3τ (la sortie atteint 95% de y_∞ en 3 constantes de temps)</p>
+        </div>
+        <div class="card">
+          <div class="card-title">2e ordre (sous-amorti)</div>
+          <p>t_r5% ≈ 3 / (ξ·ω_n) — formule approchée pour 0.3 &lt; ξ &lt; 0.8</p>
+        </div>
+        <div class="card">
+          <div class="card-title">Sur-amorti / critique</div>
+          <p>Plus lent que le cas critique. t_r5% se détermine graphiquement ou numériquement.</p>
+        </div>
+      </div>
+
+      <h3>Exemples graphiques — trois cas types</h3>
+      <p>Les trois courbes ci-dessous illustrent le t<sub>r5%</sub> pour : un système du <strong>1er ordre</strong> (τ = 2 s), un système du <strong>2e ordre sous-amorti</strong> (ξ = 0.3, ω_n = 1 rad/s) et un système du <strong>2e ordre critiquement amorti</strong> (ξ = 1, ω_n = 1 rad/s). La bande à ±5% de la valeur finale est figurée en vert, et le t<sub>r5%</sub> de chaque courbe est marqué par une flèche verticale.</p>
+
+      <canvas id="c_tr5" height="200" style="background:var(--surface);border-radius:6px;margin-top:14px;"></canvas>
+      <p style="font-size:11.5px;text-align:center;margin-top:6px;color:var(--text-muted);font-family:'IBM Plex Mono',monospace;">Bande ±5% en vert · Marqueurs t_r5% colorés par système</p>
+
+      <h3>Valeurs numériques pour cet exemple</h3>
+      <table>
+        <thead>
+          <tr><th>Système</th><th>Paramètres</th><th>Formule</th><th>t_r5% calculé</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1er ordre</td>
+            <td>τ = 2 s</td>
+            <td>3τ</td>
+            <td>6.0 s</td>
+          </tr>
+          <tr>
+            <td>2e ordre sous-amorti</td>
+            <td>ξ = 0.3, ω_n = 1</td>
+            <td>≈ 3/(ξ·ω_n)</td>
+            <td>≈ 10 s (numérique)</td>
+          </tr>
+          <tr>
+            <td>2e ordre critique</td>
+            <td>ξ = 1, ω_n = 1</td>
+            <td>numérique</td>
+            <td>≈ 4.7 s</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="callout warn">
+        <span class="callout-icon">⚠️</span>
+        <p>Pour le système sous-amorti (ξ petit), la sortie peut osciller et <em>rentrer puis sortir</em> plusieurs fois de la bande à 5% : le t<sub>r5%</sub> est le dernier instant de sortie de bande, pas le premier passage.</p>
+      </div>
+
+      <div class="callout tip">
+        <span class="callout-icon">💡</span>
+        <p>Un amortissement ξ ≈ 0.7 (dit « optimal ») offre le meilleur compromis entre rapidité et dépassement : t<sub>r5%</sub> minimal sans oscillations excessives.</p>
+      </div>
+    </section>
+
+    <!-- 10 RÉCAPITULATIF -->
+    <section id="recap">
+      <div class="section-label">10 — Synthèse</div>
+      <h2>Tableau récapitulatif général</h2>
+      <table>
+        <thead>
+          <tr><th>Critère</th><th>1er ordre</th><th>2e ordre (ξ&lt;1)</th><th>Lien correcteur</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Stabilité</td>
+            <td>Toujours stable (τ&gt;0)</td>
+            <td>Stable si ξ&gt;0, ω_n&gt;0</td>
+            <td>Marges gain/phase</td>
+          </tr>
+          <tr>
+            <td>Rapidité</td>
+            <td>t_r ≈ 3τ</td>
+            <td>t_r ≈ 3/(ξω_n)</td>
+            <td>↑ K_p ou ↑ ω_n</td>
+          </tr>
+          <tr>
+            <td>Dépassement</td>
+            <td>Nul</td>
+            <td>D% = f(ξ)</td>
+            <td>↑ ξ via D ou PID</td>
+          </tr>
+          <tr>
+            <td>Erreur statique</td>
+            <td>K / (1+K) (cl.0)</td>
+            <td>idem</td>
+            <td>Intégrateur → 0</td>
+          </tr>
+          <tr>
+            <td>Bode coupure</td>
+            <td>ω_c = 1/τ</td>
+            <td>ω_c ≈ ω_n (ξ faible)</td>
+            <td>Avance phase → ↑ M_φ</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="callout tip">
+        <span class="callout-icon">✅</span>
+        <p><strong>Compromis fondamental :</strong> stabilité ↔ rapidité ↔ précision sont trois objectifs souvent antagonistes. Le rôle du correcteur est de les optimiser simultanément selon le cahier des charges.</p>
+      </div>
+    </section>
+
+
+    <!-- 11 CODE C++ & PYTHON — BALANCIER -->
+    <section id="code">
+      <div class="section-label">11 — Exemples de code</div>
+      <h2>Régulation d'un balancier inversé — C++ &amp; Python</h2>
+
+      <p>Le <strong>balancier inversé</strong> (pendule sur chariot, robot bipède, segway…) est le cas-école de l'asservissement instable : sans correcteur, le pendule tombe. On utilise un <strong>correcteur PID</strong> sur l'angle θ pour maintenir l'équilibre. Les deux implémentations ci-dessous partagent la même logique PID ; seul le langage diffère.</p>
+
+      <div class="callout info">
+        <span class="callout-icon">🔧</span>
+        <p><strong>Modèle simplifié :</strong> l'angle θ est mesuré par un capteur (IMU / encodeur). La commande u (tension moteur ou couple) est calculée chaque pas d'échantillonnage dt. Le setpoint est θ = 0 (vertical).</p>
+      </div>
+
+      <!-- ONGLETS -->
+      <div class="tab-bar">
+        <button class="tab-btn active" onclick="switchTab('cpp',this)">C++ (embarqué)</button>
+        <button class="tab-btn" onclick="switchTab('py',this)">Python (simulation)</button>
+      </div>
+
+      <!-- ══ C++ ══ -->
+      <div id="tab-cpp" class="tab-panel active">
+<pre class="code-block"><span class="ln">1</span><span class="cm">// ═══════════════════════════════════════════════════════════════
+</span><span class="ln">2</span><span class="cm">// Régulateur PID — Balancier inversé          (C++17, embarqué)
+</span><span class="ln">3</span><span class="cm">// Capteur : IMU (angle en radians)  |  Actionneur : moteur DC
+</span><span class="ln">4</span><span class="cm">// ═══════════════════════════════════════════════════════════════</span>
+<span class="ln">5</span>
+<span class="ln">6</span><span class="pp">#include</span> <span class="st">&lt;cmath&gt;</span>
+<span class="ln">7</span><span class="pp">#include</span> <span class="st">&lt;algorithm&gt;</span>    <span class="cm">// std::clamp</span>
+<span class="ln">8</span><span class="pp">#include</span> <span class="st">&lt;chrono&gt;</span>
+<span class="ln">9</span>
+<span class="ln">10</span><span class="cm">// ── ① Paramètres PID ─────────────────────────────────────────</span>
+<span class="ln">11</span><span class="cm">// ↓ RÉGLER CES TROIS VALEURS EN PREMIER</span>
+<span class="ln">12</span><span class="kw">constexpr</span> <span class="ty">double</span> <span class="nm">Kp</span> <span class="op">=</span> <span class="nm">45.0</span><span class="op">;</span>   <span class="cm">// Gain proportionnel  → rapidité de réaction</span>
+<span class="ln">13</span><span class="kw">constexpr</span> <span class="ty">double</span> <span class="nm">Ki</span> <span class="op">=</span>  <span class="nm">2.5</span><span class="op">;</span>   <span class="cm">// Gain intégral       → supprime l'erreur statique</span>
+<span class="ln">14</span><span class="kw">constexpr</span> <span class="ty">double</span> <span class="nm">Kd</span> <span class="op">=</span>  <span class="nm">8.0</span><span class="op">;</span>   <span class="cm">// Gain dérivé         → amortit les oscillations</span>
+<span class="ln">15</span>
+<span class="ln">16</span><span class="cm">// ── ② Paramètres système ─────────────────────────────────────</span>
+<span class="ln">17</span><span class="kw">constexpr</span> <span class="ty">double</span> <span class="nm">DT</span>         <span class="op">=</span> <span class="nm">0.01</span><span class="op">;</span>   <span class="cm">// Pas d'échantillonnage (s) — doit être régulier</span>
+<span class="ln">18</span><span class="kw">constexpr</span> <span class="ty">double</span> <span class="nm">SETPOINT</span>   <span class="op">=</span> <span class="nm">0.0</span><span class="op">;</span>   <span class="cm">// Angle cible (rad) — 0 = vertical parfait</span>
+<span class="ln">19</span><span class="kw">constexpr</span> <span class="ty">double</span> <span class="nm">U_MAX</span>      <span class="op">=</span> <span class="nm">12.0</span><span class="op">;</span>  <span class="cm">// Saturation commande (V ou PWM normalisé)</span>
+<span class="ln">20</span><span class="kw">constexpr</span> <span class="ty">double</span> <span class="nm">ANGLE_FALL</span> <span class="op">=</span> <span class="nm">0.5</span><span class="op">;</span>   <span class="cm">// Seuil de chute (rad ≈ 28°) — coupe les moteurs</span>
+<span class="ln">21</span>
+<span class="ln">22</span><span class="cm">// ── ③ Anti-windup : limite d'accumulation intégrale ──────────</span>
+<span class="ln">23</span><span class="kw">constexpr</span> <span class="ty">double</span> <span class="nm">INTEGRAL_MAX</span> <span class="op">=</span> <span class="nm">5.0</span><span class="op">;</span>  <span class="cm">// Clamp integral (évite la saturation prolongée)</span>
+<span class="ln">24</span>
+<span class="ln">25</span><span class="cm">// ────────────────────────────────────────────────────────────</span>
+<span class="ln">26</span><span class="kw">class</span> <span class="ty">PIDController</span> <span class="op">{</span>
+<span class="ln">27</span><span class="kw">public</span><span class="op">:</span>
+<span class="ln">28</span>    <span class="fn">PIDController</span><span class="op">(</span><span class="ty">double</span> kp<span class="op">,</span> <span class="ty">double</span> ki<span class="op">,</span> <span class="ty">double</span> kd<span class="op">)</span>
+<span class="ln">29</span>        <span class="op">:</span> kp_<span class="op">(</span>kp<span class="op">),</span> ki_<span class="op">(</span>ki<span class="op">),</span> kd_<span class="op">(</span>kd<span class="op">),</span> integral_<span class="op">(</span><span class="nm">0</span><span class="op">),</span> prev_error_<span class="op">(</span><span class="nm">0</span><span class="op">)</span> <span class="op">{}</span>
+<span class="ln">30</span>
+<span class="ln">31</span>    <span class="cm">// Calcule la commande u à chaque pas dt</span>
+<span class="ln">32</span>    <span class="ty">double</span> <span class="fn">compute</span><span class="op">(</span><span class="ty">double</span> setpoint<span class="op">,</span> <span class="ty">double</span> measured<span class="op">,</span> <span class="ty">double</span> dt<span class="op">)</span> <span class="op">{</span>
+<span class="ln">33</span>        <span class="ty">double</span> error     <span class="op">=</span> setpoint <span class="op">-</span> measured<span class="op">;</span>
+<span class="ln">34</span>
+<span class="ln">35</span>        <span class="cm">// Terme Proportionnel</span>
+<span class="ln">36</span>        <span class="ty">double</span> P <span class="op">=</span> kp_ <span class="op">*</span> error<span class="op">;</span>
+<span class="ln">37</span>
+<span class="ln">38</span>        <span class="cm">// Terme Intégral + anti-windup (clamping)</span>
+<span class="ln">39</span>        integral_ <span class="op">+=</span> error <span class="op">*</span> dt<span class="op">;</span>
+<span class="ln">40</span>        integral_ <span class="op">=</span> std<span class="op">::</span><span class="fn">clamp</span><span class="op">(</span>integral_<span class="op">,</span> <span class="op">-</span><span class="nm">INTEGRAL_MAX</span><span class="op">,</span> <span class="nm">INTEGRAL_MAX</span><span class="op">);</span>
+<span class="ln">40</span>        <span class="ty">double</span> I <span class="op">=</span> ki_ <span class="op">*</span> integral_<span class="op">;</span>
+<span class="ln">41</span>
+<span class="ln">42</span>        <span class="cm">// Terme Dérivé (différences finies arrière)</span>
+<span class="ln">43</span>        <span class="ty">double</span> D <span class="op">=</span> kd_ <span class="op">*</span> <span class="op">(</span>error <span class="op">-</span> prev_error_<span class="op">)</span> <span class="op">/</span> dt<span class="op">;</span>
+<span class="ln">44</span>        prev_error_ <span class="op">=</span> error<span class="op">;</span>
+<span class="ln">45</span>
+<span class="ln">46</span>        <span class="cm">// Commande totale saturée</span>
+<span class="ln">47</span>        <span class="kw">return</span> std<span class="op">::</span><span class="fn">clamp</span><span class="op">(</span>P <span class="op">+</span> I <span class="op">+</span> D<span class="op">,</span> <span class="op">-</span><span class="nm">U_MAX</span><span class="op">,</span> <span class="nm">U_MAX</span><span class="op">);</span>
+<span class="ln">48</span>    <span class="op">}</span>
+<span class="ln">49</span>
+<span class="ln">50</span>    <span class="kw">void</span> <span class="fn">reset</span><span class="op">()</span> <span class="op">{</span> integral_ <span class="op">=</span> <span class="nm">0</span><span class="op">;</span> prev_error_ <span class="op">=</span> <span class="nm">0</span><span class="op">;</span> <span class="op">}</span>
+<span class="ln">51</span>
+<span class="ln">52</span><span class="kw">private</span><span class="op">:</span>
+<span class="ln">53</span>    <span class="ty">double</span> kp_<span class="op">,</span> ki_<span class="op">,</span> kd_<span class="op">;</span>
+<span class="ln">54</span>    <span class="ty">double</span> integral_<span class="op">,</span> prev_error_<span class="op">;</span>
+<span class="ln">55</span><span class="op">};</span>
+<span class="ln">56</span>
+<span class="ln">57</span><span class="cm">// ── Boucle principale (appelée par le scheduler temps-réel) ──</span>
+<span class="ln">58</span><span class="ty">int</span> <span class="fn">main</span><span class="op">()</span> <span class="op">{</span>
+<span class="ln">59</span>    <span class="ty">PIDController</span> pid<span class="op">(</span><span class="nm">Kp</span><span class="op">,</span> <span class="nm">Ki</span><span class="op">,</span> <span class="nm">Kd</span><span class="op">);</span>
+<span class="ln">60</span>
+<span class="ln">61</span>    <span class="cm">// Remplacer cette boucle par l'ISR ou le timer de votre MCU</span>
+<span class="ln">62</span>    <span class="kw">while</span> <span class="op">(</span><span class="nm">true</span><span class="op">)</span> <span class="op">{</span>
+<span class="ln">63</span>        <span class="ty">double</span> theta <span class="op">=</span> <span class="fn">readIMU</span><span class="op">();</span>          <span class="cm">// ④ lecture capteur (rad)</span>
+<span class="ln">64</span>
+<span class="ln">65</span>        <span class="cm">// ── ⑤ Sécurité : arrêt si chute détectée ────────────</span>
+<span class="ln">66</span>        <span class="kw">if</span> <span class="op">(</span>std<span class="op">::</span><span class="fn">abs</span><span class="op">(</span>theta<span class="op">)</span> <span class="op">&gt;</span> <span class="nm">ANGLE_FALL</span><span class="op">)</span> <span class="op">{</span>
+<span class="ln">67</span>            <span class="fn">setMotor</span><span class="op">(</span><span class="nm">0.0</span><span class="op">);</span>
+<span class="ln">68</span>            pid<span class="op">.</span><span class="fn">reset</span><span class="op">();</span>
+<span class="ln">69</span>            <span class="kw">continue</span><span class="op">;</span>
+<span class="ln">70</span>        <span class="op">}</span>
+<span class="ln">71</span>
+<span class="ln">72</span>        <span class="ty">double</span> u <span class="op">=</span> pid<span class="op">.</span><span class="fn">compute</span><span class="op">(</span><span class="nm">SETPOINT</span><span class="op">,</span> theta<span class="op">,</span> <span class="nm">DT</span><span class="op">);</span>
+<span class="ln">73</span>        <span class="fn">setMotor</span><span class="op">(</span>u<span class="op">);</span>                       <span class="cm">// ⑥ envoi commande</span>
+<span class="ln">74</span>
+<span class="ln">75</span>        <span class="fn">sleepMs</span><span class="op">(</span><span class="nm">DT</span> <span class="op">*</span> <span class="nm">1000</span><span class="op">);</span>               <span class="cm">// ⑦ attendre prochain pas</span>
+<span class="ln">76</span>    <span class="op">}</span>
+<span class="ln">77</span><span class="op">}</span></pre>
+
+        <h3>Guide des paramètres C++</h3>
+        <div class="param-annot">
+          <div class="pa nm-c">
+            <div class="pa-sym" style="color:#ff9f7e;">① Kp — Gain proportionnel</div>
+            <p>Réaction immédiate à l'écart angulaire. <strong>Augmenter Kp</strong> accélère la correction mais provoque des oscillations. <strong>Diminuer</strong> si le robot tremble. Point de départ typique : 30–60 selon la masse.</p>
+          </div>
+          <div class="pa nm-c">
+            <div class="pa-sym" style="color:#ff9f7e;">① Ki — Gain intégral</div>
+            <p>Compense la dérive lente (centre de gravité légèrement décalé). <strong>Ki trop élevé</strong> → instabilité par windup. Commencer à 0, augmenter par pas de 0.5 jusqu'à correction de la dérive.</p>
+          </div>
+          <div class="pa nm-c">
+            <div class="pa-sym" style="color:#ff9f7e;">① Kd — Gain dérivé</div>
+            <p>Amortit les oscillations rapides. <strong>Kd trop élevé</strong> → amplification du bruit capteur → vibrations haute fréquence. Augmenter progressivement jusqu'à disparition des oscillations.</p>
+          </div>
+          <div class="pa ty-c">
+            <div class="pa-sym" style="color:#00d4aa;">② DT — Pas d'échantillonnage</div>
+            <p>Doit être <strong>constant et régulier</strong> (timer matériel recommandé). Un DT trop grand (>50 ms) dégrade le terme dérivé. Valeur typique : 5–20 ms pour un pendule physique.</p>
+          </div>
+          <div class="pa ty-c">
+            <div class="pa-sym" style="color:#00d4aa;">② U_MAX — Saturation</div>
+            <p>Limite la commande à la plage physique du moteur. Réduire si le robot fait des à-coups mécaniques. Trop faible → système incapable de rattraper une grande perturbation.</p>
+          </div>
+          <div class="pa kw-c">
+            <div class="pa-sym" style="color:#7c8cf8;">③ INTEGRAL_MAX — Anti-windup</div>
+            <p>Empêche l'intégrale d'accumuler indéfiniment lors d'une saturation prolongée. Sans ce clamping, le système met du temps à réagir après une perturbation forte.</p>
+          </div>
+          <div class="pa fn-c">
+            <div class="pa-sym" style="color:#f0c040;">⑤ ANGLE_FALL — Sécurité</div>
+            <p>Seuil angulaire au-delà duquel le système considère que le robot a chuté. Coupe les moteurs et remet l'intégrale à zéro. Typiquement 25–35° (0.45–0.6 rad).</p>
+          </div>
+          <div class="pa fn-c">
+            <div class="pa-sym" style="color:#f0c040;">④⑥ readIMU / setMotor</div>
+            <p>Fonctions à implémenter selon votre matériel (I²C pour MPU-6050, PWM pour L298N…). L'angle doit être filtré (filtre complémentaire ou Kalman) avant d'entrer dans le PID.</p>
+          </div>
+        </div>
+      </div><!-- /tab-cpp -->
+
+      <!-- ══ PYTHON ══ -->
+      <div id="tab-py" class="tab-panel">
+<pre class="code-block"><span class="ln">1</span><span class="cm"># ═══════════════════════════════════════════════════════════════</span>
+<span class="ln">2</span><span class="cm"># Régulateur PID — Balancier inversé    (Python 3, simulation)</span>
+<span class="ln">3</span><span class="cm"># Modèle : pendule sur chariot linéarisé autour de θ = 0</span>
+<span class="ln">4</span><span class="cm"># ═══════════════════════════════════════════════════════════════</span>
+<span class="ln">5</span>
+<span class="ln">6</span><span class="pp">import</span> numpy <span class="pp">as</span> np
+<span class="ln">7</span><span class="pp">import</span> matplotlib.pyplot <span class="pp">as</span> plt
+<span class="ln">8</span>
+<span class="ln">9</span><span class="cm"># ── ① Paramètres PID ─────────────────────────────────────────</span>
+<span class="ln">10</span><span class="cm"># ↓ RÉGLER CES TROIS VALEURS EN PREMIER</span>
+<span class="ln">11</span><span class="nm">Kp</span> <span class="op">=</span> <span class="nm">45.0</span>   <span class="cm"># Gain proportionnel  → rapidité de réaction</span>
+<span class="ln">12</span><span class="nm">Ki</span> <span class="op">=</span>  <span class="nm">2.5</span>   <span class="cm"># Gain intégral       → supprime l'erreur statique</span>
+<span class="ln">13</span><span class="nm">Kd</span> <span class="op">=</span>  <span class="nm">8.0</span>   <span class="cm"># Gain dérivé         → amortit les oscillations</span>
+<span class="ln">14</span>
+<span class="ln">15</span><span class="cm"># ── ② Paramètres système ─────────────────────────────────────</span>
+<span class="ln">16</span><span class="nm">DT</span>           <span class="op">=</span> <span class="nm">0.01</span>    <span class="cm"># Pas d'échantillonnage (s)</span>
+<span class="ln">17</span><span class="nm">T_SIM</span>        <span class="op">=</span> <span class="nm">10.0</span>    <span class="cm"># Durée totale simulation (s)</span>
+<span class="ln">18</span><span class="nm">SETPOINT</span>     <span class="op">=</span> <span class="nm">0.0</span>     <span class="cm"># Angle cible (rad) — 0 = vertical</span>
+<span class="ln">19</span><span class="nm">U_MAX</span>        <span class="op">=</span> <span class="nm">12.0</span>    <span class="cm"># Saturation commande (N ou V)</span>
+<span class="ln">20</span><span class="nm">INTEGRAL_MAX</span> <span class="op">=</span> <span class="nm">5.0</span>     <span class="cm"># Anti-windup : borne intégrale</span>
+<span class="ln">21</span>
+<span class="ln">22</span><span class="cm"># ── ③ Paramètres physiques du pendule ─────────────────────────</span>
+<span class="ln">23</span><span class="nm">g</span>   <span class="op">=</span> <span class="nm">9.81</span>    <span class="cm"># Accélération gravitationnelle (m/s²)</span>
+<span class="ln">24</span><span class="nm">L</span>   <span class="op">=</span> <span class="nm">0.30</span>    <span class="cm"># Longueur du pendule (m) — adapter à votre robot</span>
+<span class="ln">25</span><span class="nm">m</span>   <span class="op">=</span> <span class="nm">0.50</span>    <span class="cm"># Masse du pendule (kg)</span>
+<span class="ln">26</span><span class="nm">M</span>   <span class="op">=</span> <span class="nm">1.50</span>    <span class="cm"># Masse du chariot (kg)</span>
+<span class="ln">27</span><span class="nm">b</span>   <span class="op">=</span> <span class="nm">0.05</span>    <span class="cm"># Frottement visqueux (N·s/m) — friction moteur+roues</span>
+<span class="ln">28</span>
+<span class="ln">29</span><span class="cm"># ────────────────────────────────────────────────────────────</span>
+<span class="ln">30</span><span class="kw">class</span> <span class="ty">PIDController</span><span class="op">:</span>
+<span class="ln">31</span>    <span class="kw">def</span> <span class="fn">__init__</span><span class="op">(</span>self, kp, ki, kd<span class="op">):</span>
+<span class="ln">32</span>        self.kp, self.ki, self.kd <span class="op">=</span> kp, ki, kd
+<span class="ln">33</span>        self.integral   <span class="op">=</span> <span class="nm">0.0</span>
+<span class="ln">34</span>        self.prev_error <span class="op">=</span> <span class="nm">0.0</span>
+<span class="ln">35</span>
+<span class="ln">36</span>    <span class="kw">def</span> <span class="fn">compute</span><span class="op">(</span>self, setpoint, measured, dt<span class="op">):</span>
+<span class="ln">37</span>        error <span class="op">=</span> setpoint <span class="op">-</span> measured
+<span class="ln">38</span>
+<span class="ln">39</span>        <span class="cm"># Terme Proportionnel</span>
+<span class="ln">40</span>        P <span class="op">=</span> self.kp <span class="op">*</span> error
+<span class="ln">41</span>
+<span class="ln">42</span>        <span class="cm"># Terme Intégral + anti-windup</span>
+<span class="ln">43</span>        self.integral <span class="op">+=</span> error <span class="op">*</span> dt
+<span class="ln">44</span>        self.integral  <span class="op">=</span> np.<span class="fn">clip</span><span class="op">(</span>self.integral, <span class="op">-</span><span class="nm">INTEGRAL_MAX</span>, <span class="nm">INTEGRAL_MAX</span><span class="op">)</span>
+<span class="ln">45</span>        I <span class="op">=</span> self.ki <span class="op">*</span> self.integral
+<span class="ln">46</span>
+<span class="ln">46</span>        <span class="cm"># Terme Dérivé</span>
+<span class="ln">47</span>        D <span class="op">=</span> self.kd <span class="op">*</span> <span class="op">(</span>error <span class="op">-</span> self.prev_error<span class="op">)</span> <span class="op">/</span> dt
+<span class="ln">48</span>        self.prev_error <span class="op">=</span> error
+<span class="ln">49</span>
+<span class="ln">50</span>        <span class="kw">return</span> np.<span class="fn">clip</span><span class="op">(</span>P <span class="op">+</span> I <span class="op">+</span> D, <span class="op">-</span><span class="nm">U_MAX</span>, <span class="nm">U_MAX</span><span class="op">)</span>
+<span class="ln">51</span>
+<span class="ln">52</span>
+<span class="ln">53</span><span class="kw">def</span> <span class="fn">pendulum_dynamics</span><span class="op">(</span>theta, theta_dot, u<span class="op">):</span>
+<span class="ln">54</span>    <span class="st">"""Équations du mouvement du pendule inversé (linéarisées autour de θ=0)."""</span>
+<span class="ln">55</span>    <span class="cm"># ④ Modifier L, m, M, b pour correspondre à votre physique réelle</span>
+<span class="ln">56</span>    denom <span class="op">=</span> <span class="op">(</span>M <span class="op">+</span> m<span class="op">)</span>
+<span class="ln">57</span>    <span class="cm"># Accélération angulaire (approximation sin(θ)≈θ pour petits angles)</span>
+<span class="ln">58</span>    theta_ddot <span class="op">=</span> <span class="op">(</span>g <span class="op">/</span> L<span class="op">)</span> <span class="op">*</span> theta <span class="op">-</span> <span class="op">(</span>u <span class="op">/</span> <span class="op">(</span>m <span class="op">*</span> L<span class="op">))</span> <span class="op">-</span> <span class="op">(</span>b <span class="op">/</span> <span class="op">(</span>m <span class="op">*</span> L<span class="op">**</span><span class="nm">2</span><span class="op">))</span> <span class="op">*</span> theta_dot
+<span class="ln">59</span>    <span class="kw">return</span> theta_ddot
+<span class="ln">60</span>
+<span class="ln">61</span>
+<span class="ln">62</span><span class="cm"># ── Simulation ───────────────────────────────────────────────</span>
+<span class="ln">63</span>pid     <span class="op">=</span> <span class="fn">PIDController</span><span class="op">(</span>Kp, Ki, Kd<span class="op">)</span>
+<span class="ln">64</span>steps   <span class="op">=</span> <span class="fn">int</span><span class="op">(</span>T_SIM <span class="op">/</span> DT<span class="op">)</span>
+<span class="ln">65</span>
+<span class="ln">65</span><span class="cm"># ── ⑤ Conditions initiales — perturbation de départ ──────────</span>
+<span class="ln">66</span>theta     <span class="op">=</span> <span class="nm">0.1</span>    <span class="cm"># Angle initial (rad ≈ 5.7°) — inclinaison de départ</span>
+<span class="ln">67</span>theta_dot <span class="op">=</span> <span class="nm">0.0</span>    <span class="cm"># Vitesse angulaire initiale (rad/s)</span>
+<span class="ln">68</span>
+<span class="ln">69</span>t_hist, theta_hist, u_hist <span class="op">=</span> <span class="op">[]</span>, <span class="op">[]</span>, <span class="op">[]</span>
+<span class="ln">70</span>
+<span class="ln">71</span><span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span><span class="op">(</span>steps<span class="op">):</span>
+<span class="ln">72</span>    t <span class="op">=</span> i <span class="op">*</span> DT
+<span class="ln">73</span>    u <span class="op">=</span> pid.<span class="fn">compute</span><span class="op">(</span>SETPOINT, theta, DT<span class="op">)</span>
+<span class="ln">74</span>
+<span class="ln">75</span>    <span class="cm"># Intégration Euler (utiliser RK4 pour plus de précision)</span>
+<span class="ln">76</span>    theta_ddot <span class="op">=</span> <span class="fn">pendulum_dynamics</span><span class="op">(</span>theta, theta_dot, u<span class="op">)</span>
+<span class="ln">77</span>    theta_dot  <span class="op">+=</span> theta_ddot <span class="op">*</span> DT
+<span class="ln">78</span>    theta      <span class="op">+=</span> theta_dot  <span class="op">*</span> DT
+<span class="ln">79</span>
+<span class="ln">80</span>    t_hist.<span class="fn">append</span><span class="op">(</span>t<span class="op">)</span>; theta_hist.<span class="fn">append</span><span class="op">(</span>np.<span class="fn">degrees</span><span class="op">(</span>theta<span class="op">))</span>; u_hist.<span class="fn">append</span><span class="op">(</span>u<span class="op">)</span>
+<span class="ln">81</span>
+<span class="ln">82</span><span class="cm"># ── ⑥ Tracé des résultats ────────────────────────────────────</span>
+<span class="ln">83</span>fig, <span class="op">(</span>ax1, ax2<span class="op">)</span> <span class="op">=</span> plt.<span class="fn">subplots</span><span class="op">(</span><span class="nm">2</span>, <span class="nm">1</span>, figsize<span class="op">=(</span><span class="nm">10</span>, <span class="nm">6</span><span class="op">),</span> sharex<span class="op">=</span><span class="nm">True</span><span class="op">)</span>
+<span class="ln">84</span>ax1.<span class="fn">plot</span><span class="op">(</span>t_hist, theta_hist, color<span class="op">=</span><span class="st">'#00d4aa'</span><span class="op">)</span>
+<span class="ln">85</span>ax1.<span class="fn">axhline</span><span class="op">(</span><span class="nm">0</span>, color<span class="op">=</span><span class="st">'white'</span>, lw<span class="op">=</span><span class="nm">0.5</span>, ls<span class="op">=</span><span class="st">'--'</span><span class="op">)</span>
+<span class="ln">85</span>ax1.<span class="fn">set_ylabel</span><span class="op">(</span><span class="st">'θ (degrés)'</span><span class="op">)</span>; ax1.<span class="fn">set_title</span><span class="op">(</span><span class="st">'Angle du pendule'</span><span class="op">)</span>
+<span class="ln">86</span>ax2.<span class="fn">plot</span><span class="op">(</span>t_hist, u_hist, color<span class="op">=</span><span class="st">'#ff6b35'</span><span class="op">)</span>
+<span class="ln">87</span>ax2.<span class="fn">set_ylabel</span><span class="op">(</span><span class="st">'u (N)'</span><span class="op">)</span>; ax2.<span class="fn">set_xlabel</span><span class="op">(</span><span class="st">'t (s)'</span><span class="op">)</span>; ax2.<span class="fn">set_title</span><span class="op">(</span><span class="st">'Commande'</span><span class="op">)</span>
+<span class="ln">88</span>plt.<span class="fn">tight_layout</span><span class="op">()</span>; plt.<span class="fn">show</span><span class="op">()</span></pre>
+
+        <h3>Guide des paramètres Python</h3>
+        <div class="param-annot">
+          <div class="pa nm-c">
+            <div class="pa-sym" style="color:#ff9f7e;">① Kp, Ki, Kd</div>
+            <p>Mêmes effets qu'en C++. En simulation, commencer par <strong>Ki = 0, Kd = 0</strong>, régler Kp jusqu'à oscillation, puis ajouter Kd pour amortir, enfin Ki pour corriger la dérive.</p>
+          </div>
+          <div class="pa ty-c">
+            <div class="pa-sym" style="color:#00d4aa;">③ L — longueur du pendule</div>
+            <p>Paramètre physique critique. Un pendule plus long (L↑) est <strong>plus lent à tomber</strong> → les gains peuvent être plus faibles. L court → réponse très rapide nécessaire → gains élevés.</p>
+          </div>
+          <div class="pa ty-c">
+            <div class="pa-sym" style="color:#00d4aa;">③ m, M — masses</div>
+            <p>Le ratio m/M influence le couplage entre chariot et pendule. <strong>Augmenter M</strong> (chariot lourd) améliore la stabilité mais nécessite plus de couple moteur. Adapter U_MAX en conséquence.</p>
+          </div>
+          <div class="pa ty-c">
+            <div class="pa-sym" style="color:#00d4aa;">③ b — frottement</div>
+            <p>Coefficient de frottement visqueux. Un b élevé agit comme un amortisseur naturel et réduit le besoin de Kd. En pratique, identifier b expérimentalement (réponse libre à l'impulsion).</p>
+          </div>
+          <div class="pa kw-c">
+            <div class="pa-sym" style="color:#7c8cf8;">② DT — pas de simulation</div>
+            <p>Doit être suffisamment petit pour la stabilité numérique : DT &lt; 1/(10·ω_n). Pour un pendule avec ω_n ≈ √(g/L) ≈ 5.7 rad/s → DT &lt; 0.017 s. Utiliser RK4 si DT > 10 ms.</p>
+          </div>
+          <div class="pa fn-c">
+            <div class="pa-sym" style="color:#f0c040;">⑤ theta initial</div>
+            <p>Angle de perturbation initiale. Tester avec 0.05 rad (petite), 0.15 rad (moyenne), 0.3 rad (grande). Si le système diverge au-delà de 0.1 rad, les gains sont insuffisants.</p>
+          </div>
+          <div class="pa kw-c">
+            <div class="pa-sym" style="color:#7c8cf8;">② INTEGRAL_MAX</div>
+            <p>Si le système oscille lentement en régime établi → Ki trop grand ou INTEGRAL_MAX trop élevé. Réduire l'un des deux. Si dérive résiduelle → INTEGRAL_MAX trop petit.</p>
+          </div>
+          <div class="pa fn-c">
+            <div class="pa-sym" style="color:#f0c040;">⑥ Lecture des graphes</div>
+            <p>Courbe θ oscillante non amortie → augmenter Kd. θ converge lentement → augmenter Kp. θ dépasse puis revient → réduire Kp ou augmenter Kd. Commande u saturée en permanence → U_MAX trop faible.</p>
+          </div>
+        </div>
+      </div><!-- /tab-py -->
+
+      <!-- Tableau de réglage -->
+      <h3>Procédure de réglage pas-à-pas (méthode empirique)</h3>
+      <table>
+        <thead>
+          <tr><th>Étape</th><th>Action</th><th>Observation visée</th><th>Si trop : réduire</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>1</td><td>Ki = Kd = 0, augmenter Kp</td><td>Système réagit, oscille légèrement</td><td>Kp si oscillations rapides</td></tr>
+          <tr><td>2</td><td>Augmenter Kd progressivement</td><td>Oscillations s'amortissent</td><td>Kd si vibrations haute fréquence</td></tr>
+          <tr><td>3</td><td>Augmenter Ki doucement</td><td>Dérive résiduelle disparaît</td><td>Ki si instabilité lente (windup)</td></tr>
+          <tr><td>4</td><td>Test perturbation (pousser)</td><td>Retour en &lt; 1–2 s sans dépassement excessif</td><td>Kp si trop agressif</td></tr>
+          <tr><td>5</td><td>Affiner INTEGRAL_MAX</td><td>Pas d'oscillation post-saturation</td><td>Réduire si rebond après saturation</td></tr>
+        </tbody>
+      </table>
+
+      <div class="callout tip">
+        <span class="callout-icon">💡</span>
+        <p><strong>Conseil pratique :</strong> toujours simuler en Python avant de flasher le C++ sur le microcontrôleur. Valider les gains sur le modèle, puis les transférer directement — ils servent de point de départ fiable pour l'ajustement fin sur le robot réel.</p>
+      </div>
+
+    </section>
+
+  </main>
+</div>
+
+<footer>
+  <span>Automatique — Systèmes d'Asservissement</span>
+  <span>Document de synthèse · Fonctions de transfert LTI</span>
+</footer>
+
+<script>
+// ── Canvas 1 : Réponse 1er ordre ──
+(function(){
+  const cv = document.getElementById('c1');
+  if(!cv) return;
+  cv.width = cv.offsetWidth * 2; cv.height = 280;
+  const ctx = cv.getContext('2d');
+  const W = cv.width, H = cv.height;
+  const pad = {l:60,r:20,t:20,b:50};
+  const tmax = 6, K = 1, tau = 1;
+
+  function toX(t){ return pad.l + (t/tmax)*(W-pad.l-pad.r); }
+  function toY(y){ return H - pad.b - y*(H-pad.t-pad.b); }
+
+  // Grid
+  ctx.strokeStyle = '#2a2f3f'; ctx.lineWidth = 1;
+  for(let i=0;i<=6;i++){
+    ctx.beginPath(); ctx.moveTo(toX(i),pad.t); ctx.lineTo(toX(i),H-pad.b); ctx.stroke();
+  }
+  for(let i=0;i<=4;i++){
+    const y=i/4;
+    ctx.beginPath(); ctx.moveTo(pad.l,toY(y)); ctx.lineTo(W-pad.r,toY(y)); ctx.stroke();
+  }
+
+  // Axes
+  ctx.strokeStyle='#6b7280'; ctx.lineWidth=1.5;
+  ctx.beginPath(); ctx.moveTo(pad.l,pad.t); ctx.lineTo(pad.l,H-pad.b); ctx.lineTo(W-pad.r,H-pad.b); ctx.stroke();
+
+  // Tangente à l'origine
+  ctx.strokeStyle='rgba(255,107,53,0.4)'; ctx.lineWidth=1.5; ctx.setLineDash([6,4]);
+  ctx.beginPath(); ctx.moveTo(toX(0),toY(0)); ctx.lineTo(toX(tau),toY(1)); ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Valeur finale
+  ctx.strokeStyle='rgba(0,212,170,0.3)'; ctx.lineWidth=1; ctx.setLineDash([4,4]);
+  ctx.beginPath(); ctx.moveTo(pad.l,toY(1)); ctx.lineTo(W-pad.r,toY(1)); ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Courbe
+  ctx.strokeStyle='#00d4aa'; ctx.lineWidth=2.5;
+  ctx.beginPath();
+  for(let px=pad.l; px<=W-pad.r; px++){
+    const t = (px-pad.l)/(W-pad.l-pad.r)*tmax;
+    const y = K*(1-Math.exp(-t/tau));
+    if(px===pad.l) ctx.moveTo(px,toY(y)); else ctx.lineTo(px,toY(y));
+  }
+  ctx.stroke();
+
+  // Annotation τ
+  ctx.strokeStyle='#f0c040'; ctx.lineWidth=1; ctx.setLineDash([3,3]);
+  ctx.beginPath(); ctx.moveTo(toX(tau),toY(0)); ctx.lineTo(toX(tau),toY(0.632)); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(pad.l,toY(0.632)); ctx.lineTo(toX(tau),toY(0.632)); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle='#f0c040'; ctx.font='24px IBM Plex Mono'; ctx.textAlign='center';
+  ctx.fillText('τ', toX(tau), H-pad.b+32);
+  ctx.fillText('63.2%', pad.l-2, toY(0.632)-6); ctx.textAlign='right';
+
+  // Labels axes
+  ctx.fillStyle='#6b7280'; ctx.font='22px IBM Plex Mono'; ctx.textAlign='center';
+  ctx.fillText('t (s)', W/2, H-4);
+  ctx.save(); ctx.translate(16, H/2); ctx.rotate(-Math.PI/2);
+  ctx.fillText('y(t)', 0, 0); ctx.restore();
+})();
+
+// ── Canvas 3 : Temps de réponse à 5% — 3 systèmes ──
+(function(){
+  const cv = document.getElementById('c_tr5');
+  if(!cv) return;
+  cv.width = cv.offsetWidth * 2; cv.height = 400;
+  const ctx = cv.getContext('2d');
+  const W = cv.width, H = cv.height;
+  const pad = {l:70,r:30,t:30,b:60};
+
+  const tmax = 22;
+  const ymin = 0, ymax = 1.45;
+
+  function toX(t){ return pad.l + (t/tmax)*(W-pad.l-pad.r); }
+  function toY(y){ return H - pad.b - ((y-ymin)/(ymax-ymin))*(H-pad.t-pad.b); }
+
+  // ── réponses ──
+  function step1(t, tau){ return 1 - Math.exp(-t/tau); }
+
+  function step2(t, xi, wn){
+    if(t<=0) return 0;
+    if(xi < 1){
+      const wd = wn*Math.sqrt(1-xi*xi);
+      return 1 - Math.exp(-xi*wn*t)*(Math.cos(wd*t)+(xi/Math.sqrt(1-xi*xi))*Math.sin(wd*t));
+    } else if(Math.abs(xi-1)<1e-9){
+      return 1 - Math.exp(-wn*t)*(1+wn*t);
+    } else {
+      const r1=-xi*wn+wn*Math.sqrt(xi*xi-1), r2=-xi*wn-wn*Math.sqrt(xi*xi-1);
+      return 1+(r2/(r1-r2))*Math.exp(r1*t)-(r1/(r1-r2))*Math.exp(r2*t);
+    }
+  }
+
+  // ── calcul numérique tr5% ──
+  function findTr5(fn, tmax, dt){
+    let tr = 0;
+    for(let t=dt; t<=tmax; t+=dt){
+      if(Math.abs(fn(t)-1) > 0.05) tr = t;
+    }
+    return tr + dt;
+  }
+
+  const systems = [
+    { label:'1er ordre  (τ=2s)',         color:'#00d4aa', fn: t=>step1(t,2) },
+    { label:'2e ordre sous-amorti (ξ=0.3)', color:'#ff6b35', fn: t=>step2(t,0.3,1) },
+    { label:'2e ordre critique  (ξ=1.0)', color:'#7c8cf8', fn: t=>step2(t,1.0,1) },
+  ];
+
+  const DT = 0.001;
+  systems.forEach(s => { s.tr5 = findTr5(s.fn, tmax, DT); });
+
+  // ── Grid ──
+  ctx.strokeStyle='#2a2f3f'; ctx.lineWidth=1;
+  for(let i=0;i<=11;i++){
+    const t=i*2;
+    ctx.beginPath(); ctx.moveTo(toX(t),pad.t); ctx.lineTo(toX(t),H-pad.b); ctx.stroke();
+    if(i>0){
+      ctx.fillStyle='#4b5563'; ctx.font='20px IBM Plex Mono'; ctx.textAlign='center';
+      ctx.fillText(t+'s', toX(t), H-pad.b+26);
+    }
+  }
+  for(let i=0;i<=6;i++){
+    const y=i*0.25;
+    ctx.beginPath(); ctx.moveTo(pad.l,toY(y)); ctx.lineTo(W-pad.r,toY(y)); ctx.stroke();
+    ctx.fillStyle='#4b5563'; ctx.font='20px IBM Plex Mono'; ctx.textAlign='right';
+    ctx.fillText((y*100).toFixed(0)+'%', pad.l-8, toY(y)+6);
+  }
+
+  // ── Bande ±5% ──
+  ctx.fillStyle='rgba(0,212,170,0.07)';
+  ctx.fillRect(pad.l, toY(1.05), W-pad.l-pad.r, toY(0.95)-toY(1.05));
+  ctx.strokeStyle='rgba(0,212,170,0.35)'; ctx.lineWidth=1.2; ctx.setLineDash([5,4]);
+  ctx.beginPath(); ctx.moveTo(pad.l,toY(1.05)); ctx.lineTo(W-pad.r,toY(1.05)); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(pad.l,toY(0.95)); ctx.lineTo(W-pad.r,toY(0.95)); ctx.stroke();
+  ctx.setLineDash([]);
+  // labels bande
+  ctx.fillStyle='rgba(0,212,170,0.7)'; ctx.font='18px IBM Plex Mono'; ctx.textAlign='left';
+  ctx.fillText('+5%', W-pad.r+4, toY(1.05)+6);
+  ctx.fillText('−5%', W-pad.r+4, toY(0.95)+6);
+
+  // Ligne valeur finale
+  ctx.strokeStyle='rgba(255,255,255,0.12)'; ctx.lineWidth=1; ctx.setLineDash([3,4]);
+  ctx.beginPath(); ctx.moveTo(pad.l,toY(1)); ctx.lineTo(W-pad.r,toY(1)); ctx.stroke();
+  ctx.setLineDash([]);
+
+  // ── Axes ──
+  ctx.strokeStyle='#6b7280'; ctx.lineWidth=1.8;
+  ctx.beginPath(); ctx.moveTo(pad.l,pad.t); ctx.lineTo(pad.l,H-pad.b); ctx.lineTo(W-pad.r,H-pad.b); ctx.stroke();
+
+  // ── Courbes ──
+  systems.forEach(s => {
+    ctx.strokeStyle=s.color; ctx.lineWidth=2.4;
+    ctx.beginPath();
+    for(let px=pad.l; px<=W-pad.r; px++){
+      const t=(px-pad.l)/(W-pad.l-pad.r)*tmax;
+      const y=s.fn(t);
+      if(px===pad.l) ctx.moveTo(px,toY(y)); else ctx.lineTo(px,toY(y));
+    }
+    ctx.stroke();
+  });
+
+  // ── Marqueurs t_r5% ──
+  systems.forEach(s => {
+    const tx = toX(s.tr5);
+    const ty = toY(s.fn(s.tr5));
+
+    // ligne verticale pointillée jusqu'à l'axe
+    ctx.strokeStyle=s.color; ctx.lineWidth=1.4; ctx.setLineDash([4,3]);
+    ctx.beginPath(); ctx.moveTo(tx, H-pad.b); ctx.lineTo(tx, ty); ctx.stroke();
+    ctx.setLineDash([]);
+
+    // point sur la courbe
+    ctx.beginPath(); ctx.arc(tx, ty, 7, 0, Math.PI*2);
+    ctx.fillStyle=s.color; ctx.fill();
+    ctx.strokeStyle='#0d0f14'; ctx.lineWidth=2; ctx.stroke();
+
+    // étiquette t_r5 sur l'axe X
+    ctx.fillStyle=s.color; ctx.font='bold 19px IBM Plex Mono'; ctx.textAlign='center';
+    ctx.fillText('t_r5', tx, H-pad.b+44);
+    ctx.font='17px IBM Plex Mono';
+    ctx.fillText(s.tr5.toFixed(1)+'s', tx, H-pad.b+62);
+  });
+
+  // ── Légende ──
+  systems.forEach((s,i) => {
+    const lx = pad.l + 20, ly = pad.t + 20 + i*38;
+    ctx.fillStyle=s.color; ctx.fillRect(lx, ly, 30, 4);
+    ctx.font='19px IBM Plex Mono'; ctx.fillStyle=s.color; ctx.textAlign='left';
+    ctx.fillText(s.label, lx+38, ly+6);
+  });
+
+  // Labels axes
+  ctx.fillStyle='#6b7280'; ctx.font='22px IBM Plex Mono'; ctx.textAlign='center';
+  ctx.fillText('t (s)', W/2, H-6);
+  ctx.save(); ctx.translate(18, H/2); ctx.rotate(-Math.PI/2);
+  ctx.fillText('y(t) / y_∞', 0, 0); ctx.restore();
+})();
+
+(function(){
+  const cv = document.getElementById('c2');
+  if(!cv) return;
+  cv.width = cv.offsetWidth * 2; cv.height = 320;
+  const ctx = cv.getContext('2d');
+  const W = cv.width, H = cv.height;
+  const pad = {l:60,r:20,t:20,b:50};
+  const tmax = 20, wn = 1;
+  const systems = [
+    {xi:0.3, color:'#ff6b35', label:'ξ=0.3'},
+    {xi:0.7, color:'#7c8cf8', label:'ξ=0.7'},
+    {xi:1.0, color:'#00d4aa', label:'ξ=1.0'},
+  ];
+
+  function toX(t){ return pad.l+(t/tmax)*(W-pad.l-pad.r); }
+  function toY(y){ return H-pad.b-(y-0)*(H-pad.t-pad.b)/1.5; }
+
+  // Grid
+  ctx.strokeStyle='#2a2f3f'; ctx.lineWidth=1;
+  for(let i=0;i<=5;i++){
+    const t=i*tmax/5;
+    ctx.beginPath(); ctx.moveTo(toX(t),pad.t); ctx.lineTo(toX(t),H-pad.b); ctx.stroke();
+  }
+  for(let i=0;i<=3;i++){
+    const y=i*0.5;
+    ctx.beginPath(); ctx.moveTo(pad.l,toY(y)); ctx.lineTo(W-pad.r,toY(y)); ctx.stroke();
+  }
+
+  // Valeur finale
+  ctx.strokeStyle='rgba(0,212,170,0.25)'; ctx.lineWidth=1; ctx.setLineDash([4,4]);
+  ctx.beginPath(); ctx.moveTo(pad.l,toY(1)); ctx.lineTo(W-pad.r,toY(1)); ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Axes
+  ctx.strokeStyle='#6b7280'; ctx.lineWidth=1.5;
+  ctx.beginPath(); ctx.moveTo(pad.l,pad.t); ctx.lineTo(pad.l,H-pad.b); ctx.lineTo(W-pad.r,H-pad.b); ctx.stroke();
+
+  // Courbes
+  function step2(t, xi, wn){
+    if(xi < 1){
+      const wd = wn*Math.sqrt(1-xi*xi);
+      return 1 - Math.exp(-xi*wn*t)*(Math.cos(wd*t) + (xi/Math.sqrt(1-xi*xi))*Math.sin(wd*t));
+    } else if(xi === 1){
+      return 1 - Math.exp(-wn*t)*(1+wn*t);
+    } else {
+      const r1=-xi*wn+wn*Math.sqrt(xi*xi-1), r2=-xi*wn-wn*Math.sqrt(xi*xi-1);
+      return 1 + (r2/(r1-r2))*Math.exp(r1*t) - (r1/(r1-r2))*Math.exp(r2*t);
+    }
+  }
+
+  systems.forEach(s => {
+    ctx.strokeStyle=s.color; ctx.lineWidth=2.2;
+    ctx.beginPath();
+    for(let px=pad.l; px<=W-pad.r; px++){
+      const t=(px-pad.l)/(W-pad.l-pad.r)*tmax;
+      const y=step2(t,s.xi,wn);
+      if(px===pad.l) ctx.moveTo(px,toY(y)); else ctx.lineTo(px,toY(y));
+    }
+    ctx.stroke();
+  });
+
+  // Légende
+  let lx = W - 160;
+  systems.forEach((s,i) => {
+    ctx.fillStyle=s.color; ctx.fillRect(lx, 30+i*30, 28, 3);
+    ctx.font='22px IBM Plex Mono'; ctx.fillText(s.label, lx+36, 36+i*30);
+  });
+
+  // Labels axes
+  ctx.fillStyle='#6b7280'; ctx.font='22px IBM Plex Mono'; ctx.textAlign='center';
+  ctx.fillText('t (s)', W/2, H-4);
+  ctx.save(); ctx.translate(16, H/2); ctx.rotate(-Math.PI/2);
+  ctx.fillText('y(t)', 0, 0); ctx.restore();
+})();
+
+// ── Onglets C++ / Python ──
+function switchTab(id, btn) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  btn.classList.add('active');
+}
+</script>
+</body>
+</html>

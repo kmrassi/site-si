@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Moment d'une force : bras de levier, produit vectoriel, torseur – Terminale SI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Barlow+Condensed:wght@500;600;700&family=STIX+Two+Text:ital,wght@0,400;0,600;1,400;1,600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F4F6F9; --sheet:#FFFFFF; --ink:#172131; --muted:#566174; --rule:#D2D8E1;
+  --force:#C3272E; --lev:#9C5A05; --vec:#1B5CC0; --tor:#6A3D9E;
+  --soft-lev:#FBF1E2; --soft-vec:#E7EFFB; --soft-tor:#F0E8F8; --ok:#1E7A4F;
+  --sans:"Atkinson Hyperlegible", "Segoe UI", Arial, sans-serif;
+  --head:"Barlow Condensed", "Arial Narrow", "Segoe UI", sans-serif;
+  --math:"STIX Two Text", "Cambria Math", "Times New Roman", serif;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#0F141B; --sheet:#161D27; --ink:#E5E9EF; --muted:#9BA6B6; --rule:#2B3542;
+    --force:#FF6B6B; --lev:#E4A44C; --vec:#74A6F5; --tor:#B996E8;
+    --soft-lev:#2A2013; --soft-vec:#15233A; --soft-tor:#241B33; --ok:#5FD39B;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#0F141B; --sheet:#161D27; --ink:#E5E9EF; --muted:#9BA6B6; --rule:#2B3542;
+  --force:#FF6B6B; --lev:#E4A44C; --vec:#74A6F5; --tor:#B996E8;
+  --soft-lev:#2A2013; --soft-vec:#15233A; --soft-tor:#241B33; --ok:#5FD39B;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:1.03rem;line-height:1.6}
+main{max-width:52rem;margin:0 auto;padding:1.5rem 1.1rem 4rem}
+h1,h2,h3{font-family:var(--head);line-height:1.1;margin:0}
+h1{font-size:clamp(2.2rem,6vw,3.4rem);font-weight:700;letter-spacing:-.01em}
+h2{font-size:clamp(1.7rem,4.5vw,2.3rem);font-weight:700;margin-bottom:.6rem}
+h3{font-size:1.35rem;font-weight:600;margin:1.8rem 0 .5rem}
+p{margin:.6rem 0}
+.lede{font-size:1.12rem;color:var(--muted);max-width:40rem}
+a{color:var(--vec)}
+:focus-visible{outline:3px solid var(--vec);outline-offset:2px}
+
+/* Notation mathématique */
+.m{font-family:var(--math);font-style:italic;font-size:1.08em;white-space:nowrap}
+.m .up{font-style:normal}
+.v{position:relative;display:inline-block;padding-top:.32em;line-height:1;font-family:var(--math);font-style:italic}
+.v::before{content:"";position:absolute;left:.08em;right:.22em;top:.2em;border-top:1.3px solid currentColor}
+.v::after{content:"";position:absolute;right:0;top:.07em;border-left:.3em solid currentColor;border-top:.14em solid transparent;border-bottom:.14em solid transparent}
+.formula{font-family:var(--math);font-size:1.35rem;padding:.9rem 1.1rem;margin:1rem 0;background:var(--sheet);border:1px solid var(--rule);border-radius:6px;overflow-x:auto;white-space:nowrap}
+.formula small{display:block;font-family:var(--sans);font-size:.85rem;color:var(--muted);white-space:normal;margin-top:.4rem}
+.colv{display:inline-grid;grid-auto-rows:auto;vertical-align:middle;text-align:center;border-left:1.6px solid currentColor;border-right:1.6px solid currentColor;border-radius:.55em;padding:.05em .45em;margin:0 .15em;font-style:normal;line-height:1.25}
+.tor{display:inline-flex;align-items:flex-end;vertical-align:middle;font-family:var(--math)}
+.tor .body{display:grid;grid-template-columns:auto auto;column-gap:1.1em;border-left:2px solid currentColor;border-right:2px solid currentColor;border-radius:.8em;padding:.15em .6em;line-height:1.3;font-size:.95em}
+.tor sub{font-size:.7em;margin-left:.15em}
+
+/* Guide de décision */
+.chooser{display:grid;grid-template-columns:repeat(3,1fr);gap:0;margin:1.8rem 0 .5rem;border:1px solid var(--rule);border-radius:8px;overflow:hidden;background:var(--sheet)}
+.route{padding:1.1rem 1rem 1.2rem;border-top:6px solid var(--c);display:flex;flex-direction:column;gap:.5rem}
+.route+.route{border-left:1px solid var(--rule)}
+.route .q{font-size:.95rem;color:var(--muted)}
+.route .tool{font-family:var(--head);font-size:1.5rem;font-weight:700;color:var(--c)}
+.route .f{font-family:var(--math);font-size:1.15rem;margin-top:auto;padding-top:.5rem;border-top:1px dashed var(--rule)}
+.route a{font-size:.92rem}
+.lev{--c:var(--lev);--s:var(--soft-lev)} .vec{--c:var(--vec);--s:var(--soft-vec)} .torc{--c:var(--tor);--s:var(--soft-tor)}
+@media (max-width:680px){.chooser{grid-template-columns:1fr}.route+.route{border-left:0;border-top:6px solid var(--c)}}
+
+/* Sections de méthode */
+section{margin-top:3.2rem}
+.method{border-left:5px solid var(--c);padding-left:1.1rem}
+.method>h2{color:var(--c)}
+.when{background:var(--s);border-radius:6px;padding:.8rem 1rem;margin:1rem 0}
+.when strong{color:var(--c)}
+.when ul{margin:.3rem 0 0;padding-left:1.2rem}
+.trap{border:1px solid var(--force);border-radius:6px;padding:.7rem 1rem;margin:1rem 0}
+.trap b{color:var(--force)}
+figure{margin:1.2rem 0;background:var(--sheet);border:1px solid var(--rule);border-radius:6px;padding:.8rem;overflow-x:auto}
+figure svg{display:block;width:100%;height:auto;max-width:100%}
+figcaption{font-size:.88rem;color:var(--muted);margin-top:.4rem}
+svg text{font-family:var(--math);font-style:italic;fill:var(--ink)}
+svg .lbl{font-family:var(--sans);font-style:normal;font-size:13px;fill:var(--muted)}
+.exo{background:var(--sheet);border:1px solid var(--rule);border-radius:8px;padding:1rem 1.2rem;margin:1.4rem 0}
+.exo h3{margin-top:0}
+.exo ol{padding-left:1.3rem}
+.exo li{margin:.35rem 0}
+details{margin-top:.9rem;border-top:1px solid var(--rule);padding-top:.7rem}
+summary{cursor:pointer;font-weight:700;color:var(--c)}
+details[open] summary{margin-bottom:.4rem}
+.res{color:var(--ok);font-weight:700}
+.slider{display:flex;align-items:center;gap:.8rem;flex-wrap:wrap;margin:.6rem 0 0}
+.slider input{flex:1;min-width:10rem;accent-color:var(--lev)}
+.readout{font-family:var(--math);font-size:1.05rem}
+.tablewrap{overflow-x:auto;margin:1rem 0}
+table{border-collapse:collapse;width:100%;font-size:.95rem;background:var(--sheet)}
+th,td{border:1px solid var(--rule);padding:.5rem .6rem;text-align:left;vertical-align:top}
+th{font-family:var(--head);font-size:1.05rem;font-weight:600}
+td .tor{font-size:.92em}
+.steps{counter-reset:s;list-style:none;padding:0;margin:1rem 0}
+.steps li{counter-increment:s;position:relative;padding:.5rem 0 .5rem 2.6rem;border-bottom:1px solid var(--rule)}
+.steps li::before{content:counter(s);position:absolute;left:0;top:.45rem;width:1.8rem;height:1.8rem;border-radius:50%;background:var(--ink);color:var(--paper);font-family:var(--head);font-weight:700;display:grid;place-items:center}
+.tag{display:inline-block;font-size:.8rem;font-weight:700;padding:.05rem .45rem;border-radius:3px;background:var(--s);color:var(--c)}
+footer{margin-top:3rem;font-size:.85rem;color:var(--muted);border-top:1px solid var(--rule);padding-top:1rem}
+/* Force ou moment */
+.fmgrid{display:grid;grid-template-columns:1fr 1fr;gap:.8rem;margin:1rem 0}
+.fmcard{background:var(--sheet);border:1px solid var(--rule);border-top:5px solid var(--c);border-radius:6px;padding:.8rem 1rem}
+.fmcard h3{margin:0 0 .3rem;color:var(--c)}
+.fmcard p{margin:.25rem 0}
+@media (max-width:600px){.fmgrid{grid-template-columns:1fr}}
+.panel{background:var(--sheet);border:1px solid var(--rule);border-radius:8px;padding:.8rem 1rem;margin:1rem 0}
+.panel figure{border:0;padding:0;margin:.2rem 0;background:none}
+.ctl{display:grid;grid-template-columns:auto 1fr auto;gap:.45rem .9rem;align-items:center;margin-top:.5rem}
+.ctl input[type=range]{width:100%;accent-color:var(--tor)}
+.ctl select{font:inherit;padding:.25rem .4rem;border:1px solid var(--rule);border-radius:4px;background:var(--sheet);color:var(--ink)}
+.ctl b{min-width:4.5rem;text-align:right}
+@media (max-width:560px){.ctl{grid-template-columns:1fr}.ctl b{text-align:left}}
+.btns{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.8rem}
+.btns button{font:inherit;cursor:pointer;font-weight:700;border-radius:4px;padding:.4rem .9rem}
+.go{background:var(--ink);color:var(--paper);border:1.5px solid var(--ink)}
+.go:disabled{opacity:.45;cursor:default}
+.ghost{background:transparent;color:var(--ink);border:1.5px solid var(--rule)}
+.ros{display:grid;grid-template-columns:repeat(auto-fit,minmax(9rem,1fr));gap:.5rem;margin-top:.8rem}
+.ro{border:1px solid var(--rule);border-radius:6px;padding:.35rem .6rem}
+.ro span{display:block;font-size:.8rem;color:var(--muted)}
+.ro b{font-family:var(--math);font-size:1.12rem;font-weight:600}
+.msg{min-height:1.6em;font-weight:700;margin:.7rem 0 0}
+.fmquiz{margin-top:1.4rem}
+.qq{background:var(--sheet);border:1px solid var(--rule);border-radius:8px;padding:.7rem 1rem;margin:.7rem 0}
+.qq p{margin:.2rem 0}
+.cc{display:flex;flex-wrap:wrap;gap:.45rem;margin:.5rem 0 .2rem}
+.cc button{font:inherit;cursor:pointer;background:var(--paper);color:var(--ink);border:1.5px solid var(--rule);border-radius:4px;padding:.35rem .75rem;text-align:left}
+.cc button.good{border-color:var(--ok);color:var(--ok);font-weight:700}
+.cc button.wrong{border-color:var(--force);color:var(--force)}
+.qfb{font-size:.95rem;font-weight:700}
+.qfb.good{color:var(--ok)}.qfb.wrong{color:var(--force)}
+@media print{details{display:block}details>*{display:block}.slider{display:none}}
+main{padding-top:.6rem}
+</style>
+</head>
+<body>
+<main>
+<section id="force-moment">
+<h2>Avant tout : force ou moment, quelle différence ?</h2>
+<p>Une <b>force</b> pousse ou tire : elle tend à <b>déplacer</b> un objet en ligne droite (translation). Un <b>moment</b> mesure la capacité de cette force à faire <b>tourner</b> l'objet autour d'un point ou d'un axe. Il dépend de la force <em>et</em> de l'endroit où elle agit.</p>
+
+<div class="fmgrid">
+  <div class="fmcard" style="--c:var(--force)"><h3>Force</h3><p><span class="m"><span class="v">F</span></span>, en newtons (N)</p><p>Effet : fait translater (ou déformer).</p><p>Se mesure avec un <b>dynamomètre</b>.</p></div>
+  <div class="fmcard" style="--c:var(--tor)"><h3>Moment</h3><p><span class="m">M = F × d</span>, en newtons-mètres (N·m)</p><p>Effet : fait tourner autour d'un axe.</p><p>Se règle avec une <b>clé dynamométrique</b> (serrage des roues de voiture).</p></div>
+</div>
+
+<h3>Expérience 1 : ouvrir une porte</h3>
+<p>Vue de dessus. Réglez la force, l'endroit où vous poussez et la direction de la poussée, puis poussez. Les gonds freinent un peu la rotation : il faut un moment d'au moins 3 N·m pour que la porte bouge.</p>
+<div class="panel">
+<figure>
+<svg id="door" viewBox="0 0 600 380" role="img" aria-label="Porte vue de dessus, tournant autour des gonds sous l'effet d'une poussée"></svg>
+</figure>
+<div class="ctl">
+  <label for="dF">Force F</label><input type="range" id="dF" min="0" max="40" step="1" value="20"><b class="m" id="dFo"></b>
+  <label for="dD">Distance aux gonds</label><input type="range" id="dD" min="0" max="0.85" step="0.05" value="0.8"><b class="m" id="dDo"></b>
+  <label for="dB">Direction</label>
+  <select id="dB"><option value="90">perpendiculaire à la porte</option><option value="45">inclinée à 45°</option><option value="0">vers les gonds</option></select><span></span>
+</div>
+<div class="btns"><button type="button" class="go" id="dPush">Pousser</button><button type="button" class="ghost" id="dClose">Refermer</button></div>
+<div class="ros">
+  <div class="ro"><span>Force appliquée</span><b id="rF"></b></div>
+  <div class="ro"><span>Bras de levier d</span><b id="rD"></b></div>
+  <div class="ro"><span>Moment M = F × d</span><b id="rM"></b></div>
+  <div class="ro"><span>Angle d'ouverture</span><b id="rA"></b></div>
+</div>
+<p id="dMsg" class="msg"></p>
+</div>
+<p><b>Défi :</b> avec F = 20 N, trouvez la distance minimale qui ouvre la porte. Puis obtenez un moment de 12 N·m de deux façons différentes.</p>
+
+<h3>Expérience 2 : pousser un livre sur une table</h3>
+<p>Vue de dessus, le livre glisse librement. La même force de 10 N est appliquée à des endroits différents. Observez le trajet du centre G (pointillés) et la rotation du livre.</p>
+<div class="panel">
+<figure>
+<svg id="book" viewBox="0 0 600 340" role="img" aria-label="Livre vu de dessus, poussé au centre, sur un coin, ou tourné par un couple"></svg>
+</figure>
+<div class="btns">
+  <button type="button" class="go" data-push="c">Pousser au centre</button>
+  <button type="button" class="go" data-push="e">Pousser sur un coin</button>
+  <button type="button" class="go" data-push="k">Tourner à deux mains (couple)</button>
+  <button type="button" class="ghost" id="bReset">Replacer le livre</button>
+</div>
+<div class="ros">
+  <div class="ro"><span>Résultante des forces</span><b id="bR">—</b></div>
+  <div class="ro"><span>Moment en G</span><b id="bM">—</b></div>
+  <div class="ro"><span>Effet observé</span><b id="bE">—</b></div>
+</div>
+<p id="bMsg" class="msg"></p>
+</div>
+
+<h3>À retenir</h3>
+<div class="tablewrap"><table>
+<thead><tr><th></th><th>Force</th><th>Moment</th></tr></thead>
+<tbody>
+<tr><td>C'est…</td><td>une action qui pousse ou tire</td><td>l'effet de rotation d'une force autour d'un point</td></tr>
+<tr><td>Unité</td><td>newton (N)</td><td>newton-mètre (N·m)</td></tr>
+<tr><td>Effet</td><td>translation</td><td>rotation</td></tr>
+<tr><td>Dépend du point choisi ?</td><td>non</td><td>oui : M = F × d, d mesurée depuis ce point</td></tr>
+<tr><td>Exemple</td><td>pousser un chariot</td><td>ouvrir une porte, serrer un écrou, tourner un volant</td></tr>
+</tbody></table></div>
+<div class="trap"><b>Deux phrases à retenir :</b> une force peut ne produire aucun moment (pousser vers les gonds : d = 0). Et un moment peut exister sans force résultante : c'est un couple, comme vos deux mains sur un volant.</div>
+
+<div class="fmquiz">
+<div class="qq"><p><b>1.</b> Vous poussez une porte avec 30 N au milieu, puis avec 30 N à la poignée. Qu'est-ce qui change ?</p>
+<div class="cc" data-correct="b" data-fb="La force est identique (30 N). Le bras de levier est plus grand à la poignée, donc le moment aussi."><button data-v="a">La force</button><button data-v="b">Le moment</button><button data-v="c">Les deux</button></div><p class="qfb"></p></div>
+<div class="qq"><p><b>2.</b> Le garagiste règle sa clé dynamométrique sur 110 N·m pour serrer une roue. Il règle :</p>
+<div class="cc" data-correct="b" data-fb="L'unité N·m est celle d'un moment : c'est le couple de serrage de l'écrou."><button data-v="a">une force</button><button data-v="b">un moment (couple de serrage)</button><button data-v="c">une vitesse</button></div><p class="qfb"></p></div>
+<div class="qq"><p><b>3.</b> Pourquoi la poignée d'une porte est-elle placée loin des gonds ?</p>
+<div class="cc" data-correct="a" data-fb="Grand bras de levier : on obtient le moment nécessaire avec une petite force."><button data-v="a">Pour augmenter le bras de levier, donc le moment</button><button data-v="b">Pour augmenter la force</button><button data-v="c">Pour l'esthétique</button></div><p class="qfb"></p></div>
+<div class="qq"><p><b>4.</b> En tournant un volant à deux mains (forces égales et opposées), la résultante des forces est :</p>
+<div class="cc" data-correct="c" data-fb="Les deux forces s'annulent : résultante nulle, mais leurs moments s'ajoutent. C'est un couple, il fait tourner sans déplacer."><button data-v="a">le double de chaque force</button><button data-v="b">égale à une force</button><button data-v="c">nulle, mais il y a un moment</button></div><p class="qfb"></p></div>
+</div>
+</section>
+</main>
+
+<script>
+(function(){
+  var s=document.getElementById('theta'); if(!s) return;
+  var O={x:110,y:220}, OG=170, P=6*9.81;
+  function upd(){
+    var t=+s.value, r=t*Math.PI/180;
+    var gx=O.x+OG*Math.cos(r), gy=O.y-OG*Math.sin(r);
+    document.getElementById('lisse').setAttribute('transform','rotate('+(-t)+' 110 220)');
+    var g=document.getElementById('gPt'); g.setAttribute('cx',gx); g.setAttribute('cy',gy);
+    var a=document.getElementById('pArrow'); a.setAttribute('x1',gx); a.setAttribute('y1',gy); a.setAttribute('x2',gx); a.setAttribute('y2',gy+55);
+    var v=document.getElementById('vdash'); v.setAttribute('x1',gx); v.setAttribute('y1',gy); v.setAttribute('x2',gx); v.setAttribute('y2',262);
+    var dm=document.getElementById('dim'); dm.setAttribute('x2',Math.max(gx,O.x+1)); dm.style.opacity=(t>=89?0:1);
+    document.getElementById('dlab').setAttribute('x',(O.x+gx)/2-4);
+    var gl=document.getElementById('gLab'); gl.setAttribute('x',gx-18); gl.setAttribute('y',gy-8);
+    var pl=document.getElementById('pLab'); pl.setAttribute('x',gx+8); pl.setAttribute('y',gy+50);
+    var d=2*Math.cos(r); if(Math.abs(d)<1e-3) d=0;
+    var M=P*d;
+    document.getElementById('out').textContent='θ = '+t+'°   d = '+d.toFixed(2).replace('.',',')+' m   M\u2092(P) = −'+M.toFixed(1).replace('.',',')+' N·m';
+  }
+  s.addEventListener('input',upd); upd();
+})();
+</script>
+<script>
+(function(){
+  function fr(x,d){return x.toFixed(d).replace('.',',');}
+  var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function mk(id,col){return '<marker id="'+id+'" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0L10,5L0,10z" fill="'+col+'"/></marker>';}
+  function line(a,b,col,w,extra){return '<line x1="'+a[0].toFixed(1)+'" y1="'+a[1].toFixed(1)+'" x2="'+b[0].toFixed(1)+'" y2="'+b[1].toFixed(1)+'" stroke="'+col+'" stroke-width="'+(w||2)+'" '+(extra||'')+'/>';}
+
+  /* ================= PORTE ================= */
+  var dsvg=document.getElementById('door');
+  if(dsvg){
+    var sF=document.getElementById('dF'), sD=document.getElementById('dD'), sB=document.getElementById('dB');
+    var H=[110,330], PX=333.3, LEN=0.9, J=5.4, CFR=3, PUSH=0.5, MAXA=100*Math.PI/180;
+    var st={th:0,w:0,push:0,closing:false,flash:0,lastM:0};
+    function geom(){
+      var F=+sF.value, d=+sD.value, b=+sB.value*Math.PI/180;
+      var u=[Math.cos(st.th),-Math.sin(st.th)], n=[-Math.sin(st.th),-Math.cos(st.th)];
+      var dir=[Math.sin(b)*n[0]-Math.cos(b)*u[0], Math.sin(b)*n[1]-Math.cos(b)*u[1]];
+      var dperp=d*Math.sin(b); if(Math.abs(dperp)<1e-6) dperp=0;
+      return {F:F,d:d,b:b,u:u,n:n,dir:dir,dperp:dperp,M:F*dperp};
+    }
+    function drawDoor(){
+      var g=geom(), h='<defs>'+mk('dmF','var(--force)')+mk('dmM','var(--tor)')+mk('dmL','var(--lev)')+'</defs>';
+      h+=line([30,H[1]],[H[0]-6,H[1]],'var(--ink)',8)+line([H[0]+LEN*PX+6,H[1]],[590,H[1]],'var(--ink)',8);
+      h+='<path d="M'+(H[0]+LEN*PX)+','+H[1]+' A'+(LEN*PX)+','+(LEN*PX)+' 0 0 0 '+H[0]+','+(H[1]-LEN*PX)+'" fill="none" stroke="var(--rule)" stroke-dasharray="5 6"/>';
+      h+='<text class="lbl" x="440" y="360">vue de dessus</text><text class="lbl" x="40" y="316">mur</text>';
+      var deg=st.th*180/Math.PI;
+      h+='<g transform="rotate('+(-deg).toFixed(2)+' '+H[0]+' '+H[1]+')">'+
+         '<rect x="'+H[0]+'" y="'+(H[1]-7)+'" width="'+(LEN*PX)+'" height="14" rx="2" fill="var(--sheet)" stroke="var(--ink)" stroke-width="2"/>'+
+         '<circle cx="'+(H[0]+0.8*PX)+'" cy="'+(H[1]+11)+'" r="4" fill="var(--muted)"/>'+
+         '<text class="lbl" x="'+(H[0]+0.8*PX-22)+'" y="'+(H[1]-14)+'">poignée</text></g>';
+      h+='<circle cx="'+H[0]+'" cy="'+H[1]+'" r="7" fill="var(--sheet)" stroke="var(--ink)" stroke-width="2.5"/>';
+      h+='<text class="lbl" x="'+(H[0]-80)+'" y="'+(H[1]+30)+'">gonds (axe)</text>';
+      var P=[H[0]+g.d*PX*g.u[0], H[1]+g.d*PX*g.u[1]];
+      if(g.F>0){
+        var L=24+g.F*3.2, S=[P[0]-L*g.dir[0], P[1]-L*g.dir[1]];
+        // support et bras de levier
+        var far=[P[0]-420*g.dir[0],P[1]-420*g.dir[1]], near=[P[0]+60*g.dir[0],P[1]+60*g.dir[1]];
+        h+=line(far,near,'var(--force)',1,'stroke-dasharray="4 5" opacity=".55"');
+        var hp=[H[0]-P[0],H[1]-P[1]], k=hp[0]*g.dir[0]+hp[1]*g.dir[1], foot=[P[0]+k*g.dir[0],P[1]+k*g.dir[1]];
+        if(g.dperp>0.001){
+          h+=line(H,foot,'var(--lev)',3,'stroke-linecap="round"');
+          var mid=[(H[0]+foot[0])/2,(H[1]+foot[1])/2];
+          h+='<text x="'+(mid[0]+8)+'" y="'+(mid[1]+18)+'" style="fill:var(--lev)">d</text>';
+        }
+        h+=line(S,P,'var(--force)',4,'marker-end="url(#dmF)"');
+        h+='<text x="'+(S[0]-6)+'" y="'+(S[1]+22)+'" style="fill:var(--force)">F</text>';
+        h+='<circle cx="'+P[0]+'" cy="'+P[1]+'" r="3.5" fill="var(--force)"/>';
+      }
+      // indicateur de moment autour des gonds
+      if(g.M>0.01){
+        var r=34, a0=0.5, a1=0.5+Math.min(2.6,0.12*g.M), op=(st.push>0?1:0.55);
+        var p0=[H[0]+r*Math.cos(a0),H[1]-r*Math.sin(a0)], p1=[H[0]+r*Math.cos(a1),H[1]-r*Math.sin(a1)];
+        h+='<path d="M'+p0[0].toFixed(1)+','+p0[1].toFixed(1)+' A'+r+','+r+' 0 '+(a1-a0>Math.PI?1:0)+' 0 '+p1[0].toFixed(1)+','+p1[1].toFixed(1)+'" fill="none" stroke="var(--tor)" stroke-width="'+(2+g.M*0.18).toFixed(1)+'" marker-end="url(#dmM)" opacity="'+op+'"/>';
+        h+='<text x="'+(H[0]+40)+'" y="'+(H[1]-44)+'" style="fill:var(--tor)">M</text>';
+      }
+      dsvg.innerHTML=h;
+      document.getElementById('dFo').textContent=g.F+' N';
+      document.getElementById('dDo').textContent=fr(g.d,2)+' m';
+      document.getElementById('rF').textContent=g.F+' N';
+      document.getElementById('rD').textContent=fr(g.dperp,2)+' m';
+      document.getElementById('rM').textContent=fr(g.M,1)+' N·m';
+      document.getElementById('rA').textContent=Math.round(st.th*180/Math.PI)+'°';
+    }
+    var msg=document.getElementById('dMsg');
+    function say(t,col){msg.textContent=t;msg.style.color=col||'var(--ink)';}
+    document.getElementById('dPush').addEventListener('click',function(){
+      var g=geom(); st.closing=false;
+      if(g.F===0){say('Aucune force : rien ne se passe.','var(--muted)');return;}
+      if(g.dperp===0){say('La force existe bien ('+g.F+' N), mais elle passe par l\'axe des gonds : bras de levier nul, moment nul. La porte ne tourne pas, ce sont les gonds qui encaissent la poussée.','var(--force)');return;}
+      if(g.M<=CFR){say('Moment de '+fr(g.M,1)+' N·m, inférieur au frottement des gonds (3 N·m) : la porte ne bouge pas. Poussez plus fort ou plus loin des gonds.','var(--force)');return;}
+      if(st.th>=MAXA-0.01){say('La porte est déjà grande ouverte : refermez-la.','var(--muted)');return;}
+      st.push=PUSH; st.lastM=g.M;
+      say('Moment de '+fr(g.M,1)+' N·m : la porte tourne. Même force, plus loin des gonds = plus de moment.','var(--ok)');
+    });
+    document.getElementById('dClose').addEventListener('click',function(){st.closing=true;st.push=0;st.w=0;say('');});
+    [sF,sD,sB].forEach(function(e){e.addEventListener('input',drawDoor);e.addEventListener('change',drawDoor);});
+    var last=null;
+    function loopD(ts){
+      var dt=last===null?0:Math.min(.05,(ts-last)/1000); last=ts;
+      if(st.closing){ st.th=Math.max(0,st.th-(reduce?10:1.6)*dt); if(st.th===0) st.closing=false; }
+      else if(st.push>0){ var g=geom(); st.w+=((g.M-CFR)/J)*dt; st.push-=dt; }
+      else if(st.w>0){ st.w=Math.max(0,st.w-(CFR/J)*dt); }
+      if(!st.closing){ st.th+=st.w*dt; if(st.th>=MAXA){st.th=MAXA;st.w=0;st.push=0;} }
+      drawDoor(); requestAnimationFrame(loopD);
+    }
+    drawDoor(); requestAnimationFrame(loopD);
+  }
+
+  /* ================= LIVRE ================= */
+  var bsvg=document.getElementById('book');
+  if(bsvg){
+    var W=150,Hh=100, st2, CASES={
+      c:{f:[[[-75,0],[1,0]]],R:'10 N',M:'0 N·m',E:'translation seule',v:260,w:0,
+         t:'La force passe par G : pas de moment en G. Le livre avance sans tourner.'},
+      e:{f:[[[-75,-50],[1,0]]],R:'10 N',M:'1 N·m',E:'translation + rotation',v:260,w:1.6,
+         t:'Même force, mais décalée de G : elle crée un moment. G avance de la même distance qu\'au centre, et le livre tourne en plus.'},
+      k:{f:[[[-75,-50],[1,0]],[[75,50],[-1,0]]],R:'0 N',M:'2 N·m',E:'rotation seule',v:0,w:3.2,
+         t:'Deux forces égales et opposées : leur résultante est nulle, G ne bouge pas. Leurs moments s\'additionnent : c\'est un couple, comme sur un volant.'}};
+    function init(){st2={x:170,y:170,a:0,v:0,w:0,dir:[1,0],show:0,cur:null,trail:[[170,170]]};}
+    init();
+    function tr(p){var c=Math.cos(st2.a),s=Math.sin(st2.a);return [st2.x+p[0]*c-p[1]*s, st2.y+p[0]*s+p[1]*c];}
+    function rot(v){var c=Math.cos(st2.a),s=Math.sin(st2.a);return [v[0]*c-v[1]*s, v[0]*s+v[1]*c];}
+    function drawBook(){
+      var h='<defs>'+mk('bmF','var(--force)')+'</defs>';
+      for(var gx=0;gx<=600;gx+=50) h+=line([gx,0],[gx,340],'var(--rule)',1,'opacity=".5"');
+      for(var gy=0;gy<=340;gy+=50) h+=line([0,gy],[600,gy],'var(--rule)',1,'opacity=".5"');
+      var deg=st2.a*180/Math.PI;
+      h+='<g transform="translate('+st2.x.toFixed(1)+' '+st2.y.toFixed(1)+') rotate('+deg.toFixed(2)+')">'+
+        '<rect x="-75" y="-50" width="150" height="100" rx="4" fill="var(--soft-vec)" stroke="var(--ink)" stroke-width="2"/>'+
+        '<rect x="-75" y="-50" width="16" height="100" fill="var(--vec)" opacity=".6"/>'+
+        '<line x1="-40" y1="-20" x2="50" y2="-20" stroke="var(--muted)" stroke-width="3"/><line x1="-40" y1="-4" x2="30" y2="-4" stroke="var(--muted)" stroke-width="2"/></g>';
+      if(st2.trail.length>1) h+='<polyline points="'+st2.trail.map(function(p){return p[0].toFixed(1)+','+p[1].toFixed(1);}).join(' ')+'" fill="none" stroke="var(--vec)" stroke-width="2" stroke-dasharray="5 5"/>';
+      h+='<circle cx="'+st2.x.toFixed(1)+'" cy="'+st2.y.toFixed(1)+'" r="4.5" fill="var(--vec)"/><text x="'+(st2.x+8).toFixed(1)+'" y="'+(st2.y+20).toFixed(1)+'" style="fill:var(--vec)">G</text>';
+      if(st2.show>0&&st2.cur){
+        CASES[st2.cur].f.forEach(function(fp){
+          var P=tr(fp[0]), d=rot(fp[1]), S=[P[0]-70*d[0],P[1]-70*d[1]];
+          h+=line(S,P,'var(--force)',4,'marker-end="url(#bmF)" opacity="'+Math.min(1,st2.show*2).toFixed(2)+'"');
+          h+='<text x="'+(S[0]-4).toFixed(1)+'" y="'+(S[1]-8).toFixed(1)+'" style="fill:var(--force)" opacity="'+Math.min(1,st2.show*2).toFixed(2)+'">10 N</text>';
+        });
+      }
+      bsvg.innerHTML=h;
+    }
+    document.querySelectorAll('[data-push]').forEach(function(b){
+      b.addEventListener('click',function(){
+        var k=b.getAttribute('data-push'), c=CASES[k];
+        if(st2.x>470||st2.x<60||st2.y<50||st2.y>290){init();}
+        st2.cur=k; st2.show=0.9; st2.v=c.v; st2.w=c.w; st2.dir=rot([1,0]);
+        document.getElementById('bR').textContent=c.R;
+        document.getElementById('bM').textContent=c.M;
+        document.getElementById('bE').textContent=c.E;
+        document.getElementById('bMsg').textContent=c.t;
+      });
+    });
+    document.getElementById('bReset').addEventListener('click',function(){init();['bR','bM','bE'].forEach(function(i){document.getElementById(i).textContent='—';});document.getElementById('bMsg').textContent='';});
+    var lb=null;
+    function loopB(ts){
+      var dt=lb===null?0:Math.min(.05,(ts-lb)/1000); lb=ts;
+      if(st2.v>0){ st2.x+=st2.dir[0]*st2.v*dt; st2.y+=st2.dir[1]*st2.v*dt; st2.v=Math.max(0,st2.v-300*dt);
+        var lt=st2.trail[st2.trail.length-1]; if(Math.hypot(st2.x-lt[0],st2.y-lt[1])>3) st2.trail.push([st2.x,st2.y]); }
+      if(st2.w>0){ st2.a+=st2.w*dt; st2.w=Math.max(0,st2.w-2.6*dt); }
+      if(st2.show>0) st2.show=Math.max(0,st2.show-dt*0.8);
+      drawBook(); requestAnimationFrame(loopB);
+    }
+    drawBook(); requestAnimationFrame(loopB);
+  }
+
+  /* ================= QUIZ ================= */
+  document.querySelectorAll('.cc').forEach(function(g){
+    var fb=g.nextElementSibling;
+    g.querySelectorAll('button').forEach(function(b){
+      b.addEventListener('click',function(){
+        g.querySelectorAll('button').forEach(function(x){x.classList.remove('good','wrong');});
+        if(b.dataset.v===g.dataset.correct){b.classList.add('good');fb.className='qfb good';fb.textContent='Juste. '+g.dataset.fb;}
+        else{b.classList.add('wrong');fb.className='qfb wrong';fb.textContent='Pas tout à fait, réessayez.';}
+      });
+    });
+  });
+})();
+</script>
+<a href="../index.html" style="position:fixed;bottom:16px;left:16px;z-index:99999;background:#1e3a5f;color:#fff;padding:10px 16px;border-radius:24px;font:600 14px system-ui,sans-serif;text-decoration:none;box-shadow:0 2px 8px rgba(0,0,0,.25)">← Sommaire</a></body>
+</html>

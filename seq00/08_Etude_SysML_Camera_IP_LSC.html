@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Analyse SysML — Caméra IP intérieure LSC Smart Connect (HTML/CSS pur)</title>
+
+<style>
+  :root{
+    --primary:#2563eb; --primary-dark:#1e40af; --primary-light:#eff6ff;
+    --accent:#7c3aed; --accent-light:#f5f3ff; --ink:#1e293b; --muted:#64748b;
+    --bg:#f8fafc; --card:#ffffff; --border:#dbe2ea; --good:#059669;
+  }
+  *{box-sizing:border-box;}
+  body{font-family:"Segoe UI", Roboto, Arial, sans-serif;background:var(--bg);color:var(--ink);margin:0;padding:0 0 60px 0;line-height:1.5;}
+  header.page{background:linear-gradient(135deg,var(--primary-dark),var(--primary));color:white;padding:34px 40px;}
+  header.page h1{margin:0 0 6px 0;font-size:26px;}
+  header.page p{margin:0;opacity:.9;font-size:14.5px;}
+  .wrap{max-width:1220px;margin:0 auto;padding:0 24px;}
+  .badges{margin-top:14px;display:flex;gap:8px;flex-wrap:wrap;}
+  .badge{background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.35);padding:4px 12px;border-radius:20px;font-size:12.5px;}
+  section.card{background:var(--card);border:1px solid var(--border);border-radius:14px;margin:28px 0;padding:26px 28px 20px 28px;box-shadow:0 1px 3px rgba(15,23,42,.05);}
+  section.card h2{margin-top:0;color:var(--primary-dark);font-size:20px;border-bottom:2px solid var(--primary-light);padding-bottom:10px;display:flex;align-items:center;gap:10px;}
+  .num{background:var(--primary);color:white;border-radius:8px;width:30px;height:30px;display:inline-flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;}
+  .diagram-frame{background:#fbfdff;border:1px solid var(--border);border-radius:10px;padding:14px;overflow-x:auto;margin:14px 0;}
+  details.explain{margin-top:10px;border:1px solid var(--border);border-radius:10px;background:var(--primary-light);}
+  details.explain summary{cursor:pointer;padding:10px 16px;font-weight:600;color:var(--primary-dark);list-style:none;}
+  details.explain summary::-webkit-details-marker{display:none;}
+  details.explain summary::before{content:"▸ ";}
+  details.explain[open] summary::before{content:"▾ ";}
+  details.explain .content{padding:0 18px 16px 18px;font-size:14.5px;}
+  details.explain ul{margin:6px 0;padding-left:20px;}
+  table.trace{width:100%;border-collapse:collapse;margin-top:10px;font-size:13.5px;}
+  table.trace th{background:var(--accent-light);color:var(--accent);text-align:left;padding:8px 10px;border:1px solid var(--border);}
+  table.trace td{padding:8px 10px;border:1px solid var(--border);}
+  table.trace tr:nth-child(even){background:#fafbff;}
+  .tag{display:inline-block;padding:1px 8px;border-radius:10px;font-size:11.5px;font-weight:600;}
+  .tag.refine{background:#fef3c7;color:#92400e;}
+  .tag.satisfy{background:#dcfce7;color:#166534;}
+  .tag.include{background:#dbeafe;color:#1e40af;}
+  .tag.extend{background:#fae8ff;color:#86198f;}
+  .toc{display:flex;flex-wrap:wrap;gap:10px;margin:18px 0 0 0;}
+  .toc a{background:var(--primary-light);color:var(--primary-dark);padding:6px 14px;border-radius:20px;font-size:13px;text-decoration:none;font-weight:600;}
+  footer{text-align:center;color:var(--muted);font-size:12.5px;margin-top:30px;}
+  @media print{
+    body{padding:0;}
+    section.card{page-break-before:always;box-shadow:none;border:none;margin:0;padding:18px 4px;}
+    header.page{page-break-after:avoid;}
+    .toc{display:none;}
+    details.explain{border:1px solid #ccc;}
+  }
+</style>
+
+</head>
+<body>
+
+<header class="page">
+  <div class="wrap">
+    <h1>Modélisation SysML — Caméra IP intérieure « LSC Smart Connect »</h1>
+    <p>Diagramme des cas d'utilisation · Diagramme d'exigences · Diagramme de blocs (BDD) · Diagramme de blocs internes (IBD) · Diagramme de séquence</p>
+    <p style="margin-top:8px;font-size:12.5px;opacity:.85;">Version 100% HTML/CSS — aucun SVG, aucune image : toutes les formes (rectangles, ellipses, lignes, flèches) sont des <code>&lt;div&gt;</code> positionnés et stylés en CSS.</p>
+    <div class="badges">
+      <span class="badge">Angle de vue : 75°</span>
+      <span class="badge">Vision nocturne : 5 m</span>
+      <span class="badge">Audio bidirectionnel</span>
+      <span class="badge">Wi‑Fi + Bluetooth</span>
+      <span class="badge">Stockage microSD</span>
+      <span class="badge">Câble 80 cm</span>
+    </div>
+    <div class="toc">
+      <a href="#uc" onclick="event.preventDefault();document.getElementById('uc').scrollIntoView({behavior:'smooth'});">① Cas d'utilisation</a>
+      <a href="#req" onclick="event.preventDefault();document.getElementById('req').scrollIntoView({behavior:'smooth'});">② Exigences</a>
+      <a href="#bdd" onclick="event.preventDefault();document.getElementById('bdd').scrollIntoView({behavior:'smooth'});">③ Blocs (BDD)</a>
+      <a href="#ibd" onclick="event.preventDefault();document.getElementById('ibd').scrollIntoView({behavior:'smooth'});">④ Blocs internes (IBD)</a>
+      <a href="#seq" onclick="event.preventDefault();document.getElementById('seq').scrollIntoView({behavior:'smooth'});">⑤ Séquence</a>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+<section class="card" id="uc">
+  <h2><span class="num">1</span>Diagramme des cas d'utilisation</h2>
+  <div class="diagram-frame">
+<div style="position:relative;width:1000px;height:820px;font-family:'Segoe UI',Arial,sans-serif;">
+<div style="position:absolute;left:255px;top:35px;width:490px;height:600px;background:#f8fafc;border:1.4px solid #2563eb;border-radius:6px;z-index:0;box-sizing:border-box;"></div>
+<div style="position:absolute;left:300.0px;top:44.0px;font-size:13.5px;color:#1e40af;font-weight:700;z-index:6;text-align:left;white-space:nowrap;">«system» Caméra IP intérieure Smart Indoor</div>
+<div style="position:absolute;left:350.0px;top:60.0px;width:300.0px;height:60.0px;background:#eff6ff;border:1.4px solid #2563eb;border-radius:50%;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:350px;top:60px;width:300px;height:60px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:12px;color:#1e293b;z-index:2;line-height:1.25;">Se connecter à<br>l'application</div>
+<div style="position:absolute;left:350.0px;top:135.0px;width:300.0px;height:60.0px;background:#eff6ff;border:1.4px solid #2563eb;border-radius:50%;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:350px;top:135px;width:300px;height:60px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:12px;color:#1e293b;z-index:2;line-height:1.25;">Visualiser le flux<br>vidéo en direct</div>
+<div style="position:absolute;left:350.0px;top:210.0px;width:300.0px;height:60.0px;background:#eff6ff;border:1.4px solid #2563eb;border-radius:50%;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:350px;top:210px;width:300px;height:60px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:12px;color:#1e293b;z-index:2;line-height:1.25;">Communiquer en audio<br>bidirectionnel</div>
+<div style="position:absolute;left:350.0px;top:285.0px;width:300.0px;height:60.0px;background:#eff6ff;border:1.4px solid #2563eb;border-radius:50%;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:350px;top:285px;width:300px;height:60px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:12px;color:#1e293b;z-index:2;line-height:1.25;">Enregistrer<br>une vidéo</div>
+<div style="position:absolute;left:350.0px;top:360.0px;width:300.0px;height:60.0px;background:#fdf4ff;border:1.4px solid #a855f7;border-radius:50%;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:350px;top:360px;width:300px;height:60px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:12px;color:#1e293b;z-index:2;line-height:1.25;">Activer la<br>vision nocturne</div>
+<div style="position:absolute;left:350.0px;top:435.0px;width:300.0px;height:60.0px;background:#eff6ff;border:1.4px solid #2563eb;border-radius:50%;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:350px;top:435px;width:300px;height:60px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:12px;color:#1e293b;z-index:2;line-height:1.25;">Jumeler avec une<br>autre caméra</div>
+<div style="position:absolute;left:350.0px;top:510.0px;width:300.0px;height:60.0px;background:#eff6ff;border:1.4px solid #2563eb;border-radius:50%;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:350px;top:510px;width:300px;height:60px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:12px;color:#1e293b;z-index:2;line-height:1.25;">Stocker les<br>enregistrements</div>
+<div style="position:absolute;left:370.0px;top:585.0px;width:260.0px;height:50.0px;background:#eff6ff;border:1.4px solid #2563eb;border-radius:50%;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:370px;top:585px;width:260px;height:50px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:12px;color:#1e293b;z-index:2;line-height:1.25;">Alimenter<br>la caméra</div>
+<div style="position:absolute;left:64.0px;top:235.0px;width:22.0px;height:22.0px;background:#fff;border:2px solid #1e293b;border-radius:50%;z-index:3;box-sizing:border-box;"></div><div style="position:absolute;left:75.0px;top:257.0px;width:38.0px;height:0;border-top:2px solid #1e293b;transform:rotate(90.00deg);transform-origin:0 0;z-index:3;"></div><div style="position:absolute;left:59.0px;top:273.0px;width:32.0px;height:0;border-top:2px solid #1e293b;transform:rotate(0.00deg);transform-origin:0 0;z-index:3;"></div><div style="position:absolute;left:75.0px;top:295.0px;width:31.3px;height:0;border-top:2px solid #1e293b;transform:rotate(116.57deg);transform-origin:0 0;z-index:3;"></div><div style="position:absolute;left:75.0px;top:295.0px;width:31.3px;height:0;border-top:2px solid #1e293b;transform:rotate(63.43deg);transform-origin:0 0;z-index:3;"></div><div style="position:absolute;left:5.0px;top:331.0px;font-size:12.5px;color:#1e293b;font-weight:600;z-index:6;text-align:center;white-space:nowrap;width:140px;text-align:center;">Utilisateur</div>
+<div style="position:absolute;left:919.0px;top:75.0px;width:22.0px;height:22.0px;background:#fff;border:2px solid #1e293b;border-radius:50%;z-index:3;box-sizing:border-box;"></div><div style="position:absolute;left:930.0px;top:97.0px;width:38.0px;height:0;border-top:2px solid #1e293b;transform:rotate(90.00deg);transform-origin:0 0;z-index:3;"></div><div style="position:absolute;left:914.0px;top:113.0px;width:32.0px;height:0;border-top:2px solid #1e293b;transform:rotate(0.00deg);transform-origin:0 0;z-index:3;"></div><div style="position:absolute;left:930.0px;top:135.0px;width:31.3px;height:0;border-top:2px solid #1e293b;transform:rotate(116.57deg);transform-origin:0 0;z-index:3;"></div><div style="position:absolute;left:930.0px;top:135.0px;width:31.3px;height:0;border-top:2px solid #1e293b;transform:rotate(63.43deg);transform-origin:0 0;z-index:3;"></div><div style="position:absolute;left:860.0px;top:171.0px;font-size:12.5px;color:#1e293b;font-weight:600;z-index:6;text-align:center;white-space:nowrap;width:140px;text-align:center;">Réseau Wi-Fi</div>
+<div style="position:absolute;left:919.0px;top:415.0px;width:22.0px;height:22.0px;background:#fff;border:2px solid #1e293b;border-radius:50%;z-index:3;box-sizing:border-box;"></div><div style="position:absolute;left:930.0px;top:437.0px;width:38.0px;height:0;border-top:2px solid #1e293b;transform:rotate(90.00deg);transform-origin:0 0;z-index:3;"></div><div style="position:absolute;left:914.0px;top:453.0px;width:32.0px;height:0;border-top:2px solid #1e293b;transform:rotate(0.00deg);transform-origin:0 0;z-index:3;"></div><div style="position:absolute;left:930.0px;top:475.0px;width:31.3px;height:0;border-top:2px solid #1e293b;transform:rotate(116.57deg);transform-origin:0 0;z-index:3;"></div><div style="position:absolute;left:930.0px;top:475.0px;width:31.3px;height:0;border-top:2px solid #1e293b;transform:rotate(63.43deg);transform-origin:0 0;z-index:3;"></div><div style="position:absolute;left:860.0px;top:511.0px;font-size:12.5px;color:#1e293b;font-weight:600;z-index:6;text-align:center;white-space:nowrap;width:140px;text-align:center;">Autre caméra LSC</div>
+<div style="position:absolute;left:919.0px;top:525.0px;width:22.0px;height:22.0px;background:#fff;border:2px solid #1e293b;border-radius:50%;z-index:3;box-sizing:border-box;"></div><div style="position:absolute;left:930.0px;top:547.0px;width:38.0px;height:0;border-top:2px solid #1e293b;transform:rotate(90.00deg);transform-origin:0 0;z-index:3;"></div><div style="position:absolute;left:914.0px;top:563.0px;width:32.0px;height:0;border-top:2px solid #1e293b;transform:rotate(0.00deg);transform-origin:0 0;z-index:3;"></div><div style="position:absolute;left:930.0px;top:585.0px;width:31.3px;height:0;border-top:2px solid #1e293b;transform:rotate(116.57deg);transform-origin:0 0;z-index:3;"></div><div style="position:absolute;left:930.0px;top:585.0px;width:31.3px;height:0;border-top:2px solid #1e293b;transform:rotate(63.43deg);transform-origin:0 0;z-index:3;"></div><div style="position:absolute;left:860.0px;top:621.0px;font-size:12.5px;color:#1e293b;font-weight:600;z-index:6;text-align:center;white-space:nowrap;width:140px;text-align:center;">Carte microSD</div>
+<div style="position:absolute;left:64.0px;top:680.0px;width:22.0px;height:22.0px;background:#fff;border:2px solid #1e293b;border-radius:50%;z-index:3;box-sizing:border-box;"></div><div style="position:absolute;left:75.0px;top:702.0px;width:38.0px;height:0;border-top:2px solid #1e293b;transform:rotate(90.00deg);transform-origin:0 0;z-index:3;"></div><div style="position:absolute;left:59.0px;top:718.0px;width:32.0px;height:0;border-top:2px solid #1e293b;transform:rotate(0.00deg);transform-origin:0 0;z-index:3;"></div><div style="position:absolute;left:75.0px;top:740.0px;width:31.3px;height:0;border-top:2px solid #1e293b;transform:rotate(116.57deg);transform-origin:0 0;z-index:3;"></div><div style="position:absolute;left:75.0px;top:740.0px;width:31.3px;height:0;border-top:2px solid #1e293b;transform:rotate(63.43deg);transform-origin:0 0;z-index:3;"></div><div style="position:absolute;left:5.0px;top:776.0px;font-size:12.5px;color:#1e293b;font-weight:600;z-index:6;text-align:center;white-space:nowrap;width:140px;text-align:center;">Secteur électrique</div>
+<div style="position:absolute;left:120.0px;top:300.0px;width:311.4px;height:0;border-top:1.2px solid #475569;transform:rotate(-42.40deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:120.0px;top:300.0px;width:266.7px;height:0;border-top:1.2px solid #475569;transform:rotate(-30.41deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:120.0px;top:300.0px;width:237.7px;height:0;border-top:1.2px solid #475569;transform:rotate(-14.62deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:120.0px;top:300.0px;width:230.5px;height:0;border-top:1.2px solid #475569;transform:rotate(3.73deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:120.0px;top:300.0px;width:283.1px;height:0;border-top:1.2px solid #475569;transform:rotate(35.66deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:895.0px;top:90.0px;width:245.0px;height:0;border-top:1.2px solid #475569;transform:rotate(180.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:895.0px;top:430.0px;width:247.5px;height:0;border-top:1.2px solid #475569;transform:rotate(171.87deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:895.0px;top:540.0px;width:245.0px;height:0;border-top:1.2px solid #475569;transform:rotate(180.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:120.0px;top:700.0px;width:265.7px;height:0;border-top:1.2px solid #475569;transform:rotate(-19.80deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:500.0px;top:135.0px;width:15.0px;height:0;border-top:1.3px dashed #1e40af;transform:rotate(-90.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:492.0px;top:115.2px;width:0;height:0;border-top:4.8px solid transparent;border-bottom:4.8px solid transparent;border-left:8.0px solid #1e40af;transform-origin:8.0px 4.8px;transform:rotate(-90.00deg);z-index:2;"></div>
+<div style="position:absolute;left:510.0px;top:121.5px;font-size:11px;color:#1e40af;font-weight:400;z-index:6;text-align:left;white-space:nowrap;font-style:italic;">«include»</div>
+<div style="position:absolute;left:650.0px;top:240.0px;width:55.0px;height:0;border-top:1.3px dashed #1e40af;transform:rotate(0.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:705.0px;top:240.0px;width:150.0px;height:0;border-top:1.3px dashed #1e40af;transform:rotate(-90.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:705.0px;top:90.0px;width:55.0px;height:0;border-top:1.3px dashed #1e40af;transform:rotate(180.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:642.0px;top:85.2px;width:0;height:0;border-top:4.8px solid transparent;border-bottom:4.8px solid transparent;border-left:8.0px solid #1e40af;transform-origin:8.0px 4.8px;transform:rotate(180.00deg);z-index:2;"></div>
+<div style="position:absolute;left:713.0px;top:159.0px;font-size:11px;color:#1e40af;font-weight:400;z-index:6;text-align:left;white-space:nowrap;font-style:italic;">«include»</div>
+<div style="position:absolute;left:350.0px;top:315.0px;width:50.0px;height:0;border-top:1.3px dashed #1e40af;transform:rotate(180.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:300.0px;top:315.0px;width:225.0px;height:0;border-top:1.3px dashed #1e40af;transform:rotate(90.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:300.0px;top:540.0px;width:50.0px;height:0;border-top:1.3px dashed #1e40af;transform:rotate(0.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:342.0px;top:535.2px;width:0;height:0;border-top:4.8px solid transparent;border-bottom:4.8px solid transparent;border-left:8.0px solid #1e40af;transform-origin:8.0px 4.8px;transform:rotate(0.00deg);z-index:2;"></div>
+<div style="position:absolute;left:205.0px;top:421.5px;font-size:11px;color:#1e40af;font-weight:400;z-index:6;text-align:left;white-space:nowrap;font-style:italic;">«include»</div>
+<div style="position:absolute;left:650.0px;top:390.0px;width:85.0px;height:0;border-top:1.3px dashed #a855f7;transform:rotate(0.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:735.0px;top:390.0px;width:225.0px;height:0;border-top:1.3px dashed #a855f7;transform:rotate(-90.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:735.0px;top:165.0px;width:85.0px;height:0;border-top:1.3px dashed #a855f7;transform:rotate(180.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:642.0px;top:160.2px;width:0;height:0;border-top:4.8px solid transparent;border-bottom:4.8px solid transparent;border-left:8.0px solid #7e22ce;transform-origin:8.0px 4.8px;transform:rotate(180.00deg);z-index:2;"></div>
+<div style="position:absolute;left:743.0px;top:261.5px;font-size:11px;color:#7e22ce;font-weight:400;z-index:6;text-align:left;white-space:nowrap;font-style:italic;">«extend»</div>
+<div style="position:absolute;left:743.0px;top:277.5px;font-size:9.5px;color:#7e22ce;font-weight:400;z-index:6;text-align:left;white-space:nowrap;font-style:italic;">(pt d'extension :</div>
+<div style="position:absolute;left:743.0px;top:289.5px;font-size:9.5px;color:#7e22ce;font-weight:400;z-index:6;text-align:left;white-space:nowrap;font-style:italic;">luminosité faible)</div>
+</div>
+  </div>
+  <details class="explain">
+    <summary>Lecture du diagramme</summary>
+    <div class="content">
+      <ul>
+        <li><b>Acteur humain</b> (Utilisateur) placé à gauche : il pilote la caméra depuis l'application.</li>
+        <li><b>Acteurs de l'environnement</b> placés à droite (Réseau Wi‑Fi, Autre caméra LSC, Carte microSD) et le Secteur électrique en bas : ce sont des éléments matériels avec lesquels le système échange, sans intervention humaine directe.</li>
+        <li><span class="tag include">include</span> « Visualiser le flux » et « Communiquer en audio » <i>incluent</i> systématiquement « Se connecter à l'application » : impossible sans connexion préalable. De même, « Enregistrer une vidéo » inclut « Stocker les enregistrements ».</li>
+        <li><span class="tag extend">extend</span> « Activer la vision nocturne » <i>étend</i> le cas « Visualiser le flux » uniquement lorsque la condition (point d'extension) « luminosité faible » est vérifiée — cohérent avec la portée de 5 m annoncée par le fabricant.</li>
+      </ul>
+    </div>
+  </details>
+</section>
+
+<section class="card" id="req">
+  <h2><span class="num">2</span>Diagramme d'exigences</h2>
+  <div class="diagram-frame">
+<div style="position:relative;width:1260px;height:500px;font-family:'Segoe UI',Arial,sans-serif;">
+<div style="position:absolute;left:500px;top:15px;width:260px;height:75px;background:#eff6ff;border:1.4px solid #2563eb;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:500.0px;top:21.0px;font-size:9.5px;color:#1e40af;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:260px;text-align:center;font-style:italic;">«requirement»</div>
+<div style="position:absolute;left:500.0px;top:35.0px;font-size:11.5px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:260px;text-align:center;">REQ-1 : Surveiller une pièce</div>
+<div style="position:absolute;left:500.0px;top:50.0px;font-size:11.5px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:260px;text-align:center;">à distance simplement</div>
+<div style="position:absolute;left:500.0px;top:74.0px;font-size:9.5px;color:#475569;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:260px;text-align:center;">id = REQ-1</div>
+<div style="position:absolute;left:185px;top:150px;width:240px;height:58px;background:#eff6ff;border:1.4px solid #2563eb;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:185.0px;top:156.0px;font-size:9.5px;color:#1e40af;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:240px;text-align:center;font-style:italic;">«requirement»</div>
+<div style="position:absolute;left:185.0px;top:170.0px;font-size:11.5px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:240px;text-align:center;">Exigences fonctionnelles</div>
+<div style="position:absolute;left:185.0px;top:192.0px;font-size:9.5px;color:#475569;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:240px;text-align:center;">id = REQ-2</div>
+<div style="position:absolute;left:835px;top:150px;width:240px;height:58px;background:#f5f3ff;border:1.4px solid #7c3aed;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:835.0px;top:156.0px;font-size:9.5px;color:#6d28d9;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:240px;text-align:center;font-style:italic;">«requirement»</div>
+<div style="position:absolute;left:835.0px;top:170.0px;font-size:11.5px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:240px;text-align:center;">Exigences non fonctionnelles</div>
+<div style="position:absolute;left:835.0px;top:192.0px;font-size:9.5px;color:#475569;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:240px;text-align:center;">id = REQ-3</div>
+<div style="position:absolute;left:630.0px;top:90.0px;width:330.5px;height:0;border-top:1.2px solid #475569;transform:rotate(169.54deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:630.0px;top:90.0px;width:330.5px;height:0;border-top:1.2px solid #475569;transform:rotate(10.46deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:626.0px;top:86.0px;width:8.0px;height:8.0px;background:#fff;border:1.3px solid #475569;border-radius:50%;z-index:2;box-sizing:border-box;"></div>
+<div style="position:absolute;left:15px;top:285px;width:185px;height:66px;background:#eff6ff;border:1.4px solid #2563eb;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:15.0px;top:291.0px;font-size:9.5px;color:#1e40af;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:185px;text-align:center;font-style:italic;">«requirement»</div>
+<div style="position:absolute;left:15.0px;top:305.0px;font-size:11.5px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:185px;text-align:center;">Connexion via l'appli</div>
+<div style="position:absolute;left:15.0px;top:335.0px;font-size:9.5px;color:#475569;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:185px;text-align:center;">LSC Smart Connect / REQ-1.1</div>
+<div style="position:absolute;left:215px;top:285px;width:185px;height:66px;background:#eff6ff;border:1.4px solid #2563eb;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:215.0px;top:291.0px;font-size:9.5px;color:#1e40af;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:185px;text-align:center;font-style:italic;">«requirement»</div>
+<div style="position:absolute;left:215.0px;top:305.0px;font-size:11.5px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:185px;text-align:center;">Audio bidirectionnel</div>
+<div style="position:absolute;left:215.0px;top:335.0px;font-size:9.5px;color:#475569;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:185px;text-align:center;">micro + haut-parleur / REQ-1.2</div>
+<div style="position:absolute;left:415px;top:285px;width:185px;height:66px;background:#eff6ff;border:1.4px solid #2563eb;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:415.0px;top:291.0px;font-size:9.5px;color:#1e40af;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:185px;text-align:center;font-style:italic;">«requirement»</div>
+<div style="position:absolute;left:415.0px;top:305.0px;font-size:11.5px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:185px;text-align:center;">Enregistrement vidéo</div>
+<div style="position:absolute;left:415.0px;top:335.0px;font-size:9.5px;color:#475569;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:185px;text-align:center;">sur demande / REQ-1.4</div>
+<div style="position:absolute;left:15px;top:395px;width:185px;height:66px;background:#eff6ff;border:1.4px solid #2563eb;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:15.0px;top:401.0px;font-size:9.5px;color:#1e40af;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:185px;text-align:center;font-style:italic;">«requirement»</div>
+<div style="position:absolute;left:15.0px;top:415.0px;font-size:11.5px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:185px;text-align:center;">Vision nocturne</div>
+<div style="position:absolute;left:15.0px;top:445.0px;font-size:9.5px;color:#475569;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:185px;text-align:center;">portée ≥ 5 m / REQ-1.3</div>
+<div style="position:absolute;left:215px;top:395px;width:185px;height:66px;background:#eff6ff;border:1.4px solid #2563eb;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:215.0px;top:401.0px;font-size:9.5px;color:#1e40af;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:185px;text-align:center;font-style:italic;">«requirement»</div>
+<div style="position:absolute;left:215.0px;top:415.0px;font-size:11.5px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:185px;text-align:center;">Jumelage multi-caméras</div>
+<div style="position:absolute;left:215.0px;top:445.0px;font-size:9.5px;color:#475569;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:185px;text-align:center;">Bluetooth / REQ-1.6</div>
+<div style="position:absolute;left:415px;top:395px;width:185px;height:66px;background:#eff6ff;border:1.4px solid #2563eb;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:415.0px;top:401.0px;font-size:9.5px;color:#1e40af;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:185px;text-align:center;font-style:italic;">«requirement»</div>
+<div style="position:absolute;left:415.0px;top:415.0px;font-size:11.5px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:185px;text-align:center;">Stockage local</div>
+<div style="position:absolute;left:415.0px;top:445.0px;font-size:9.5px;color:#475569;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:185px;text-align:center;">carte microSD / REQ-1.9</div>
+<div style="position:absolute;left:675px;top:335px;width:185px;height:66px;background:#f5f3ff;border:1.4px solid #7c3aed;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:675.0px;top:341.0px;font-size:9.5px;color:#6d28d9;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:185px;text-align:center;font-style:italic;">«requirement»</div>
+<div style="position:absolute;left:675.0px;top:355.0px;font-size:11.5px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:185px;text-align:center;">Champ de vision large</div>
+<div style="position:absolute;left:675.0px;top:385.0px;font-size:9.5px;color:#475569;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:185px;text-align:center;">angle 75° / REQ-1.5</div>
+<div style="position:absolute;left:875px;top:335px;width:185px;height:66px;background:#f5f3ff;border:1.4px solid #7c3aed;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:875.0px;top:341.0px;font-size:9.5px;color:#6d28d9;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:185px;text-align:center;font-style:italic;">«requirement»</div>
+<div style="position:absolute;left:875.0px;top:355.0px;font-size:11.5px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:185px;text-align:center;">Installation flexible</div>
+<div style="position:absolute;left:875.0px;top:385.0px;font-size:9.5px;color:#475569;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:185px;text-align:center;">suspendue/autoportante / REQ-1.7</div>
+<div style="position:absolute;left:1075px;top:335px;width:170px;height:66px;background:#f5f3ff;border:1.4px solid #7c3aed;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:1075.0px;top:341.0px;font-size:9.5px;color:#6d28d9;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:170px;text-align:center;font-style:italic;">«requirement»</div>
+<div style="position:absolute;left:1075.0px;top:355.0px;font-size:11.5px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:170px;text-align:center;">Usage intérieur</div>
+<div style="position:absolute;left:1075.0px;top:385.0px;font-size:9.5px;color:#475569;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:170px;text-align:center;">non étanche / REQ-1.8</div>
+<div style="position:absolute;left:305.0px;top:208.0px;width:212.0px;height:0;border-top:1.0px solid #475569;transform:rotate(158.70deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:305.0px;top:208.0px;width:77.0px;height:0;border-top:1.0px solid #475569;transform:rotate(88.14deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:305.0px;top:208.0px;width:216.6px;height:0;border-top:1.0px solid #475569;transform:rotate(20.82deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:305.0px;top:208.0px;width:272.0px;height:0;border-top:1.0px solid #475569;transform:rotate(136.56deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:305.0px;top:208.0px;width:187.0px;height:0;border-top:1.0px solid #475569;transform:rotate(89.23deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:305.0px;top:208.0px;width:275.6px;height:0;border-top:1.0px solid #475569;transform:rotate(42.72deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:301.0px;top:204.0px;width:8.0px;height:8.0px;background:#fff;border:1.3px solid #475569;border-radius:50%;z-index:2;box-sizing:border-box;"></div>
+<div style="position:absolute;left:955.0px;top:208.0px;width:226.5px;height:0;border-top:1.0px solid #475569;transform:rotate(145.89deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:955.0px;top:208.0px;width:127.6px;height:0;border-top:1.0px solid #475569;transform:rotate(84.38deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:955.0px;top:208.0px;width:241.2px;height:0;border-top:1.0px solid #475569;transform:rotate(31.78deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:951.0px;top:204.0px;width:8.0px;height:8.0px;background:#fff;border:1.3px solid #475569;border-radius:50%;z-index:2;box-sizing:border-box;"></div>
+<div style="position:absolute;left:15px;top:15px;width:160px;height:32px;background:#fefce8;border:1.4px solid #ca8a04;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:15.0px;top:26.0px;font-size:10.5px;color:#1e293b;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:160px;text-align:center;">UC1 Se connecter à l'appli</div>
+<div style="position:absolute;left:95.0px;top:47.0px;width:238.3px;height:0;border-top:1.2px dashed #ca8a04;transform:rotate(86.99deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:99.5px;top:280.2px;width:0;height:0;border-top:4.8px solid transparent;border-bottom:4.8px solid transparent;border-left:8.0px solid #ca8a04;transform-origin:8.0px 4.8px;transform:rotate(86.99deg);z-index:2;"></div>
+<div style="position:absolute;left:30.0px;top:155.0px;font-size:10.5px;color:#92400e;font-weight:400;z-index:6;text-align:left;white-space:nowrap;font-style:italic;">«refine»</div>
+<div style="position:absolute;left:1085px;top:15px;width:160px;height:32px;background:#ecfdf5;border:1.4px solid #059669;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:1085.0px;top:26.0px;font-size:10.5px;color:#1e293b;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:160px;text-align:center;">Bloc Module Optique</div>
+<div style="position:absolute;left:1165.0px;top:47.0px;width:490.9px;height:0;border-top:1.2px dashed #059669;transform:rotate(144.08deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:759.5px;top:330.2px;width:0;height:0;border-top:4.8px solid transparent;border-bottom:4.8px solid transparent;border-left:8.0px solid #059669;transform-origin:8.0px 4.8px;transform:rotate(144.08deg);z-index:2;"></div>
+<div style="position:absolute;left:990.0px;top:155.0px;font-size:10.5px;color:#166534;font-weight:400;z-index:6;text-align:left;white-space:nowrap;font-style:italic;">«satisfy»</div>
+</div>
+  </div>
+  <details class="explain">
+    <summary>Lecture du diagramme + matrice de traçabilité complète</summary>
+    <div class="content">
+      <ul>
+        <li>Trait plein + petit cercle = relation de <b>containment</b> (l'exigence parente est décomposée en sous‑exigences).</li>
+        <li><span class="tag refine">refine</span> un cas d'utilisation précise/justifie une exigence fonctionnelle.</li>
+        <li><span class="tag satisfy">satisfy</span> un bloc (matériel) apporte la preuve qu'une exigence est techniquement satisfaite.</li>
+      </ul>
+      <table class="trace">
+        <tr><th>Élément source</th><th>Relation</th><th>Exigence cible</th></tr>
+        <tr><td>UC1 — Se connecter à l'application</td><td><span class="tag refine">refine</span></td><td>REQ‑1.1 Connexion via l'appli</td></tr>
+        <tr><td>UC3 — Communiquer en audio bidirectionnel</td><td><span class="tag refine">refine</span></td><td>REQ‑1.2 Audio bidirectionnel</td></tr>
+        <tr><td>UC4 — Enregistrer une vidéo</td><td><span class="tag refine">refine</span></td><td>REQ‑1.4 Enregistrement vidéo</td></tr>
+        <tr><td>UC5 — Activer la vision nocturne</td><td><span class="tag refine">refine</span></td><td>REQ‑1.3 Vision nocturne ≥ 5 m</td></tr>
+        <tr><td>UC6 — Jumeler avec une autre caméra</td><td><span class="tag refine">refine</span></td><td>REQ‑1.6 Jumelage multi‑caméras</td></tr>
+        <tr><td>UC7 — Stocker les enregistrements</td><td><span class="tag refine">refine</span></td><td>REQ‑1.9 Stockage local</td></tr>
+        <tr><td>Bloc Module Optique</td><td><span class="tag satisfy">satisfy</span></td><td>REQ‑1.5 Champ de vision large (75°)</td></tr>
+        <tr><td>Bloc Support de Fixation</td><td><span class="tag satisfy">satisfy</span></td><td>REQ‑1.7 Installation flexible</td></tr>
+        <tr><td>Bloc Caméra IP Intérieure (système)</td><td><span class="tag satisfy">satisfy</span></td><td>REQ‑1.8 Usage intérieur</td></tr>
+      </table>
+    </div>
+  </details>
+</section>
+
+<section class="card" id="bdd">
+  <h2><span class="num">3</span>Diagramme de définition de blocs (BDD)</h2>
+  <div class="diagram-frame">
+<div style="position:relative;width:1230px;height:400px;font-family:'Segoe UI',Arial,sans-serif;">
+<div style="position:absolute;left:470px;top:10px;width:250px;height:80px;background:#dbeafe;border:1.4px solid #1e40af;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:470.0px;top:17.0px;font-size:8.5px;color:#1e40af;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:250px;text-align:center;font-style:italic;white-space:normal;">«block»</div>
+<div style="position:absolute;left:470.0px;top:28.0px;font-size:10px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:250px;text-align:center;white-space:normal;line-height:1.25;padding:0 3px;box-sizing:border-box;">Caméra IP Intérieure</div>
+<div style="position:absolute;left:470.0px;top:44.0px;width:250.0px;height:0;border-top:1px solid #1e40af;transform:rotate(0.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:477.0px;top:52.0px;font-size:8.5px;color:#334155;font-weight:400;z-index:6;text-align:left;white-space:nowrap;width:236px;white-space:normal;line-height:1.25;">angle_vue = 75°</div>
+<div style="position:absolute;left:477.0px;top:68.0px;font-size:8.5px;color:#334155;font-weight:400;z-index:6;text-align:left;white-space:nowrap;width:236px;white-space:normal;line-height:1.25;">portée_vision_nuit = 5 m</div>
+<div style="position:absolute;left:477.0px;top:84.0px;font-size:8.5px;color:#334155;font-weight:400;z-index:6;text-align:left;white-space:nowrap;width:236px;white-space:normal;line-height:1.25;">long_câble = 80 cm</div>
+<div style="position:absolute;left:5px;top:190px;width:142px;height:175px;background:#eff6ff;border:1.4px solid #2563eb;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:5.0px;top:197.0px;font-size:8.5px;color:#1e40af;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:142px;text-align:center;font-style:italic;white-space:normal;">«block»</div>
+<div style="position:absolute;left:5.0px;top:208.0px;font-size:10px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:142px;text-align:center;white-space:normal;line-height:1.25;padding:0 3px;box-sizing:border-box;">Module Optique</div>
+<div style="position:absolute;left:5.0px;top:224.0px;width:142.0px;height:0;border-top:1px solid #2563eb;transform:rotate(0.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:12.0px;top:232.0px;font-size:8.5px;color:#334155;font-weight:400;z-index:6;text-align:left;white-space:nowrap;width:128px;white-space:normal;line-height:1.25;">angle = 75°</div>
+<div style="position:absolute;left:12.0px;top:248.0px;font-size:8.5px;color:#334155;font-weight:400;z-index:6;text-align:left;white-space:nowrap;width:128px;white-space:normal;line-height:1.25;">capteur image</div>
+<div style="position:absolute;left:12.0px;top:264.0px;font-size:8.5px;color:#334155;font-weight:400;z-index:6;text-align:left;white-space:nowrap;width:128px;white-space:normal;line-height:1.25;">objectif fixe</div>
+<div style="position:absolute;left:157px;top:190px;width:142px;height:175px;background:#fdf4ff;border:1.4px solid #a855f7;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:157.0px;top:197.0px;font-size:8.5px;color:#7e22ce;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:142px;text-align:center;font-style:italic;white-space:normal;">«block»</div>
+<div style="position:absolute;left:157.0px;top:208.0px;font-size:10px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:142px;text-align:center;white-space:normal;line-height:1.25;padding:0 3px;box-sizing:border-box;">Module Vision<br>Nocturne</div>
+<div style="position:absolute;left:157.0px;top:240.0px;width:142.0px;height:0;border-top:1px solid #a855f7;transform:rotate(0.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:164.0px;top:248.0px;font-size:8.5px;color:#334155;font-weight:400;z-index:6;text-align:left;white-space:nowrap;width:128px;white-space:normal;line-height:1.25;">LED infrarouge</div>
+<div style="position:absolute;left:164.0px;top:264.0px;font-size:8.5px;color:#334155;font-weight:400;z-index:6;text-align:left;white-space:nowrap;width:128px;white-space:normal;line-height:1.25;">portée = 5 m</div>
+<div style="position:absolute;left:164.0px;top:280.0px;font-size:8.5px;color:#334155;font-weight:400;z-index:6;text-align:left;white-space:nowrap;width:128px;white-space:normal;line-height:1.25;">capteur luminosité</div>
+<div style="position:absolute;left:309px;top:190px;width:142px;height:175px;background:#eff6ff;border:1.4px solid #2563eb;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:309.0px;top:197.0px;font-size:8.5px;color:#1e40af;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:142px;text-align:center;font-style:italic;white-space:normal;">«block»</div>
+<div style="position:absolute;left:309.0px;top:208.0px;font-size:10px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:142px;text-align:center;white-space:normal;line-height:1.25;padding:0 3px;box-sizing:border-box;">Module Audio</div>
+<div style="position:absolute;left:309.0px;top:224.0px;width:142.0px;height:0;border-top:1px solid #2563eb;transform:rotate(0.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:316.0px;top:232.0px;font-size:8.5px;color:#334155;font-weight:400;z-index:6;text-align:left;white-space:nowrap;width:128px;white-space:normal;line-height:1.25;">microphone</div>
+<div style="position:absolute;left:316.0px;top:248.0px;font-size:8.5px;color:#334155;font-weight:400;z-index:6;text-align:left;white-space:nowrap;width:128px;white-space:normal;line-height:1.25;">haut-parleur</div>
+<div style="position:absolute;left:316.0px;top:264.0px;font-size:8.5px;color:#334155;font-weight:400;z-index:6;text-align:left;white-space:nowrap;width:128px;white-space:normal;line-height:1.25;">bidirectionnel</div>
+<div style="position:absolute;left:461px;top:190px;width:142px;height:175px;background:#eff6ff;border:1.4px solid #2563eb;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:461.0px;top:197.0px;font-size:8.5px;color:#1e40af;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:142px;text-align:center;font-style:italic;white-space:normal;">«block»</div>
+<div style="position:absolute;left:461.0px;top:208.0px;font-size:10px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:142px;text-align:center;white-space:normal;line-height:1.25;padding:0 3px;box-sizing:border-box;">Module<br>Communication</div>
+<div style="position:absolute;left:461.0px;top:240.0px;width:142.0px;height:0;border-top:1px solid #2563eb;transform:rotate(0.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:468.0px;top:248.0px;font-size:8.5px;color:#334155;font-weight:400;z-index:6;text-align:left;white-space:nowrap;width:128px;white-space:normal;line-height:1.25;">Wi-Fi</div>
+<div style="position:absolute;left:468.0px;top:264.0px;font-size:8.5px;color:#334155;font-weight:400;z-index:6;text-align:left;white-space:nowrap;width:128px;white-space:normal;line-height:1.25;">Bluetooth (jumelable)</div>
+<div style="position:absolute;left:468.0px;top:280.0px;font-size:8.5px;color:#334155;font-weight:400;z-index:6;text-align:left;white-space:nowrap;width:128px;white-space:normal;line-height:1.25;">appli LSC Smart Connect</div>
+<div style="position:absolute;left:613px;top:190px;width:142px;height:175px;background:#fff7ed;border:1.4px solid #ea580c;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:613.0px;top:197.0px;font-size:8.5px;color:#c2410c;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:142px;text-align:center;font-style:italic;white-space:normal;">«block»</div>
+<div style="position:absolute;left:613.0px;top:208.0px;font-size:10px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:142px;text-align:center;white-space:normal;line-height:1.25;padding:0 3px;box-sizing:border-box;">Unité de Contrôle</div>
+<div style="position:absolute;left:613.0px;top:224.0px;width:142.0px;height:0;border-top:1px solid #ea580c;transform:rotate(0.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:620.0px;top:232.0px;font-size:8.5px;color:#334155;font-weight:400;z-index:6;text-align:left;white-space:nowrap;width:128px;white-space:normal;line-height:1.25;">microcontrôleur</div>
+<div style="position:absolute;left:620.0px;top:248.0px;font-size:8.5px;color:#334155;font-weight:400;z-index:6;text-align:left;white-space:nowrap;width:128px;white-space:normal;line-height:1.25;">firmware</div>
+<div style="position:absolute;left:620.0px;top:264.0px;font-size:8.5px;color:#334155;font-weight:400;z-index:6;text-align:left;white-space:nowrap;width:128px;white-space:normal;line-height:1.25;">gestion des flux</div>
+<div style="position:absolute;left:765px;top:190px;width:142px;height:175px;background:#eff6ff;border:1.4px solid #2563eb;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:765.0px;top:197.0px;font-size:8.5px;color:#1e40af;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:142px;text-align:center;font-style:italic;white-space:normal;">«block»</div>
+<div style="position:absolute;left:765.0px;top:208.0px;font-size:10px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:142px;text-align:center;white-space:normal;line-height:1.25;padding:0 3px;box-sizing:border-box;">Module de<br>Stockage</div>
+<div style="position:absolute;left:765.0px;top:240.0px;width:142.0px;height:0;border-top:1px solid #2563eb;transform:rotate(0.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:772.0px;top:248.0px;font-size:8.5px;color:#334155;font-weight:400;z-index:6;text-align:left;white-space:nowrap;width:128px;white-space:normal;line-height:1.25;">lecteur microSD</div>
+<div style="position:absolute;left:772.0px;top:264.0px;font-size:8.5px;color:#334155;font-weight:400;z-index:6;text-align:left;white-space:nowrap;width:128px;white-space:normal;line-height:1.25;">type Micro-SD/TransFlash</div>
+<div style="position:absolute;left:917px;top:190px;width:142px;height:175px;background:#f0fdf4;border:1.4px solid #059669;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:917.0px;top:197.0px;font-size:8.5px;color:#065f46;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:142px;text-align:center;font-style:italic;white-space:normal;">«block»</div>
+<div style="position:absolute;left:917.0px;top:208.0px;font-size:10px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:142px;text-align:center;white-space:normal;line-height:1.25;padding:0 3px;box-sizing:border-box;">Module<br>d'Alimentation</div>
+<div style="position:absolute;left:917.0px;top:240.0px;width:142.0px;height:0;border-top:1px solid #059669;transform:rotate(0.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:924.0px;top:248.0px;font-size:8.5px;color:#334155;font-weight:400;z-index:6;text-align:left;white-space:nowrap;width:128px;white-space:normal;line-height:1.25;">secteur</div>
+<div style="position:absolute;left:924.0px;top:264.0px;font-size:8.5px;color:#334155;font-weight:400;z-index:6;text-align:left;white-space:nowrap;width:128px;white-space:normal;line-height:1.25;">câble = 80 cm</div>
+<div style="position:absolute;left:1069px;top:190px;width:142px;height:175px;background:#f8fafc;border:1.4px solid #64748b;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:1069.0px;top:197.0px;font-size:8.5px;color:#334155;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:142px;text-align:center;font-style:italic;white-space:normal;">«block»</div>
+<div style="position:absolute;left:1069.0px;top:208.0px;font-size:10px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:142px;text-align:center;white-space:normal;line-height:1.25;padding:0 3px;box-sizing:border-box;">Support de<br>Fixation</div>
+<div style="position:absolute;left:1069.0px;top:240.0px;width:142.0px;height:0;border-top:1px solid #64748b;transform:rotate(0.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:1076.0px;top:248.0px;font-size:8.5px;color:#334155;font-weight:400;z-index:6;text-align:left;white-space:nowrap;width:128px;white-space:normal;line-height:1.25;">suspendu</div>
+<div style="position:absolute;left:1076.0px;top:264.0px;font-size:8.5px;color:#334155;font-weight:400;z-index:6;text-align:left;white-space:nowrap;width:128px;white-space:normal;line-height:1.25;">autoportant</div>
+<div style="position:absolute;left:595.0px;top:90.0px;width:528.5px;height:0;border-top:1.1px solid #334155;transform:rotate(169.09deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:595.0px;top:90.0px;width:380.4px;height:0;border-top:1.1px solid #334155;transform:rotate(164.76deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:595.0px;top:90.0px;width:237.1px;height:0;border-top:1.1px solid #334155;transform:rotate(155.06deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:595.0px;top:90.0px;width:118.2px;height:0;border-top:1.1px solid #334155;transform:rotate(122.21deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:595.0px;top:90.0px;width:133.9px;height:0;border-top:1.1px solid #334155;transform:rotate(48.33deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:595.0px;top:90.0px;width:260.9px;height:0;border-top:1.1px solid #334155;transform:rotate(22.54deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:595.0px;top:90.0px;width:405.5px;height:0;border-top:1.1px solid #334155;transform:rotate(14.28deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:595.0px;top:90.0px;width:554.1px;height:0;border-top:1.1px solid #334155;transform:rotate(10.40deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:589.0px;top:85.8px;width:12px;height:8.4px;background:#334155;transform:rotate(45deg);z-index:2;"></div>
+</div>
+  </div>
+  <details class="explain">
+    <summary>Lecture du diagramme</summary>
+    <div class="content">
+      <p>Le losange plein indique une relation de <b>composition</b> : la « Caméra IP Intérieure » est constituée de 8 blocs qui n'existent pas indépendamment du système. Chaque bloc porte ses propres <b>attributs</b>, directement issus du cahier des caractéristiques fourni (angle 75°, portée 5 m, câble 80 cm, type de carte microSD…).</p>
+    </div>
+  </details>
+</section>
+
+<section class="card" id="ibd">
+  <h2><span class="num">4</span>Diagramme de blocs internes (IBD)</h2>
+  <div class="diagram-frame">
+<div style="position:relative;width:1200px;height:620px;font-family:'Segoe UI',Arial,sans-serif;">
+<div style="position:absolute;left:20px;top:20px;width:1160px;height:580px;border:1.4px dashed #334155;border-radius:6px;background:#fbfdff;z-index:0;"></div>
+<div style="position:absolute;left:35.0px;top:28.0px;font-size:12px;color:#334155;font-weight:400;z-index:6;text-align:left;white-space:nowrap;font-style:italic;">«ibd» Caméra IP Intérieure : Bloc</div>
+<div style="position:absolute;left:500px;top:260px;width:200px;height:100px;background:#fff7ed;border:1.4px solid #ea580c;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:500.0px;top:302.0px;font-size:12px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:200px;text-align:center;">Unité de Contrôle</div>
+<div style="position:absolute;left:500.0px;top:318.0px;font-size:9.5px;color:#7c2d12;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:200px;text-align:center;">: microcontrôleur</div>
+<div style="position:absolute;left:70px;top:60px;width:200px;height:95px;background:#eff6ff;border:1.4px solid #2563eb;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:70.0px;top:99.5px;font-size:12px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:200px;text-align:center;">Module Optique</div>
+<div style="position:absolute;left:930px;top:60px;width:200px;height:95px;background:#fdf4ff;border:1.4px solid #a855f7;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:930.0px;top:99.5px;font-size:12px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:200px;text-align:center;">Module Vision<br>Nocturne</div>
+<div style="position:absolute;left:70px;top:270px;width:200px;height:95px;background:#eff6ff;border:1.4px solid #2563eb;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:70.0px;top:309.5px;font-size:12px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:200px;text-align:center;">Module Audio</div>
+<div style="position:absolute;left:930px;top:270px;width:200px;height:95px;background:#eff6ff;border:1.4px solid #2563eb;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:930.0px;top:309.5px;font-size:12px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:200px;text-align:center;">Module<br>Communication</div>
+<div style="position:absolute;left:70px;top:480px;width:200px;height:95px;background:#eff6ff;border:1.4px solid #2563eb;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:70.0px;top:519.5px;font-size:12px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:200px;text-align:center;">Module de<br>Stockage</div>
+<div style="position:absolute;left:930px;top:480px;width:200px;height:95px;background:#f0fdf4;border:1.4px solid #059669;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:930.0px;top:519.5px;font-size:12px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:200px;text-align:center;">Module<br>d'Alimentation</div>
+<div style="position:absolute;left:265px;top:145px;width:10px;height:10px;background:#fff;border:1.2px solid #334155;z-index:2;"></div>
+<div style="position:absolute;left:495px;top:278px;width:10px;height:10px;background:#fff;border:1.2px solid #334155;z-index:2;"></div>
+<div style="position:absolute;left:270.0px;top:150.0px;width:265.7px;height:0;border-top:1.5px solid #1e40af;transform:rotate(30.04deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:492.0px;top:278.2px;width:0;height:0;border-top:4.8px solid transparent;border-bottom:4.8px solid transparent;border-left:8.0px solid #1e40af;transform-origin:8.0px 4.8px;transform:rotate(30.04deg);z-index:2;"></div>
+<div style="position:absolute;left:315.0px;top:202.5px;font-size:9.8px;color:#1e40af;font-weight:400;z-index:6;text-align:left;white-space:nowrap;width:180px;">flux image (capteur)</div>
+<div style="position:absolute;left:925px;top:145px;width:10px;height:10px;background:#fff;border:1.2px solid #334155;z-index:2;"></div>
+<div style="position:absolute;left:695px;top:278px;width:10px;height:10px;background:#fff;border:1.2px solid #334155;z-index:2;"></div>
+<div style="position:absolute;left:930.0px;top:150.0px;width:265.7px;height:0;border-top:1.5px solid #1e40af;transform:rotate(149.96deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:692.0px;top:278.2px;width:0;height:0;border-top:4.8px solid transparent;border-bottom:4.8px solid transparent;border-left:8.0px solid #1e40af;transform-origin:8.0px 4.8px;transform:rotate(149.96deg);z-index:2;"></div>
+<div style="position:absolute;left:745.0px;top:202.5px;font-size:9.8px;color:#1e40af;font-weight:400;z-index:6;text-align:left;white-space:nowrap;width:180px;">commande LED / luminosité</div>
+<div style="position:absolute;left:265px;top:313px;width:10px;height:10px;background:#fff;border:1.2px solid #334155;z-index:2;"></div>
+<div style="position:absolute;left:495px;top:300px;width:10px;height:10px;background:#fff;border:1.2px solid #334155;z-index:2;"></div>
+<div style="position:absolute;left:270.0px;top:318.0px;width:230.4px;height:0;border-top:1.5px solid #1e40af;transform:rotate(-3.24deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:492.0px;top:300.2px;width:0;height:0;border-top:4.8px solid transparent;border-bottom:4.8px solid transparent;border-left:8.0px solid #1e40af;transform-origin:8.0px 4.8px;transform:rotate(-3.24deg);z-index:2;"></div>
+<div style="position:absolute;left:315.0px;top:297.5px;font-size:9.8px;color:#1e40af;font-weight:400;z-index:6;text-align:left;white-space:nowrap;width:180px;">flux audio bidirectionnel</div>
+<div style="position:absolute;left:925px;top:313px;width:10px;height:10px;background:#fff;border:1.2px solid #334155;z-index:2;"></div>
+<div style="position:absolute;left:695px;top:300px;width:10px;height:10px;background:#fff;border:1.2px solid #334155;z-index:2;"></div>
+<div style="position:absolute;left:930.0px;top:318.0px;width:230.4px;height:0;border-top:1.5px solid #1e40af;transform:rotate(-176.76deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:692.0px;top:300.2px;width:0;height:0;border-top:4.8px solid transparent;border-bottom:4.8px solid transparent;border-left:8.0px solid #1e40af;transform-origin:8.0px 4.8px;transform:rotate(-176.76deg);z-index:2;"></div>
+<div style="position:absolute;left:745.0px;top:297.5px;font-size:9.8px;color:#1e40af;font-weight:400;z-index:6;text-align:left;white-space:nowrap;width:180px;">trames vidéo/audio ↔ réseau</div>
+<div style="position:absolute;left:265px;top:475px;width:10px;height:10px;background:#fff;border:1.2px solid #334155;z-index:2;"></div>
+<div style="position:absolute;left:495px;top:330px;width:10px;height:10px;background:#fff;border:1.2px solid #334155;z-index:2;"></div>
+<div style="position:absolute;left:270.0px;top:480.0px;width:271.9px;height:0;border-top:1.5px solid #1e40af;transform:rotate(-32.23deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:492.0px;top:330.2px;width:0;height:0;border-top:4.8px solid transparent;border-bottom:4.8px solid transparent;border-left:8.0px solid #1e40af;transform-origin:8.0px 4.8px;transform:rotate(-32.23deg);z-index:2;"></div>
+<div style="position:absolute;left:315.0px;top:393.5px;font-size:9.8px;color:#1e40af;font-weight:400;z-index:6;text-align:left;white-space:nowrap;width:180px;">données / confirmation</div>
+<div style="position:absolute;left:925px;top:495px;width:10px;height:10px;background:#fff;border:1.2px solid #334155;z-index:2;"></div>
+<div style="position:absolute;left:695px;top:335px;width:10px;height:10px;background:#fff;border:1.2px solid #334155;z-index:2;"></div>
+<div style="position:absolute;left:930.0px;top:500.0px;width:280.2px;height:0;border-top:1.3px dashed #c2410c;transform:rotate(-145.18deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:925px;top:495px;width:10px;height:10px;background:#fff;border:1.2px solid #334155;z-index:2;"></div>
+<div style="position:absolute;left:265px;top:505px;width:10px;height:10px;background:#fff;border:1.2px solid #334155;z-index:2;"></div>
+<div style="position:absolute;left:930.0px;top:500.0px;width:660.1px;height:0;border-top:1.3px dashed #c2410c;transform:rotate(179.13deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:925px;top:495px;width:10px;height:10px;background:#fff;border:1.2px solid #334155;z-index:2;"></div>
+<div style="position:absolute;left:265px;top:335px;width:10px;height:10px;background:#fff;border:1.2px solid #334155;z-index:2;"></div>
+<div style="position:absolute;left:930.0px;top:500.0px;width:679.1px;height:0;border-top:1.3px dashed #c2410c;transform:rotate(-166.37deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:925px;top:495px;width:10px;height:10px;background:#fff;border:1.2px solid #334155;z-index:2;"></div>
+<div style="position:absolute;left:265px;top:125px;width:10px;height:10px;background:#fff;border:1.2px solid #334155;z-index:2;"></div>
+<div style="position:absolute;left:930.0px;top:500.0px;width:756.6px;height:0;border-top:1.3px dashed #c2410c;transform:rotate(-150.72deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:925px;top:495px;width:10px;height:10px;background:#fff;border:1.2px solid #334155;z-index:2;"></div>
+<div style="position:absolute;left:925px;top:140px;width:10px;height:10px;background:#fff;border:1.2px solid #334155;z-index:2;"></div>
+<div style="position:absolute;left:930.0px;top:500.0px;width:355.0px;height:0;border-top:1.3px dashed #c2410c;transform:rotate(-90.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:925px;top:495px;width:10px;height:10px;background:#fff;border:1.2px solid #334155;z-index:2;"></div>
+<div style="position:absolute;left:925px;top:285px;width:10px;height:10px;background:#fff;border:1.2px solid #334155;z-index:2;"></div>
+<div style="position:absolute;left:930.0px;top:500.0px;width:210.0px;height:0;border-top:1.3px dashed #c2410c;transform:rotate(-90.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:692.0px;top:335.2px;width:0;height:0;border-top:4.8px solid transparent;border-bottom:4.8px solid transparent;border-left:8.0px solid #c2410c;transform-origin:8.0px 4.8px;transform:rotate(-145.18deg);z-index:2;"></div>
+<div style="position:absolute;left:760.0px;top:450.0px;font-size:10px;color:#c2410c;font-weight:400;z-index:6;text-align:left;white-space:nowrap;font-style:italic;">alimentation 5 V (vers tous les modules)</div>
+</div>
+  </div>
+  <details class="explain">
+    <summary>Lecture du diagramme</summary>
+    <div class="content">
+      <ul>
+        <li>Les petits carrés représentent les <b>ports</b> par lesquels les blocs échangent des flux (item flows).</li>
+        <li>Les flèches pleines bleues = <b>flux d'information</b> (image, audio, commandes réseau).</li>
+        <li>Les flèches orange en pointillés = <b>flux d'énergie</b> : le module d'alimentation distribue le 5 V vers l'ensemble des modules, y compris l'Unité de Contrôle.</li>
+        <li>L'Unité de Contrôle est le bloc central : elle orchestre l'acquisition (Optique, Vision Nocturne, Audio) et la communication vers l'extérieur (Communication) ainsi que le stockage.</li>
+      </ul>
+    </div>
+  </details>
+</section>
+
+<section class="card" id="seq">
+  <h2><span class="num">5</span>Diagramme de séquence</h2>
+  <p style="margin:2px 0 8px 0;color:var(--muted);font-size:13.5px;">Scénario : visualisation à distance avec activation automatique de la vision nocturne, échange audio et enregistrement.</p>
+  <div class="diagram-frame">
+<div style="position:relative;width:1200px;height:900px;font-family:'Segoe UI',Arial,sans-serif;">
+<div style="position:absolute;left:30px;top:55px;width:120px;height:34px;background:#f1f5f9;border:1.4px solid #334155;border-radius:4px;z-index:2;box-sizing:border-box;"></div>
+<div style="position:absolute;left:30.0px;top:66.0px;font-size:11.5px;color:#1e293b;font-weight:600;z-index:6;text-align:center;white-space:nowrap;width:120px;text-align:center;">Utilisateur</div>
+<div style="position:absolute;left:90.0px;top:89.0px;width:781.0px;height:0;border-top:1.2px dashed #94a3b8;transform:rotate(90.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:200px;top:55px;width:120px;height:34px;background:#eff6ff;border:1.4px solid #2563eb;border-radius:4px;z-index:2;box-sizing:border-box;"></div>
+<div style="position:absolute;left:200.0px;top:66.0px;font-size:11.5px;color:#1e293b;font-weight:600;z-index:6;text-align:center;white-space:nowrap;width:120px;text-align:center;">:Application</div>
+<div style="position:absolute;left:260.0px;top:89.0px;width:781.0px;height:0;border-top:1.2px dashed #94a3b8;transform:rotate(90.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:370px;top:55px;width:120px;height:34px;background:#eff6ff;border:1.4px solid #2563eb;border-radius:4px;z-index:2;box-sizing:border-box;"></div>
+<div style="position:absolute;left:370.0px;top:66.0px;font-size:11.5px;color:#1e293b;font-weight:600;z-index:6;text-align:center;white-space:nowrap;width:120px;text-align:center;">:Communication</div>
+<div style="position:absolute;left:430.0px;top:89.0px;width:781.0px;height:0;border-top:1.2px dashed #94a3b8;transform:rotate(90.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:540px;top:55px;width:120px;height:34px;background:#fff7ed;border:1.4px solid #ea580c;border-radius:4px;z-index:2;box-sizing:border-box;"></div>
+<div style="position:absolute;left:540.0px;top:66.0px;font-size:11.5px;color:#1e293b;font-weight:600;z-index:6;text-align:center;white-space:nowrap;width:120px;text-align:center;">:Unité de Contrôle</div>
+<div style="position:absolute;left:600.0px;top:89.0px;width:781.0px;height:0;border-top:1.2px dashed #94a3b8;transform:rotate(90.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:710px;top:55px;width:120px;height:34px;background:#f0f9ff;border:1.4px solid #2563eb;border-radius:4px;z-index:2;box-sizing:border-box;"></div>
+<div style="position:absolute;left:710.0px;top:66.0px;font-size:11.5px;color:#1e293b;font-weight:600;z-index:6;text-align:center;white-space:nowrap;width:120px;text-align:center;">:Module Optique</div>
+<div style="position:absolute;left:770.0px;top:89.0px;width:781.0px;height:0;border-top:1.2px dashed #94a3b8;transform:rotate(90.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:880px;top:55px;width:120px;height:34px;background:#f0f9ff;border:1.4px solid #2563eb;border-radius:4px;z-index:2;box-sizing:border-box;"></div>
+<div style="position:absolute;left:880.0px;top:66.0px;font-size:11.5px;color:#1e293b;font-weight:600;z-index:6;text-align:center;white-space:nowrap;width:120px;text-align:center;">:Module Audio</div>
+<div style="position:absolute;left:940.0px;top:89.0px;width:781.0px;height:0;border-top:1.2px dashed #94a3b8;transform:rotate(90.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:1050px;top:55px;width:120px;height:34px;background:#f0fdf4;border:1.4px solid #059669;border-radius:4px;z-index:2;box-sizing:border-box;"></div>
+<div style="position:absolute;left:1050.0px;top:66.0px;font-size:11.5px;color:#1e293b;font-weight:600;z-index:6;text-align:center;white-space:nowrap;width:120px;text-align:center;">:Stockage</div>
+<div style="position:absolute;left:1110.0px;top:89.0px;width:781.0px;height:0;border-top:1.2px dashed #94a3b8;transform:rotate(90.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:255px;top:95px;width:10px;height:770px;background:#dbeafe;border:1.4px solid #2563eb;border-radius:0px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:595px;top:165px;width:10px;height:690px;background:#fed7aa;border:1.4px solid #ea580c;border-radius:0px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:425px;top:130px;width:10px;height:450px;background:#e0e7ff;border:1.4px solid #4338ca;border-radius:0px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:90.0px;top:100.0px;width:170.0px;height:0;border-top:1.3px solid #1e293b;transform:rotate(0.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:252.0px;top:95.2px;width:0;height:0;border-top:4.8px solid transparent;border-bottom:4.8px solid transparent;border-left:8.0px solid #1e293b;transform-origin:8.0px 4.8px;transform:rotate(0.00deg);z-index:2;"></div>
+<div style="position:absolute;left:98.0px;top:84.0px;font-size:10.8px;color:#1e293b;font-weight:400;z-index:6;text-align:left;white-space:nowrap;">1: ouvrirApplication()</div>
+<div style="position:absolute;left:260.0px;top:135.0px;width:170.0px;height:0;border-top:1.3px solid #1e293b;transform:rotate(0.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:422.0px;top:130.2px;width:0;height:0;border-top:4.8px solid transparent;border-bottom:4.8px solid transparent;border-left:8.0px solid #1e293b;transform-origin:8.0px 4.8px;transform:rotate(0.00deg);z-index:2;"></div>
+<div style="position:absolute;left:268.0px;top:119.0px;font-size:10.8px;color:#1e293b;font-weight:400;z-index:6;text-align:left;white-space:nowrap;">2: demanderConnexion()</div>
+<div style="position:absolute;left:430.0px;top:170.0px;width:170.0px;height:0;border-top:1.3px solid #1e293b;transform:rotate(0.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:592.0px;top:165.2px;width:0;height:0;border-top:4.8px solid transparent;border-bottom:4.8px solid transparent;border-left:8.0px solid #1e293b;transform-origin:8.0px 4.8px;transform:rotate(0.00deg);z-index:2;"></div>
+<div style="position:absolute;left:438.0px;top:154.0px;font-size:10.8px;color:#1e293b;font-weight:400;z-index:6;text-align:left;white-space:nowrap;">3: transmettreConnexion()</div>
+<div style="position:absolute;left:600.0px;top:205.0px;width:170.0px;height:0;border-top:1.3px dashed #64748b;transform:rotate(180.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:422.0px;top:200.2px;width:0;height:0;border-top:4.4px solid transparent;border-bottom:4.4px solid transparent;border-left:8.0px solid #64748b;opacity:.85;transform-origin:8.0px 4.4px;transform:rotate(180.00deg);z-index:2;"></div>
+<div style="position:absolute;left:438.0px;top:189.0px;font-size:10.8px;color:#1e293b;font-weight:400;z-index:6;text-align:left;white-space:nowrap;">4: accuséConnexion()</div>
+<div style="position:absolute;left:430.0px;top:240.0px;width:170.0px;height:0;border-top:1.3px dashed #64748b;transform:rotate(180.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:252.0px;top:235.2px;width:0;height:0;border-top:4.4px solid transparent;border-bottom:4.4px solid transparent;border-left:8.0px solid #64748b;opacity:.85;transform-origin:8.0px 4.4px;transform:rotate(180.00deg);z-index:2;"></div>
+<div style="position:absolute;left:268.0px;top:224.0px;font-size:10.8px;color:#1e293b;font-weight:400;z-index:6;text-align:left;white-space:nowrap;">5: connexionOK()</div>
+<div style="position:absolute;left:260.0px;top:270.0px;width:170.0px;height:0;border-top:1.3px dashed #64748b;transform:rotate(180.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:82.0px;top:265.2px;width:0;height:0;border-top:4.4px solid transparent;border-bottom:4.4px solid transparent;border-left:8.0px solid #64748b;opacity:.85;transform-origin:8.0px 4.4px;transform:rotate(180.00deg);z-index:2;"></div>
+<div style="position:absolute;left:98.0px;top:254.0px;font-size:10.8px;color:#1e293b;font-weight:400;z-index:6;text-align:left;white-space:nowrap;">6: afficherStatut("connecté")</div>
+<div style="position:absolute;left:90.0px;top:305.0px;width:170.0px;height:0;border-top:1.3px solid #1e293b;transform:rotate(0.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:252.0px;top:300.2px;width:0;height:0;border-top:4.8px solid transparent;border-bottom:4.8px solid transparent;border-left:8.0px solid #1e293b;transform-origin:8.0px 4.8px;transform:rotate(0.00deg);z-index:2;"></div>
+<div style="position:absolute;left:98.0px;top:289.0px;font-size:10.8px;color:#1e293b;font-weight:400;z-index:6;text-align:left;white-space:nowrap;">7: demanderFluxVidéo()</div>
+<div style="position:absolute;left:260.0px;top:340.0px;width:170.0px;height:0;border-top:1.3px solid #1e293b;transform:rotate(0.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:422.0px;top:335.2px;width:0;height:0;border-top:4.8px solid transparent;border-bottom:4.8px solid transparent;border-left:8.0px solid #1e293b;transform-origin:8.0px 4.8px;transform:rotate(0.00deg);z-index:2;"></div>
+<div style="position:absolute;left:268.0px;top:324.0px;font-size:10.8px;color:#1e293b;font-weight:400;z-index:6;text-align:left;white-space:nowrap;">8: requêteFlux()</div>
+<div style="position:absolute;left:430.0px;top:375.0px;width:170.0px;height:0;border-top:1.3px solid #1e293b;transform:rotate(0.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:592.0px;top:370.2px;width:0;height:0;border-top:4.8px solid transparent;border-bottom:4.8px solid transparent;border-left:8.0px solid #1e293b;transform-origin:8.0px 4.8px;transform:rotate(0.00deg);z-index:2;"></div>
+<div style="position:absolute;left:438.0px;top:359.0px;font-size:10.8px;color:#1e293b;font-weight:400;z-index:6;text-align:left;white-space:nowrap;">9: requêteFlux()</div>
+<div style="position:absolute;left:600.0px;top:405.0px;width:55.0px;height:0;border-top:1.2px solid #1e293b;transform:rotate(0.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:655.0px;top:405.0px;width:20.0px;height:0;border-top:1.2px solid #1e293b;transform:rotate(90.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:655.0px;top:425.0px;width:55.0px;height:0;border-top:1.2px solid #1e293b;transform:rotate(180.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:592.0px;top:420.2px;width:0;height:0;border-top:4.8px solid transparent;border-bottom:4.8px solid transparent;border-left:8.0px solid #1e293b;transform-origin:8.0px 4.8px;transform:rotate(180.00deg);z-index:2;"></div>
+<div style="position:absolute;left:610.0px;top:388.0px;font-size:10.8px;color:#1e293b;font-weight:400;z-index:6;text-align:left;white-space:nowrap;">10: évaluerLuminosité()</div>
+<div style="position:absolute;left:610.0px;top:432.0px;font-size:9.5px;color:#7c2d12;font-weight:400;z-index:6;text-align:left;white-space:nowrap;font-style:italic;">[si faible &#8594; activer LED IR]</div>
+<div style="position:absolute;left:600.0px;top:465.0px;width:170.0px;height:0;border-top:1.3px solid #1e293b;transform:rotate(0.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:762.0px;top:460.2px;width:0;height:0;border-top:4.8px solid transparent;border-bottom:4.8px solid transparent;border-left:8.0px solid #1e293b;transform-origin:8.0px 4.8px;transform:rotate(0.00deg);z-index:2;"></div>
+<div style="position:absolute;left:608.0px;top:449.0px;font-size:10.8px;color:#1e293b;font-weight:400;z-index:6;text-align:left;white-space:nowrap;">11: capturerImage()</div>
+<div style="position:absolute;left:770.0px;top:500.0px;width:170.0px;height:0;border-top:1.3px dashed #64748b;transform:rotate(180.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:592.0px;top:495.2px;width:0;height:0;border-top:4.4px solid transparent;border-bottom:4.4px solid transparent;border-left:8.0px solid #64748b;opacity:.85;transform-origin:8.0px 4.4px;transform:rotate(180.00deg);z-index:2;"></div>
+<div style="position:absolute;left:608.0px;top:484.0px;font-size:10.8px;color:#1e293b;font-weight:400;z-index:6;text-align:left;white-space:nowrap;">12: image()</div>
+<div style="position:absolute;left:600.0px;top:535.0px;width:170.0px;height:0;border-top:1.3px solid #1e293b;transform:rotate(180.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:422.0px;top:530.2px;width:0;height:0;border-top:4.8px solid transparent;border-bottom:4.8px solid transparent;border-left:8.0px solid #1e293b;transform-origin:8.0px 4.8px;transform:rotate(180.00deg);z-index:2;"></div>
+<div style="position:absolute;left:438.0px;top:519.0px;font-size:10.8px;color:#1e293b;font-weight:400;z-index:6;text-align:left;white-space:nowrap;">13: encoderEtEnvoyer(flux)</div>
+<div style="position:absolute;left:430.0px;top:570.0px;width:170.0px;height:0;border-top:1.3px dashed #64748b;transform:rotate(180.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:252.0px;top:565.2px;width:0;height:0;border-top:4.4px solid transparent;border-bottom:4.4px solid transparent;border-left:8.0px solid #64748b;opacity:.85;transform-origin:8.0px 4.4px;transform:rotate(180.00deg);z-index:2;"></div>
+<div style="position:absolute;left:268.0px;top:554.0px;font-size:10.8px;color:#1e293b;font-weight:400;z-index:6;text-align:left;white-space:nowrap;">14: fluxVidéo()</div>
+<div style="position:absolute;left:260.0px;top:600.0px;width:170.0px;height:0;border-top:1.3px dashed #64748b;transform:rotate(180.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:82.0px;top:595.2px;width:0;height:0;border-top:4.4px solid transparent;border-bottom:4.4px solid transparent;border-left:8.0px solid #64748b;opacity:.85;transform-origin:8.0px 4.4px;transform:rotate(180.00deg);z-index:2;"></div>
+<div style="position:absolute;left:98.0px;top:584.0px;font-size:10.8px;color:#1e293b;font-weight:400;z-index:6;text-align:left;white-space:nowrap;">15: afficherImage()</div>
+<div style="position:absolute;left:90.0px;top:630.0px;width:170.0px;height:0;border-top:1.3px solid #1e293b;transform:rotate(0.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:252.0px;top:625.2px;width:0;height:0;border-top:4.8px solid transparent;border-bottom:4.8px solid transparent;border-left:8.0px solid #1e293b;transform-origin:8.0px 4.8px;transform:rotate(0.00deg);z-index:2;"></div>
+<div style="position:absolute;left:98.0px;top:614.0px;font-size:10.8px;color:#1e293b;font-weight:400;z-index:6;text-align:left;white-space:nowrap;">16: parler() [audio]</div>
+<div style="position:absolute;left:260.0px;top:660.0px;width:170.0px;height:0;border-top:1.3px solid #1e293b;transform:rotate(0.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:422.0px;top:655.2px;width:0;height:0;border-top:4.8px solid transparent;border-bottom:4.8px solid transparent;border-left:8.0px solid #1e293b;transform-origin:8.0px 4.8px;transform:rotate(0.00deg);z-index:2;"></div>
+<div style="position:absolute;left:268.0px;top:644.0px;font-size:10.8px;color:#1e293b;font-weight:400;z-index:6;text-align:left;white-space:nowrap;">17: envoyerAudio()</div>
+<div style="position:absolute;left:430.0px;top:690.0px;width:510.0px;height:0;border-top:1.3px solid #1e293b;transform:rotate(0.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:932.0px;top:685.2px;width:0;height:0;border-top:4.8px solid transparent;border-bottom:4.8px solid transparent;border-left:8.0px solid #1e293b;transform-origin:8.0px 4.8px;transform:rotate(0.00deg);z-index:2;"></div>
+<div style="position:absolute;left:438.0px;top:674.0px;font-size:10.8px;color:#1e293b;font-weight:400;z-index:6;text-align:left;white-space:nowrap;">18: restituerSon()</div>
+<div style="position:absolute;left:90.0px;top:725.0px;width:170.0px;height:0;border-top:1.3px solid #1e293b;transform:rotate(0.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:252.0px;top:720.2px;width:0;height:0;border-top:4.8px solid transparent;border-bottom:4.8px solid transparent;border-left:8.0px solid #1e293b;transform-origin:8.0px 4.8px;transform:rotate(0.00deg);z-index:2;"></div>
+<div style="position:absolute;left:98.0px;top:709.0px;font-size:10.8px;color:#1e293b;font-weight:400;z-index:6;text-align:left;white-space:nowrap;">19: démarrerEnregistrement()</div>
+<div style="position:absolute;left:260.0px;top:760.0px;width:340.0px;height:0;border-top:1.3px solid #1e293b;transform:rotate(0.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:592.0px;top:755.2px;width:0;height:0;border-top:4.8px solid transparent;border-bottom:4.8px solid transparent;border-left:8.0px solid #1e293b;transform-origin:8.0px 4.8px;transform:rotate(0.00deg);z-index:2;"></div>
+<div style="position:absolute;left:268.0px;top:744.0px;font-size:10.8px;color:#1e293b;font-weight:400;z-index:6;text-align:left;white-space:nowrap;">20: commandeEnregistrement()</div>
+<div style="position:absolute;left:600.0px;top:800.0px;width:510.0px;height:0;border-top:1.3px solid #1e293b;transform:rotate(0.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:1102.0px;top:795.2px;width:0;height:0;border-top:4.8px solid transparent;border-bottom:4.8px solid transparent;border-left:8.0px solid #1e293b;transform-origin:8.0px 4.8px;transform:rotate(0.00deg);z-index:2;"></div>
+<div style="position:absolute;left:608.0px;top:784.0px;font-size:10.8px;color:#1e293b;font-weight:400;z-index:6;text-align:left;white-space:nowrap;">21: écrireFichier()</div>
+<div style="position:absolute;left:1110.0px;top:835.0px;width:510.0px;height:0;border-top:1.3px dashed #64748b;transform:rotate(180.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:592.0px;top:830.2px;width:0;height:0;border-top:4.4px solid transparent;border-bottom:4.4px solid transparent;border-left:8.0px solid #64748b;opacity:.85;transform-origin:8.0px 4.4px;transform:rotate(180.00deg);z-index:2;"></div>
+<div style="position:absolute;left:608.0px;top:819.0px;font-size:10.8px;color:#1e293b;font-weight:400;z-index:6;text-align:left;white-space:nowrap;">22: confirmationEnregistrement()</div>
+</div>
+  </div>
+  <details class="explain">
+    <summary>Lecture du diagramme</summary>
+    <div class="content">
+      <ul>
+        <li>Flèches pleines = <b>appels synchrones</b> ; flèches pointillées = <b>messages de retour</b>.</li>
+        <li>Le message 10 est un <b>message réflexif</b> : l'Unité de Contrôle évalue elle‑même la luminosité ambiante avant de décider d'activer ou non le module de vision nocturne (correspond au cas d'utilisation « extend » du diagramme n°1).</li>
+        <li>Les bandes colorées sur les lignes de vie représentent les <b>périodes d'activation</b> (traitement en cours) de l'Application, du module Communication et de l'Unité de Contrôle.</li>
+      </ul>
+    </div>
+  </details>
+</section>
+
+</div>
+<footer>Document réalisé à partir des caractéristiques techniques du produit LSC Smart Connect (caméra IP intérieure) — version 100% HTML/CSS.</footer>
+<a href="../index.html" style="position:fixed;bottom:16px;left:16px;z-index:99999;background:#1e3a5f;color:#fff;padding:10px 16px;border-radius:24px;font:600 14px system-ui,sans-serif;text-decoration:none;box-shadow:0 2px 8px rgba(0,0,0,.25)">← Sommaire</a></body>
+</html>

@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Analyse SysML — Détecteur PIR WiFi (GSC Evolution)</title>
+
+<style>
+  :root{
+    --primary:#2563eb; --primary-dark:#1e40af; --primary-light:#eff6ff;
+    --accent:#7c3aed; --accent-light:#f5f3ff; --ink:#1e293b; --muted:#64748b;
+    --bg:#e8f5ea; --card:#ffffff; --border:#dbe2ea; --good:#059669;
+  }
+  *{box-sizing:border-box;}
+  body{font-family:"Segoe UI", Roboto, Arial, sans-serif;background:var(--bg);color:var(--ink);margin:0;padding:0 0 60px 0;line-height:1.5;}
+  header.page{background:linear-gradient(135deg,#14532d,#16a34a,#4ade80);color:white;padding:34px 40px;}
+  header.page h1{margin:0 0 6px 0;font-size:26px;}
+  header.page p{margin:0;opacity:.9;font-size:14.5px;}
+  .wrap{max-width:1220px;margin:0 auto;padding:0 24px;}
+  .badges{margin-top:14px;display:flex;gap:8px;flex-wrap:wrap;}
+  .badge{background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.35);padding:4px 12px;border-radius:20px;font-size:12.5px;}
+  section.card{background:var(--card);border:1px solid var(--border);border-radius:14px;margin:28px 0;padding:26px 28px 20px 28px;box-shadow:0 1px 3px rgba(15,23,42,.05);}
+  section.card h2{margin-top:0;color:var(--primary-dark);font-size:20px;border-bottom:2px solid var(--primary-light);padding-bottom:10px;display:flex;align-items:center;gap:10px;}
+  .num{background:var(--primary);color:white;border-radius:8px;width:30px;height:30px;display:inline-flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;}
+  .diagram-frame{background:#fbfdff;border:1px solid var(--border);border-radius:10px;padding:14px;overflow-x:auto;margin:14px 0;}
+  details.explain{margin-top:10px;border:1px solid var(--border);border-radius:10px;background:var(--primary-light);}
+  details.explain summary{cursor:pointer;padding:10px 16px;font-weight:600;color:var(--primary-dark);list-style:none;}
+  details.explain summary::-webkit-details-marker{display:none;}
+  details.explain summary::before{content:"▸ ";}
+  details.explain[open] summary::before{content:"▾ ";}
+  details.explain .content{padding:0 18px 16px 18px;font-size:14.5px;}
+  details.explain ul{margin:6px 0;padding-left:20px;}
+  table.trace{width:100%;border-collapse:collapse;margin-top:10px;font-size:13.5px;}
+  table.trace th{background:var(--accent-light);color:var(--accent);text-align:left;padding:8px 10px;border:1px solid var(--border);}
+  table.trace td{padding:8px 10px;border:1px solid var(--border);}
+  table.trace tr:nth-child(even){background:#fafbff;}
+  .tag{display:inline-block;padding:1px 8px;border-radius:10px;font-size:11.5px;font-weight:600;}
+  .tag.refine{background:#fef3c7;color:#92400e;}
+  .tag.satisfy{background:#dcfce7;color:#166534;}
+  .tag.include{background:#dbeafe;color:#1e40af;}
+  .tag.extend{background:#fae8ff;color:#86198f;}
+  .toc{display:flex;flex-wrap:wrap;gap:10px;margin:18px 0 0 0;}
+  .toc a{background:var(--primary-light);color:var(--primary-dark);padding:6px 14px;border-radius:20px;font-size:13px;text-decoration:none;font-weight:600;}
+  footer{text-align:center;color:var(--muted);font-size:12.5px;margin-top:30px;}
+  @media print{
+    body{padding:0;}
+    section.card{page-break-before:always;box-shadow:none;border:none;margin:0;padding:18px 4px;}
+    header.page{page-break-after:avoid;}
+    .toc{display:none;}
+    details.explain{border:1px solid #ccc;}
+  }
+</style>
+
+</head>
+<body>
+
+<header class="page">
+  <div class="wrap">
+    <h1>Modélisation SysML — Détecteur de surface PIR avec capteur de mouvement via WiFi</h1>
+    <p>Diagramme des cas d'utilisation · Diagramme d'exigences · Diagramme de blocs (BDD) · Diagramme de blocs internes (IBD) · Diagramme de séquence</p>
+    <p style="margin-top:8px;font-size:12.5px;opacity:.85;">Version 100% HTML/CSS — aucun SVG, aucune image. Marque GSC Evolution, réf. 104315002.</p>
+    <div class="badges">
+      <span class="badge">Angle de détection : 110°</span>
+      <span class="badge">Portée max : 7 m</span>
+      <span class="badge">WiFi 2,4 GHz</span>
+      <span class="badge">Compatible Alexa &amp; Google Home</span>
+      <span class="badge">Pile CR123 3V incluse</span>
+      <span class="badge">Veille : 0,1 W</span>
+    </div>
+    <div class="toc">
+      <a href="#uc" onclick="event.preventDefault();document.getElementById('uc').scrollIntoView({behavior:'smooth'});">① Cas d'utilisation</a>
+      <a href="#req" onclick="event.preventDefault();document.getElementById('req').scrollIntoView({behavior:'smooth'});">② Exigences</a>
+      <a href="#bdd" onclick="event.preventDefault();document.getElementById('bdd').scrollIntoView({behavior:'smooth'});">③ Blocs (BDD)</a>
+      <a href="#ibd" onclick="event.preventDefault();document.getElementById('ibd').scrollIntoView({behavior:'smooth'});">④ Blocs internes (IBD)</a>
+      <a href="#seq" onclick="event.preventDefault();document.getElementById('seq').scrollIntoView({behavior:'smooth'});">⑤ Séquence</a>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+<section class="card" id="uc">
+  <h2><span class="num">1</span>Diagramme des cas d'utilisation</h2>
+  <div class="diagram-frame">
+<div style="position:relative;width:1000px;height:620px;font-family:'Segoe UI',Arial,sans-serif;">
+<div style="position:absolute;left:255px;top:35px;width:490px;height:440px;background:#f8fafc;border:1.4px solid #2563eb;border-radius:6px;z-index:0;box-sizing:border-box;"></div>
+<div style="position:absolute;left:300.0px;top:44.0px;font-size:13px;color:#1e40af;font-weight:700;z-index:6;text-align:left;white-space:nowrap;">«system» Détecteur PIR WiFi</div>
+<div style="position:absolute;left:350.0px;top:68.0px;width:300.0px;height:64.0px;background:#eff6ff;border:1.4px solid #2563eb;border-radius:50%;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:350px;top:68px;width:300px;height:64px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:12px;color:#1e293b;z-index:6;line-height:1.25;">Se connecter<br>au réseau WiFi</div>
+<div style="position:absolute;left:350.0px;top:148.0px;width:300.0px;height:64.0px;background:#eff6ff;border:1.4px solid #2563eb;border-radius:50%;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:350px;top:148px;width:300px;height:64px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:12px;color:#1e293b;z-index:6;line-height:1.25;">Détecter<br>un mouvement</div>
+<div style="position:absolute;left:350.0px;top:228.0px;width:300.0px;height:64.0px;background:#eff6ff;border:1.4px solid #2563eb;border-radius:50%;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:350px;top:228px;width:300px;height:64px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:12px;color:#1e293b;z-index:6;line-height:1.25;">Envoyer une<br>notification</div>
+<div style="position:absolute;left:350.0px;top:308.0px;width:300.0px;height:64.0px;background:#fdf4ff;border:1.4px solid #a855f7;border-radius:50%;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:350px;top:308px;width:300px;height:64px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:12px;color:#1e293b;z-index:6;line-height:1.25;">Intégrer avec un<br>assistant vocal</div>
+<div style="position:absolute;left:350.0px;top:388.0px;width:300.0px;height:64.0px;background:#eff6ff;border:1.4px solid #2563eb;border-radius:50%;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:350px;top:388px;width:300px;height:64px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:12px;color:#1e293b;z-index:6;line-height:1.25;">Régler la<br>luminosité ambiante</div>
+<div style="position:absolute;left:64.0px;top:235.0px;width:22.0px;height:22.0px;background:#fff;border:2px solid #1e293b;border-radius:50%;z-index:3;box-sizing:border-box;"></div><div style="position:absolute;left:75.0px;top:257.0px;width:38.0px;height:0;border-top:2px solid #1e293b;transform:rotate(90.00deg);transform-origin:0 0;z-index:3;"></div><div style="position:absolute;left:59.0px;top:273.0px;width:32.0px;height:0;border-top:2px solid #1e293b;transform:rotate(0.00deg);transform-origin:0 0;z-index:3;"></div><div style="position:absolute;left:75.0px;top:295.0px;width:31.3px;height:0;border-top:2px solid #1e293b;transform:rotate(116.57deg);transform-origin:0 0;z-index:3;"></div><div style="position:absolute;left:75.0px;top:295.0px;width:31.3px;height:0;border-top:2px solid #1e293b;transform:rotate(63.43deg);transform-origin:0 0;z-index:3;"></div><div style="position:absolute;left:5.0px;top:331.0px;font-size:12.5px;color:#1e293b;font-weight:600;z-index:6;text-align:center;white-space:nowrap;width:140px;text-align:center;">Utilisateur</div>
+<div style="position:absolute;left:919.0px;top:80.0px;width:22.0px;height:22.0px;background:#fff;border:2px solid #1e293b;border-radius:50%;z-index:3;box-sizing:border-box;"></div><div style="position:absolute;left:930.0px;top:102.0px;width:38.0px;height:0;border-top:2px solid #1e293b;transform:rotate(90.00deg);transform-origin:0 0;z-index:3;"></div><div style="position:absolute;left:914.0px;top:118.0px;width:32.0px;height:0;border-top:2px solid #1e293b;transform:rotate(0.00deg);transform-origin:0 0;z-index:3;"></div><div style="position:absolute;left:930.0px;top:140.0px;width:31.3px;height:0;border-top:2px solid #1e293b;transform:rotate(116.57deg);transform-origin:0 0;z-index:3;"></div><div style="position:absolute;left:930.0px;top:140.0px;width:31.3px;height:0;border-top:2px solid #1e293b;transform:rotate(63.43deg);transform-origin:0 0;z-index:3;"></div><div style="position:absolute;left:860.0px;top:176.0px;font-size:12.5px;color:#1e293b;font-weight:600;z-index:6;text-align:center;white-space:nowrap;width:140px;text-align:center;">Réseau<br>WiFi</div>
+<div style="position:absolute;left:919.0px;top:290.0px;width:22.0px;height:22.0px;background:#fff;border:2px solid #1e293b;border-radius:50%;z-index:3;box-sizing:border-box;"></div><div style="position:absolute;left:930.0px;top:312.0px;width:38.0px;height:0;border-top:2px solid #1e293b;transform:rotate(90.00deg);transform-origin:0 0;z-index:3;"></div><div style="position:absolute;left:914.0px;top:328.0px;width:32.0px;height:0;border-top:2px solid #1e293b;transform:rotate(0.00deg);transform-origin:0 0;z-index:3;"></div><div style="position:absolute;left:930.0px;top:350.0px;width:31.3px;height:0;border-top:2px solid #1e293b;transform:rotate(116.57deg);transform-origin:0 0;z-index:3;"></div><div style="position:absolute;left:930.0px;top:350.0px;width:31.3px;height:0;border-top:2px solid #1e293b;transform:rotate(63.43deg);transform-origin:0 0;z-index:3;"></div><div style="position:absolute;left:860.0px;top:386.0px;font-size:12.5px;color:#1e293b;font-weight:600;z-index:6;text-align:center;white-space:nowrap;width:140px;text-align:center;">Smartphone /<br>Application</div>
+<div style="position:absolute;left:919.0px;top:440.0px;width:22.0px;height:22.0px;background:#fff;border:2px solid #1e293b;border-radius:50%;z-index:3;box-sizing:border-box;"></div><div style="position:absolute;left:930.0px;top:462.0px;width:38.0px;height:0;border-top:2px solid #1e293b;transform:rotate(90.00deg);transform-origin:0 0;z-index:3;"></div><div style="position:absolute;left:914.0px;top:478.0px;width:32.0px;height:0;border-top:2px solid #1e293b;transform:rotate(0.00deg);transform-origin:0 0;z-index:3;"></div><div style="position:absolute;left:930.0px;top:500.0px;width:31.3px;height:0;border-top:2px solid #1e293b;transform:rotate(116.57deg);transform-origin:0 0;z-index:3;"></div><div style="position:absolute;left:930.0px;top:500.0px;width:31.3px;height:0;border-top:2px solid #1e293b;transform:rotate(63.43deg);transform-origin:0 0;z-index:3;"></div><div style="position:absolute;left:860.0px;top:536.0px;font-size:12.5px;color:#1e293b;font-weight:600;z-index:6;text-align:center;white-space:nowrap;width:140px;text-align:center;">Assistant vocal<br>(Alexa / Google Home)</div>
+<div style="position:absolute;left:64.0px;top:470.0px;width:22.0px;height:22.0px;background:#fff;border:2px solid #1e293b;border-radius:50%;z-index:3;box-sizing:border-box;"></div><div style="position:absolute;left:75.0px;top:492.0px;width:38.0px;height:0;border-top:2px solid #1e293b;transform:rotate(90.00deg);transform-origin:0 0;z-index:3;"></div><div style="position:absolute;left:59.0px;top:508.0px;width:32.0px;height:0;border-top:2px solid #1e293b;transform:rotate(0.00deg);transform-origin:0 0;z-index:3;"></div><div style="position:absolute;left:75.0px;top:530.0px;width:31.3px;height:0;border-top:2px solid #1e293b;transform:rotate(116.57deg);transform-origin:0 0;z-index:3;"></div><div style="position:absolute;left:75.0px;top:530.0px;width:31.3px;height:0;border-top:2px solid #1e293b;transform:rotate(63.43deg);transform-origin:0 0;z-index:3;"></div><div style="position:absolute;left:5.0px;top:566.0px;font-size:12.5px;color:#1e293b;font-weight:600;z-index:6;text-align:center;white-space:nowrap;width:140px;text-align:center;">Pile CR123<br>3V</div>
+<div style="position:absolute;left:120.0px;top:260.0px;width:280.2px;height:0;border-top:1.2px solid #475569;transform:rotate(-34.82deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:120.0px;top:260.0px;width:280.2px;height:0;border-top:1.2px solid #475569;transform:rotate(34.82deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:895.0px;top:90.0px;width:245.2px;height:0;border-top:1.2px solid #475569;transform:rotate(177.66deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:895.0px;top:300.0px;width:248.2px;height:0;border-top:1.2px solid #475569;transform:rotate(-170.73deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:895.0px;top:430.0px;width:261.0px;height:0;border-top:1.2px solid #475569;transform:rotate(-159.83deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:500.0px;top:228.0px;width:16.0px;height:0;border-top:1.3px dashed #1e40af;transform:rotate(-90.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:492.0px;top:207.2px;width:0;height:0;border-top:4.8px solid transparent;border-bottom:4.8px solid transparent;border-left:8.0px solid #1e40af;transform-origin:8.0px 4.8px;transform:rotate(-90.00deg);z-index:2;"></div>
+<div style="position:absolute;left:510.0px;top:214.0px;font-size:11px;color:#1e40af;font-weight:400;z-index:6;text-align:left;white-space:nowrap;font-style:italic;">«include»</div>
+<div style="position:absolute;left:650.0px;top:260.0px;width:55.0px;height:0;border-top:1.3px dashed #1e40af;transform:rotate(0.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:705.0px;top:260.0px;width:160.0px;height:0;border-top:1.3px dashed #1e40af;transform:rotate(-90.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:705.0px;top:100.0px;width:55.0px;height:0;border-top:1.3px dashed #1e40af;transform:rotate(180.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:642.0px;top:95.2px;width:0;height:0;border-top:4.8px solid transparent;border-bottom:4.8px solid transparent;border-left:8.0px solid #1e40af;transform-origin:8.0px 4.8px;transform:rotate(180.00deg);z-index:2;"></div>
+<div style="position:absolute;left:713.0px;top:174.0px;font-size:11px;color:#1e40af;font-weight:400;z-index:6;text-align:left;white-space:nowrap;font-style:italic;">«include»</div>
+<div style="position:absolute;left:650.0px;top:340.0px;width:85.0px;height:0;border-top:1.3px dashed #a855f7;transform:rotate(0.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:735.0px;top:340.0px;width:80.0px;height:0;border-top:1.3px dashed #a855f7;transform:rotate(-90.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:735.0px;top:260.0px;width:85.6px;height:0;border-top:1.3px dashed #a855f7;transform:rotate(-173.29deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:642.0px;top:245.2px;width:0;height:0;border-top:4.8px solid transparent;border-bottom:4.8px solid transparent;border-left:8.0px solid #7e22ce;transform-origin:8.0px 4.8px;transform:rotate(-173.29deg);z-index:2;"></div>
+<div style="position:absolute;left:743.0px;top:284.0px;font-size:11px;color:#7e22ce;font-weight:400;z-index:6;text-align:left;white-space:nowrap;font-style:italic;">«extend»</div>
+<div style="position:absolute;left:743.0px;top:300.0px;font-size:9.5px;color:#7e22ce;font-weight:400;z-index:6;text-align:left;white-space:nowrap;font-style:italic;">(pt d'extension :</div>
+<div style="position:absolute;left:743.0px;top:312.0px;font-size:9.5px;color:#7e22ce;font-weight:400;z-index:6;text-align:left;white-space:nowrap;font-style:italic;">domotique activée)</div>
+</div>
+  </div>
+  <details class="explain">
+    <summary>Lecture du diagramme</summary>
+    <div class="content">
+      <ul>
+        <li><b>Acteur humain</b> (Utilisateur) à gauche : il configure le détecteur, reçoit les notifications et remplace la pile.</li>
+        <li><b>Acteurs de l'environnement</b> à droite/en bas : le Réseau WiFi, le Smartphone/Application, l'Assistant vocal (Alexa/Google Home) et la Pile CR123 3V fournie.</li>
+        <li><span class="tag include">include</span> « Envoyer une notification » inclut « Détecter un mouvement » (rien à notifier sans détection) et inclut « Se connecter au réseau WiFi » (la notification suppose une connexion active).</li>
+        <li><span class="tag extend">extend</span> « Intégrer avec un assistant vocal » étend « Envoyer une notification », avec pour point d'extension l'activation de la domotique (Alexa/Google Home).</li>
+      </ul>
+    </div>
+  </details>
+</section>
+
+<section class="card" id="req">
+  <h2><span class="num">2</span>Diagramme d'exigences</h2>
+  <div class="diagram-frame">
+<div style="position:relative;width:1260px;height:500px;font-family:'Segoe UI',Arial,sans-serif;">
+<div style="position:absolute;left:500px;top:15px;width:260px;height:78px;background:#eff6ff;border:1.4px solid #2563eb;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:500.0px;top:21.0px;font-size:9.5px;color:#1e40af;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:260px;text-align:center;font-style:italic;">«requirement»</div>
+<div style="position:absolute;left:500.0px;top:35.0px;font-size:11px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:260px;text-align:center;">REQ-1 : Détecter une présence</div>
+<div style="position:absolute;left:500.0px;top:49.0px;font-size:11px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:260px;text-align:center;">et alerter à distance</div>
+<div style="position:absolute;left:500.0px;top:77.0px;font-size:9px;color:#475569;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:260px;text-align:center;">id = REQ-1</div>
+<div style="position:absolute;left:185px;top:150px;width:240px;height:58px;background:#eff6ff;border:1.4px solid #2563eb;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:185.0px;top:156.0px;font-size:9.5px;color:#1e40af;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:240px;text-align:center;font-style:italic;">«requirement»</div>
+<div style="position:absolute;left:185.0px;top:170.0px;font-size:11px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:240px;text-align:center;">Exigences fonctionnelles</div>
+<div style="position:absolute;left:185.0px;top:192.0px;font-size:9px;color:#475569;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:240px;text-align:center;">id = REQ-2</div>
+<div style="position:absolute;left:835px;top:150px;width:240px;height:58px;background:#f5f3ff;border:1.4px solid #7c3aed;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:835.0px;top:156.0px;font-size:9.5px;color:#6d28d9;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:240px;text-align:center;font-style:italic;">«requirement»</div>
+<div style="position:absolute;left:835.0px;top:170.0px;font-size:11px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:240px;text-align:center;">Exigences non fonctionnelles</div>
+<div style="position:absolute;left:835.0px;top:192.0px;font-size:9px;color:#475569;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:240px;text-align:center;">id = REQ-3</div>
+<div style="position:absolute;left:630.0px;top:93.0px;width:330.0px;height:0;border-top:1.2px solid #475569;transform:rotate(170.05deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:630.0px;top:93.0px;width:330.0px;height:0;border-top:1.2px solid #475569;transform:rotate(9.95deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:626.0px;top:89.0px;width:8.0px;height:8.0px;background:#fff;border:1.3px solid #475569;border-radius:50%;z-index:2;box-sizing:border-box;"></div>
+<div style="position:absolute;left:15px;top:285px;width:185px;height:72px;background:#eff6ff;border:1.4px solid #2563eb;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:15.0px;top:291.0px;font-size:9.5px;color:#1e40af;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:185px;text-align:center;font-style:italic;">«requirement»</div>
+<div style="position:absolute;left:15.0px;top:305.0px;font-size:11px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:185px;text-align:center;">Détection de<br>mouvement PIR</div>
+<div style="position:absolute;left:15.0px;top:341.0px;font-size:9px;color:#475569;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:185px;text-align:center;">angle 110° / portée 7 m / REQ-1.1</div>
+<div style="position:absolute;left:215px;top:285px;width:185px;height:72px;background:#eff6ff;border:1.4px solid #2563eb;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:215.0px;top:291.0px;font-size:9.5px;color:#1e40af;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:185px;text-align:center;font-style:italic;">«requirement»</div>
+<div style="position:absolute;left:215.0px;top:305.0px;font-size:11px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:185px;text-align:center;">Connectivité<br>WiFi</div>
+<div style="position:absolute;left:215.0px;top:341.0px;font-size:9px;color:#475569;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:185px;text-align:center;">2,4 GHz / REQ-1.2</div>
+<div style="position:absolute;left:415px;top:285px;width:185px;height:72px;background:#eff6ff;border:1.4px solid #2563eb;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:415.0px;top:291.0px;font-size:9.5px;color:#1e40af;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:185px;text-align:center;font-style:italic;">«requirement»</div>
+<div style="position:absolute;left:415.0px;top:305.0px;font-size:11px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:185px;text-align:center;">Notification<br>smartphone</div>
+<div style="position:absolute;left:415.0px;top:341.0px;font-size:9px;color:#475569;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:185px;text-align:center;">application mobile / REQ-1.3</div>
+<div style="position:absolute;left:15px;top:400px;width:185px;height:72px;background:#eff6ff;border:1.4px solid #2563eb;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:15.0px;top:406.0px;font-size:9.5px;color:#1e40af;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:185px;text-align:center;font-style:italic;">«requirement»</div>
+<div style="position:absolute;left:15.0px;top:420.0px;font-size:11px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:185px;text-align:center;">Intégration<br>domotique</div>
+<div style="position:absolute;left:15.0px;top:456.0px;font-size:9px;color:#475569;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:185px;text-align:center;">Alexa / Google Home / REQ-1.4</div>
+<div style="position:absolute;left:215px;top:400px;width:185px;height:72px;background:#eff6ff;border:1.4px solid #2563eb;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:215.0px;top:406.0px;font-size:9.5px;color:#1e40af;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:185px;text-align:center;font-style:italic;">«requirement»</div>
+<div style="position:absolute;left:215.0px;top:420.0px;font-size:11px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:185px;text-align:center;">Réglage<br>luminosité ambiante</div>
+<div style="position:absolute;left:215.0px;top:456.0px;font-size:9px;color:#475569;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:185px;text-align:center;">&lt;3 à 2000 lux / REQ-1.5</div>
+<div style="position:absolute;left:650px;top:335px;width:175px;height:66px;background:#f5f3ff;border:1.4px solid #7c3aed;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:650.0px;top:341.0px;font-size:9.5px;color:#6d28d9;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:175px;text-align:center;font-style:italic;">«requirement»</div>
+<div style="position:absolute;left:650.0px;top:355.0px;font-size:11px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:175px;text-align:center;">Alimentation<br>par pile</div>
+<div style="position:absolute;left:650.0px;top:385.0px;font-size:9px;color:#475569;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:175px;text-align:center;">CR123 3V remplaçable / REQ-1.6</div>
+<div style="position:absolute;left:835px;top:335px;width:175px;height:66px;background:#f5f3ff;border:1.4px solid #7c3aed;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:835.0px;top:341.0px;font-size:9.5px;color:#6d28d9;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:175px;text-align:center;font-style:italic;">«requirement»</div>
+<div style="position:absolute;left:835.0px;top:355.0px;font-size:11px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:175px;text-align:center;">Faible<br>consommation</div>
+<div style="position:absolute;left:835.0px;top:385.0px;font-size:9px;color:#475569;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:175px;text-align:center;">0,1 W en veille / REQ-1.7</div>
+<div style="position:absolute;left:1020px;top:335px;width:175px;height:66px;background:#f5f3ff;border:1.4px solid #7c3aed;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:1020.0px;top:341.0px;font-size:9.5px;color:#6d28d9;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:175px;text-align:center;font-style:italic;">«requirement»</div>
+<div style="position:absolute;left:1020.0px;top:355.0px;font-size:11px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:175px;text-align:center;">Résistance<br>thermique</div>
+<div style="position:absolute;left:1020.0px;top:385.0px;font-size:9px;color:#475569;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:175px;text-align:center;">-20°C à 60°C / REQ-1.8</div>
+<div style="position:absolute;left:835px;top:415px;width:175px;height:66px;background:#f5f3ff;border:1.4px solid #7c3aed;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:835.0px;top:421.0px;font-size:9.5px;color:#6d28d9;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:175px;text-align:center;font-style:italic;">«requirement»</div>
+<div style="position:absolute;left:835.0px;top:435.0px;font-size:11px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:175px;text-align:center;">Installation<br>flexible</div>
+<div style="position:absolute;left:835.0px;top:465.0px;font-size:9px;color:#475569;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:175px;text-align:center;">adhésif/vis, orientable / REQ-1.9</div>
+<div style="position:absolute;left:305.0px;top:208.0px;width:212.0px;height:0;border-top:1.0px solid #475569;transform:rotate(158.70deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:305.0px;top:208.0px;width:77.0px;height:0;border-top:1.0px solid #475569;transform:rotate(88.14deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:305.0px;top:208.0px;width:216.6px;height:0;border-top:1.0px solid #475569;transform:rotate(20.82deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:305.0px;top:208.0px;width:275.4px;height:0;border-top:1.0px solid #475569;transform:rotate(135.81deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:305.0px;top:208.0px;width:192.0px;height:0;border-top:1.0px solid #475569;transform:rotate(89.25deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:301.0px;top:204.0px;width:8.0px;height:8.0px;background:#fff;border:1.3px solid #475569;border-radius:50%;z-index:2;box-sizing:border-box;"></div>
+<div style="position:absolute;left:955.0px;top:208.0px;width:251.9px;height:0;border-top:1.0px solid #475569;transform:rotate(149.72deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:955.0px;top:208.0px;width:131.1px;height:0;border-top:1.0px solid #475569;transform:rotate(104.35deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:955.0px;top:208.0px;width:198.5px;height:0;border-top:1.0px solid #475569;transform:rotate(39.79deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:955.0px;top:208.0px;width:209.5px;height:0;border-top:1.0px solid #475569;transform:rotate(98.92deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:951.0px;top:204.0px;width:8.0px;height:8.0px;background:#fff;border:1.3px solid #475569;border-radius:50%;z-index:2;box-sizing:border-box;"></div>
+<div style="position:absolute;left:15px;top:15px;width:170px;height:32px;background:#fefce8;border:1.4px solid #ca8a04;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:15.0px;top:26.0px;font-size:10.2px;color:#1e293b;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:170px;text-align:center;">UC2 Détecter un mouvement</div>
+<div style="position:absolute;left:100.0px;top:47.0px;width:238.1px;height:0;border-top:1.2px dashed #ca8a04;transform:rotate(88.20deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:99.5px;top:280.2px;width:0;height:0;border-top:4.8px solid transparent;border-bottom:4.8px solid transparent;border-left:8.0px solid #ca8a04;transform-origin:8.0px 4.8px;transform:rotate(88.20deg);z-index:2;"></div>
+<div style="position:absolute;left:30.0px;top:155.0px;font-size:10.5px;color:#92400e;font-weight:400;z-index:6;text-align:left;white-space:nowrap;font-style:italic;">«refine»</div>
+<div style="position:absolute;left:1085px;top:15px;width:160px;height:32px;background:#ecfdf5;border:1.4px solid #059669;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:1085.0px;top:26.0px;font-size:9.5px;color:#1e293b;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:160px;text-align:center;">Bloc Module d'Alimentation</div>
+<div style="position:absolute;left:1165.0px;top:47.0px;width:515.5px;height:0;border-top:1.2px dashed #059669;transform:rotate(146.03deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:729.5px;top:330.2px;width:0;height:0;border-top:4.8px solid transparent;border-bottom:4.8px solid transparent;border-left:8.0px solid #059669;transform-origin:8.0px 4.8px;transform:rotate(146.03deg);z-index:2;"></div>
+<div style="position:absolute;left:990.0px;top:150.0px;font-size:10.5px;color:#166534;font-weight:400;z-index:6;text-align:left;white-space:nowrap;font-style:italic;">«satisfy»</div>
+</div>
+  </div>
+  <details class="explain">
+    <summary>Lecture du diagramme + matrice de traçabilité complète</summary>
+    <div class="content">
+      <ul>
+        <li>Trait plein + petit cercle = relation de <b>containment</b> (décomposition de l'exigence parente).</li>
+        <li><span class="tag refine">refine</span> un cas d'utilisation précise une exigence fonctionnelle.</li>
+        <li><span class="tag satisfy">satisfy</span> un bloc matériel apporte la preuve qu'une exigence est techniquement satisfaite.</li>
+      </ul>
+      <table class="trace">
+        <tr><th>Élément source</th><th>Relation</th><th>Exigence cible</th></tr>
+        <tr><td>UC2 — Détecter un mouvement</td><td><span class="tag refine">refine</span></td><td>REQ‑1.1 Détection PIR (110°, 7 m)</td></tr>
+        <tr><td>UC1 — Se connecter au réseau WiFi</td><td><span class="tag refine">refine</span></td><td>REQ‑1.2 Connectivité WiFi</td></tr>
+        <tr><td>UC3 — Envoyer une notification</td><td><span class="tag refine">refine</span></td><td>REQ‑1.3 Notification smartphone</td></tr>
+        <tr><td>UC4 — Intégrer avec un assistant vocal</td><td><span class="tag refine">refine</span></td><td>REQ‑1.4 Intégration domotique</td></tr>
+        <tr><td>UC5 — Régler la luminosité ambiante</td><td><span class="tag refine">refine</span></td><td>REQ‑1.5 Réglage luminosité</td></tr>
+        <tr><td>Bloc Module d'Alimentation</td><td><span class="tag satisfy">satisfy</span></td><td>REQ‑1.6 / REQ‑1.7 Alimentation &amp; faible conso.</td></tr>
+        <tr><td>Bloc Boîtier</td><td><span class="tag satisfy">satisfy</span></td><td>REQ‑1.8 Résistance thermique</td></tr>
+        <tr><td>Bloc Support Orientable</td><td><span class="tag satisfy">satisfy</span></td><td>REQ‑1.9 Installation flexible</td></tr>
+      </table>
+    </div>
+  </details>
+</section>
+
+<section class="card" id="bdd">
+  <h2><span class="num">3</span>Diagramme de définition de blocs (BDD)</h2>
+  <div class="diagram-frame">
+<div style="position:relative;width:1230px;height:400px;font-family:'Segoe UI',Arial,sans-serif;">
+<div style="position:absolute;left:455px;top:10px;width:270px;height:80px;background:#dbeafe;border:1.4px solid #1e40af;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:455.0px;top:17.0px;font-size:8.5px;color:#1e40af;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:270px;text-align:center;font-style:italic;white-space:normal;">«block»</div>
+<div style="position:absolute;left:455.0px;top:28.0px;font-size:10px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:270px;text-align:center;white-space:normal;line-height:1.25;padding:0 3px;box-sizing:border-box;">Détecteur PIR WiFi</div>
+<div style="position:absolute;left:455.0px;top:44.0px;width:270.0px;height:0;border-top:1px solid #1e40af;transform:rotate(0.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:462.0px;top:52.0px;font-size:8.5px;color:#334155;font-weight:400;z-index:6;text-align:left;white-space:nowrap;width:256px;white-space:normal;line-height:1.25;">angle 110° / portée 7 m</div>
+<div style="position:absolute;left:462.0px;top:68.0px;font-size:8.5px;color:#334155;font-weight:400;z-index:6;text-align:left;white-space:nowrap;width:256px;white-space:normal;line-height:1.25;">WiFi 2,4 GHz</div>
+<div style="position:absolute;left:462.0px;top:84.0px;font-size:8.5px;color:#334155;font-weight:400;z-index:6;text-align:left;white-space:nowrap;width:256px;white-space:normal;line-height:1.25;">IP50, Ø50 mm</div>
+<div style="position:absolute;left:15px;top:190px;width:160px;height:175px;background:#fdf4ff;border:1.4px solid #a855f7;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:15.0px;top:197.0px;font-size:8.5px;color:#7e22ce;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:160px;text-align:center;font-style:italic;white-space:normal;">«block»</div>
+<div style="position:absolute;left:15.0px;top:208.0px;font-size:10px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:160px;text-align:center;white-space:normal;line-height:1.25;padding:0 3px;box-sizing:border-box;">Module<br>PIR</div>
+<div style="position:absolute;left:15.0px;top:240.0px;width:160.0px;height:0;border-top:1px solid #a855f7;transform:rotate(0.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:22.0px;top:248.0px;font-size:8.5px;color:#334155;font-weight:400;z-index:6;text-align:left;white-space:nowrap;width:146px;white-space:normal;line-height:1.25;">capteur infrarouge</div>
+<div style="position:absolute;left:22.0px;top:264.0px;font-size:8.5px;color:#334155;font-weight:400;z-index:6;text-align:left;white-space:nowrap;width:146px;white-space:normal;line-height:1.25;">angle 110°</div>
+<div style="position:absolute;left:22.0px;top:280.0px;font-size:8.5px;color:#334155;font-weight:400;z-index:6;text-align:left;white-space:nowrap;width:146px;white-space:normal;line-height:1.25;">portée 7 m</div>
+<div style="position:absolute;left:185px;top:190px;width:160px;height:175px;background:#eff6ff;border:1.4px solid #2563eb;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:185.0px;top:197.0px;font-size:8.5px;color:#1e40af;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:160px;text-align:center;font-style:italic;white-space:normal;">«block»</div>
+<div style="position:absolute;left:185.0px;top:208.0px;font-size:10px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:160px;text-align:center;white-space:normal;line-height:1.25;padding:0 3px;box-sizing:border-box;">Module<br>WiFi</div>
+<div style="position:absolute;left:185.0px;top:240.0px;width:160.0px;height:0;border-top:1px solid #2563eb;transform:rotate(0.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:192.0px;top:248.0px;font-size:8.5px;color:#334155;font-weight:400;z-index:6;text-align:left;white-space:nowrap;width:146px;white-space:normal;line-height:1.25;">connectivité 2,4 GHz</div>
+<div style="position:absolute;left:192.0px;top:264.0px;font-size:8.5px;color:#334155;font-weight:400;z-index:6;text-align:left;white-space:nowrap;width:146px;white-space:normal;line-height:1.25;">compatible Alexa/Google Home</div>
+<div style="position:absolute;left:355px;top:190px;width:160px;height:175px;background:#eff6ff;border:1.4px solid #2563eb;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:355.0px;top:197.0px;font-size:8.5px;color:#1e40af;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:160px;text-align:center;font-style:italic;white-space:normal;">«block»</div>
+<div style="position:absolute;left:355.0px;top:208.0px;font-size:10px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:160px;text-align:center;white-space:normal;line-height:1.25;padding:0 3px;box-sizing:border-box;">Capteur de<br>Luminosité</div>
+<div style="position:absolute;left:355.0px;top:240.0px;width:160.0px;height:0;border-top:1px solid #2563eb;transform:rotate(0.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:362.0px;top:248.0px;font-size:8.5px;color:#334155;font-weight:400;z-index:6;text-align:left;white-space:nowrap;width:146px;white-space:normal;line-height:1.25;">plage &lt;3–2000 lux</div>
+<div style="position:absolute;left:362.0px;top:264.0px;font-size:8.5px;color:#334155;font-weight:400;z-index:6;text-align:left;white-space:nowrap;width:146px;white-space:normal;line-height:1.25;">réglable</div>
+<div style="position:absolute;left:525px;top:190px;width:160px;height:175px;background:#fff7ed;border:1.4px solid #ea580c;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:525.0px;top:197.0px;font-size:8.5px;color:#c2410c;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:160px;text-align:center;font-style:italic;white-space:normal;">«block»</div>
+<div style="position:absolute;left:525.0px;top:208.0px;font-size:10px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:160px;text-align:center;white-space:normal;line-height:1.25;padding:0 3px;box-sizing:border-box;">Unité de<br>Contrôle</div>
+<div style="position:absolute;left:525.0px;top:240.0px;width:160.0px;height:0;border-top:1px solid #ea580c;transform:rotate(0.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:532.0px;top:248.0px;font-size:8.5px;color:#334155;font-weight:400;z-index:6;text-align:left;white-space:nowrap;width:146px;white-space:normal;line-height:1.25;">microcontrôleur</div>
+<div style="position:absolute;left:532.0px;top:264.0px;font-size:8.5px;color:#334155;font-weight:400;z-index:6;text-align:left;white-space:nowrap;width:146px;white-space:normal;line-height:1.25;">gestion détection/notif.</div>
+<div style="position:absolute;left:532.0px;top:280.0px;font-size:8.5px;color:#334155;font-weight:400;z-index:6;text-align:left;white-space:nowrap;width:146px;white-space:normal;line-height:1.25;">temps de détection 5 s</div>
+<div style="position:absolute;left:695px;top:190px;width:160px;height:175px;background:#f0fdf4;border:1.4px solid #059669;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:695.0px;top:197.0px;font-size:8.5px;color:#065f46;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:160px;text-align:center;font-style:italic;white-space:normal;">«block»</div>
+<div style="position:absolute;left:695.0px;top:208.0px;font-size:10px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:160px;text-align:center;white-space:normal;line-height:1.25;padding:0 3px;box-sizing:border-box;">Module<br>d'Alimentation</div>
+<div style="position:absolute;left:695.0px;top:240.0px;width:160.0px;height:0;border-top:1px solid #059669;transform:rotate(0.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:702.0px;top:248.0px;font-size:8.5px;color:#334155;font-weight:400;z-index:6;text-align:left;white-space:nowrap;width:146px;white-space:normal;line-height:1.25;">pile CR123 3V incluse</div>
+<div style="position:absolute;left:702.0px;top:264.0px;font-size:8.5px;color:#334155;font-weight:400;z-index:6;text-align:left;white-space:nowrap;width:146px;white-space:normal;line-height:1.25;">conso. veille 0,1 W</div>
+<div style="position:absolute;left:865px;top:190px;width:160px;height:175px;background:#f8fafc;border:1.4px solid #64748b;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:865.0px;top:197.0px;font-size:8.5px;color:#334155;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:160px;text-align:center;font-style:italic;white-space:normal;">«block»</div>
+<div style="position:absolute;left:865.0px;top:208.0px;font-size:10px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:160px;text-align:center;white-space:normal;line-height:1.25;padding:0 3px;box-sizing:border-box;">Boîtier</div>
+<div style="position:absolute;left:865.0px;top:224.0px;width:160.0px;height:0;border-top:1px solid #64748b;transform:rotate(0.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:872.0px;top:232.0px;font-size:8.5px;color:#334155;font-weight:400;z-index:6;text-align:left;white-space:nowrap;width:146px;white-space:normal;line-height:1.25;">matériau PC, blanc</div>
+<div style="position:absolute;left:872.0px;top:248.0px;font-size:8.5px;color:#334155;font-weight:400;z-index:6;text-align:left;white-space:nowrap;width:146px;white-space:normal;line-height:1.25;">IP50, Ø50 mm, 80 g</div>
+<div style="position:absolute;left:1035px;top:190px;width:150px;height:175px;background:#eff6ff;border:1.4px solid #2563eb;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:1035.0px;top:197.0px;font-size:8.5px;color:#1e40af;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:150px;text-align:center;font-style:italic;white-space:normal;">«block»</div>
+<div style="position:absolute;left:1035.0px;top:208.0px;font-size:10px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:150px;text-align:center;white-space:normal;line-height:1.25;padding:0 3px;box-sizing:border-box;">Support<br>Orientable</div>
+<div style="position:absolute;left:1035.0px;top:240.0px;width:150.0px;height:0;border-top:1px solid #2563eb;transform:rotate(0.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:1042.0px;top:248.0px;font-size:8.5px;color:#334155;font-weight:400;z-index:6;text-align:left;white-space:nowrap;width:136px;white-space:normal;line-height:1.25;">fixation adhésif/vis</div>
+<div style="position:absolute;left:1042.0px;top:264.0px;font-size:8.5px;color:#334155;font-weight:400;z-index:6;text-align:left;white-space:nowrap;width:136px;white-space:normal;line-height:1.25;">hauteur max 2,5 m</div>
+<div style="position:absolute;left:590.0px;top:90.0px;width:505.0px;height:0;border-top:1.1px solid #334155;transform:rotate(168.58deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:590.0px;top:90.0px;width:340.0px;height:0;border-top:1.1px solid #334155;transform:rotate(162.90deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:590.0px;top:90.0px;width:184.5px;height:0;border-top:1.1px solid #334155;transform:rotate(147.17deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:590.0px;top:90.0px;width:101.1px;height:0;border-top:1.1px solid #334155;transform:rotate(81.47deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:590.0px;top:90.0px;width:210.3px;height:0;border-top:1.1px solid #334155;transform:rotate(28.39deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:590.0px;top:90.0px;width:368.8px;height:0;border-top:1.1px solid #334155;transform:rotate(15.73deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:590.0px;top:90.0px;width:529.5px;height:0;border-top:1.1px solid #334155;transform:rotate(10.89deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:584.0px;top:85.8px;width:12px;height:8.4px;background:#334155;transform:rotate(45deg);z-index:2;"></div>
+</div>
+  </div>
+  <details class="explain">
+    <summary>Lecture du diagramme</summary>
+    <div class="content">
+      <p>Le losange plein indique une relation de <b>composition</b> : le « Détecteur PIR WiFi » est constitué de 7 blocs. Le Module PIR assure la détection, le Capteur de Luminosité ajuste la sensibilité selon l'éclairage ambiant, et le Module WiFi relie l'Unité de Contrôle au smartphone et aux assistants vocaux.</p>
+    </div>
+  </details>
+</section>
+
+<section class="card" id="ibd">
+  <h2><span class="num">4</span>Diagramme de blocs internes (IBD)</h2>
+  <div class="diagram-frame">
+<div style="position:relative;width:1200px;height:580px;font-family:'Segoe UI',Arial,sans-serif;">
+<div style="position:absolute;left:20px;top:20px;width:1160px;height:540px;border:1.4px dashed #334155;border-radius:6px;background:#fbfdff;z-index:0;"></div>
+<div style="position:absolute;left:35.0px;top:28.0px;font-size:12px;color:#334155;font-weight:400;z-index:6;text-align:left;white-space:nowrap;font-style:italic;">«ibd» Détecteur PIR WiFi : Bloc</div>
+<div style="position:absolute;left:500px;top:240px;width:200px;height:100px;background:#fff7ed;border:1.4px solid #ea580c;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:500.0px;top:282.0px;font-size:12px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:200px;text-align:center;">Unité de Contrôle</div>
+<div style="position:absolute;left:500.0px;top:298.0px;font-size:9.5px;color:#7c2d12;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:200px;text-align:center;">: microcontrôleur</div>
+<div style="position:absolute;left:70px;top:60px;width:200px;height:90px;background:#fdf4ff;border:1.4px solid #a855f7;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:70.0px;top:97.0px;font-size:12px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:200px;text-align:center;">Module PIR</div>
+<div style="position:absolute;left:930px;top:60px;width:200px;height:90px;background:#eff6ff;border:1.4px solid #2563eb;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:930.0px;top:97.0px;font-size:12px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:200px;text-align:center;">Module WiFi</div>
+<div style="position:absolute;left:70px;top:260px;width:200px;height:90px;background:#eff6ff;border:1.4px solid #2563eb;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:70.0px;top:297.0px;font-size:12px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:200px;text-align:center;">Capteur de<br>Luminosité</div>
+<div style="position:absolute;left:930px;top:260px;width:200px;height:90px;background:#f0fdf4;border:1.4px solid #059669;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:930.0px;top:297.0px;font-size:12px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:200px;text-align:center;">Module<br>d'Alimentation</div>
+<div style="position:absolute;left:265px;top:130px;width:10px;height:10px;background:#fff;border:1.2px solid #334155;z-index:2;"></div>
+<div style="position:absolute;left:495px;top:265px;width:10px;height:10px;background:#fff;border:1.2px solid #334155;z-index:2;"></div>
+<div style="position:absolute;left:270.0px;top:135.0px;width:266.7px;height:0;border-top:1.5px solid #1e40af;transform:rotate(30.41deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:492.0px;top:265.2px;width:0;height:0;border-top:4.8px solid transparent;border-bottom:4.8px solid transparent;border-left:8.0px solid #1e40af;transform-origin:8.0px 4.8px;transform:rotate(30.41deg);z-index:2;"></div>
+<div style="position:absolute;left:310.0px;top:188.5px;font-size:9.8px;color:#1e40af;font-weight:400;z-index:6;text-align:left;white-space:nowrap;width:180px;">signal de détection</div>
+<div style="position:absolute;left:925px;top:130px;width:10px;height:10px;background:#fff;border:1.2px solid #334155;z-index:2;"></div>
+<div style="position:absolute;left:695px;top:265px;width:10px;height:10px;background:#fff;border:1.2px solid #334155;z-index:2;"></div>
+<div style="position:absolute;left:930.0px;top:135.0px;width:266.7px;height:0;border-top:1.5px solid #1e40af;transform:rotate(149.59deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:692.0px;top:265.2px;width:0;height:0;border-top:4.8px solid transparent;border-bottom:4.8px solid transparent;border-left:8.0px solid #1e40af;transform-origin:8.0px 4.8px;transform:rotate(149.59deg);z-index:2;"></div>
+<div style="position:absolute;left:740.0px;top:188.5px;font-size:9.8px;color:#1e40af;font-weight:400;z-index:6;text-align:left;white-space:nowrap;width:180px;">alerte / commande domotique</div>
+<div style="position:absolute;left:265px;top:295px;width:10px;height:10px;background:#fff;border:1.2px solid #334155;z-index:2;"></div>
+<div style="position:absolute;left:495px;top:295px;width:10px;height:10px;background:#fff;border:1.2px solid #334155;z-index:2;"></div>
+<div style="position:absolute;left:270.0px;top:300.0px;width:230.0px;height:0;border-top:1.5px solid #1e40af;transform:rotate(0.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:492.0px;top:295.2px;width:0;height:0;border-top:4.8px solid transparent;border-bottom:4.8px solid transparent;border-left:8.0px solid #1e40af;transform-origin:8.0px 4.8px;transform:rotate(0.00deg);z-index:2;"></div>
+<div style="position:absolute;left:310.0px;top:286.0px;font-size:9.8px;color:#1e40af;font-weight:400;z-index:6;text-align:left;white-space:nowrap;width:180px;">niveau de luminosité</div>
+<div style="position:absolute;left:925px;top:295px;width:10px;height:10px;background:#fff;border:1.2px solid #334155;z-index:2;"></div>
+<div style="position:absolute;left:695px;top:315px;width:10px;height:10px;background:#fff;border:1.2px solid #334155;z-index:2;"></div>
+<div style="position:absolute;left:930.0px;top:300.0px;width:230.9px;height:0;border-top:1.3px dashed #c2410c;transform:rotate(175.03deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:925px;top:295px;width:10px;height:10px;background:#fff;border:1.2px solid #334155;z-index:2;"></div>
+<div style="position:absolute;left:265px;top:145px;width:10px;height:10px;background:#fff;border:1.2px solid #334155;z-index:2;"></div>
+<div style="position:absolute;left:930.0px;top:300.0px;width:676.8px;height:0;border-top:1.3px dashed #c2410c;transform:rotate(-167.20deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:925px;top:295px;width:10px;height:10px;background:#fff;border:1.2px solid #334155;z-index:2;"></div>
+<div style="position:absolute;left:265px;top:315px;width:10px;height:10px;background:#fff;border:1.2px solid #334155;z-index:2;"></div>
+<div style="position:absolute;left:930.0px;top:300.0px;width:660.3px;height:0;border-top:1.3px dashed #c2410c;transform:rotate(178.26deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:692.0px;top:315.2px;width:0;height:0;border-top:4.8px solid transparent;border-bottom:4.8px solid transparent;border-left:8.0px solid #c2410c;transform-origin:8.0px 4.8px;transform:rotate(175.03deg);z-index:2;"></div>
+<div style="position:absolute;left:760.0px;top:400.0px;font-size:10px;color:#c2410c;font-weight:400;z-index:6;text-align:left;white-space:nowrap;font-style:italic;">alimentation (pile CR123 3V)</div>
+</div>
+  </div>
+  <details class="explain">
+    <summary>Lecture du diagramme</summary>
+    <div class="content">
+      <ul>
+        <li>Les petits carrés représentent les <b>ports</b> par lesquels les blocs échangent des flux (item flows).</li>
+        <li>Les flèches pleines bleues = <b>flux d'information</b> (signal de détection, niveau de luminosité, alerte/commande domotique).</li>
+        <li>Les flèches orange en pointillés = <b>flux d'énergie</b> : le module d'alimentation (pile CR123 3V) distribue l'énergie vers l'ensemble des modules.</li>
+        <li>L'Unité de Contrôle reçoit le signal du module PIR et le niveau de luminosité, puis pilote le module WiFi pour émettre l'alerte.</li>
+      </ul>
+    </div>
+  </details>
+</section>
+
+<section class="card" id="seq">
+  <h2><span class="num">5</span>Diagramme de séquence</h2>
+  <p style="margin:2px 0 8px 0;color:var(--muted);font-size:13.5px;">Scénario : une personne entre dans la zone surveillée, le détecteur transmet une alerte à l'utilisateur via l'application.</p>
+  <div class="diagram-frame">
+<div style="position:relative;width:1200px;height:560px;font-family:'Segoe UI',Arial,sans-serif;">
+<div style="position:absolute;left:25px;top:50px;width:130px;height:40px;background:#f1f5f9;border:1.4px solid #334155;border-radius:4px;z-index:2;box-sizing:border-box;"></div>
+<div style="position:absolute;left:25px;top:56px;width:130px;text-align:center;font-size:11px;font-weight:600;z-index:6;line-height:1.2;">Personne détectée</div>
+<div style="position:absolute;left:90.0px;top:90.0px;width:430.0px;height:0;border-top:1.2px dashed #94a3b8;transform:rotate(90.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:235px;top:50px;width:130px;height:40px;background:#fdf4ff;border:1.4px solid #a855f7;border-radius:4px;z-index:2;box-sizing:border-box;"></div>
+<div style="position:absolute;left:235px;top:56px;width:130px;text-align:center;font-size:11px;font-weight:600;z-index:6;line-height:1.2;">:Module PIR</div>
+<div style="position:absolute;left:300.0px;top:90.0px;width:430.0px;height:0;border-top:1.2px dashed #94a3b8;transform:rotate(90.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:455px;top:50px;width:130px;height:40px;background:#fff7ed;border:1.4px solid #ea580c;border-radius:4px;z-index:2;box-sizing:border-box;"></div>
+<div style="position:absolute;left:455px;top:56px;width:130px;text-align:center;font-size:11px;font-weight:600;z-index:6;line-height:1.2;">:Unité de Contrôle</div>
+<div style="position:absolute;left:520.0px;top:90.0px;width:430.0px;height:0;border-top:1.2px dashed #94a3b8;transform:rotate(90.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:685px;top:50px;width:130px;height:40px;background:#eff6ff;border:1.4px solid #2563eb;border-radius:4px;z-index:2;box-sizing:border-box;"></div>
+<div style="position:absolute;left:685px;top:56px;width:130px;text-align:center;font-size:11px;font-weight:600;z-index:6;line-height:1.2;">:Module WiFi</div>
+<div style="position:absolute;left:750.0px;top:90.0px;width:430.0px;height:0;border-top:1.2px dashed #94a3b8;transform:rotate(90.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:885px;top:50px;width:130px;height:40px;background:#eff6ff;border:1.4px solid #2563eb;border-radius:4px;z-index:2;box-sizing:border-box;"></div>
+<div style="position:absolute;left:885px;top:56px;width:130px;text-align:center;font-size:11px;font-weight:600;z-index:6;line-height:1.2;">:Application</div>
+<div style="position:absolute;left:950.0px;top:90.0px;width:430.0px;height:0;border-top:1.2px dashed #94a3b8;transform:rotate(90.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:1065px;top:50px;width:130px;height:40px;background:#f1f5f9;border:1.4px solid #334155;border-radius:4px;z-index:2;box-sizing:border-box;"></div>
+<div style="position:absolute;left:1065px;top:56px;width:130px;text-align:center;font-size:11px;font-weight:600;z-index:6;line-height:1.2;">Utilisateur</div>
+<div style="position:absolute;left:1130.0px;top:90.0px;width:430.0px;height:0;border-top:1.2px dashed #94a3b8;transform:rotate(90.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:515px;top:150px;width:10px;height:320px;background:#fed7aa;border:1.4px solid #ea580c;border-radius:0px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:90.0px;top:100.0px;width:210.0px;height:0;border-top:1.3px solid #1e293b;transform:rotate(0.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:292.0px;top:95.2px;width:0;height:0;border-top:4.8px solid transparent;border-bottom:4.8px solid transparent;border-left:8.0px solid #1e293b;transform-origin:8.0px 4.8px;transform:rotate(0.00deg);z-index:2;"></div>
+<div style="position:absolute;left:98.0px;top:84.0px;font-size:10.6px;color:#1e293b;font-weight:400;z-index:6;text-align:left;white-space:nowrap;">1: entrerDansLaZone()</div>
+<div style="position:absolute;left:300.0px;top:140.0px;width:220.0px;height:0;border-top:1.3px solid #1e293b;transform:rotate(0.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:512.0px;top:135.2px;width:0;height:0;border-top:4.8px solid transparent;border-bottom:4.8px solid transparent;border-left:8.0px solid #1e293b;transform-origin:8.0px 4.8px;transform:rotate(0.00deg);z-index:2;"></div>
+<div style="position:absolute;left:308.0px;top:124.0px;font-size:10.6px;color:#1e293b;font-weight:400;z-index:6;text-align:left;white-space:nowrap;">2: détecterMouvement()</div>
+<div style="position:absolute;left:520.0px;top:170.0px;width:55.0px;height:0;border-top:1.2px solid #1e293b;transform:rotate(0.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:575.0px;top:170.0px;width:20.0px;height:0;border-top:1.2px solid #1e293b;transform:rotate(90.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:575.0px;top:190.0px;width:55.0px;height:0;border-top:1.2px solid #1e293b;transform:rotate(180.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:512.0px;top:185.2px;width:0;height:0;border-top:4.8px solid transparent;border-bottom:4.8px solid transparent;border-left:8.0px solid #1e293b;transform-origin:8.0px 4.8px;transform:rotate(180.00deg);z-index:2;"></div>
+<div style="position:absolute;left:530.0px;top:153.0px;font-size:10.6px;color:#1e293b;font-weight:400;z-index:6;text-align:left;white-space:nowrap;">3: vérifierLuminosité()</div>
+<div style="position:absolute;left:520.0px;top:225.0px;width:230.0px;height:0;border-top:1.3px solid #1e293b;transform:rotate(0.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:742.0px;top:220.2px;width:0;height:0;border-top:4.8px solid transparent;border-bottom:4.8px solid transparent;border-left:8.0px solid #1e293b;transform-origin:8.0px 4.8px;transform:rotate(0.00deg);z-index:2;"></div>
+<div style="position:absolute;left:528.0px;top:209.0px;font-size:10.6px;color:#1e293b;font-weight:400;z-index:6;text-align:left;white-space:nowrap;">4: envoyerAlerte()</div>
+<div style="position:absolute;left:750.0px;top:265.0px;width:200.0px;height:0;border-top:1.3px solid #1e293b;transform:rotate(0.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:942.0px;top:260.2px;width:0;height:0;border-top:4.8px solid transparent;border-bottom:4.8px solid transparent;border-left:8.0px solid #1e293b;transform-origin:8.0px 4.8px;transform:rotate(0.00deg);z-index:2;"></div>
+<div style="position:absolute;left:758.0px;top:249.0px;font-size:10.6px;color:#1e293b;font-weight:400;z-index:6;text-align:left;white-space:nowrap;">5: transmettreNotification()</div>
+<div style="position:absolute;left:950.0px;top:305.0px;width:180.0px;height:0;border-top:1.3px dashed #64748b;transform:rotate(0.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:1122.0px;top:300.2px;width:0;height:0;border-top:4.4px solid transparent;border-bottom:4.4px solid transparent;border-left:8.0px solid #64748b;opacity:.85;transform-origin:8.0px 4.4px;transform:rotate(0.00deg);z-index:2;"></div>
+<div style="position:absolute;left:958.0px;top:289.0px;font-size:10.6px;color:#1e293b;font-weight:400;z-index:6;text-align:left;white-space:nowrap;">6: afficherNotification()</div>
+<div style="position:absolute;left:1130.0px;top:340.0px;width:180.0px;height:0;border-top:1.3px solid #1e293b;transform:rotate(180.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:942.0px;top:335.2px;width:0;height:0;border-top:4.8px solid transparent;border-bottom:4.8px solid transparent;border-left:8.0px solid #1e293b;transform-origin:8.0px 4.8px;transform:rotate(180.00deg);z-index:2;"></div>
+<div style="position:absolute;left:958.0px;top:324.0px;font-size:10.6px;color:#1e293b;font-weight:400;z-index:6;text-align:left;white-space:nowrap;">7: consulterAlerte()</div>
+<div style="position:absolute;left:950.0px;top:375.0px;width:200.0px;height:0;border-top:1.3px dashed #64748b;transform:rotate(180.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:742.0px;top:370.2px;width:0;height:0;border-top:4.4px solid transparent;border-bottom:4.4px solid transparent;border-left:8.0px solid #64748b;opacity:.85;transform-origin:8.0px 4.4px;transform:rotate(180.00deg);z-index:2;"></div>
+<div style="position:absolute;left:758.0px;top:359.0px;font-size:10.6px;color:#1e293b;font-weight:400;z-index:6;text-align:left;white-space:nowrap;">8: confirmerLecture()</div>
+</div>
+  </div>
+  <details class="explain">
+    <summary>Lecture du diagramme</summary>
+    <div class="content">
+      <ul>
+        <li>Flèches pleines = <b>appels synchrones</b> ; flèches pointillées = <b>messages de retour</b>.</li>
+        <li>Le message 3 est un <b>message réflexif</b> : l'Unité de Contrôle vérifie elle‑même le niveau de luminosité ambiante avant de valider la détection.</li>
+        <li>« Personne détectée » et « Utilisateur » sont deux acteurs distincts : la personne qui déclenche la détection n'est pas nécessairement celle qui reçoit la notification.</li>
+      </ul>
+    </div>
+  </details>
+</section>
+
+</div>
+<footer>Document réalisé à partir des caractéristiques techniques publiques du détecteur PIR WiFi GSC Evolution (réf. 104315002) — version 100% HTML/CSS.</footer>
+<a href="../index.html" style="position:fixed;bottom:16px;left:16px;z-index:99999;background:#1e3a5f;color:#fff;padding:10px 16px;border-radius:24px;font:600 14px system-ui,sans-serif;text-decoration:none;box-shadow:0 2px 8px rgba(0,0,0,.25)">← Sommaire</a></body>
+</html>

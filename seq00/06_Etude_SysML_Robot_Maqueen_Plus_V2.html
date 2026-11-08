@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Analyse SysML — Robot Maqueen Plus V2</title>
+
+<style>
+  :root{
+    --primary:#2563eb; --primary-dark:#1e40af; --primary-light:#eff6ff;
+    --accent:#7c3aed; --accent-light:#f5f3ff; --ink:#1e293b; --muted:#64748b;
+    --bg:#f8fafc; --card:#ffffff; --border:#dbe2ea; --good:#059669;
+  }
+  *{box-sizing:border-box;}
+  body{font-family:"Segoe UI", Roboto, Arial, sans-serif;background:var(--bg);color:var(--ink);margin:0;padding:0 0 60px 0;line-height:1.5;}
+  header.page{background:linear-gradient(135deg,#7c2d12,#ea580c,#2563eb);color:white;padding:34px 40px;}
+  header.page h1{margin:0 0 6px 0;font-size:26px;}
+  header.page p{margin:0;opacity:.9;font-size:14.5px;}
+  .wrap{max-width:1220px;margin:0 auto;padding:0 24px;}
+  .badges{margin-top:14px;display:flex;gap:8px;flex-wrap:wrap;}
+  .badge{background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.35);padding:4px 12px;border-radius:20px;font-size:12.5px;}
+  section.card{background:var(--card);border:1px solid var(--border);border-radius:14px;margin:28px 0;padding:26px 28px 20px 28px;box-shadow:0 1px 3px rgba(15,23,42,.05);}
+  section.card h2{margin-top:0;color:var(--primary-dark);font-size:20px;border-bottom:2px solid var(--primary-light);padding-bottom:10px;display:flex;align-items:center;gap:10px;}
+  .num{background:var(--primary);color:white;border-radius:8px;width:30px;height:30px;display:inline-flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;}
+  .diagram-frame{background:#fbfdff;border:1px solid var(--border);border-radius:10px;padding:14px;overflow-x:auto;margin:14px 0;}
+  details.explain{margin-top:10px;border:1px solid var(--border);border-radius:10px;background:var(--primary-light);}
+  details.explain summary{cursor:pointer;padding:10px 16px;font-weight:600;color:var(--primary-dark);list-style:none;}
+  details.explain summary::-webkit-details-marker{display:none;}
+  details.explain summary::before{content:"▸ ";}
+  details.explain[open] summary::before{content:"▾ ";}
+  details.explain .content{padding:0 18px 16px 18px;font-size:14.5px;}
+  details.explain ul{margin:6px 0;padding-left:20px;}
+  table.trace{width:100%;border-collapse:collapse;margin-top:10px;font-size:13.5px;}
+  table.trace th{background:var(--accent-light);color:var(--accent);text-align:left;padding:8px 10px;border:1px solid var(--border);}
+  table.trace td{padding:8px 10px;border:1px solid var(--border);}
+  table.trace tr:nth-child(even){background:#fafbff;}
+  .tag{display:inline-block;padding:1px 8px;border-radius:10px;font-size:11.5px;font-weight:600;}
+  .tag.refine{background:#fef3c7;color:#92400e;}
+  .tag.satisfy{background:#dcfce7;color:#166534;}
+  .tag.include{background:#dbeafe;color:#1e40af;}
+  .tag.extend{background:#fae8ff;color:#86198f;}
+  .toc{display:flex;flex-wrap:wrap;gap:10px;margin:18px 0 0 0;}
+  .toc a{background:var(--primary-light);color:var(--primary-dark);padding:6px 14px;border-radius:20px;font-size:13px;text-decoration:none;font-weight:600;}
+  footer{text-align:center;color:var(--muted);font-size:12.5px;margin-top:30px;}
+  @media print{
+    body{padding:0;}
+    section.card{page-break-before:always;box-shadow:none;border:none;margin:0;padding:18px 4px;}
+    header.page{page-break-after:avoid;}
+    .toc{display:none;}
+    details.explain{border:1px solid #ccc;}
+  }
+</style>
+
+</head>
+<body>
+
+<header class="page">
+  <div class="wrap">
+    <h1>Modélisation SysML — Robot Maqueen Plus V2</h1>
+    <p>Diagramme des cas d'utilisation · Diagramme d'exigences · Diagramme de blocs (BDD) · Diagramme de blocs internes (IBD) · Diagramme de séquence</p>
+    <p style="margin-top:8px;font-size:12.5px;opacity:.85;">Version 100% HTML/CSS — aucun SVG, aucune image. Réf. MI-MAQUEEN-PLUS, DF Robot.</p>
+    <div class="badges">
+      <span class="badge">8 capteurs / 11 actionneurs</span>
+      <span class="badge">Programmable micro:bit</span>
+      <span class="badge">MakeCode / Mind+ (Scratch 3)</span>
+      <span class="badge">Compatible caméra HuskyLens</span>
+      <span class="badge">Accu 18650 — recharge USB-C</span>
+      <span class="badge">100×107×h100 mm</span>
+    </div>
+    <div class="toc">
+      <a href="#uc" onclick="event.preventDefault();document.getElementById('uc').scrollIntoView({behavior:'smooth'});">① Cas d'utilisation</a>
+      <a href="#req" onclick="event.preventDefault();document.getElementById('req').scrollIntoView({behavior:'smooth'});">② Exigences</a>
+      <a href="#bdd" onclick="event.preventDefault();document.getElementById('bdd').scrollIntoView({behavior:'smooth'});">③ Blocs (BDD)</a>
+      <a href="#ibd" onclick="event.preventDefault();document.getElementById('ibd').scrollIntoView({behavior:'smooth'});">④ Blocs internes (IBD)</a>
+      <a href="#seq" onclick="event.preventDefault();document.getElementById('seq').scrollIntoView({behavior:'smooth'});">⑤ Séquence</a>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+<section class="card" id="uc">
+  <h2><span class="num">1</span>Diagramme des cas d'utilisation</h2>
+  <div class="diagram-frame">
+<div style="position:relative;width:1000px;height:728px;font-family:'Segoe UI',Arial,sans-serif;">
+<div style="position:absolute;left:255px;top:35px;width:490px;height:520px;background:#f8fafc;border:1.4px solid #2563eb;border-radius:6px;z-index:0;box-sizing:border-box;"></div>
+<div style="position:absolute;left:280.0px;top:44.0px;font-size:13px;color:#1e40af;font-weight:700;z-index:6;text-align:left;white-space:nowrap;">«system» Maqueen Plus V2</div>
+<div style="position:absolute;left:350.0px;top:68.0px;width:300.0px;height:64.0px;background:#eff6ff;border:1.4px solid #2563eb;border-radius:50%;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:350px;top:68px;width:300px;height:64px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:12px;color:#1e293b;z-index:6;line-height:1.25;">Programmer le robot<br>(micro:bit)</div>
+<div style="position:absolute;left:350.0px;top:155.0px;width:300.0px;height:60.0px;background:#eff6ff;border:1.4px solid #2563eb;border-radius:50%;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:350px;top:155px;width:300px;height:60px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:12px;color:#1e293b;z-index:6;line-height:1.25;">Suivre<br>une ligne</div>
+<div style="position:absolute;left:350.0px;top:230.0px;width:300.0px;height:60.0px;background:#eff6ff;border:1.4px solid #2563eb;border-radius:50%;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:350px;top:230px;width:300px;height:60px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:12px;color:#1e293b;z-index:6;line-height:1.25;">Détecter<br>un obstacle</div>
+<div style="position:absolute;left:350.0px;top:303.0px;width:300.0px;height:64.0px;background:#fdf4ff;border:1.4px solid #a855f7;border-radius:50%;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:350px;top:303px;width:300px;height:64px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:12px;color:#1e293b;z-index:6;line-height:1.25;">Utiliser la vision<br>(caméra HuskyLens)</div>
+<div style="position:absolute;left:350.0px;top:385.0px;width:300.0px;height:60.0px;background:#eff6ff;border:1.4px solid #2563eb;border-radius:50%;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:350px;top:385px;width:300px;height:60px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:12px;color:#1e293b;z-index:6;line-height:1.25;">Piloter des<br>servomoteurs</div>
+<div style="position:absolute;left:360.0px;top:457.0px;width:280.0px;height:56.0px;background:#eff6ff;border:1.4px solid #2563eb;border-radius:50%;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:360px;top:457px;width:280px;height:56px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:12px;color:#1e293b;z-index:6;line-height:1.25;">Étalonner<br>les capteurs</div>
+<div style="position:absolute;left:360.0px;top:520.0px;width:280.0px;height:50.0px;background:#eff6ff;border:1.4px solid #2563eb;border-radius:50%;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:360px;top:520px;width:280px;height:50px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:12px;color:#1e293b;z-index:6;line-height:1.25;">Recharger<br>la batterie</div>
+<div style="position:absolute;left:64.0px;top:235.0px;width:22.0px;height:22.0px;background:#fff;border:2px solid #1e293b;border-radius:50%;z-index:3;box-sizing:border-box;"></div><div style="position:absolute;left:75.0px;top:257.0px;width:38.0px;height:0;border-top:2px solid #1e293b;transform:rotate(90.00deg);transform-origin:0 0;z-index:3;"></div><div style="position:absolute;left:59.0px;top:273.0px;width:32.0px;height:0;border-top:2px solid #1e293b;transform:rotate(0.00deg);transform-origin:0 0;z-index:3;"></div><div style="position:absolute;left:75.0px;top:295.0px;width:31.3px;height:0;border-top:2px solid #1e293b;transform:rotate(116.57deg);transform-origin:0 0;z-index:3;"></div><div style="position:absolute;left:75.0px;top:295.0px;width:31.3px;height:0;border-top:2px solid #1e293b;transform:rotate(63.43deg);transform-origin:0 0;z-index:3;"></div><div style="position:absolute;left:5.0px;top:331.0px;font-size:12.5px;color:#1e293b;font-weight:600;z-index:6;text-align:center;white-space:nowrap;width:140px;text-align:center;">Utilisateur /<br>Programmeur</div>
+<div style="position:absolute;left:919.0px;top:80.0px;width:22.0px;height:22.0px;background:#fff;border:2px solid #1e293b;border-radius:50%;z-index:3;box-sizing:border-box;"></div><div style="position:absolute;left:930.0px;top:102.0px;width:38.0px;height:0;border-top:2px solid #1e293b;transform:rotate(90.00deg);transform-origin:0 0;z-index:3;"></div><div style="position:absolute;left:914.0px;top:118.0px;width:32.0px;height:0;border-top:2px solid #1e293b;transform:rotate(0.00deg);transform-origin:0 0;z-index:3;"></div><div style="position:absolute;left:930.0px;top:140.0px;width:31.3px;height:0;border-top:2px solid #1e293b;transform:rotate(116.57deg);transform-origin:0 0;z-index:3;"></div><div style="position:absolute;left:930.0px;top:140.0px;width:31.3px;height:0;border-top:2px solid #1e293b;transform:rotate(63.43deg);transform-origin:0 0;z-index:3;"></div><div style="position:absolute;left:860.0px;top:176.0px;font-size:12.5px;color:#1e293b;font-weight:600;z-index:6;text-align:center;white-space:nowrap;width:140px;text-align:center;">Carte<br>micro:bit</div>
+<div style="position:absolute;left:919.0px;top:290.0px;width:22.0px;height:22.0px;background:#fff;border:2px solid #1e293b;border-radius:50%;z-index:3;box-sizing:border-box;"></div><div style="position:absolute;left:930.0px;top:312.0px;width:38.0px;height:0;border-top:2px solid #1e293b;transform:rotate(90.00deg);transform-origin:0 0;z-index:3;"></div><div style="position:absolute;left:914.0px;top:328.0px;width:32.0px;height:0;border-top:2px solid #1e293b;transform:rotate(0.00deg);transform-origin:0 0;z-index:3;"></div><div style="position:absolute;left:930.0px;top:350.0px;width:31.3px;height:0;border-top:2px solid #1e293b;transform:rotate(116.57deg);transform-origin:0 0;z-index:3;"></div><div style="position:absolute;left:930.0px;top:350.0px;width:31.3px;height:0;border-top:2px solid #1e293b;transform:rotate(63.43deg);transform-origin:0 0;z-index:3;"></div><div style="position:absolute;left:860.0px;top:386.0px;font-size:12.5px;color:#1e293b;font-weight:600;z-index:6;text-align:center;white-space:nowrap;width:140px;text-align:center;">Caméra<br>HuskyLens</div>
+<div style="position:absolute;left:919.0px;top:440.0px;width:22.0px;height:22.0px;background:#fff;border:2px solid #1e293b;border-radius:50%;z-index:3;box-sizing:border-box;"></div><div style="position:absolute;left:930.0px;top:462.0px;width:38.0px;height:0;border-top:2px solid #1e293b;transform:rotate(90.00deg);transform-origin:0 0;z-index:3;"></div><div style="position:absolute;left:914.0px;top:478.0px;width:32.0px;height:0;border-top:2px solid #1e293b;transform:rotate(0.00deg);transform-origin:0 0;z-index:3;"></div><div style="position:absolute;left:930.0px;top:500.0px;width:31.3px;height:0;border-top:2px solid #1e293b;transform:rotate(116.57deg);transform-origin:0 0;z-index:3;"></div><div style="position:absolute;left:930.0px;top:500.0px;width:31.3px;height:0;border-top:2px solid #1e293b;transform:rotate(63.43deg);transform-origin:0 0;z-index:3;"></div><div style="position:absolute;left:860.0px;top:536.0px;font-size:12.5px;color:#1e293b;font-weight:600;z-index:6;text-align:center;white-space:nowrap;width:140px;text-align:center;">Piste de<br>suivi de ligne</div>
+<div style="position:absolute;left:64.0px;top:600.0px;width:22.0px;height:22.0px;background:#fff;border:2px solid #1e293b;border-radius:50%;z-index:3;box-sizing:border-box;"></div><div style="position:absolute;left:75.0px;top:622.0px;width:38.0px;height:0;border-top:2px solid #1e293b;transform:rotate(90.00deg);transform-origin:0 0;z-index:3;"></div><div style="position:absolute;left:59.0px;top:638.0px;width:32.0px;height:0;border-top:2px solid #1e293b;transform:rotate(0.00deg);transform-origin:0 0;z-index:3;"></div><div style="position:absolute;left:75.0px;top:660.0px;width:31.3px;height:0;border-top:2px solid #1e293b;transform:rotate(116.57deg);transform-origin:0 0;z-index:3;"></div><div style="position:absolute;left:75.0px;top:660.0px;width:31.3px;height:0;border-top:2px solid #1e293b;transform:rotate(63.43deg);transform-origin:0 0;z-index:3;"></div><div style="position:absolute;left:5.0px;top:696.0px;font-size:12.5px;color:#1e293b;font-weight:600;z-index:6;text-align:center;white-space:nowrap;width:140px;text-align:center;">Port USB /<br>accu 18650</div>
+<div style="position:absolute;left:120.0px;top:300.0px;width:304.8px;height:0;border-top:1.2px solid #475569;transform:rotate(-41.01deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:120.0px;top:300.0px;width:303.0px;height:0;border-top:1.2px solid #475569;transform:rotate(37.63deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:895.0px;top:90.0px;width:245.2px;height:0;border-top:1.2px solid #475569;transform:rotate(177.66deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:895.0px;top:300.0px;width:247.5px;height:0;border-top:1.2px solid #475569;transform:rotate(171.87deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:895.0px;top:440.0px;width:353.6px;height:0;border-top:1.2px solid #475569;transform:rotate(-133.85deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:120.0px;top:610.0px;width:248.6px;height:0;border-top:1.2px solid #475569;transform:rotate(-15.15deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:500.0px;top:155.0px;width:23.0px;height:0;border-top:1.3px dashed #1e40af;transform:rotate(-90.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:492.0px;top:127.2px;width:0;height:0;border-top:4.8px solid transparent;border-bottom:4.8px solid transparent;border-left:8.0px solid #1e40af;transform-origin:8.0px 4.8px;transform:rotate(-90.00deg);z-index:2;"></div>
+<div style="position:absolute;left:510.0px;top:137.5px;font-size:11px;color:#1e40af;font-weight:400;z-index:6;text-align:left;white-space:nowrap;font-style:italic;">«include»</div>
+<div style="position:absolute;left:650.0px;top:260.0px;width:55.0px;height:0;border-top:1.3px dashed #1e40af;transform:rotate(0.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:705.0px;top:260.0px;width:160.0px;height:0;border-top:1.3px dashed #1e40af;transform:rotate(-90.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:705.0px;top:100.0px;width:55.0px;height:0;border-top:1.3px dashed #1e40af;transform:rotate(180.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:642.0px;top:95.2px;width:0;height:0;border-top:4.8px solid transparent;border-bottom:4.8px solid transparent;border-left:8.0px solid #1e40af;transform-origin:8.0px 4.8px;transform:rotate(180.00deg);z-index:2;"></div>
+<div style="position:absolute;left:713.0px;top:174.0px;font-size:11px;color:#1e40af;font-weight:400;z-index:6;text-align:left;white-space:nowrap;font-style:italic;">«include»</div>
+<div style="position:absolute;left:650.0px;top:335.0px;width:85.0px;height:0;border-top:1.3px dashed #a855f7;transform:rotate(0.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:735.0px;top:335.0px;width:235.0px;height:0;border-top:1.3px dashed #a855f7;transform:rotate(-90.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:735.0px;top:100.0px;width:85.6px;height:0;border-top:1.3px dashed #a855f7;transform:rotate(-173.29deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:642.0px;top:85.2px;width:0;height:0;border-top:4.8px solid transparent;border-bottom:4.8px solid transparent;border-left:8.0px solid #7e22ce;transform-origin:8.0px 4.8px;transform:rotate(-173.29deg);z-index:2;"></div>
+<div style="position:absolute;left:743.0px;top:201.5px;font-size:11px;color:#7e22ce;font-weight:400;z-index:6;text-align:left;white-space:nowrap;font-style:italic;">«extend»</div>
+<div style="position:absolute;left:743.0px;top:217.5px;font-size:9.5px;color:#7e22ce;font-weight:400;z-index:6;text-align:left;white-space:nowrap;font-style:italic;">(pt d'extension :</div>
+<div style="position:absolute;left:743.0px;top:229.5px;font-size:9.5px;color:#7e22ce;font-weight:400;z-index:6;text-align:left;white-space:nowrap;font-style:italic;">caméra connectée)</div>
+</div>
+  </div>
+  <details class="explain">
+    <summary>Lecture du diagramme</summary>
+    <div class="content">
+      <ul>
+        <li><b>Acteur humain</b> (Utilisateur/Programmeur) à gauche : il écrit et téléverse le programme, recharge la batterie.</li>
+        <li><b>Acteurs de l'environnement</b> à droite : la Carte micro:bit (indispensable au fonctionnement, non fournie), la Caméra HuskyLens (option de vision) et la Piste de suivi de ligne fournie dans le pack.</li>
+        <li><span class="tag include">include</span> « Suivre une ligne » et « Détecter un obstacle » incluent « Programmer le robot » : ces comportements n'existent que si un programme a été téléversé sur la carte micro:bit.</li>
+        <li><span class="tag extend">extend</span> « Utiliser la vision (caméra HuskyLens) » étend « Programmer le robot », avec pour point d'extension la présence d'une caméra connectée — cette fonctionnalité est optionnelle et vient enrichir le programme de base.</li>
+      </ul>
+    </div>
+  </details>
+</section>
+
+<section class="card" id="req">
+  <h2><span class="num">2</span>Diagramme d'exigences</h2>
+  <div class="diagram-frame">
+<div style="position:relative;width:1260px;height:500px;font-family:'Segoe UI',Arial,sans-serif;">
+<div style="position:absolute;left:500px;top:15px;width:260px;height:78px;background:#eff6ff;border:1.4px solid #2563eb;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:500.0px;top:21.0px;font-size:9.5px;color:#1e40af;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:260px;text-align:center;font-style:italic;">«requirement»</div>
+<div style="position:absolute;left:500.0px;top:35.0px;font-size:11px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:260px;text-align:center;">REQ-1 : Aller plus loin dans</div>
+<div style="position:absolute;left:500.0px;top:49.0px;font-size:11px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:260px;text-align:center;">l'apprentissage robotique</div>
+<div style="position:absolute;left:500.0px;top:77.0px;font-size:9px;color:#475569;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:260px;text-align:center;">id = REQ-1</div>
+<div style="position:absolute;left:185px;top:150px;width:240px;height:58px;background:#eff6ff;border:1.4px solid #2563eb;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:185.0px;top:156.0px;font-size:9.5px;color:#1e40af;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:240px;text-align:center;font-style:italic;">«requirement»</div>
+<div style="position:absolute;left:185.0px;top:170.0px;font-size:11px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:240px;text-align:center;">Exigences fonctionnelles</div>
+<div style="position:absolute;left:185.0px;top:192.0px;font-size:9px;color:#475569;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:240px;text-align:center;">id = REQ-2</div>
+<div style="position:absolute;left:835px;top:150px;width:240px;height:58px;background:#f5f3ff;border:1.4px solid #7c3aed;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:835.0px;top:156.0px;font-size:9.5px;color:#6d28d9;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:240px;text-align:center;font-style:italic;">«requirement»</div>
+<div style="position:absolute;left:835.0px;top:170.0px;font-size:11px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:240px;text-align:center;">Exigences non fonctionnelles</div>
+<div style="position:absolute;left:835.0px;top:192.0px;font-size:9px;color:#475569;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:240px;text-align:center;">id = REQ-3</div>
+<div style="position:absolute;left:630.0px;top:93.0px;width:330.0px;height:0;border-top:1.2px solid #475569;transform:rotate(170.05deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:630.0px;top:93.0px;width:330.0px;height:0;border-top:1.2px solid #475569;transform:rotate(9.95deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:626.0px;top:89.0px;width:8.0px;height:8.0px;background:#fff;border:1.3px solid #475569;border-radius:50%;z-index:2;box-sizing:border-box;"></div>
+<div style="position:absolute;left:15px;top:285px;width:185px;height:72px;background:#eff6ff;border:1.4px solid #2563eb;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:15.0px;top:291.0px;font-size:9.5px;color:#1e40af;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:185px;text-align:center;font-style:italic;">«requirement»</div>
+<div style="position:absolute;left:15.0px;top:305.0px;font-size:11px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:185px;text-align:center;">Motricité pilotée</div>
+<div style="position:absolute;left:15.0px;top:319.0px;font-size:11px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:185px;text-align:center;">(2 moteurs + encodeurs)</div>
+<div style="position:absolute;left:15.0px;top:341.0px;font-size:9px;color:#475569;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:185px;text-align:center;">REQ-1.1</div>
+<div style="position:absolute;left:215px;top:285px;width:185px;height:72px;background:#eff6ff;border:1.4px solid #2563eb;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:215.0px;top:291.0px;font-size:9.5px;color:#1e40af;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:185px;text-align:center;font-style:italic;">«requirement»</div>
+<div style="position:absolute;left:215.0px;top:305.0px;font-size:11px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:185px;text-align:center;">Suivi de ligne</div>
+<div style="position:absolute;left:215.0px;top:319.0px;font-size:11px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:185px;text-align:center;">(6 capteurs)</div>
+<div style="position:absolute;left:215.0px;top:341.0px;font-size:9px;color:#475569;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:185px;text-align:center;">REQ-1.2</div>
+<div style="position:absolute;left:415px;top:285px;width:185px;height:72px;background:#eff6ff;border:1.4px solid #2563eb;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:415.0px;top:291.0px;font-size:9.5px;color:#1e40af;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:185px;text-align:center;font-style:italic;">«requirement»</div>
+<div style="position:absolute;left:415.0px;top:305.0px;font-size:11px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:185px;text-align:center;">Détection d'obstacles</div>
+<div style="position:absolute;left:415.0px;top:319.0px;font-size:11px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:185px;text-align:center;">(distance + IR)</div>
+<div style="position:absolute;left:415.0px;top:341.0px;font-size:9px;color:#475569;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:185px;text-align:center;">REQ-1.3</div>
+<div style="position:absolute;left:15px;top:400px;width:185px;height:72px;background:#eff6ff;border:1.4px solid #2563eb;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:15.0px;top:406.0px;font-size:9.5px;color:#1e40af;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:185px;text-align:center;font-style:italic;">«requirement»</div>
+<div style="position:absolute;left:15.0px;top:420.0px;font-size:11px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:185px;text-align:center;">Programmable</div>
+<div style="position:absolute;left:15.0px;top:434.0px;font-size:11px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:185px;text-align:center;">micro:bit / MakeCode / Mind+</div>
+<div style="position:absolute;left:15.0px;top:456.0px;font-size:9px;color:#475569;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:185px;text-align:center;">REQ-1.4</div>
+<div style="position:absolute;left:215px;top:400px;width:185px;height:72px;background:#eff6ff;border:1.4px solid #2563eb;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:215.0px;top:406.0px;font-size:9.5px;color:#1e40af;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:185px;text-align:center;font-style:italic;">«requirement»</div>
+<div style="position:absolute;left:215.0px;top:420.0px;font-size:11px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:185px;text-align:center;">Extensible</div>
+<div style="position:absolute;left:215.0px;top:434.0px;font-size:11px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:185px;text-align:center;">caméra + servomoteurs</div>
+<div style="position:absolute;left:215.0px;top:456.0px;font-size:9px;color:#475569;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:185px;text-align:center;">REQ-1.5</div>
+<div style="position:absolute;left:700px;top:335px;width:185px;height:66px;background:#f5f3ff;border:1.4px solid #7c3aed;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:700.0px;top:341.0px;font-size:9.5px;color:#6d28d9;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:185px;text-align:center;font-style:italic;">«requirement»</div>
+<div style="position:absolute;left:700.0px;top:355.0px;font-size:11px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:185px;text-align:center;">Format compact</div>
+<div style="position:absolute;left:700.0px;top:385.0px;font-size:9px;color:#475569;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:185px;text-align:center;">100×107×h100 mm / REQ-1.6</div>
+<div style="position:absolute;left:900px;top:335px;width:185px;height:66px;background:#f5f3ff;border:1.4px solid #7c3aed;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:900.0px;top:341.0px;font-size:9.5px;color:#6d28d9;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:185px;text-align:center;font-style:italic;">«requirement»</div>
+<div style="position:absolute;left:900.0px;top:355.0px;font-size:11px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:185px;text-align:center;">Autonomie sur accu</div>
+<div style="position:absolute;left:900.0px;top:385.0px;font-size:9px;color:#475569;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:185px;text-align:center;">18650, recharge USB / REQ-1.7</div>
+<div style="position:absolute;left:1100px;top:335px;width:145px;height:66px;background:#f5f3ff;border:1.4px solid #7c3aed;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:1100.0px;top:341.0px;font-size:9.5px;color:#6d28d9;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:145px;text-align:center;font-style:italic;">«requirement»</div>
+<div style="position:absolute;left:1100.0px;top:355.0px;font-size:11px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:145px;text-align:center;">Retour visuel</div>
+<div style="position:absolute;left:1100.0px;top:369.0px;font-size:11px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:145px;text-align:center;">et sonore</div>
+<div style="position:absolute;left:1100.0px;top:385.0px;font-size:9px;color:#475569;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:145px;text-align:center;">LED + buzzer / REQ-1.8</div>
+<div style="position:absolute;left:305.0px;top:208.0px;width:212.0px;height:0;border-top:1.0px solid #475569;transform:rotate(158.70deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:305.0px;top:208.0px;width:77.0px;height:0;border-top:1.0px solid #475569;transform:rotate(88.14deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:305.0px;top:208.0px;width:216.6px;height:0;border-top:1.0px solid #475569;transform:rotate(20.82deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:305.0px;top:208.0px;width:275.4px;height:0;border-top:1.0px solid #475569;transform:rotate(135.81deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:305.0px;top:208.0px;width:192.0px;height:0;border-top:1.0px solid #475569;transform:rotate(89.25deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:301.0px;top:204.0px;width:8.0px;height:8.0px;background:#fff;border:1.3px solid #475569;border-radius:50%;z-index:2;box-sizing:border-box;"></div>
+<div style="position:absolute;left:955.0px;top:208.0px;width:206.2px;height:0;border-top:1.0px solid #475569;transform:rotate(141.99deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:955.0px;top:208.0px;width:132.4px;height:0;border-top:1.0px solid #475569;transform:rotate(73.55deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:955.0px;top:208.0px;width:251.9px;height:0;border-top:1.0px solid #475569;transform:rotate(30.28deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:951.0px;top:204.0px;width:8.0px;height:8.0px;background:#fff;border:1.3px solid #475569;border-radius:50%;z-index:2;box-sizing:border-box;"></div>
+<div style="position:absolute;left:15px;top:15px;width:160px;height:32px;background:#fefce8;border:1.4px solid #ca8a04;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:15.0px;top:26.0px;font-size:10.5px;color:#1e293b;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:160px;text-align:center;">UC2 Suivre une ligne</div>
+<div style="position:absolute;left:95.0px;top:47.0px;width:319.1px;height:0;border-top:1.2px dashed #ca8a04;transform:rotate(48.24deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:299.5px;top:280.2px;width:0;height:0;border-top:4.8px solid transparent;border-bottom:4.8px solid transparent;border-left:8.0px solid #ca8a04;transform-origin:8.0px 4.8px;transform:rotate(48.24deg);z-index:2;"></div>
+<div style="position:absolute;left:30.0px;top:155.0px;font-size:10.5px;color:#92400e;font-weight:400;z-index:6;text-align:left;white-space:nowrap;font-style:italic;">«refine»</div>
+<div style="position:absolute;left:1085px;top:15px;width:160px;height:32px;background:#ecfdf5;border:1.4px solid #059669;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:1085.0px;top:26.0px;font-size:9.5px;color:#1e293b;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:160px;text-align:center;">Bloc Module d'Alimentation</div>
+<div style="position:absolute;left:1165.0px;top:47.0px;width:335.7px;height:0;border-top:1.2px dashed #059669;transform:rotate(120.92deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:984.5px;top:330.2px;width:0;height:0;border-top:4.8px solid transparent;border-bottom:4.8px solid transparent;border-left:8.0px solid #059669;transform-origin:8.0px 4.8px;transform:rotate(120.92deg);z-index:2;"></div>
+<div style="position:absolute;left:990.0px;top:150.0px;font-size:10.5px;color:#166534;font-weight:400;z-index:6;text-align:left;white-space:nowrap;font-style:italic;">«satisfy»</div>
+</div>
+  </div>
+  <details class="explain">
+    <summary>Lecture du diagramme + matrice de traçabilité complète</summary>
+    <div class="content">
+      <ul>
+        <li>Trait plein + petit cercle = relation de <b>containment</b> (décomposition de l'exigence parente).</li>
+        <li><span class="tag refine">refine</span> un cas d'utilisation précise une exigence fonctionnelle.</li>
+        <li><span class="tag satisfy">satisfy</span> un bloc matériel apporte la preuve qu'une exigence est techniquement satisfaite.</li>
+      </ul>
+      <table class="trace">
+        <tr><th>Élément source</th><th>Relation</th><th>Exigence cible</th></tr>
+        <tr><td>UC2 — Suivre une ligne</td><td><span class="tag refine">refine</span></td><td>REQ‑1.2 Suivi de ligne (6 capteurs)</td></tr>
+        <tr><td>UC3 — Détecter un obstacle</td><td><span class="tag refine">refine</span></td><td>REQ‑1.3 Détection d'obstacles</td></tr>
+        <tr><td>UC1 — Programmer le robot</td><td><span class="tag refine">refine</span></td><td>REQ‑1.4 Programmable micro:bit</td></tr>
+        <tr><td>UC4 / UC5 — Vision et servomoteurs</td><td><span class="tag refine">refine</span></td><td>REQ‑1.5 Extensible (caméra + servos)</td></tr>
+        <tr><td>Bloc Châssis</td><td><span class="tag satisfy">satisfy</span></td><td>REQ‑1.6 Format compact</td></tr>
+        <tr><td>Bloc Module d'Alimentation</td><td><span class="tag satisfy">satisfy</span></td><td>REQ‑1.7 Autonomie sur accu</td></tr>
+        <tr><td>Bloc Module de Signalisation</td><td><span class="tag satisfy">satisfy</span></td><td>REQ‑1.8 Retour visuel et sonore</td></tr>
+      </table>
+    </div>
+  </details>
+</section>
+
+<section class="card" id="bdd">
+  <h2><span class="num">3</span>Diagramme de définition de blocs (BDD)</h2>
+  <div class="diagram-frame">
+<div style="position:relative;width:1230px;height:400px;font-family:'Segoe UI',Arial,sans-serif;">
+<div style="position:absolute;left:455px;top:10px;width:270px;height:80px;background:#dbeafe;border:1.4px solid #1e40af;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:455.0px;top:17.0px;font-size:8.5px;color:#1e40af;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:270px;text-align:center;font-style:italic;white-space:normal;">«block»</div>
+<div style="position:absolute;left:455.0px;top:28.0px;font-size:10px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:270px;text-align:center;white-space:normal;line-height:1.25;padding:0 3px;box-sizing:border-box;">Maqueen Plus V2</div>
+<div style="position:absolute;left:455.0px;top:44.0px;width:270.0px;height:0;border-top:1px solid #1e40af;transform:rotate(0.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:462.0px;top:52.0px;font-size:8.5px;color:#334155;font-weight:400;z-index:6;text-align:left;white-space:nowrap;width:256px;white-space:normal;line-height:1.25;">dimensions = 100×107×h100 mm</div>
+<div style="position:absolute;left:462.0px;top:68.0px;font-size:8.5px;color:#334155;font-weight:400;z-index:6;text-align:left;white-space:nowrap;width:256px;white-space:normal;line-height:1.25;">8 capteurs / 11 actionneurs</div>
+<div style="position:absolute;left:462.0px;top:84.0px;font-size:8.5px;color:#334155;font-weight:400;z-index:6;text-align:left;white-space:nowrap;width:256px;white-space:normal;line-height:1.25;">programmable micro:bit</div>
+<div style="position:absolute;left:5px;top:190px;width:165px;height:175px;background:#f8fafc;border:1.4px solid #64748b;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:5.0px;top:197.0px;font-size:8.5px;color:#334155;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:165px;text-align:center;font-style:italic;white-space:normal;">«block»</div>
+<div style="position:absolute;left:5.0px;top:208.0px;font-size:10px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:165px;text-align:center;white-space:normal;line-height:1.25;padding:0 3px;box-sizing:border-box;">Châssis</div>
+<div style="position:absolute;left:5.0px;top:224.0px;width:165.0px;height:0;border-top:1px solid #64748b;transform:rotate(0.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:12.0px;top:232.0px;font-size:8.5px;color:#334155;font-weight:400;z-index:6;text-align:left;white-space:nowrap;width:151px;white-space:normal;line-height:1.25;">structure</div>
+<div style="position:absolute;left:12.0px;top:248.0px;font-size:8.5px;color:#334155;font-weight:400;z-index:6;text-align:left;white-space:nowrap;width:151px;white-space:normal;line-height:1.25;">100×107×h100 mm</div>
+<div style="position:absolute;left:180px;top:190px;width:165px;height:175px;background:#eff6ff;border:1.4px solid #2563eb;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:180.0px;top:197.0px;font-size:8.5px;color:#1e40af;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:165px;text-align:center;font-style:italic;white-space:normal;">«block»</div>
+<div style="position:absolute;left:180.0px;top:208.0px;font-size:10px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:165px;text-align:center;white-space:normal;line-height:1.25;padding:0 3px;box-sizing:border-box;">Module<br>Moteurs</div>
+<div style="position:absolute;left:180.0px;top:240.0px;width:165.0px;height:0;border-top:1px solid #2563eb;transform:rotate(0.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:187.0px;top:248.0px;font-size:8.5px;color:#334155;font-weight:400;z-index:6;text-align:left;white-space:nowrap;width:151px;white-space:normal;line-height:1.25;">2 moteurs</div>
+<div style="position:absolute;left:187.0px;top:264.0px;font-size:8.5px;color:#334155;font-weight:400;z-index:6;text-align:left;white-space:nowrap;width:151px;white-space:normal;line-height:1.25;">encodeurs incrémentaux</div>
+<div style="position:absolute;left:355px;top:190px;width:165px;height:175px;background:#fdf4ff;border:1.4px solid #a855f7;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:355.0px;top:197.0px;font-size:8.5px;color:#7e22ce;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:165px;text-align:center;font-style:italic;white-space:normal;">«block»</div>
+<div style="position:absolute;left:355.0px;top:208.0px;font-size:10px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:165px;text-align:center;white-space:normal;line-height:1.25;padding:0 3px;box-sizing:border-box;">Module de<br>Perception</div>
+<div style="position:absolute;left:355.0px;top:240.0px;width:165.0px;height:0;border-top:1px solid #a855f7;transform:rotate(0.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:362.0px;top:248.0px;font-size:8.5px;color:#334155;font-weight:400;z-index:6;text-align:left;white-space:nowrap;width:151px;white-space:normal;line-height:1.25;">1 capteur de distance</div>
+<div style="position:absolute;left:362.0px;top:264.0px;font-size:8.5px;color:#334155;font-weight:400;z-index:6;text-align:left;white-space:nowrap;width:151px;white-space:normal;line-height:1.25;">6 capteurs de ligne</div>
+<div style="position:absolute;left:362.0px;top:280.0px;font-size:8.5px;color:#334155;font-weight:400;z-index:6;text-align:left;white-space:nowrap;width:151px;white-space:normal;line-height:1.25;">1 capteur IR</div>
+<div style="position:absolute;left:530px;top:190px;width:165px;height:175px;background:#fff7ed;border:1.4px solid #ea580c;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:530.0px;top:197.0px;font-size:8.5px;color:#c2410c;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:165px;text-align:center;font-style:italic;white-space:normal;">«block»</div>
+<div style="position:absolute;left:530.0px;top:208.0px;font-size:10px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:165px;text-align:center;white-space:normal;line-height:1.25;padding:0 3px;box-sizing:border-box;">Module de<br>Signalisation</div>
+<div style="position:absolute;left:530.0px;top:240.0px;width:165.0px;height:0;border-top:1px solid #ea580c;transform:rotate(0.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:537.0px;top:248.0px;font-size:8.5px;color:#334155;font-weight:400;z-index:6;text-align:left;white-space:nowrap;width:151px;white-space:normal;line-height:1.25;">1 buzzer</div>
+<div style="position:absolute;left:537.0px;top:264.0px;font-size:8.5px;color:#334155;font-weight:400;z-index:6;text-align:left;white-space:nowrap;width:151px;white-space:normal;line-height:1.25;">2 LED RGB</div>
+<div style="position:absolute;left:537.0px;top:280.0px;font-size:8.5px;color:#334155;font-weight:400;z-index:6;text-align:left;white-space:nowrap;width:151px;white-space:normal;line-height:1.25;">6 LED bleues</div>
+<div style="position:absolute;left:537.0px;top:296.0px;font-size:8.5px;color:#334155;font-weight:400;z-index:6;text-align:left;white-space:nowrap;width:151px;white-space:normal;line-height:1.25;">1 bouton auto-étalonnage</div>
+<div style="position:absolute;left:705px;top:190px;width:165px;height:175px;background:#eff6ff;border:1.4px solid #2563eb;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:705.0px;top:197.0px;font-size:8.5px;color:#1e40af;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:165px;text-align:center;font-style:italic;white-space:normal;">«block»</div>
+<div style="position:absolute;left:705.0px;top:208.0px;font-size:10px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:165px;text-align:center;white-space:normal;line-height:1.25;padding:0 3px;box-sizing:border-box;">Interface<br>micro:bit</div>
+<div style="position:absolute;left:705.0px;top:240.0px;width:165.0px;height:0;border-top:1px solid #2563eb;transform:rotate(0.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:712.0px;top:248.0px;font-size:8.5px;color:#334155;font-weight:400;z-index:6;text-align:left;white-space:nowrap;width:151px;white-space:normal;line-height:1.25;">connecteur edge</div>
+<div style="position:absolute;left:712.0px;top:264.0px;font-size:8.5px;color:#334155;font-weight:400;z-index:6;text-align:left;white-space:nowrap;width:151px;white-space:normal;line-height:1.25;">carte micro:bit (non fournie)</div>
+<div style="position:absolute;left:880px;top:190px;width:165px;height:175px;background:#eff6ff;border:1.4px solid #2563eb;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:880.0px;top:197.0px;font-size:8.5px;color:#1e40af;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:165px;text-align:center;font-style:italic;white-space:normal;">«block»</div>
+<div style="position:absolute;left:880.0px;top:208.0px;font-size:10px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:165px;text-align:center;white-space:normal;line-height:1.25;padding:0 3px;box-sizing:border-box;">Module<br>d'Extension</div>
+<div style="position:absolute;left:880.0px;top:240.0px;width:165.0px;height:0;border-top:1px solid #2563eb;transform:rotate(0.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:887.0px;top:248.0px;font-size:8.5px;color:#334155;font-weight:400;z-index:6;text-align:left;white-space:nowrap;width:151px;white-space:normal;line-height:1.25;">port annexe 15 points</div>
+<div style="position:absolute;left:887.0px;top:264.0px;font-size:8.5px;color:#334155;font-weight:400;z-index:6;text-align:left;white-space:nowrap;width:151px;white-space:normal;line-height:1.25;">connecteur caméra HuskyLens</div>
+<div style="position:absolute;left:1055px;top:190px;width:165px;height:175px;background:#f0fdf4;border:1.4px solid #059669;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:1055.0px;top:197.0px;font-size:8.5px;color:#065f46;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:165px;text-align:center;font-style:italic;white-space:normal;">«block»</div>
+<div style="position:absolute;left:1055.0px;top:208.0px;font-size:10px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:165px;text-align:center;white-space:normal;line-height:1.25;padding:0 3px;box-sizing:border-box;">Module<br>d'Alimentation</div>
+<div style="position:absolute;left:1055.0px;top:240.0px;width:165.0px;height:0;border-top:1px solid #059669;transform:rotate(0.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:1062.0px;top:248.0px;font-size:8.5px;color:#334155;font-weight:400;z-index:6;text-align:left;white-space:nowrap;width:151px;white-space:normal;line-height:1.25;">accu 18650 (non fourni)</div>
+<div style="position:absolute;left:1062.0px;top:264.0px;font-size:8.5px;color:#334155;font-weight:400;z-index:6;text-align:left;white-space:nowrap;width:151px;white-space:normal;line-height:1.25;">microUSB / USB-C</div>
+<div style="position:absolute;left:590.0px;top:90.0px;width:512.4px;height:0;border-top:1.1px solid #334155;transform:rotate(168.74deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:590.0px;top:90.0px;width:342.4px;height:0;border-top:1.1px solid #334155;transform:rotate(163.02deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:590.0px;top:90.0px;width:182.4px;height:0;border-top:1.1px solid #334155;transform:rotate(146.75deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:590.0px;top:90.0px;width:102.5px;height:0;border-top:1.1px solid #334155;transform:rotate(77.32deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:590.0px;top:90.0px;width:221.4px;height:0;border-top:1.1px solid #334155;transform:rotate(26.85deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:590.0px;top:90.0px;width:385.7px;height:0;border-top:1.1px solid #334155;transform:rotate(15.03deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:590.0px;top:90.0px;width:556.6px;height:0;border-top:1.1px solid #334155;transform:rotate(10.35deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:584.0px;top:85.8px;width:12px;height:8.4px;background:#334155;transform:rotate(45deg);z-index:2;"></div>
+</div>
+  </div>
+  <details class="explain">
+    <summary>Lecture du diagramme</summary>
+    <div class="content">
+      <p>Le losange plein indique une relation de <b>composition</b> : « Maqueen Plus V2 » est constitué de 7 blocs. Le Module de Perception regroupe les 8 capteurs (distance, 6 lignes, IR) et le Module de Signalisation les éléments de restitution (buzzer, LED). L'Interface micro:bit fait le lien entre la carte micro:bit (non fournie) et le reste du robot.</p>
+    </div>
+  </details>
+</section>
+
+<section class="card" id="ibd">
+  <h2><span class="num">4</span>Diagramme de blocs internes (IBD)</h2>
+  <div class="diagram-frame">
+<div style="position:relative;width:1200px;height:620px;font-family:'Segoe UI',Arial,sans-serif;">
+<div style="position:absolute;left:20px;top:20px;width:1160px;height:580px;border:1.4px dashed #334155;border-radius:6px;background:#fbfdff;z-index:0;"></div>
+<div style="position:absolute;left:35.0px;top:28.0px;font-size:12px;color:#334155;font-weight:400;z-index:6;text-align:left;white-space:nowrap;font-style:italic;">«ibd» Maqueen Plus V2 : Bloc</div>
+<div style="position:absolute;left:500px;top:260px;width:200px;height:100px;background:#eff6ff;border:1.4px solid #2563eb;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:500.0px;top:302.0px;font-size:12px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:200px;text-align:center;">Interface micro:bit</div>
+<div style="position:absolute;left:500.0px;top:318.0px;font-size:9.5px;color:#1e40af;font-weight:400;z-index:6;text-align:center;white-space:nowrap;width:200px;text-align:center;">: connecteur edge</div>
+<div style="position:absolute;left:70px;top:60px;width:200px;height:95px;background:#fdf4ff;border:1.4px solid #a855f7;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:70.0px;top:99.5px;font-size:12px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:200px;text-align:center;">Module de<br>Perception</div>
+<div style="position:absolute;left:930px;top:60px;width:200px;height:95px;background:#fff7ed;border:1.4px solid #ea580c;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:930.0px;top:99.5px;font-size:12px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:200px;text-align:center;">Module de<br>Signalisation</div>
+<div style="position:absolute;left:70px;top:270px;width:200px;height:95px;background:#eff6ff;border:1.4px solid #2563eb;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:70.0px;top:309.5px;font-size:12px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:200px;text-align:center;">Module<br>Moteurs</div>
+<div style="position:absolute;left:930px;top:270px;width:200px;height:95px;background:#eff6ff;border:1.4px solid #2563eb;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:930.0px;top:309.5px;font-size:12px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:200px;text-align:center;">Module<br>d'Extension</div>
+<div style="position:absolute;left:70px;top:480px;width:200px;height:95px;background:#f0fdf4;border:1.4px solid #059669;border-radius:4px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:70.0px;top:519.5px;font-size:12px;color:#1e293b;font-weight:700;z-index:6;text-align:center;white-space:nowrap;width:200px;text-align:center;">Module<br>d'Alimentation</div>
+<div style="position:absolute;left:265px;top:145px;width:10px;height:10px;background:#fff;border:1.2px solid #334155;z-index:2;"></div>
+<div style="position:absolute;left:495px;top:278px;width:10px;height:10px;background:#fff;border:1.2px solid #334155;z-index:2;"></div>
+<div style="position:absolute;left:270.0px;top:150.0px;width:265.7px;height:0;border-top:1.5px solid #1e40af;transform:rotate(30.04deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:492.0px;top:278.2px;width:0;height:0;border-top:4.8px solid transparent;border-bottom:4.8px solid transparent;border-left:8.0px solid #1e40af;transform-origin:8.0px 4.8px;transform:rotate(30.04deg);z-index:2;"></div>
+<div style="position:absolute;left:310.0px;top:202.5px;font-size:9.8px;color:#1e40af;font-weight:400;z-index:6;text-align:left;white-space:nowrap;width:190px;">données capteurs (ligne / distance / IR)</div>
+<div style="position:absolute;left:925px;top:145px;width:10px;height:10px;background:#fff;border:1.2px solid #334155;z-index:2;"></div>
+<div style="position:absolute;left:695px;top:278px;width:10px;height:10px;background:#fff;border:1.2px solid #334155;z-index:2;"></div>
+<div style="position:absolute;left:930.0px;top:150.0px;width:265.7px;height:0;border-top:1.5px solid #1e40af;transform:rotate(149.96deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:692.0px;top:278.2px;width:0;height:0;border-top:4.8px solid transparent;border-bottom:4.8px solid transparent;border-left:8.0px solid #1e40af;transform-origin:8.0px 4.8px;transform:rotate(149.96deg);z-index:2;"></div>
+<div style="position:absolute;left:740.0px;top:202.5px;font-size:9.8px;color:#1e40af;font-weight:400;z-index:6;text-align:left;white-space:nowrap;width:190px;">commandes LED / buzzer</div>
+<div style="position:absolute;left:265px;top:313px;width:10px;height:10px;background:#fff;border:1.2px solid #334155;z-index:2;"></div>
+<div style="position:absolute;left:495px;top:300px;width:10px;height:10px;background:#fff;border:1.2px solid #334155;z-index:2;"></div>
+<div style="position:absolute;left:270.0px;top:318.0px;width:230.4px;height:0;border-top:1.5px solid #1e40af;transform:rotate(-3.24deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:492.0px;top:300.2px;width:0;height:0;border-top:4.8px solid transparent;border-bottom:4.8px solid transparent;border-left:8.0px solid #1e40af;transform-origin:8.0px 4.8px;transform:rotate(-3.24deg);z-index:2;"></div>
+<div style="position:absolute;left:310.0px;top:297.5px;font-size:9.8px;color:#1e40af;font-weight:400;z-index:6;text-align:left;white-space:nowrap;width:190px;">commandes moteurs (vitesse)</div>
+<div style="position:absolute;left:925px;top:313px;width:10px;height:10px;background:#fff;border:1.2px solid #334155;z-index:2;"></div>
+<div style="position:absolute;left:695px;top:300px;width:10px;height:10px;background:#fff;border:1.2px solid #334155;z-index:2;"></div>
+<div style="position:absolute;left:930.0px;top:318.0px;width:230.4px;height:0;border-top:1.5px solid #1e40af;transform:rotate(-176.76deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:692.0px;top:300.2px;width:0;height:0;border-top:4.8px solid transparent;border-bottom:4.8px solid transparent;border-left:8.0px solid #1e40af;transform-origin:8.0px 4.8px;transform:rotate(-176.76deg);z-index:2;"></div>
+<div style="position:absolute;left:740.0px;top:297.5px;font-size:9.8px;color:#1e40af;font-weight:400;z-index:6;text-align:left;white-space:nowrap;width:190px;">servomoteurs / données caméra</div>
+<div style="position:absolute;left:265px;top:495px;width:10px;height:10px;background:#fff;border:1.2px solid #334155;z-index:2;"></div>
+<div style="position:absolute;left:495px;top:330px;width:10px;height:10px;background:#fff;border:1.2px solid #334155;z-index:2;"></div>
+<div style="position:absolute;left:270.0px;top:500.0px;width:283.1px;height:0;border-top:1.3px dashed #c2410c;transform:rotate(-35.66deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:265px;top:495px;width:10px;height:10px;background:#fff;border:1.2px solid #334155;z-index:2;"></div>
+<div style="position:absolute;left:925px;top:335px;width:10px;height:10px;background:#fff;border:1.2px solid #334155;z-index:2;"></div>
+<div style="position:absolute;left:270.0px;top:500.0px;width:679.1px;height:0;border-top:1.3px dashed #c2410c;transform:rotate(-13.63deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:265px;top:495px;width:10px;height:10px;background:#fff;border:1.2px solid #334155;z-index:2;"></div>
+<div style="position:absolute;left:925px;top:125px;width:10px;height:10px;background:#fff;border:1.2px solid #334155;z-index:2;"></div>
+<div style="position:absolute;left:270.0px;top:500.0px;width:756.6px;height:0;border-top:1.3px dashed #c2410c;transform:rotate(-29.28deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:265px;top:495px;width:10px;height:10px;background:#fff;border:1.2px solid #334155;z-index:2;"></div>
+<div style="position:absolute;left:265px;top:140px;width:10px;height:10px;background:#fff;border:1.2px solid #334155;z-index:2;"></div>
+<div style="position:absolute;left:270.0px;top:500.0px;width:355.0px;height:0;border-top:1.3px dashed #c2410c;transform:rotate(-90.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:492.0px;top:330.2px;width:0;height:0;border-top:4.8px solid transparent;border-bottom:4.8px solid transparent;border-left:8.0px solid #c2410c;transform-origin:8.0px 4.8px;transform:rotate(-35.66deg);z-index:2;"></div>
+<div style="position:absolute;left:320.0px;top:440.0px;font-size:10px;color:#c2410c;font-weight:400;z-index:6;text-align:left;white-space:nowrap;font-style:italic;">alimentation (vers tous les modules)</div>
+</div>
+  </div>
+  <details class="explain">
+    <summary>Lecture du diagramme</summary>
+    <div class="content">
+      <ul>
+        <li>Les petits carrés représentent les <b>ports</b> par lesquels les blocs échangent des flux (item flows).</li>
+        <li>Les flèches pleines bleues = <b>flux d'information</b> (données capteurs, commandes moteurs, commandes LED/buzzer, servomoteurs/caméra).</li>
+        <li>Les flèches orange en pointillés = <b>flux d'énergie</b> : le module d'alimentation (accu 18650) distribue l'énergie vers l'ensemble des modules.</li>
+        <li>L'Interface micro:bit est le point central : elle reçoit les données des capteurs et pilote en retour les moteurs, la signalisation et le module d'extension.</li>
+      </ul>
+    </div>
+  </details>
+</section>
+
+<section class="card" id="seq">
+  <h2><span class="num">5</span>Diagramme de séquence</h2>
+  <p style="margin:2px 0 8px 0;color:var(--muted);font-size:13.5px;">Scénario : le robot suit une ligne en ajustant sa vitesse et réagit lorsqu'un obstacle est détecté.</p>
+  <div class="diagram-frame">
+<div style="position:relative;width:1200px;height:620px;font-family:'Segoe UI',Arial,sans-serif;">
+<div style="position:absolute;left:20px;top:55px;width:140px;height:34px;background:#f1f5f9;border:1.4px solid #334155;border-radius:4px;z-index:2;box-sizing:border-box;"></div>
+<div style="position:absolute;left:20.0px;top:66.0px;font-size:11.2px;color:#1e293b;font-weight:600;z-index:6;text-align:center;white-space:nowrap;width:140px;text-align:center;">Utilisateur</div>
+<div style="position:absolute;left:90.0px;top:89.0px;width:491.0px;height:0;border-top:1.2px dashed #94a3b8;transform:rotate(90.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:220px;top:55px;width:140px;height:34px;background:#eff6ff;border:1.4px solid #2563eb;border-radius:4px;z-index:2;box-sizing:border-box;"></div>
+<div style="position:absolute;left:220.0px;top:66.0px;font-size:11.2px;color:#1e293b;font-weight:600;z-index:6;text-align:center;white-space:nowrap;width:140px;text-align:center;">:Carte micro:bit</div>
+<div style="position:absolute;left:290.0px;top:89.0px;width:491.0px;height:0;border-top:1.2px dashed #94a3b8;transform:rotate(90.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:460px;top:55px;width:140px;height:34px;background:#fdf4ff;border:1.4px solid #a855f7;border-radius:4px;z-index:2;box-sizing:border-box;"></div>
+<div style="position:absolute;left:460.0px;top:66.0px;font-size:11.2px;color:#1e293b;font-weight:600;z-index:6;text-align:center;white-space:nowrap;width:140px;text-align:center;">:Module Perception</div>
+<div style="position:absolute;left:530.0px;top:89.0px;width:491.0px;height:0;border-top:1.2px dashed #94a3b8;transform:rotate(90.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:710px;top:55px;width:140px;height:34px;background:#eff6ff;border:1.4px solid #2563eb;border-radius:4px;z-index:2;box-sizing:border-box;"></div>
+<div style="position:absolute;left:710.0px;top:66.0px;font-size:11.2px;color:#1e293b;font-weight:600;z-index:6;text-align:center;white-space:nowrap;width:140px;text-align:center;">:Module Moteurs</div>
+<div style="position:absolute;left:780.0px;top:89.0px;width:491.0px;height:0;border-top:1.2px dashed #94a3b8;transform:rotate(90.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:960px;top:55px;width:140px;height:34px;background:#fff7ed;border:1.4px solid #ea580c;border-radius:4px;z-index:2;box-sizing:border-box;"></div>
+<div style="position:absolute;left:960.0px;top:66.0px;font-size:11.2px;color:#1e293b;font-weight:600;z-index:6;text-align:center;white-space:nowrap;width:140px;text-align:center;">:Module Signalisation</div>
+<div style="position:absolute;left:1030.0px;top:89.0px;width:491.0px;height:0;border-top:1.2px dashed #94a3b8;transform:rotate(90.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:285px;top:95px;width:10px;height:475px;background:#dbeafe;border:1.4px solid #2563eb;border-radius:0px;z-index:1;box-sizing:border-box;"></div>
+<div style="position:absolute;left:90.0px;top:100.0px;width:200.0px;height:0;border-top:1.3px solid #1e293b;transform:rotate(0.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:282.0px;top:95.2px;width:0;height:0;border-top:4.8px solid transparent;border-bottom:4.8px solid transparent;border-left:8.0px solid #1e293b;transform-origin:8.0px 4.8px;transform:rotate(0.00deg);z-index:2;"></div>
+<div style="position:absolute;left:98.0px;top:84.0px;font-size:10.6px;color:#1e293b;font-weight:400;z-index:6;text-align:left;white-space:nowrap;">1: téléverserProgramme()</div>
+<div style="position:absolute;left:290.0px;top:140.0px;width:240.0px;height:0;border-top:1.3px solid #1e293b;transform:rotate(0.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:522.0px;top:135.2px;width:0;height:0;border-top:4.8px solid transparent;border-bottom:4.8px solid transparent;border-left:8.0px solid #1e293b;transform-origin:8.0px 4.8px;transform:rotate(0.00deg);z-index:2;"></div>
+<div style="position:absolute;left:298.0px;top:124.0px;font-size:10.6px;color:#1e293b;font-weight:400;z-index:6;text-align:left;white-space:nowrap;">2: lireCapteursLigne()</div>
+<div style="position:absolute;left:530.0px;top:175.0px;width:240.0px;height:0;border-top:1.3px dashed #64748b;transform:rotate(180.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:282.0px;top:170.2px;width:0;height:0;border-top:4.4px solid transparent;border-bottom:4.4px solid transparent;border-left:8.0px solid #64748b;opacity:.85;transform-origin:8.0px 4.4px;transform:rotate(180.00deg);z-index:2;"></div>
+<div style="position:absolute;left:298.0px;top:159.0px;font-size:10.6px;color:#1e293b;font-weight:400;z-index:6;text-align:left;white-space:nowrap;">3: étatLigne()</div>
+<div style="position:absolute;left:290.0px;top:210.0px;width:240.0px;height:0;border-top:1.3px solid #1e293b;transform:rotate(0.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:522.0px;top:205.2px;width:0;height:0;border-top:4.8px solid transparent;border-bottom:4.8px solid transparent;border-left:8.0px solid #1e293b;transform-origin:8.0px 4.8px;transform:rotate(0.00deg);z-index:2;"></div>
+<div style="position:absolute;left:298.0px;top:194.0px;font-size:10.6px;color:#1e293b;font-weight:400;z-index:6;text-align:left;white-space:nowrap;">4: lireCapteurDistance()</div>
+<div style="position:absolute;left:530.0px;top:245.0px;width:240.0px;height:0;border-top:1.3px dashed #64748b;transform:rotate(180.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:282.0px;top:240.2px;width:0;height:0;border-top:4.4px solid transparent;border-bottom:4.4px solid transparent;border-left:8.0px solid #64748b;opacity:.85;transform-origin:8.0px 4.4px;transform:rotate(180.00deg);z-index:2;"></div>
+<div style="position:absolute;left:298.0px;top:229.0px;font-size:10.6px;color:#1e293b;font-weight:400;z-index:6;text-align:left;white-space:nowrap;">5: distanceObstacle()</div>
+<div style="position:absolute;left:290.0px;top:275.0px;width:55.0px;height:0;border-top:1.2px solid #1e293b;transform:rotate(0.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:345.0px;top:275.0px;width:20.0px;height:0;border-top:1.2px solid #1e293b;transform:rotate(90.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:345.0px;top:295.0px;width:55.0px;height:0;border-top:1.2px solid #1e293b;transform:rotate(180.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:282.0px;top:290.2px;width:0;height:0;border-top:4.8px solid transparent;border-bottom:4.8px solid transparent;border-left:8.0px solid #1e293b;transform-origin:8.0px 4.8px;transform:rotate(180.00deg);z-index:2;"></div>
+<div style="position:absolute;left:300.0px;top:258.0px;font-size:10.6px;color:#1e293b;font-weight:400;z-index:6;text-align:left;white-space:nowrap;">6: évaluerTrajectoire()</div>
+<div style="position:absolute;left:290.0px;top:330.0px;width:490.0px;height:0;border-top:1.3px solid #1e293b;transform:rotate(0.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:772.0px;top:325.2px;width:0;height:0;border-top:4.8px solid transparent;border-bottom:4.8px solid transparent;border-left:8.0px solid #1e293b;transform-origin:8.0px 4.8px;transform:rotate(0.00deg);z-index:2;"></div>
+<div style="position:absolute;left:298.0px;top:314.0px;font-size:10.6px;color:#1e293b;font-weight:400;z-index:6;text-align:left;white-space:nowrap;">7: ajusterVitesse(gauche,droite)</div>
+<div style="position:absolute;left:780.0px;top:365.0px;width:490.0px;height:0;border-top:1.3px dashed #64748b;transform:rotate(180.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:282.0px;top:360.2px;width:0;height:0;border-top:4.4px solid transparent;border-bottom:4.4px solid transparent;border-left:8.0px solid #64748b;opacity:.85;transform-origin:8.0px 4.4px;transform:rotate(180.00deg);z-index:2;"></div>
+<div style="position:absolute;left:298.0px;top:349.0px;font-size:10.6px;color:#1e293b;font-weight:400;z-index:6;text-align:left;white-space:nowrap;">8: vitesseAppliquée()</div>
+<div style="position:absolute;left:290.0px;top:400.0px;width:740.0px;height:0;border-top:1.3px solid #1e293b;transform:rotate(0.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:1022.0px;top:395.2px;width:0;height:0;border-top:4.8px solid transparent;border-bottom:4.8px solid transparent;border-left:8.0px solid #1e293b;transform-origin:8.0px 4.8px;transform:rotate(0.00deg);z-index:2;"></div>
+<div style="position:absolute;left:298.0px;top:384.0px;font-size:10.6px;color:#1e293b;font-weight:400;z-index:6;text-align:left;white-space:nowrap;">9: allumerLED(couleur)</div>
+<div style="position:absolute;left:290.0px;top:440.0px;width:490.0px;height:0;border-top:1.3px solid #1e293b;transform:rotate(0.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:772.0px;top:435.2px;width:0;height:0;border-top:4.8px solid transparent;border-bottom:4.8px solid transparent;border-left:8.0px solid #1e293b;transform-origin:8.0px 4.8px;transform:rotate(0.00deg);z-index:2;"></div>
+<div style="position:absolute;left:298.0px;top:424.0px;font-size:10.6px;color:#1e293b;font-weight:400;z-index:6;text-align:left;white-space:nowrap;">10: [si obstacle] arrêterMoteurs()</div>
+<div style="position:absolute;left:290.0px;top:475.0px;width:740.0px;height:0;border-top:1.3px solid #1e293b;transform:rotate(0.00deg);transform-origin:0 0;z-index:1;"></div>
+<div style="position:absolute;left:1022.0px;top:470.2px;width:0;height:0;border-top:4.8px solid transparent;border-bottom:4.8px solid transparent;border-left:8.0px solid #1e293b;transform-origin:8.0px 4.8px;transform:rotate(0.00deg);z-index:2;"></div>
+<div style="position:absolute;left:298.0px;top:459.0px;font-size:10.6px;color:#1e293b;font-weight:400;z-index:6;text-align:left;white-space:nowrap;">11: activerBuzzer()</div>
+</div>
+  </div>
+  <details class="explain">
+    <summary>Lecture du diagramme</summary>
+    <div class="content">
+      <ul>
+        <li>Flèches pleines = <b>appels synchrones</b> ; flèches pointillées = <b>messages de retour</b>.</li>
+        <li>Le message 6 est un <b>message réflexif</b> : la carte micro:bit évalue elle‑même la trajectoire à partir des données de ligne et de distance avant d'agir sur les moteurs.</li>
+        <li>La bande colorée sur la ligne de vie de l'Utilisateur représente la période d'activation du programme pendant toute la durée du parcours.</li>
+      </ul>
+    </div>
+  </details>
+</section>
+
+</div>
+<footer>Document réalisé à partir des caractéristiques techniques publiques du robot Maqueen Plus V2 (réf. MI-MAQUEEN-PLUS) — version 100% HTML/CSS.</footer>
+<a href="../index.html" style="position:fixed;bottom:16px;left:16px;z-index:99999;background:#1e3a5f;color:#fff;padding:10px 16px;border-radius:24px;font:600 14px system-ui,sans-serif;text-decoration:none;box-shadow:0 2px 8px rgba(0,0,0,.25)">← Sommaire</a></body>
+</html>

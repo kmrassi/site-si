@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="fr"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Concevoir le caisson d'une enceinte Bluetooth — guide élève</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F8FAF7; --grid:rgba(43,95,168,.07); --ink:#1E2638; --muted:#566077;
+  --card:#FFFFFF; --line:#D9DFE8; --red:#C8233A; --blue:#2B5FA8; --blue-soft:#E8F0FB;
+  --shot-bg:#FFFFFF;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){ :root:not([data-theme="light"]){
+  --paper:#141923; --grid:rgba(140,170,220,.06); --ink:#E7EAF1; --muted:#A3ACC0;
+  --card:#1C2230; --line:#2E3647; --red:#FF6B7D; --blue:#86AEF0; --blue-soft:#1F2B42; --shot-bg:#FFFFFF;}}
+:root[data-theme="dark"]{
+  --paper:#141923; --grid:rgba(140,170,220,.06); --ink:#E7EAF1; --muted:#A3ACC0;
+  --card:#1C2230; --line:#2E3647; --red:#FF6B7D; --blue:#86AEF0; --blue-soft:#1F2B42; --shot-bg:#FFFFFF;}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + 16px);scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{margin:0;background-color:var(--paper);color:var(--ink);
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:24px 24px;
+  font-family:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+  font-size:1.125rem;line-height:1.6}
+img{max-width:100%;height:auto}
+a{color:var(--blue)}
+:focus-visible{outline:3px solid var(--blue);outline-offset:2px;border-radius:4px}
+
+.wrap{display:grid;grid-template-columns:1fr;max-width:1180px;margin:0 auto;padding:0 20px}
+@media (min-width:1000px){.wrap{grid-template-columns:230px minmax(0,1fr);gap:48px}}
+
+nav.toc{display:none}
+@media (min-width:1000px){
+  nav.toc{display:block;position:sticky;top:calc(env(safe-area-inset-top,0px) + 24px);align-self:start;margin-top:40px;font-size:.95rem}
+  nav.toc ol{list-style:none;margin:0;padding:0;border-left:2px solid var(--line)}
+  nav.toc a{display:block;padding:5px 0 5px 14px;margin-left:-2px;border-left:2px solid transparent;color:var(--muted);text-decoration:none}
+  nav.toc a:hover{color:var(--ink);border-left-color:var(--red)}
+  nav.toc .n{display:inline-block;width:1.6em;color:var(--red);font-weight:700}
+}
+
+main{max-width:780px;min-width:0;padding-bottom:64px}
+header.hero{padding:48px 0 12px}
+.hero h1{font-size:clamp(2.1rem,5vw,3.1rem);line-height:1.1;margin:0 0 12px;letter-spacing:-.01em}
+.hero p.lead{font-size:1.25rem;color:var(--muted);margin:0 0 24px;max-width:60ch}
+
+/* Carte de l'écran */
+.map{position:relative;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--shot-bg)}
+.map img{display:block;width:100%}
+.pin{position:absolute;transform:translate(-50%,-50%);width:34px;height:34px;border-radius:50%;
+  background:var(--red);color:#fff;font-weight:700;display:grid;place-items:center;font-size:1rem;
+  box-shadow:0 0 0 4px rgba(255,255,255,.9)}
+.legend{list-style:none;padding:0;margin:16px 0 0;display:grid;gap:8px}
+@media (min-width:640px){.legend{grid-template-columns:1fr 1fr}}
+.legend li{display:flex;gap:10px;align-items:flex-start}
+.legend b.p{flex:0 0 28px;height:28px;border-radius:50%;background:var(--red);color:#fff;display:grid;place-items:center;font-size:.9rem}
+
+.box{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:18px 20px;margin:24px 0}
+.box h2{font-size:1.2rem;margin:0 0 8px}
+dl.voc{display:grid;grid-template-columns:auto 1fr;gap:6px 16px;margin:0}
+dl.voc dt{font-weight:700}
+dl.voc dd{margin:0}
+
+.toc-mobile{margin:8px 0 8px}
+@media (min-width:1000px){.toc-mobile{display:none}}
+.toc-mobile ol{columns:2;column-gap:24px;padding-left:1.4em;margin:8px 0 0}
+
+section.fiche{margin-top:56px}
+.fiche > h2{display:flex;align-items:baseline;gap:14px;font-size:1.75rem;line-height:1.2;margin:0 0 6px}
+.fiche > h2 .num{font-size:1rem;flex:0 0 auto;color:var(--red);border:2px solid var(--red);border-radius:50%;
+  width:2.1em;height:2.1em;display:grid;place-items:center;transform:translateY(-3px)}
+.fiche .fr{color:var(--muted);font-size:1rem;margin:0 0 14px}
+.pour{background:var(--blue-soft);border-left:4px solid var(--blue);border-radius:0 8px 8px 0;padding:10px 14px;margin:14px 0}
+.pour b{color:var(--blue)}
+ol.etapes{padding-left:1.4em;margin:12px 0}
+ol.etapes li{margin:6px 0;padding-left:4px}
+ol.etapes li::marker{font-weight:700;color:var(--red)}
+.astuce{font-size:1rem;color:var(--muted);border-top:1px dashed var(--line);padding-top:10px;margin-top:14px}
+
+.shots{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));margin:16px 0;align-items:start}
+.shots.wide{grid-template-columns:1fr}
+figure{margin:0;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px}
+figure button{all:unset;cursor:zoom-in;display:block;background:var(--shot-bg);border-radius:6px;padding:6px;text-align:center}
+figure button:focus-visible{outline:3px solid var(--blue)}
+figure img{display:block;margin:0 auto;max-height:340px;width:auto}
+figcaption{font-size:.95rem;color:var(--muted);margin-top:8px;line-height:1.4}
+img.ico{height:1.6em;width:auto;vertical-align:middle;border-radius:4px;background:#fff;border:1px solid var(--line);padding:1px;margin:0 2px}
+
+table.outils{width:100%;border-collapse:collapse;font-size:1rem}
+.tscroll{overflow-x:auto}
+table.outils th,table.outils td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+table.outils th{font-size:.95rem;color:var(--muted)}
+kbd{font-family:inherit;font-size:.9em;border:1px solid var(--line);border-bottom-width:2px;border-radius:4px;padding:0 5px;background:var(--card)}
+
+footer{margin-top:64px;color:var(--muted);font-size:.95rem;border-top:1px solid var(--line);padding-top:16px}
+
+dialog{border:none;padding:0;background:transparent;max-width:96vw;max-height:92vh}
+dialog::backdrop{background:rgba(10,14,22,.8)}
+dialog img{display:block;max-width:96vw;max-height:86vh;width:auto;background:#fff;border-radius:8px}
+dialog .close{position:absolute;top:8px;right:8px;border:none;background:var(--red);color:#fff;font:inherit;font-weight:700;border-radius:6px;padding:4px 12px;cursor:pointer}
+
+.tscroll{overflow-x:auto;margin:14px 0}
+table.outils td.vide{min-width:80px;background:repeating-linear-gradient(0deg,transparent 0 22px,var(--line) 22px 23px)}
+.formule{font-size:1.3rem;text-align:center;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px;margin:14px 0}
+.frac{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;margin:0 4px}
+.frac span:first-child{border-bottom:2px solid currentColor;padding:0 4px}
+.check{list-style:none;padding:0}
+.check li{padding:6px 0 6px 36px;position:relative;border-bottom:1px dashed var(--line)}
+.check li::before{content:"";position:absolute;left:4px;top:10px;width:18px;height:18px;border:2px solid var(--blue);border-radius:4px}
+.alerte{border-left:4px solid var(--red);background:var(--card);border-radius:0 8px 8px 0;padding:10px 14px;margin:18px 0}
+h3{font-size:1.25rem;margin:26px 0 8px}
+.tutolink{display:inline-block;margin-top:4px;font-weight:700}
+@media print{nav.toc,.toc-mobile{display:none}body{background:#fff}.wrap{display:block}section.fiche{break-inside:auto}}
+</style></head><body>
+<div class="wrap">
+<nav class="toc" aria-label="Sommaire"><ol>
+<li><a href="#defi"><span class="n">·</span>Le défi</a></li>
+<li><a href="#e1"><span class="n">1</span>Mesurer</a></li>
+<li><a href="#e2"><span class="n">2</span>Forme et volume</a></li>
+<li><a href="#e3"><span class="n">3</span>Modéliser</a></li>
+<li><a href="#e4"><span class="n">4</span>Imprimer</a></li>
+<li><a href="#e5"><span class="n">5</span>Vérifier le son</a></li>
+<li><a href="#fin"><span class="n">✓</span>Check-list</a></li>
+</ol></nav>
+<main>
+<header class="hero">
+<h1>Concevoir le caisson d'une enceinte Bluetooth</h1>
+<p class="lead">Guide élève&nbsp;: du pied à coulisse à la mesure du son, en passant par Onshape et l'imprimante 3D Bambu Lab.</p>
+<p>Jamais utilisé Onshape ? Commence par le <a class="tutolink" href="https://claude.ai/artifact/1tuaorfdj2ZgzwyGcCGJpJ" target="_blank" rel="noopener">tutoriel en images «&nbsp;Onshape, premiers pas&nbsp;»</a>.</p>
+</header>
+
+<section class="fiche" id="defi">
+<h2>Le défi</h2>
+<p>Tu dois concevoir sur Onshape, puis imprimer en 3D, un caisson qui remplace le cube en bois du kit A4 et qui sonne <strong>mieux</strong> que lui. Le caisson doit accueillir tous les composants du kit sans les modifier, rester démontable, et tenir dans l'imprimante (Bambu Lab X1 Carbon ou X2D).</p>
+<p>Ta référence&nbsp;: le cube en bois du dossier A4. À la fin, tu compares ton caisson à ce cube avec des mesures.</p>
+<ol class="etapes">
+<li><strong>Mesurer</strong> chaque composant et noter ses contraintes.</li>
+<li><strong>Choisir</strong> la forme et le volume du caisson.</li>
+<li><strong>Modéliser</strong> le caisson dans Onshape et vérifier que tout rentre.</li>
+<li><strong>Préparer l'impression</strong> dans Bambu Studio.</li>
+<li><strong>Vérifier</strong> la qualité sonore et comparer avec le cube en bois.</li>
+</ol>
+<div class="pour"><b>Conseil :</b> garde un carnet de bord (photos, mesures, choix et pourquoi). C'est lui qui prouve ta démarche d'ingénieur.</div>
+<div class="toc-mobile box"><strong>Sommaire</strong><ol>
+<li><a href="#e1">Mesurer</a></li><li><a href="#e2">Forme et volume</a></li><li><a href="#e3">Modéliser</a></li>
+<li><a href="#e4">Imprimer</a></li><li><a href="#e5">Vérifier le son</a></li><li><a href="#fin">Check-list</a></li></ol></div>
+</section>
+
+<section class="fiche" id="e1">
+<h2><span class="num">1</span>Mesurer les composants</h2>
+<p>On ne dessine jamais un caisson «&nbsp;à l'œil&nbsp;»&nbsp;: chaque trou, chaque logement vient d'une mesure. Prends un pied à coulisse et complète la colonne «&nbsp;Ma mesure&nbsp;». Les valeurs du dossier A4 sont un point de départ&nbsp;: ton composant peut être un peu différent.</p>
+<div class="tscroll"><table class="outils">
+<thead><tr><th>Composant (repère kit batterie)</th><th>Dimensions connues</th><th>Ma mesure (mm)</th><th>Contrainte pour le caisson</th></tr></thead>
+<tbody>
+<tr><td>Haut-parleur 4 Ω – 5 W (3)</td><td>78 × 78 × 26 mm</td><td class="vide"></td><td>Découpe ronde pour la membrane, 4 trous de fixation (mesure l'entraxe), place derrière l'aimant</td></tr>
+<tr><td>Module ampli Bluetooth (6)</td><td>à mesurer</td><td class="vide"></td><td>Antenne loin du métal, LED visible, vis M3</td></tr>
+<tr><td>Module de charge 4056 (5)</td><td>28 × 17 × 4,5 mm</td><td class="vide"></td><td>Prise USB-C accessible de l'extérieur, LED bleue et rouge visibles</td></tr>
+<tr><td>Support accu 18650 (2)</td><td>à mesurer</td><td class="vide"></td><td>Accu retirable facilement, sangle Velcro, loin de la chaleur</td></tr>
+<tr><td>Bouton poussoir (7)</td><td>à mesurer</td><td class="vide"></td><td>Trou de passage + épaisseur de paroi compatible avec son écrou</td></tr>
+<tr><td>Barrettes de connexion (4)</td><td>à mesurer</td><td class="vide"></td><td>Place pour le tournevis et les fils</td></tr>
+<tr><td>Vis et inserts M3 / M2</td><td>M3&nbsp;: Ø 3 mm ; M2&nbsp;: Ø 2 mm</td><td class="vide"></td><td>Trous de passage et logements d'inserts</td></tr>
+</tbody></table></div>
+<h3>Transformer une mesure en cote</h3>
+<ul>
+<li><strong>Ajoute un jeu.</strong> Une pièce imprimée n'est jamais exacte&nbsp;: environ 0,3 mm de chaque côté (module de 17 mm → logement de 17,6 mm).</li>
+<li><strong>Trous de vis.</strong> M3 ≈ 3,4 mm ; M2 ≈ 2,4 mm.</li>
+<li><strong>Inserts.</strong> Ceux du kit sont faits pour le bois. Pour le plastique, prends des inserts à chaud (posés au fer à souder)&nbsp;: diamètre du trou donné par le fabricant, souvent autour de 4 mm pour du M3. Autre solution&nbsp;: un logement hexagonal pour écrou M3.</li>
+</ul>
+<p class="astuce">Pense à l'ordre de montage&nbsp;: comment visser, câbler et changer l'accu ? Dans le cube A4, la platine glisse dans des glissières et la face arrière se dévisse. Tu peux reprendre cette idée.</p>
+</section>
+
+<section class="fiche" id="e2">
+<h2><span class="num">2</span>Choisir la forme et le volume</h2>
+<p>Un bon caisson est <strong>fermé, rigide, assez grand et sans grandes faces parallèles</strong>.</p>
+<h3>Pourquoi un caisson ?</h3>
+<p>La membrane pousse l'air vers l'avant et, en même temps, le tire vers l'arrière. Sans caisson, l'onde de l'arrière fait le tour et annule celle de l'avant&nbsp;: les basses disparaissent. C'est le <strong>court-circuit acoustique</strong>.</p>
+<h3>Les 5 règles du caisson</h3>
+<ol class="etapes">
+<li><strong>Étanche à l'air.</strong> Une fuite fait «&nbsp;souffler&nbsp;» l'enceinte. Idée&nbsp;: un compartiment électronique séparé par une cloison, un joint en mousse sous le haut-parleur et sur le couvercle.</li>
+<li><strong>Assez de volume.</strong> Pour un haut-parleur de 78 mm, vise un volume d'air de l'ordre de 0,5 à 1,5 litre. Calcule d'abord celui du cube en bois&nbsp;: c'est ta référence.</li>
+<li><strong>Rigide.</strong> Parois d'au moins 3 à 4 mm, nervures sur les grandes faces.</li>
+<li><strong>Pas de grandes faces parallèles.</strong> Le son rebondit entre elles. Faces inclinées ou arrondies, ouate ou mousse à l'intérieur.</li>
+<li><strong>Arêtes arrondies en façade.</strong> Un congé de 10 mm ou plus autour du haut-parleur.</li>
+</ol>
+<h3>Quelle forme ?</h3>
+<div class="tscroll"><table class="outils">
+<thead><tr><th>Forme</th><th>Son</th><th>Impression 3D</th><th>Difficulté</th></tr></thead>
+<tbody>
+<tr><td>Cube (comme le modèle A4)</td><td>Moyen&nbsp;: 3 paires de faces parallèles</td><td>Très facile</td><td>Facile</td></tr>
+<tr><td>Pavé aux arêtes arrondies</td><td>Bien</td><td>Facile</td><td>Facile</td></tr>
+<tr><td>Pyramide tronquée, faces inclinées</td><td>Bien</td><td>Facile si pentes &lt; 45°</td><td>Moyenne</td></tr>
+<tr><td>Cylindre</td><td>Très bien</td><td>Facile debout</td><td>Moyenne</td></tr>
+<tr><td>Sphère, œuf</td><td>Le meilleur</td><td>Supports nécessaires (idéal sur X2D)</td><td>Difficile</td></tr>
+</tbody></table></div>
+<h3>Clos ou bass-reflex ?</h3>
+<ul>
+<li><strong>Caisson clos</strong>&nbsp;: totalement fermé. Simple, son précis, basses un peu faibles. Recommandé pour commencer.</li>
+<li><strong>Bass-reflex</strong>&nbsp;: un tube («&nbsp;évent&nbsp;») renforce une zone de basses. Il faut le calculer.</li>
+</ul>
+<p>Pour aller plus loin&nbsp;: le caisson et son tube forment un résonateur de Helmholtz, de fréquence d'accord :</p>
+<div class="formule">f<sub>B</sub> = <span class="frac"><span>c</span><span>2π</span></span> × √( <span class="frac"><span>S</span><span>V × L<sub>eff</sub></span></span> )</div>
+<p>c = 343 m/s, S = section du tube (m²), V = volume du caisson (m³), L<sub>eff</sub> = longueur du tube + environ 0,85 × son rayon (m). Vise 80 à 120 Hz, puis compare avec la version close par la mesure.</p>
+<h3>Contraintes de l'imprimante</h3>
+<ul>
+<li>Plateau X1 Carbon et X2D&nbsp;: 256 × 256 mm, hauteur environ 256 à 260 mm. Garde une marge&nbsp;: 240 mm maximum par côté.</li>
+<li>Sans support, pentes de 45° maximum par rapport à la verticale.</li>
+<li>Au moins 2 pièces (corps + couvercle vissé), sinon impossible de monter l'électronique.</li>
+<li>Évite les filaments chargés carbone ou métal, qui peuvent gêner le Bluetooth. PLA ou PETG conviennent.</li>
+</ul>
+</section>
+
+<section class="fiche" id="e3">
+<h2><span class="num">3</span>Modéliser dans Onshape</h2>
+<p>L'idée clé&nbsp;: <strong>on dessine d'abord les composants, puis le caisson autour d'eux</strong>. Tu vois tout de suite si quelque chose ne rentre pas. Chaque outil cité est expliqué en images dans le <a href="https://claude.ai/artifact/1tuaorfdj2ZgzwyGcCGJpJ" target="_blank" rel="noopener">tutoriel Onshape</a>.</p>
+<h3>A. Les maquettes des composants</h3>
+<p>Dans un Part Studio «&nbsp;Composants&nbsp;», dessine chaque composant avec des formes simples, à partir de tes mesures&nbsp;: le haut-parleur (carré de 78 mm + cylindre pour l'aimant, 26 mm de profondeur), des pavés pour les modules, le support d'accu et les barrettes, de petits pavés pour la prise USB-C et les LED.</p>
+<h3>B. Les variables</h3>
+<p>Avec l'outil <strong>Variable (#)</strong>, crée <code>ep</code> = 4 mm, <code>jeu</code> = 0,3 mm, et <code>L</code>, <code>H</code>, <code>P</code> pour les dimensions extérieures. Tape <code>#ep</code> au lieu de 4 dans tes cotes&nbsp;: tu changes un nombre, tout le modèle se met à jour.</p>
+<h3>C. Le corps du caisson</h3>
+<ol class="etapes">
+<li><strong>Esquisse</strong> de la forme extérieure, cotée avec tes variables.</li>
+<li><strong>Extrusion</strong>&nbsp;: un bloc plein.</li>
+<li><strong>Congé</strong> sur les arêtes, surtout autour de la face avant.</li>
+<li><strong>Coque</strong> (Shell) d'épaisseur <code>#ep</code>&nbsp;: le bloc devient creux.</li>
+<li>Mesure le volume d'air (voir E) et ajuste <code>L</code>, <code>H</code>, <code>P</code>.</li>
+</ol>
+<h3>D. Les formes fonctionnelles</h3>
+<ul>
+<li><strong>Face avant</strong>&nbsp;: trou rond pour la membrane, 4 trous de vis, grille en <strong>Motif circulaire</strong>.</li>
+<li><strong>Cloison</strong> pour séparer l'électronique, avec un petit trou pour les 2 fils (bouché à la colle chaude).</li>
+<li><strong>Fenêtres</strong>&nbsp;: USB-C (taille mesurée + 0,5 mm), bouton poussoir, LED de charge.</li>
+<li><strong>Bossages</strong> (cylindres Ø 8 mm) percés pour inserts ou vis, dans les coins du couvercle.</li>
+<li><strong>Nervures</strong> sur les grandes parois.</li>
+</ul>
+<h3>E. Vérifier avant d'imprimer</h3>
+<ul>
+<li><strong>Collisions</strong>&nbsp;: Booléen → Intersection entre un composant et le caisson, «&nbsp;Conserver les outils&nbsp;» coché. Si une pièce apparaît, ils se touchent&nbsp;: corrige, puis annule.</li>
+<li><strong>Volume d'air</strong>&nbsp;: Propriétés de masse. Volume du bloc plein − volume du caisson creux − volume du haut-parleur = volume d'air utile.</li>
+<li><strong>Montage</strong>&nbsp;: dans un Assemblage, vérifie que le tournevis passe et que l'accu se retire.</li>
+</ul>
+<h3>F. Découper en pièces imprimables</h3>
+<p>Avec <strong>Diviser</strong> (Split), sépare corps et couvercle. Ajoute une languette sur le couvercle qui s'emboîte dans le corps, avec 0,2 à 0,3 mm de jeu. Export&nbsp;: clic droit sur la pièce → Exporter → 3MF ou STL.</p>
+</section>
+
+<section class="fiche" id="e4">
+<h2><span class="num">4</span>Préparer l'impression</h2>
+<p>Une enceinte doit être <strong>lourde et pleine</strong>&nbsp;: des parois denses vibrent moins.</p>
+<div class="tscroll"><table class="outils">
+<thead><tr><th>Réglage Bambu Studio</th><th>Valeur conseillée</th><th>Pourquoi</th></tr></thead>
+<tbody>
+<tr><td>Matériau</td><td>PLA ou PETG</td><td>Pas de filament chargé carbone ou métal (Bluetooth)</td></tr>
+<tr><td>Nombre de parois</td><td>4 à 6</td><td>Parois rigides et étanches</td></tr>
+<tr><td>Remplissage</td><td>30 à 50 %, gyroïde</td><td>Moins de vibrations</td></tr>
+<tr><td>Hauteur de couche</td><td>0,2 mm</td><td>Bon compromis temps / qualité</td></tr>
+<tr><td>Orientation</td><td>Grande face plane sur le plateau</td><td>Moins de supports</td></tr>
+<tr><td>Supports</td><td>Seulement si pente &gt; 45°</td><td>Sur X2D, la 2e buse imprime des supports faciles à retirer</td></tr>
+</tbody></table></div>
+<p>Avant la grosse pièce, imprime une <strong>éprouvette</strong>&nbsp;: un petit carré avec un trou d'insert, une fenêtre USB-C et un trou M3. Tu vérifies tes jeux en 20 minutes au lieu de rater 10 heures d'impression.</p>
+<p class="astuce">Note dans ton carnet le temps et la masse de filament estimés&nbsp;: coût et délai font partie du cahier des charges.</p>
+</section>
+
+<section class="fiche" id="e5">
+<h2><span class="num">5</span>Vérifier la qualité sonore</h2>
+<p>On ne dit pas «&nbsp;ça sonne mieux&nbsp;»&nbsp;: on le <strong>prouve</strong>, en comparant ton caisson au cube en bois A4.</p>
+<h3>Matériel</h3>
+<ul>
+<li>2 smartphones avec l'application gratuite <strong>phyphox</strong>.</li>
+<li>Téléphone A&nbsp;: joue les sons («&nbsp;Générateur de sons&nbsp;»), connecté en Bluetooth, <strong>réglé en mono</strong> (dossier A4 p. 23).</li>
+<li>Téléphone B&nbsp;: mesure le niveau sonore («&nbsp;Amplitude audio&nbsp;» ou «&nbsp;Sonomètre&nbsp;»).</li>
+</ul>
+<h3>Protocole</h3>
+<ol class="etapes">
+<li>Accu chargé, pièce calme, enceinte toujours au même endroit.</li>
+<li>Téléphone B à 30 cm devant le haut-parleur, bien en face, sur un support.</li>
+<li>Volume du téléphone A fixé et <strong>jamais modifié</strong>.</li>
+<li>Joue chaque fréquence 5 s et note le niveau en dB.</li>
+<li>Recommence avec le cube en bois, puis avec le haut-parleur seul.</li>
+</ol>
+<div class="tscroll"><table class="outils">
+<thead><tr><th>Fréquence (Hz)</th><th>HP seul (dB)</th><th>Cube bois A4 (dB)</th><th>Mon caisson (dB)</th></tr></thead>
+<tbody>
+<tr><td>63</td><td class="vide"></td><td class="vide"></td><td class="vide"></td></tr><tr><td>125</td><td class="vide"></td><td class="vide"></td><td class="vide"></td></tr><tr><td>250</td><td class="vide"></td><td class="vide"></td><td class="vide"></td></tr><tr><td>500</td><td class="vide"></td><td class="vide"></td><td class="vide"></td></tr><tr><td>1 000</td><td class="vide"></td><td class="vide"></td><td class="vide"></td></tr><tr><td>2 000</td><td class="vide"></td><td class="vide"></td><td class="vide"></td></tr><tr><td>4 000</td><td class="vide"></td><td class="vide"></td><td class="vide"></td></tr><tr><td>8 000</td><td class="vide"></td><td class="vide"></td><td class="vide"></td></tr>
+</tbody></table></div>
+<h3>Interpréter</h3>
+<p>Trace les 3 courbes sur un même graphique (fréquence en abscisse, dB en ordonnée). Le micro d'un téléphone n'est pas étalonné&nbsp;: les dB ne sont pas exacts, mais la <strong>comparaison</strong> est valable.</p>
+<ul>
+<li>Plus de dB entre 63 et 250 Hz&nbsp;: le caisson fait bien son travail.</li>
+<li>Une courbe plate&nbsp;: un son équilibré.</li>
+<li>Un pic ou un creux fort&nbsp;: une résonance (paroi qui vibre, faces parallèles, fuite).</li>
+</ul>
+<h3>Test d'écoute à l'aveugle</h3>
+<p>Même extrait, même volume, les deux enceintes cachées derrière un carton. 3 camarades notent chacune de 1 à 5&nbsp;: basses, clarté des voix, absence de bruit parasite.</p>
+<h3>Chercher les défauts</h3>
+<ul>
+<li>Son de 100 Hz, main sur les parois&nbsp;: une paroi qui vibre fort doit être rigidifiée.</li>
+<li>Oreille près des joints&nbsp;: un souffle = une fuite à boucher.</li>
+<li>Un grésillement = une pièce ou un fil qui vibre ou touche la membrane.</li>
+</ul>
+</section>
+
+<section class="fiche" id="fin">
+<h2><span class="num">✓</span>Check-list finale</h2>
+<ul class="check">
+<li>Tableau des mesures complété, avec les jeux ajoutés</li>
+<li>Modèle Onshape piloté par des variables</li>
+<li>Aucune collision entre composants et caisson (test Booléen)</li>
+<li>Volume d'air calculé et comparé au cube A4</li>
+<li>Prise USB-C, bouton et LED accessibles de l'extérieur</li>
+<li>Accu 18650 retirable sans outil ni effort, loin de la chaleur</li>
+<li>Caisson en au moins 2 pièces, chacune &lt; 240 mm</li>
+<li>Éprouvette imprimée et jeux validés</li>
+<li>Joints et cloison pour l'étanchéité</li>
+<li>Mesures phyphox sur les 3 configurations, graphique tracé</li>
+<li>Test d'écoute à l'aveugle réalisé</li>
+<li>Conclusion&nbsp;: mon caisson est-il meilleur ? Pourquoi ? Que changerais-je ?</li>
+</ul>
+<div class="alerte"><strong>Sécurité :</strong> on ne perce, ne serre et ne coince jamais l'accu 18650. En cas de chaleur anormale ou d'odeur, on débranche et on prévient le professeur.</div>
+</section>
+<footer>Sources&nbsp;: dossier technique A4 Technologie «&nbsp;Enceinte Bluetooth&nbsp;» (D-ENCEINT-BT, mars 2025).</footer>
+</main></div>
+<a href="../index.html" style="position:fixed;bottom:16px;left:16px;z-index:99999;background:#1e3a5f;color:#fff;padding:10px 16px;border-radius:24px;font:600 14px system-ui,sans-serif;text-decoration:none;box-shadow:0 2px 8px rgba(0,0,0,.25)">← Sommaire</a></body></html>

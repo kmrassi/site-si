@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Équilibreuse de roue – Dynamique</title>
+<style>
+:root{--bg:#f4f6fa;--card:#fff;--ink:#1b2333;--muted:#5d6678;--pri:#1f4e8c;--pri2:#163a69;--acc:#e8702a;--ok:#1d8a4a;--ko:#c0392b;--line:#dfe4ee;--soft:#eef3fb}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+.wrap{max-width:1000px;margin:0 auto;padding:16px}
+.hero{background:linear-gradient(135deg,var(--h1,#1f4e8c),var(--h2,#0f2a4f));color:#fff;border-radius:16px;padding:22px 24px}
+.hero h1{margin:.15em 0;font-size:1.6em;line-height:1.2}
+.hero .sub{opacity:.88;margin:0}
+.chips span{display:inline-block;background:rgba(255,255,255,.15);border-radius:99px;padding:2px 10px;margin:8px 6px 0 0;font-size:.85em}
+.sticky{position:sticky;top:0;z-index:5;background:var(--bg);padding:10px 0 4px}
+.scorebox{display:flex;align-items:center;gap:12px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:8px 12px;flex-wrap:wrap}
+.prog{flex:1;min-width:120px;height:10px;background:var(--soft);border-radius:99px;overflow:hidden}
+.prog i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--ok),#4cc27f);transition:width .4s}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 20px;margin:16px 0;box-shadow:0 1px 2px rgba(20,40,80,.04)}
+h2{margin:0 0 .6em;font-size:1.25em;color:var(--pri2);display:flex;align-items:center;gap:8px}
+h2 .num{background:var(--pri);color:#fff;border-radius:8px;padding:0 9px;font-size:.85em}
+h3{margin:18px 0 0;font-size:1.05em;color:var(--pri2);border-bottom:2px solid var(--soft);padding-bottom:4px}
+.muted{color:var(--muted)}
+.data{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:12px}
+.data div{background:var(--soft);border-radius:10px;padding:10px 12px}
+.data b{display:block;font-size:1.1em;color:var(--pri2)}
+.data span{font-size:.85em;color:var(--muted)}
+.q{border-top:1px solid var(--line);padding:18px 0 10px}
+.qh{display:flex;gap:10px;align-items:baseline;font-weight:600}
+.tag{background:var(--acc);color:#fff;font-weight:700;border-radius:8px;padding:1px 9px;font-size:.9em;flex:none}
+.answer{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:10px 0}
+.answer label{font-weight:600;min-width:70px}
+input[type=text],input[type=number],textarea{font:inherit;width:150px;padding:6px 10px;border:1.5px solid var(--line);border-radius:8px}
+textarea{width:100%;min-height:70px;margin-top:8px}
+.answer.ok input{border-color:var(--ok);background:#effaf3}
+.answer.ko input{border-color:var(--ko);background:#fdf1ef}
+.fb{font-size:.92em}
+.answer.ok .fb,.okc{color:var(--ok)}
+.answer.ko .fb,.koc{color:var(--ko)}
+button{font:inherit;font-size:.95em;cursor:pointer;border:1.5px solid var(--pri);border-radius:8px;padding:6px 12px;background:var(--pri);color:#fff}
+button:hover{background:var(--pri2)}
+button.ghost{background:#fff;color:var(--pri)}
+button.ghost:hover{background:var(--soft)}
+.qbtns{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:6px}
+details.hint{margin:6px 0;color:var(--muted)}
+details.hint summary{cursor:pointer;color:var(--acc);font-weight:600}
+.corr{margin-top:10px;border-left:4px solid var(--acc);background:#fff8f2;border-radius:0 10px 10px 0;padding:10px 14px}
+.step{display:none;padding:7px 0;border-bottom:1px dashed #f0d9c6}
+.step.show{display:block;animation:fi .35s}
+@keyframes fi{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+.corr .bar{display:flex;gap:8px;margin-top:8px}
+.res{font-weight:700;color:var(--acc)}
+.f{font-family:"Cambria Math",Cambria,"Times New Roman",serif;font-size:1.08em;background:#fff;border:1px solid #f1e2d5;border-radius:6px;padding:1px 7px;display:inline-block;margin:2px 0}
+.grid2{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:12px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:12px}
+@media(max-width:760px){.grid2,.grid3{grid-template-columns:1fr}}
+canvas.ch{width:100%;height:170px;display:block;background:#fbfcfe;border:1px solid var(--line);border-radius:10px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;margin:0 0 12px}
+.kpi{background:var(--soft);border-radius:10px;padding:7px 10px}
+.kpi span{font-size:.8em;color:var(--muted);display:block}
+.kpi b{font-size:1.05em;font-variant-numeric:tabular-nums}
+.kpi.hl{background:#fff1e6}
+.kpi.good{background:#e3f6ea}.kpi.bad{background:#fde4e1}
+.controls{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center}
+.ctl{flex:1;min-width:190px}
+input[type=range]{width:100%;accent-color:var(--acc)}
+.sw{display:flex;gap:6px;align-items:center;cursor:pointer}
+select{font:inherit;font-size:.9em;padding:4px 6px;border-radius:7px;border:1.5px solid var(--line);background:#fff}
+select.good{border-color:var(--ok);background:#effaf3}
+select.bad{border-color:var(--ko);background:#fdf1ef}
+.multi label,.mcq .opt{display:flex;gap:8px;align-items:center;border:1.5px solid var(--line);border-radius:8px;padding:6px 10px;margin:6px 0;cursor:pointer;background:#fff;color:var(--ink);width:100%;text-align:left}
+.mcq.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:8px}
+.mcq.cards .opt{flex-direction:column;align-items:stretch;margin:0}
+.mcq.cards .fb{grid-column:1/-1}
+.multi label.good,.opt.good{border-color:var(--ok);background:#effaf3}
+.multi label.bad,.opt.bad{border-color:var(--ko);background:#fdf1ef}
+.mcq .opt:hover{background:var(--soft)}
+.note{background:var(--soft);border-radius:10px;padding:10px 14px;font-size:.95em;margin-top:8px}
+.recap{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+.recap div{background:var(--soft);border-radius:10px;padding:10px 12px}
+footer{text-align:center;color:var(--muted);font-size:.85em;padding:10px}
+.vc{position:relative;display:inline-block}.vc::after{content:"";position:absolute;left:5%;right:5%;top:-.12em;height:.3em;background:no-repeat center/100% 100% url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 20 6%27%3E%3Cpath d=%27M0 3H17M14 0.5L19 3L14 5.5%27 stroke=%27black%27 fill=%27none%27 stroke-width=%271.4%27/%3E%3C/svg%3E")}
+
+:root{--h1:#5b2c83;--h2:#2d1645}
+.simgrid{display:grid;grid-template-columns:260px 1fr;gap:18px;align-items:center}
+@media(max-width:760px){.simgrid{grid-template-columns:1fr}.simgrid svg{max-width:250px;margin:auto;display:block}}
+.chain{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:10px 0}
+.chain span{background:var(--soft);border:1.5px solid var(--line);border-radius:10px;padding:6px 12px;font-weight:600;font-size:.92em}
+.chain i{color:var(--acc);font-style:normal;font-weight:700}
+table.tv{border-collapse:collapse;margin:8px 0;font-variant-numeric:tabular-nums}
+table.tv td,table.tv th{border:1px solid var(--line);padding:4px 14px;text-align:center}
+table.tv th{background:var(--soft)}
+.mat{display:inline-grid;grid-template-columns:repeat(3,auto);gap:6px;padding:10px 14px;border-left:3px solid var(--ink);border-right:3px solid var(--ink);border-radius:8px;margin:8px 0;background:#fbfcfe}
+.mcell{font-family:"Cambria Math",Cambria,serif;background:#fff;color:var(--ink);border:1.5px solid var(--line);min-width:96px}
+.mcell.good{border-color:var(--ok);background:#effaf3}.mcell.bad{border-color:var(--ko);background:#fdf1ef}
+.balance{display:flex;align-items:center;gap:10px;font-weight:700;padding:8px 12px;border-radius:10px;margin-top:8px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="hero">
+  <div style="font-size:.85em;opacity:.8">Terminale SI · Séquence 10 · Activité pratique</div>
+  <h1>Équilibreuse de roue</h1>
+  <p class="sub">Dimensionner en dynamique le moteur qui entraîne la roue pendant la phase d'équilibrage.</p>
+  <div class="chips"><span>Cinématique de rotation</span><span>PFD en rotation</span><span>Moment d'inertie</span><span>Méca3D</span><span>Balourd</span></div>
+</header>
+
+<div class="sticky">
+  <div class="scorebox">
+    <b>Progression</b><div class="prog"><i id="bar"></i></div><span id="score">0 / 0</span>
+    <button class="ghost" id="reset">Recommencer</button>
+    <button class="ghost" id="revealAll" title="Pour la projection en classe">Tout dévoiler</button>
+  </div>
+</div>
+
+<section class="card">
+  <h2><span class="num">1</span> Contexte</h2>
+  <p>Une roue de voiture doit être <b>équilibrée</b> pour limiter l'usure du pneu et des roulements, les vibrations dans l'habitacle, et pour garder une bonne tenue de route.</p>
+  <p>Une roue est équilibrée si :</p>
+  <ul style="margin-top:0">
+    <li>son <b>centre de gravité</b> est sur l'axe de rotation ;</li>
+    <li>l'axe de rotation est un <b>axe principal d'inertie</b> de la roue.</li>
+  </ul>
+  <p>L'équilibreuse fait tourner la roue et mesure les efforts dans la liaison pivot. L'opérateur ajoute ensuite des petites masses (les <b>plombs</b>) pour corriger les défauts.</p>
+  <div class="chain"><span>Secteur ERDF</span><i>→</i><span>Variateur de vitesse</span><i>→</i><span>Moteur à courant alternatif</span><i>→</i><span>Support de roue</span></div>
+  <p style="margin-bottom:4px">Pour des mesures correctes, la roue doit tourner selon ce cycle :</p>
+  <table class="tv"><tr><th>Temps (s)</th><td>0</td><td>1</td><td>5</td><td>6</td></tr><tr><th>Vitesse (tr/min)</th><td>0</td><td>300</td><td>300</td><td>0</td></tr></table>
+</section>
+
+<section class="card">
+  <h2><span class="num">▶</span> Simulateur de l'équilibreuse</h2>
+  <p class="muted" style="margin-top:0">Lance le cycle. Le couple et la puissance sont calculés avec le PFD : C<sub>moteur</sub> = I<sub>zz</sub>·α, avec I<sub>zz</sub> = 0,230665 kg·m² (valeur relevée dans Méca3D).</p>
+  <div class="simgrid">
+    <svg viewBox="0 0 300 300" width="260" height="260" aria-label="Roue sur l'équilibreuse">
+      <defs><marker id="mkF" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#d0312d"/></marker></defs>
+      <g id="wheel"></g>
+      <g id="farrow"></g>
+    </svg>
+    <div>
+      <div class="kpis">
+        <div class="kpi"><span>Phase</span><b id="kPh">–</b></div>
+        <div class="kpi"><span>Vitesse N</span><b id="kN">–</b></div>
+        <div class="kpi"><span>Vitesse ω</span><b id="kW">–</b></div>
+        <div class="kpi"><span>Accélération α</span><b id="kA">–</b></div>
+        <div class="kpi hl"><span>Couple moteur</span><b id="kC">–</b></div>
+        <div class="kpi hl"><span>Puissance moteur</span><b id="kP">–</b></div>
+        <div class="kpi" id="kFbox"><span>Effort parasite (pivot)</span><b id="kF">–</b></div>
+      </div>
+      <div class="controls">
+        <button id="play">▶ Lancer le cycle</button>
+        <div class="ctl">Temps t = <b id="tLab">0 s</b><input type="range" id="t" min="0" max="6" step="0.01" value="0"></div>
+      </div>
+      <label class="sw" style="margin-top:8px"><input type="checkbox" id="unb"> Roue non équilibrée (activité complémentaire)</label>
+    </div>
+  </div>
+  <div id="unbBox" hidden>
+    <div class="note">
+      <b>Balourd :</b> une masse m placée à une distance r de l'axe crée, en tournant, un effort sur la pivot d'intensité <span class="f">F = m · r · ω²</span> qui tourne avec la roue. <b>Défi :</b> place un plomb pour équilibrer la roue !
+      <div class="controls" style="margin-top:8px">
+        <div class="ctl">Défaut (balourd) : <b id="mbLab"></b> à r = 0,20 m<input type="range" id="mb" min="5" max="60" step="1" value="30"></div>
+        <div class="ctl">Plomb ajouté : <b id="mpLab"></b> à r = 0,20 m<input type="range" id="mp" min="0" max="60" step="1" value="0"></div>
+        <div class="ctl">Position du plomb : <b id="apLab"></b><input type="range" id="ap" min="0" max="355" step="5" value="90"></div>
+      </div>
+      <div class="balance" id="balMsg"></div>
+    </div>
+  </div>
+  <div class="grid2">
+    <canvas class="ch" id="cN"></canvas><canvas class="ch" id="cC"></canvas>
+    <canvas class="ch" id="cP"></canvas><canvas class="ch" id="cF"></canvas>
+  </div>
+</section>
+
+<section class="card">
+  <h2><span class="num">2</span> Travail demandé</h2>
+
+  <h3>3 · Paramètres cinématiques</h3>
+  <div class="q">
+    <div class="qh"><span class="tag">Q1</span><span>Calculer la vitesse angulaire maximale ω de la roue.</span></div>
+    <div class="answer" data-key="q1" data-answer="31.4" data-tol="0.01"><label>ω<sub>max</sub> =</label><input type="text" inputmode="decimal"><span>rad/s</span><button class="check">Vérifier</button><span class="fb"></span></div>
+    <details class="hint"><summary>Indice</summary>ω = N × 2π / 60, avec N en tr/min.</details>
+    <div class="qbtns"><button class="ghost reveal">Voir la correction</button></div>
+    <div class="corr" hidden>
+      <div class="step"><span class="f">ω = 300 × 2π / 60 = 10π</span> → <span class="res">ω<sub>max</sub> ≈ 31,4 rad/s</span></div>
+    </div>
+  </div>
+
+  <div class="q">
+    <div class="qh"><span class="tag">Q2</span><span>Calculer l'accélération angulaire pendant le démarrage (0 → 1 s) puis pendant l'arrêt (5 → 6 s).</span></div>
+    <div class="answer" data-key="q2a" data-answer="31.4" data-tol="0.01"><label>α (0→1 s)</label><input type="text" inputmode="decimal"><span>rad/s²</span><button class="check">Vérifier</button><span class="fb"></span></div>
+    <div class="answer" data-key="q2b" data-answer="-31.4" data-tol="0.01"><label>α (5→6 s)</label><input type="text" inputmode="decimal"><span>rad/s²</span><button class="check">Vérifier</button><span class="fb"></span></div>
+    <details class="hint"><summary>Indice</summary>α = Δω / Δt. Pendant l'arrêt, la vitesse diminue : α est négative.</details>
+    <div class="qbtns"><button class="ghost reveal">Voir la correction</button></div>
+    <div class="corr" hidden>
+      <div class="step">Démarrage : <span class="f">α = (31,4 − 0) / 1</span> → <span class="res">α = 31,4 rad/s²</span></div>
+      <div class="step">Vitesse constante (1 → 5 s) : <span class="f">α = 0</span></div>
+      <div class="step">Arrêt : <span class="f">α = (0 − 31,4) / 1</span> → <span class="res">α = −31,4 rad/s²</span></div>
+    </div>
+  </div>
+
+  <div class="q">
+    <div class="qh"><span class="tag">Q3</span><span>Quelle courbe représente l'accélération angulaire α<sub>moteur/bâti</sub>(t) ?</span></div>
+    <div class="mcq cards" data-key="q3" data-okmsg="Correct : α est constante par morceaux (créneaux), nulle à vitesse constante." id="alphaMCQ"></div>
+    <div class="qbtns"><button class="ghost reveal">Voir la correction</button></div>
+    <div class="corr" hidden>
+      <div class="step">ω(t) est un trapèze (montée 0→1 s, palier 1→5 s, descente 5→6 s). α est la pente de ω : <b>créneau positif</b> pendant la montée, <b>zéro</b> sur le palier, <b>créneau négatif</b> pendant la descente. Compare avec la courbe N(t) du simulateur.</div>
+    </div>
+  </div>
+
+  <h3>4 · Simulation Méca3D</h3>
+  <div class="q">
+    <div class="qh"><span class="tag">Q4</span><span>Quelle est l'allure du couple moteur relevé dans Méca3D ?</span></div>
+    <div class="mcq" data-key="q4" data-okmsg="Correct : le couple n'existe que quand la vitesse varie.">
+      <button class="opt" data-why="Ça, c'est l'allure de la vitesse ω(t), pas du couple.">Un trapèze : il augmente, reste constant puis diminue</button>
+      <button class="opt" data-ok="1">Un créneau positif (0→1 s), nul de 1 à 5 s, un créneau négatif (5→6 s)</button>
+      <button class="opt" data-why="Sans frottement, aucun couple n'est nécessaire pour garder la vitesse constante.">Constant et positif pendant tout le cycle</button>
+      <button class="opt" data-why="Le moteur doit accélérer la roue : il faut un couple au démarrage.">Toujours nul</button>
+      <span class="fb"></span>
+    </div>
+  </div>
+
+  <div class="q">
+    <div class="qh"><span class="tag">Q5</span><span>Justifier en quelques phrases l'allure des courbes de couple et de puissance.</span></div>
+    <textarea placeholder="Rédige ta justification, puis compare avec la correction."></textarea>
+    <details class="hint"><summary>Indice</summary>Observe les courbes « Couple » et « Puissance » du simulateur. Quand le couple est-il non nul ? Pourquoi ?</details>
+    <div class="qbtns"><button class="ghost reveal">Voir la correction</button></div>
+    <div class="corr" hidden>
+      <div class="step">Le moteur fournit une puissance, donc un couple, pendant les phases d'<b>accélération</b> et de <b>décélération</b>.</div>
+      <div class="step">Pendant la phase à <b>vitesse constante</b>, les frottements n'étant pas modélisés, la roue tourne sans que le moteur ne force : couple et puissance sont nuls.</div>
+      <div class="step"><div class="note">La puissance P = C × ω augmente linéairement pendant le démarrage (C constant, ω croissant), puis elle est négative pendant l'arrêt : le moteur freine la roue.</div></div>
+    </div>
+  </div>
+
+  <h3>5 · Méthode calculatoire</h3>
+  <div class="q">
+    <div class="qh"><span class="tag">Q6</span><span>Autour de quel axe tourne la roue dans le modèle Méca3D ?</span></div>
+    <div class="mcq" data-key="q6" data-okmsg="Correct : on utilisera donc le moment d'inertie I_zz.">
+      <button class="opt" data-why="Regarde quel terme de la matrice d'inertie est utilisé dans la correction.">Autour de l'axe x</button>
+      <button class="opt" data-why="Regarde quel terme de la matrice d'inertie est utilisé dans la correction.">Autour de l'axe y</button>
+      <button class="opt" data-ok="1">Autour de l'axe z</button>
+      <span class="fb"></span>
+    </div>
+  </div>
+
+  <div class="q">
+    <div class="qh"><span class="tag">Q7</span><span>Le seul moment appliqué sur l'élément tournant, sur l'axe de rotation, est le couple moteur. Écrire l'équation du moment dynamique (PFD) projetée sur l'axe de rotation.</span></div>
+    <div class="note" style="margin:8px 0"><span class="f">Σ <span class="vc">M</span><sub>A, ext→S</sub> = I<sub>G</sub> · <span class="vc">α</span><sub>S/R</sub></span> &nbsp;(l'équation de résultante <span class="f">Σ <span class="vc">F</span> = m · <span class="vc">a</span><sub>G</sub></span> n'est pas utilisée ici)</div>
+    <div class="selq" data-key="q7">
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-family:'Cambria Math',Cambria,serif;font-size:1.1em">
+        <select data-correct="C"><option value="">?</option><option value="C">C moteur</option><option value="P">P moteur</option><option value="m">m · g</option></select>
+        <span>=</span>
+        <select data-correct="Izz"><option value="">?</option><option value="m">masse m</option><option value="Ixx">I_xx</option><option value="Izz">I_zz</option></select>
+        <span>×</span>
+        <select data-correct="a"><option value="">?</option><option value="w">ω</option><option value="a">α (S/R)</option><option value="v">v</option></select>
+      </div>
+      <div class="qbtns"><button class="check">Vérifier mon équation</button><span class="fb"></span></div>
+    </div>
+    <div class="qbtns"><button class="ghost reveal">Voir la correction</button></div>
+    <div class="corr" hidden>
+      <div class="step"><span class="res">C<sub>moteur</sub> = I<sub>zz</sub> × α<sub>S/R</sub></span></div>
+    </div>
+  </div>
+
+  <div class="q">
+    <div class="qh"><span class="tag">Q8</span><span>Dans la fenêtre « Propriétés » de Méca3D, quel terme de la matrice d'inertie faut-il relever ? Clique dessus.</span></div>
+    <div class="mat" data-key="q8" id="mat">
+      <button class="mcell" data-why="C'est le moment d'inertie autour de x : la roue ne tourne pas autour de x.">I<sub>xx</sub></button>
+      <button class="mcell" data-why="C'est un produit d'inertie, pas un moment d'inertie autour d'un axe.">−I<sub>xy</sub></button>
+      <button class="mcell" data-why="C'est un produit d'inertie, pas un moment d'inertie autour d'un axe.">−I<sub>xz</sub></button>
+      <button class="mcell" data-why="C'est un produit d'inertie, pas un moment d'inertie autour d'un axe.">−I<sub>yx</sub></button>
+      <button class="mcell" data-why="C'est le moment d'inertie autour de y : la roue ne tourne pas autour de y.">I<sub>yy</sub></button>
+      <button class="mcell" data-why="C'est un produit d'inertie, pas un moment d'inertie autour d'un axe.">−I<sub>yz</sub></button>
+      <button class="mcell" data-why="C'est un produit d'inertie, pas un moment d'inertie autour d'un axe.">−I<sub>zx</sub></button>
+      <button class="mcell" data-why="C'est un produit d'inertie, pas un moment d'inertie autour d'un axe.">−I<sub>zy</sub></button>
+      <button class="mcell" data-ok="1">I<sub>zz</sub></button>
+    </div>
+    <div class="fb" id="matFb"></div>
+  </div>
+
+  <div class="q">
+    <div class="qh"><span class="tag">Q9</span><span>Avec I<sub>zz</sub> = 0,230665 kg·m², confirmer par une application numérique que Méca3D applique correctement le PFD.</span></div>
+    <div class="answer" data-key="q9" data-answer="7.243" data-tol="0.006"><label>C<sub>moteur</sub> =</label><input type="text" inputmode="decimal"><span>N·m</span><button class="check">Vérifier</button><span class="fb"></span></div>
+    <div class="qbtns"><button class="ghost reveal">Voir la correction</button></div>
+    <div class="corr" hidden>
+      <div class="step"><span class="f">C<sub>moteur</sub> = 0,230665 × 31,4</span> → <span class="res">C<sub>moteur</sub> ≈ 7,24 N·m</span></div>
+      <div class="step">On retrouve la valeur du tableau Méca3D (≈ 7,243 N·m pendant le démarrage) : le logiciel applique bien le PFD.</div>
+    </div>
+  </div>
+
+  <div class="q">
+    <div class="qh"><span class="tag">Q10</span><span>Pour aller plus loin : quelle est la puissance maximale demandée au moteur ?</span></div>
+    <div class="answer" data-key="q10" data-answer="227.4" data-tol="0.01"><label>P<sub>max</sub> =</label><input type="text" inputmode="decimal"><span>W</span><button class="check">Vérifier</button><span class="fb"></span></div>
+    <details class="hint"><summary>Indice</summary>P = C × ω. Elle est maximale à la fin du démarrage (t = 1 s).</details>
+    <div class="qbtns"><button class="ghost reveal">Voir la correction</button></div>
+    <div class="corr" hidden>
+      <div class="step"><span class="f">P<sub>max</sub> = C × ω<sub>max</sub> = 7,24 × 31,4</span> → <span class="res">P<sub>max</sub> ≈ 227 W</span></div>
+    </div>
+  </div>
+
+  <h3>6 · Roue non équilibrée – activité complémentaire</h3>
+  <div class="q">
+    <div class="qh"><span class="tag">Q11</span><span>Coche « Roue non équilibrée » dans le simulateur, observe la courbe d'effort, puis explique pourquoi il est utile d'équilibrer la roue avant de la monter sur le véhicule.</span></div>
+    <textarea placeholder="Rédige ton explication."></textarea>
+    <div class="qbtns"><button class="ghost reveal">Voir la correction</button></div>
+    <div class="corr" hidden>
+      <div class="step">Si la roue n'est pas équilibrée, des <b>actions mécaniques parasites</b> apparaissent dans la liaison pivot.</div>
+      <div class="step">Ces actions sollicitent la liaison pivot : elles sont source de <b>dégradations</b> (roulements) et de <b>vibrations</b> pour tout le véhicule.</div>
+      <div class="step"><div class="note">Dans le simulateur, l'effort parasite <b>tourne avec la roue</b> (courbe sinusoïdale) et son intensité augmente avec ω² : à 130 km/h, la roue tourne bien plus vite qu'à 300 tr/min, et l'effort devient très important.</div></div>
+    </div>
+  </div>
+
+  <div class="q">
+    <div class="qh"><span class="tag">Défi</span><span>Dans le simulateur, choisis la masse et la position du plomb pour que la roue soit équilibrée.</span></div>
+    <div class="fb" id="balFb">Coche « Roue non équilibrée » dans le simulateur pour commencer.</div>
+  </div>
+</section>
+
+<section class="card">
+  <h2><span class="num">★</span> À retenir</h2>
+  <div class="recap">
+    <div><b>Conversion</b><br><span class="f">ω = N × 2π / 60</span></div>
+    <div><b>Accélération angulaire</b><br><span class="f">α = Δω / Δt</span></div>
+    <div><b>PFD en rotation</b><br><span class="f">C<sub>moteur</sub> = I<sub>zz</sub> × α</span></div>
+    <div><b>Puissance</b><br><span class="f">P = C × ω</span></div>
+    <div><b>Balourd</b><br><span class="f">F = m · r · ω²</span></div>
+  </div>
+</section>
+<footer>TP Équilibreuse de roue – version interactive</footer>
+</div>
+
+<script>
+const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
+const fmt=(v,d=2)=>{if(Math.abs(v)<1e-9)v=0;return v.toLocaleString('fr-FR',{minimumFractionDigits:d,maximumFractionDigits:d});};
+const parseNum=s=>{s=(s||'').trim().replace(/[\s  ]/g,'').replace(',','.');return s===''?NaN:Number(s);};
+const set=(s,v)=>{const e=$(s);if(e)e.textContent=v;};
+
+/* ---------- score ---------- */
+const keys=new Set(), done=new Set();
+function register(k){keys.add(k);updScore();}
+function pass(k){done.add(k);updScore();}
+function updScore(){const n=keys.size,d=done.size;set('#score',d+' / '+n+' réussies');const b=$('#bar');if(b)b.style.width=(n?100*d/n:0)+'%';}
+
+/* ---------- aide intelligente ---------- */
+const FACTORS=[[1e6,'Vérifie l’unité (facteur 10⁶ : Pa/MPa, W/MW… ?).'],[1000,'Vérifie l’unité (facteur 1 000 : kN, kW, mm/m… ?).'],[2*Math.PI,'Il manque peut-être le facteur 2π (tours → radians).'],[60,'Pense à convertir les minutes en secondes.'],[60/(2*Math.PI),'Pense à convertir les tr/min en rad/s (× 2π / 60).'],[9.81,'Masse ou poids ? Pense au facteur g = 9,81 m/s².'],[2,'Tu es à un facteur 2 près : relis bien la formule.']];
+function diagnose(v,ans){
+  if(ans!==0&&Math.abs(v+ans)<=Math.abs(ans)*0.02)return 'Attention au signe !';
+  if(ans===0||v===0)return '';
+  const r=Math.abs(v/ans);
+  for(const[f,m]of FACTORS){if(Math.abs(r/f-1)<0.04||Math.abs(r*f-1)<0.04)return m;}
+  return '';
+}
+function initAnswers(){
+  $$('.answer').forEach(row=>{
+    const k=row.dataset.key;register(k);
+    const inp=$('input',row),fb=$('.fb',row),ans=+row.dataset.answer,tol=+(row.dataset.tol||0.02),abs=+(row.dataset.abs||0);
+    const go=()=>{
+      const v=parseNum(inp.value);row.classList.remove('ok','ko');
+      if(isNaN(v)){fb.textContent='Entre une valeur numérique.';row.classList.add('ko');return;}
+      const ok=Math.abs(v-ans)<=Math.max(abs,Math.abs(ans)*tol);
+      if(ok){fb.textContent='✔ Correct !';row.classList.add('ok');pass(k);}
+      else{const d=diagnose(v,ans);fb.textContent='✘ Pas encore. '+(d||(v>ans?'Ta valeur est trop grande.':'Ta valeur est trop petite.'));row.classList.add('ko');}
+    };
+    $('.check',row).addEventListener('click',go);
+    inp.addEventListener('keydown',e=>{if(e.key==='Enter')go();});
+  });
+}
+function initSelects(){
+  $$('.selq').forEach(box=>{
+    const k=box.dataset.key;register(k);const fb=$('.fb',box);
+    $('.check',box).addEventListener('click',()=>{
+      let ok=true;
+      $$('select',box).forEach(s=>{const g=s.value===s.dataset.correct;s.classList.toggle('good',g);s.classList.toggle('bad',!g);if(!g)ok=false;});
+      fb.textContent=ok?'✔ Tout est juste !':'✘ Les cases en rouge sont à revoir.';fb.className='fb '+(ok?'okc':'koc');
+      if(ok)pass(k);
+    });
+  });
+}
+function initMCQ(){
+  $$('.mcq').forEach(box=>{
+    const k=box.dataset.key;register(k);const fb=$('.fb',box);
+    $$('.opt',box).forEach(b=>b.addEventListener('click',()=>{
+      $$('.opt',box).forEach(o=>o.classList.remove('good','bad'));
+      const ok=b.dataset.ok==='1';b.classList.add(ok?'good':'bad');
+      fb.textContent=ok?'✔ '+(box.dataset.okmsg||'Correct !'):'✘ '+(b.dataset.why||'Non, réessaie.');
+      fb.className='fb '+(ok?'okc':'koc');if(ok)pass(k);
+    }));
+  });
+}
+function initMulti(){
+  $$('.multi').forEach(box=>{
+    const k=box.dataset.key;register(k);const fb=$('.fb',box);
+    $('.check',box).addEventListener('click',()=>{
+      let ok=true;const why=[];
+      $$('label',box).forEach(l=>{
+        const c=$('input',l),good=l.dataset.ok==='1';l.classList.remove('good','bad');
+        if(c.checked!==good){ok=false;l.classList.add('bad');if(c.checked&&l.dataset.why)why.push(l.dataset.why);}
+        else if(good)l.classList.add('good');
+      });
+      fb.textContent=ok?'✔ '+(box.dataset.okmsg||'Bravo, c\'est complet !'):'✘ '+(why.length?why.join(' '):'Il manque au moins une bonne réponse.');
+      fb.className='fb '+(ok?'okc':'koc');if(ok)pass(k);
+    });
+  });
+}
+
+/* ---------- corrections pas à pas ---------- */
+function showStep(corr){
+  const st=$$('.step',corr);let i=+(corr.dataset.i||0);
+  if(i<st.length){st[i].classList.add('show');i++;corr.dataset.i=i;}
+  $$('.next,.all',corr).forEach(b=>b.hidden=i>=st.length);
+}
+function openCorr(q,all){
+  const rb=$('.reveal',q),corr=$('.corr',q);if(!rb||!corr)return;
+  corr.hidden=false;rb.textContent='Masquer la correction';
+  if(all){while(+(corr.dataset.i||0)<$$('.step',corr).length)showStep(corr);}
+  else if(!+(corr.dataset.i||0))showStep(corr);
+}
+function initReveal(onReset){
+  $$('.q').forEach(q=>{
+    const rb=$('.reveal',q),corr=$('.corr',q);if(!rb||!corr)return;
+    rb.dataset.label=rb.textContent;
+    const bar=document.createElement('div');bar.className='bar';
+    bar.innerHTML='<button class="ghost next">Étape suivante ▸</button><button class="ghost all">Tout afficher</button>';
+    corr.appendChild(bar);
+    rb.addEventListener('click',()=>{if(corr.hidden)openCorr(q,false);else{corr.hidden=true;rb.textContent=rb.dataset.label;}});
+    $('.next',corr).addEventListener('click',()=>showStep(corr));
+    $('.all',corr).addEventListener('click',()=>openCorr(q,true));
+  });
+  $('#revealAll').addEventListener('click',()=>$$('.q').forEach(q=>openCorr(q,true)));
+  $('#reset').addEventListener('click',()=>{
+    done.clear();updScore();
+    $$('.q input[type=text],.q textarea').forEach(i=>i.value='');
+    $$('.answer').forEach(r=>{r.classList.remove('ok','ko');$('.fb',r).textContent='';});
+    $$('.selq select').forEach(s=>{s.value='';s.classList.remove('good','bad');});
+    $$('.opt,.multi label,.mcell').forEach(o=>o.classList.remove('good','bad'));
+    $$('.multi input').forEach(c=>c.checked=false);
+    $$('.selq .fb,.mcq .fb,.multi .fb,.mat .fb').forEach(f=>f.textContent='');
+    $$('.corr').forEach(c=>{c.hidden=true;c.dataset.i=0;$$('.step',c).forEach(s=>s.classList.remove('show'));$$('.next,.all',c).forEach(b=>b.hidden=false);});
+    $$('.reveal').forEach(b=>b.textContent=b.dataset.label);
+    if(onReset)onReset();
+  });
+}
+function initAll(onReset){initAnswers();initSelects();initMCQ();initMulti();initReveal(onReset);}
+
+/* ---------- graphiques ---------- */
+function niceTicks(a,b,n){const span=b-a,s0=span/n,mag=10**Math.floor(Math.log10(s0)),r=s0/mag,step=(r<1.5?1:r<3?2:r<7?5:10)*mag,out=[];for(let v=Math.ceil(a/step)*step;v<=b+1e-9;v+=step)out.push(+v.toFixed(10));return out;}
+function chart(cv,o){
+  const{f,t0=0,t1,n=800,color,ylab,cursor,fmtY=v=>fmt(v,0),fmtX=v=>fmt(v,0),xlab='t (s)',ymin0=0,ymax0=0,fill=true}=o;
+  const dpr=window.devicePixelRatio||1,W=cv.clientWidth,H=cv.clientHeight;if(!W)return;
+  cv.width=W*dpr;cv.height=H*dpr;const c=cv.getContext('2d');c.setTransform(dpr,0,0,dpr,0,0);c.clearRect(0,0,W,H);
+  const pad={l:46,r:12,t:24,b:26},pts=[];let ymin=ymin0,ymax=ymax0;
+  for(let i=0;i<=n;i++){const t=t0+(t1-t0)*i/n,y=f(t);pts.push([t,y]);ymin=Math.min(ymin,y);ymax=Math.max(ymax,y);}
+  if(ymax-ymin<1e-9)ymax=ymin+1;const sp=ymax-ymin;ymax+=sp*.1;if(ymin<0)ymin-=sp*.1;
+  const X=t=>pad.l+(t-t0)/(t1-t0)*(W-pad.l-pad.r),Y=y=>H-pad.b-(y-ymin)/(ymax-ymin)*(H-pad.t-pad.b);
+  c.font='11px system-ui';c.strokeStyle='#e4e8f0';c.lineWidth=1;c.fillStyle='#5d6678';c.textAlign='right';c.textBaseline='middle';
+  niceTicks(ymin,ymax,4).forEach(v=>{c.beginPath();c.moveTo(pad.l,Y(v));c.lineTo(W-pad.r,Y(v));c.stroke();c.fillText(fmtY(v),pad.l-6,Y(v));});
+  c.textAlign='center';c.textBaseline='top';niceTicks(t0,t1,5).forEach(t=>c.fillText(fmtX(t),X(t),H-pad.b+5));
+  c.textAlign='right';c.textBaseline='bottom';c.fillText(xlab,W-pad.r,H-pad.b-2);
+  if(ymin<0){c.strokeStyle='#9aa3b5';c.beginPath();c.moveTo(pad.l,Y(0));c.lineTo(W-pad.r,Y(0));c.stroke();}
+  c.beginPath();pts.forEach(([t,y],i)=>i?c.lineTo(X(t),Y(y)):c.moveTo(X(t),Y(y)));c.strokeStyle=color;c.lineWidth=2.2;c.stroke();
+  if(fill){c.lineTo(X(t1),Y(Math.max(0,ymin)));c.lineTo(X(t0),Y(Math.max(0,ymin)));c.closePath();c.globalAlpha=.1;c.fillStyle=color;c.fill();c.globalAlpha=1;}
+  c.fillStyle='#1b2333';c.font='600 12px system-ui';c.textAlign='left';c.textBaseline='top';c.fillText(ylab,8,5);
+  if(cursor!=null){const cx=X(cursor),cy=Y(f(cursor));c.strokeStyle='#e8702a';c.setLineDash([4,4]);c.beginPath();c.moveTo(cx,pad.t);c.lineTo(cx,H-pad.b);c.stroke();c.setLineDash([]);c.fillStyle='#e8702a';c.beginPath();c.arc(cx,cy,5,0,7);c.fill();}
+}
+
+/* ---------- modèle ---------- */
+const I=0.230665,NM=300,WM=NM*Math.PI/30,R=0.2;
+const S={t:0,play:false,unb:false,mb:30,mp:0,ap:90};
+function N(t){if(t<=0)return 0;if(t<=1)return NM*t;if(t<=5)return NM;if(t<6)return NM*(6-t);return 0;}
+const w=t=>N(t)*Math.PI/30;
+function alpha(t){if(t>=0&&t<=1)return WM;if(t>5&&t<6)return -WM;return 0;}
+function theta(t){if(t<=0)return 0;if(t<=1)return WM*t*t/2;if(t<=5)return WM*(t-.5);if(t<6){const u=t-5;return WM*4.5+WM*(u-u*u/2);}return WM*5;}
+const C=t=>I*alpha(t), P=t=>C(t)*w(t);
+function unbal(){const ux=S.mb/1000*R+S.mp/1000*R*Math.cos(S.ap*Math.PI/180),uy=S.mp/1000*R*Math.sin(S.ap*Math.PI/180);return{U:Math.hypot(ux,uy),ph:Math.atan2(uy,ux)};}
+const Fy=t=>{if(!S.unb)return 0;const u=unbal();return u.U*w(t)**2*Math.sin(theta(t)+u.ph);};
+const balanced=()=>unbal().U<0.0004;
+function phase(t){if(t<=0)return 'Arrêt';if(t<=1)return 'Démarrage';if(t<=5)return 'Vitesse constante';if(t<6)return 'Freinage';return 'Arrêt';}
+
+/* ---------- dessin de la roue ---------- */
+function drawWheel(){
+  let s='<circle cx="150" cy="150" r="136" fill="#2b2f36"/><circle cx="150" cy="150" r="120" fill="none" stroke="#3d434d" stroke-width="6" stroke-dasharray="10 6"/>';
+  s+='<circle cx="150" cy="150" r="92" fill="#c5ccd6" stroke="#8a95a5" stroke-width="3"/>';
+  for(let i=0;i<6;i++){const a=i*Math.PI/3,x=150+55*Math.cos(a),y=150+55*Math.sin(a);s+=`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="15" fill="#7b8696"/>`;}
+  s+='<circle cx="150" cy="150" r="28" fill="#9aa4b2" stroke="#6b7685" stroke-width="2"/><circle cx="150" cy="150" r="9" fill="#2b2f36"/>';
+  s+='<line x1="150" y1="150" x2="150" y2="62" stroke="#e8702a" stroke-width="3"/>';
+  s+='<g id="defect"><circle cx="236" cy="150" r="9" fill="#d0312d" stroke="#fff" stroke-width="2"/></g>';
+  s+='<g id="plomb"></g>';
+  $('#wheel').innerHTML=s;
+}
+function drawUnb(){
+  $('#defect').style.display=S.unb?'':'none';
+  const a=S.ap*Math.PI/180,x=150+86*Math.cos(a),y=150+86*Math.sin(a);
+  $('#plomb').innerHTML=S.unb&&S.mp>0?`<rect x="${(x-8).toFixed(1)}" y="${(y-8).toFixed(1)}" width="16" height="16" rx="3" fill="#1f4e8c" stroke="#fff" stroke-width="2" transform="rotate(${S.ap} ${x.toFixed(1)} ${y.toFixed(1)})"/>`:'';
+}
+let ang=0;
+function drawForce(t){
+  const g=$('#farrow');
+  if(!S.unb){g.innerHTML='';return;}
+  const u=unbal(),F=u.U*w(t)**2;
+  if(F<0.05){g.innerHTML='';return;}
+  const dir=ang*Math.PI/180+u.ph,len=Math.min(120,F*12);
+  const x2=150+len*Math.cos(dir),y2=150+len*Math.sin(dir);
+  g.innerHTML=`<line x1="150" y1="150" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="#d0312d" stroke-width="4" marker-end="url(#mkF)"/><text x="${(x2+6).toFixed(1)}" y="${(y2-6).toFixed(1)}" font-size="13" font-weight="700" fill="#d0312d">F</text>`;
+}
+
+/* ---------- mise à jour ---------- */
+function update(){
+  const t=S.t;set('#tLab',fmt(t,2)+' s');
+  set('#kPh',phase(t));set('#kN',fmt(N(t),0)+' tr/min');set('#kW',fmt(w(t),2)+' rad/s');set('#kA',fmt(alpha(t),2)+' rad/s²');
+  set('#kC',fmt(C(t),2)+' N·m');set('#kP',fmt(P(t),1)+' W');
+  const u=unbal(),F=S.unb?u.U*w(t)**2:0;set('#kF',S.unb?fmt(F,1)+' N':'– (roue équilibrée)');
+  $('#kFbox').className='kpi'+(S.unb?(balanced()?' good':' bad'):'');
+  chart($('#cN'),{f:N,t1:6,color:'#5b2c83',ylab:'Vitesse N (tr/min)',cursor:t,fmtX:v=>fmt(v,0)});
+  chart($('#cC'),{f:C,t1:6,color:'#8e44ad',ylab:'Couple moteur (N·m)',cursor:t,fmtY:v=>fmt(v,0)});
+  chart($('#cP'),{f:P,t1:6,color:'#e8702a',ylab:'Puissance moteur (W)',cursor:t});
+  chart($('#cF'),{f:Fy,t1:6,n:2400,color:'#d0312d',ylab:'Effort parasite sur la pivot, composante y (N)',cursor:t,fill:false,fmtY:v=>fmt(v,0)});
+  drawUnb();drawForce(t);
+}
+function updBalance(){
+  set('#mbLab',S.mb+' g');set('#mpLab',S.mp+' g');set('#apLab',S.ap+'°');
+  const m=$('#balMsg'),fb=$('#balFb');
+  if(balanced()){m.style.background='#e3f6ea';m.style.color='#1d8a4a';m.textContent='✔ Roue équilibrée : plus d\'effort parasite sur la pivot !';fb.textContent='✔ Défi réussi : un plomb de même masse, placé à l\'opposé du défaut (180°), annule le balourd.';fb.className='fb okc';pass('eq');}
+  else{const u=unbal();m.style.background='#fde4e1';m.style.color='#c0392b';m.textContent=`Balourd restant : ${fmt(u.U*1000,1)} g·m → F = ${fmt(u.U*WM*WM,1)} N à 300 tr/min`;if(S.unb){fb.textContent='Pas encore équilibrée. Indice : où faut-il placer le plomb par rapport au défaut rouge ?';fb.className='fb koc';}}
+}
+
+/* ---------- QCM des courbes α ---------- */
+function mini(pts){
+  const X=t=>10+t/6*160,Y=v=>40-v*24;
+  return `<svg viewBox="0 0 180 80" width="100%" height="70"><line x1="10" y1="40" x2="175" y2="40" stroke="#9aa3b5"/><line x1="10" y1="5" x2="10" y2="75" stroke="#9aa3b5"/><polyline points="${pts.map(p=>X(p[0]).toFixed(1)+','+Y(p[1]).toFixed(1)).join(' ')}" fill="none" stroke="#d0312d" stroke-width="2.5"/></svg>`;
+}
+const AOPTS=[
+  {p:[[0,0],[1,1],[5,1],[6,0]],why:'Ça, c\'est l\'allure de ω(t) : α est la pente de ω.'},
+  {p:[[0,1],[1,1],[1,0],[5,0],[5,-1],[6,-1],[6,0]],ok:1},
+  {p:[[0,1],[1,1],[1,0],[5,0],[5,1],[6,1],[6,0]],why:'Pendant l\'arrêt la vitesse diminue : l\'accélération est négative.'},
+  {p:[[0,1],[6,1]],why:'α n\'est pas constante : elle est nulle quand la vitesse ne varie plus.'}
+];
+$('#alphaMCQ').innerHTML=AOPTS.map((o,i)=>`<button class="opt" ${o.ok?'data-ok="1"':''} ${o.why?`data-why="${o.why}"`:''}><b>Courbe ${'ABCD'[i]}</b>${mini(o.p)}</button>`).join('')+'<span class="fb"></span>';
+
+/* ---------- matrice d'inertie ---------- */
+register('q8');
+$$('.mcell').forEach(b=>b.addEventListener('click',()=>{
+  $$('.mcell').forEach(c=>c.classList.remove('good','bad'));
+  const ok=b.dataset.ok==='1',fb=$('#matFb');b.classList.add(ok?'good':'bad');
+  fb.innerHTML=ok?'✔ Correct : la roue tourne autour de z. Valeur relevée : <b>I<sub>zz</sub> = 0,230665 kg·m²</b>':'✘ '+b.dataset.why;
+  fb.className='fb '+(ok?'okc':'koc');if(ok)pass('q8');
+}));
+register('eq');
+
+/* ---------- contrôles ---------- */
+const tIn=$('#t'),playB=$('#play');
+function updPlay(){playB.textContent=S.play?'⏸ Pause':(S.t>=6?'↺ Rejouer':'▶ Lancer le cycle');}
+playB.addEventListener('click',()=>{if(!S.play&&S.t>=6)S.t=0;S.play=!S.play;updPlay();});
+tIn.addEventListener('input',()=>{S.t=+tIn.value;S.play=false;updPlay();update();});
+$('#unb').addEventListener('change',e=>{S.unb=e.target.checked;$('#unbBox').hidden=!S.unb;updBalance();update();});
+['mb','mp','ap'].forEach(id=>$('#'+id).addEventListener('input',e=>{S[id]=+e.target.value;updBalance();update();}));
+window.addEventListener('resize',update);
+let last=performance.now();
+function loop(now){
+  const dt=Math.min(.05,(now-last)/1000);last=now;
+  if(S.play){S.t=Math.min(6,S.t+dt*0.5);if(S.t>=6){S.play=false;updPlay();}tIn.value=S.t;update();}
+  ang=(ang+N(S.t)/NM*300*dt)%360;
+  $('#wheel').setAttribute('transform',`rotate(${ang.toFixed(2)} 150 150)`);
+  drawForce(S.t);
+  requestAnimationFrame(loop);
+}
+drawWheel();initAll(()=>{set('#balFb','Coche « Roue non équilibrée » dans le simulateur pour commencer.');});updBalance();update();requestAnimationFrame(loop);
+</script>
+<a href="../index.html" style="position:fixed;bottom:16px;left:16px;z-index:99999;background:#1e3a5f;color:#fff;padding:10px 16px;border-radius:24px;font:600 14px system-ui,sans-serif;text-decoration:none;box-shadow:0 2px 8px rgba(0,0,0,.25)">← Sommaire</a></body>
+</html>

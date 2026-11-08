@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Frottements, loi de Coulomb et frein V-Brake – Activité Terminale SI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Barlow+Condensed:wght@500;600;700&family=STIX+Two+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F4F6F9;--sheet:#FFFFFF;--ink:#172131;--muted:#566174;--rule:#D2D8E1;
+  --force:#C3272E;--nrm:#1B5CC0;--tan:#A0580A;--cone:#6A3D9E;--ok:#1E7A4F;--bad:#B3261E;
+  --soft-ok:#E6F4EC;--soft-bad:#FBE9E7;--soft-n:#E7EFFB;--soft-t:#FBF1E2;--ground:#C9D0DA;
+  --sans:"Atkinson Hyperlegible","Segoe UI",Arial,sans-serif;
+  --head:"Barlow Condensed","Arial Narrow","Segoe UI",sans-serif;
+  --math:"STIX Two Text","Cambria Math","Times New Roman",serif;
+  box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#0F141B;--sheet:#161D27;--ink:#E5E9EF;--muted:#9BA6B6;--rule:#2B3542;
+  --force:#FF6B6B;--nrm:#74A6F5;--tan:#E4A44C;--cone:#B996E8;--ok:#5FD39B;--bad:#FF8A80;
+  --soft-ok:#12301F;--soft-bad:#3A1715;--soft-n:#15233A;--soft-t:#2A2013;--ground:#2F3A48;}}
+:root[data-theme="dark"]{
+  --paper:#0F141B;--sheet:#161D27;--ink:#E5E9EF;--muted:#9BA6B6;--rule:#2B3542;
+  --force:#FF6B6B;--nrm:#74A6F5;--tan:#E4A44C;--cone:#B996E8;--ok:#5FD39B;--bad:#FF8A80;
+  --soft-ok:#12301F;--soft-bad:#3A1715;--soft-n:#15233A;--soft-t:#2A2013;--ground:#2F3A48;}
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:1.03rem;line-height:1.6}
+main{max-width:54rem;margin:0 auto;padding:1.5rem 1.1rem 4rem}
+h1,h2,h3{font-family:var(--head);line-height:1.1;margin:0}
+h1{font-size:clamp(2.1rem,6vw,3.2rem);font-weight:700}
+h2{font-size:clamp(1.7rem,4.5vw,2.2rem);margin:0 0 .6rem}
+h3{font-size:1.3rem;font-weight:600;margin:0 0 .4rem}
+p{margin:.55rem 0}
+.lede{color:var(--muted);font-size:1.1rem;max-width:42rem}
+.m{font-family:var(--math);font-style:italic;font-size:1.07em;white-space:nowrap}
+.formula{font-family:var(--math);font-size:1.25rem;background:var(--sheet);border:1px solid var(--rule);border-radius:6px;padding:.7rem 1rem;margin:.8rem 0;overflow-x:auto;white-space:nowrap}
+nav.toc{display:flex;flex-wrap:wrap;gap:.5rem;margin:1.4rem 0 0}
+nav.toc a{font-family:var(--head);font-size:1.1rem;font-weight:600;text-decoration:none;color:var(--ink);border:1px solid var(--rule);background:var(--sheet);padding:.3rem .8rem;border-radius:4px}
+nav.toc a:hover{border-color:var(--ink)}
+section{margin-top:3rem}
+:focus-visible{outline:3px solid var(--nrm);outline-offset:2px}
+.panel{background:var(--sheet);border:1px solid var(--rule);border-radius:8px;padding:1rem 1.1rem;margin:1rem 0}
+figure{margin:.8rem 0;overflow-x:auto}
+figure svg{display:block;width:100%;height:auto}
+figcaption{font-size:.88rem;color:var(--muted);margin-top:.3rem}
+svg text{font-family:var(--math);font-style:italic;fill:var(--ink);font-size:16px}
+svg .lbl{font-family:var(--sans);font-style:normal;font-size:13px;fill:var(--muted)}
+
+/* Simulateur */
+.controls{display:grid;grid-template-columns:auto 1fr auto;gap:.5rem .9rem;align-items:center;margin-top:.6rem}
+.controls input[type=range]{width:100%;accent-color:var(--nrm)}
+.controls select{font:inherit;padding:.25rem .4rem;border:1px solid var(--rule);border-radius:4px;background:var(--sheet);color:var(--ink)}
+.readouts{display:grid;grid-template-columns:repeat(auto-fit,minmax(9rem,1fr));gap:.5rem;margin-top:.8rem}
+.ro{border:1px solid var(--rule);border-radius:6px;padding:.4rem .6rem}
+.ro span{display:block;font-size:.8rem;color:var(--muted)}
+.ro b{font-family:var(--math);font-size:1.15rem;font-weight:600}
+.simbtns{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.8rem}
+.ghost{background:transparent;color:var(--ink);border:1.5px solid var(--rule);border-radius:4px;padding:.4rem .9rem;font-weight:700}
+.verdict{margin-top:.8rem;padding:.6rem .9rem;border-radius:6px;font-weight:700}
+.verdict.adh{background:var(--soft-ok);color:var(--ok)}
+.verdict.gli{background:var(--soft-bad);color:var(--bad)}
+
+/* Questions */
+.q{background:var(--sheet);border:1px solid var(--rule);border-left:5px solid var(--rule);border-radius:8px;padding:1rem 1.1rem;margin:1.1rem 0}
+.q.done{border-left-color:var(--ok)}
+.q .num{font-family:var(--head);font-weight:700;font-size:1.15rem;margin-right:.3rem}
+.ans{display:flex;flex-wrap:wrap;align-items:center;gap:.6rem 1rem;margin:.7rem 0 .2rem}
+.ans label{font-family:var(--math);font-size:1.1rem;display:inline-flex;align-items:center;gap:.4rem}
+.ans input{font:inherit;font-family:var(--sans);font-size:1rem;width:6.5rem;padding:.3rem .45rem;border:1.5px solid var(--rule);border-radius:4px;background:var(--paper);color:var(--ink)}
+.ans input.good{border-color:var(--ok);background:var(--soft-ok)}
+.ans input.wrong{border-color:var(--bad);background:var(--soft-bad)}
+.unit{font-family:var(--sans);font-size:.95rem;color:var(--muted)}
+button{font:inherit;cursor:pointer}
+.check:disabled{opacity:.45;cursor:default}
+.check{font-weight:700;background:var(--ink);color:var(--paper);border:0;border-radius:4px;padding:.4rem .9rem}
+.fb{font-size:.95rem;font-weight:700}
+.fb.good{color:var(--ok)} .fb.wrong{color:var(--bad)}
+.choices{display:flex;flex-wrap:wrap;gap:.5rem;margin:.6rem 0}
+.choices button{background:var(--paper);color:var(--ink);border:1.5px solid var(--rule);border-radius:4px;padding:.4rem .8rem;text-align:left}
+.choices button.good{border-color:var(--ok);background:var(--soft-ok);color:var(--ok);font-weight:700}
+.choices button.wrong{border-color:var(--bad);background:var(--soft-bad);color:var(--bad)}
+details{margin-top:.6rem}
+summary{cursor:pointer;font-weight:700;color:var(--muted);font-size:.95rem}
+details.corr summary{color:var(--nrm)}
+details>div{padding:.5rem 0 .2rem;border-top:1px dashed var(--rule);margin-top:.4rem}
+.progress{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--paper);padding:.6rem 0;border-bottom:1px solid var(--rule);display:flex;align-items:center;gap:.8rem}
+.bar{flex:1;height:10px;background:var(--rule);border-radius:5px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--ok);transition:width .3s}
+.progress b{font-family:var(--head);font-size:1.1rem;white-space:nowrap}
+.steps-btn{display:flex;flex-wrap:wrap;gap:.4rem;margin:.5rem 0}
+.steps-btn button{border:1.5px solid var(--rule);background:var(--paper);color:var(--ink);border-radius:4px;padding:.3rem .7rem;font-size:.92rem}
+.steps-btn button[aria-pressed="true"]{border-color:var(--ink);background:var(--ink);color:var(--paper)}
+.hide{opacity:0;transition:opacity .35s}
+.data{display:grid;grid-template-columns:repeat(auto-fit,minmax(13rem,1fr));gap:.4rem 1rem;font-size:.95rem}
+.data div{border-bottom:1px solid var(--rule);padding:.25rem 0}
+.chain{display:flex;flex-wrap:wrap;align-items:stretch;gap:.4rem;margin:1rem 0}
+.link{flex:1 1 9rem;background:var(--sheet);border:1px solid var(--rule);border-radius:6px;padding:.6rem .7rem}
+.link span{display:block;font-size:.82rem;color:var(--muted)}
+.link b{font-family:var(--math);font-size:1.2rem}
+.link small{display:block;font-size:.8rem;color:var(--muted);margin-top:.2rem}
+.arrow{align-self:center;font-size:1.3rem;color:var(--muted)}
+table{border-collapse:collapse;width:100%;font-size:.95rem}
+th,td{border:1px solid var(--rule);padding:.4rem .6rem;text-align:left}
+th{font-family:var(--head);font-size:1.02rem}
+.tw{overflow-x:auto}
+footer{margin-top:3rem;font-size:.85rem;color:var(--muted);border-top:1px solid var(--rule);padding-top:1rem}
+@media (max-width:560px){.controls{grid-template-columns:1fr}.arrow{transform:rotate(90deg);width:100%;text-align:center}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+main{padding-top:.6rem}
+</style>
+</head>
+<body>
+<main>
+<header>
+<h1>Frottements et loi de Coulomb : du plan incliné au frein V-Brake</h1>
+<p class="lede">Séquence 7, les structures et systèmes mécaniques. Manipulez d'abord le plan incliné pour comprendre l'adhérence, testez-vous sur le cours, puis résolvez le TD du frein V-Brake Shimano étape par étape.</p>
+<nav class="toc" aria-label="Sommaire">
+<a href="#cours">1. Le cours en action</a>
+<a href="#quiz">2. Tester le cours</a>
+<a href="#td">3. TD frein V-Brake</a>
+<a href="#chaine">4. Bilan</a>
+</nav>
+</header>
+
+<!-- ================= COURS ================= -->
+<section id="cours">
+<h2>1. Le cours en action : le plan incliné</h2>
+<p>Une pièce 1 repose sur un plan incliné 2. Tant qu'elle ne glisse pas, le PFS impose <span class="m">A<sub>2/1</sub> = −P</span> : l'action du plan est verticale, donc inclinée de α par rapport à la normale <span class="m">n</span>. Lancez l'expérience ou augmentez α vous-même : dès que α dépasse l'angle d'adhérence φs, la pièce glisse.</p>
+
+<div class="panel">
+<figure>
+<svg id="sim" viewBox="0 0 600 350" role="img" aria-label="Plan incliné avec la pièce 1, le poids P, l'action A du plan, ses composantes N et T et le cône d'adhérence"></svg>
+</figure>
+<div class="controls">
+  <label for="alpha">Inclinaison α</label>
+  <input type="range" id="alpha" min="0" max="45" step="0.1" value="8">
+  <b id="alphaOut" class="m">α = 8°</b>
+  <label for="mat">Matériaux</label>
+  <select id="mat">
+    <option value="0.18">acier / acier (0,18)</option>
+    <option value="0.19">acier / fonte (0,19)</option>
+    <option value="0.11">acier / bronze (0,11)</option>
+    <option value="0.04">acier / téflon (0,04)</option>
+    <option value="0.5">acier / bois (0,5)</option>
+    <option value="0.8">pneu / route (0,8)</option>
+  </select>
+  <span></span>
+</div>
+<div class="simbtns">
+  <button type="button" id="expBtn" class="check">▶ Lancer l'expérience : incliner progressivement</button>
+  <button type="button" id="resetBtn" class="ghost">Remettre à plat</button>
+</div>
+<div class="readouts">
+  <div class="ro"><span>Angle d'adhérence φs = arctan fs</span><b id="roPhi"></b></div>
+  <div class="ro"><span>Effort normal N</span><b id="roN"></b></div>
+  <div class="ro"><span>Effort tangentiel T</span><b id="roT"></b></div>
+  <div class="ro"><span>Rapport T / N</span><b id="roR"></b></div>
+  <div class="ro"><span>Accélération a = g(sin α − f cos α), avec f ≈ 0,8·fs</span><b id="roAcc"></b></div>
+</div>
+<div id="verdict" class="verdict adh"></div>
+<p style="font-size:.88rem;color:var(--muted)">Poids pris égal à P = 100 N. Le cône d'adhérence (violet) a pour demi-angle φs autour de la normale. Une fois en mouvement, le coefficient de frottement f est plus faible que fs (φ &lt; φs) : on prend ici f ≈ 0,8·fs, c'est pourquoi la pièce part d'un coup.</p>
+</div>
+
+<div class="formula">f<sub>s</sub> = tan φ<sub>s</sub> &nbsp;&nbsp; N<sub>2/1</sub> = A<sub>2/1</sub>·cos φ &nbsp;&nbsp; T<sub>2/1</sub> = A<sub>2/1</sub>·sin φ &nbsp;&nbsp; <b>T = N·f</b> (loi de Coulomb)</div>
+<p><b>Adhérence</b> : pas de mouvement relatif, <span class="m">A<sub>2/1</sub></span> est <b>dans</b> le cône (T &lt; f·N). <b>Glissement</b> : mouvement relatif, <span class="m">A<sub>2/1</sub></span> est <b>sur</b> le cône (T = f·N). La force de frottement T s'oppose toujours au mouvement ou à la tendance au mouvement. En statique, on se place à l'équilibre strict : l'action est sur le cône.</p>
+</section>
+
+<!-- ================= QUIZ ================= -->
+<section id="quiz">
+<h2>2. Tester le cours</h2>
+<div class="q" data-item>
+<p><span class="num">Q1</span>Le coefficient d'adhérence est défini par :</p>
+<div class="choices" data-correct="a" data-fb="fs = tan φs : c'est le rapport T/N à la limite du glissement.">
+<button data-v="a">fs = tan φs</button><button data-v="b">fs = sin φs</button><button data-v="c">fs = cos φs</button><button data-v="d">fs = N / P</button>
+</div><p class="fb"></p></div>
+
+<div class="q" data-item>
+<p><span class="num">Q2</span>Deux pièces sont en adhérence (aucun mouvement relatif). L'action de contact A<sub>2/1</sub> est :</p>
+<div class="choices" data-correct="a" data-fb="En adhérence l'action est à l'intérieur du cône ; elle est sur le cône en glissement ou à l'équilibre strict.">
+<button data-v="a">à l'intérieur du cône</button><button data-v="b">sur le cône</button><button data-v="c">à l'extérieur du cône</button>
+</div><p class="fb"></p></div>
+
+<div class="q" data-item>
+<p><span class="num">Q3</span>La force de frottement T<sub>2/1</sub> est toujours :</p>
+<div class="choices" data-correct="b" data-fb="T2/1 est dans le plan tangent et s'oppose au mouvement (ou à la tendance au mouvement) de 1 par rapport à 2.">
+<button data-v="a">perpendiculaire au plan de contact</button><button data-v="b">de sens opposé au mouvement de 1/2</button><button data-v="c">dans le sens du mouvement</button>
+</div><p class="fb"></p></div>
+
+<div class="q" data-item>
+<p><span class="num">Q4</span>Pour le contact pneu/route (fs = 0,8), l'angle d'adhérence vaut environ :</p>
+<div class="choices" data-correct="c" data-fb="φs = arctan 0,8 ≈ 38,7°.">
+<button data-v="a">0,8°</button><button data-v="b">45°</button><button data-v="c">38,7°</button><button data-v="d">53,1°</button>
+</div><p class="fb"></p></div>
+
+<div class="q" data-item>
+<p><span class="num">Q5</span>Une pièce en acier posée sur un plan incliné en acier (fs = 0,18) commence à glisser pour un angle d'environ :</p>
+<div class="choices" data-correct="b" data-fb="Le glissement démarre quand α = φs = arctan 0,18 ≈ 10,2°. Vérifiez avec le simulateur !">
+<button data-v="a">0,18°</button><button data-v="b">10,2°</button><button data-v="c">18°</button><button data-v="d">30°</button>
+</div><p class="fb"></p></div>
+</section>
+
+<!-- ================= TD ================= -->
+<section id="td">
+<h2>3. TD : frein V-Brake Shimano</h2>
+
+<div class="panel">
+<h3>Données du problème</h3>
+<p>La norme EN71 impose qu'un vélo chargé de 50 kg sur la selle, dans une pente de 10°, reste à l'arrêt pour un effort de 6 daN sur une poignée de frein. Seule la roue avant freine : le contact roue arrière/sol en A est sans frottement.</p>
+<div class="data">
+<div>Masse cycliste : 50 kg</div><div>Masse VTT : 12 kg</div><div>g = 10 m/s²</div>
+<div>Pente : 10°</div><div>Ø jante : 56 cm</div><div>Ø pneu : 66 cm</div>
+<div>fs pneu/route sèche : 0,8</div><div>f patin/jante : 0,35</div><div>Échelle des forces : 1 cm = 5 daN</div>
+</div>
+</div>
+
+<div class="progress" aria-live="polite"><b id="score">0 / 0</b><div class="bar"><i id="barFill"></i></div><span style="font-size:.85rem;color:var(--muted)">réponses justes</span></div>
+
+<!-- Q1 -->
+<div class="q" data-item>
+<p><span class="num">1.</span>Déterminer graphiquement les efforts s'exerçant sur le VTT à l'arrêt dans la pente, et l'angle α<sub>roue AV</sub> de l'effort en B avec la normale <span class="m">y</span>.</p>
+<p style="font-size:.95rem;color:var(--muted)">Le VTT est soumis à trois actions : le poids en G, l'action du sol en A (sans frottement, donc normale à la pente) et l'action du sol en B (inconnue). Suivez la méthode pas à pas.</p>
+<div class="steps-btn" role="group" aria-label="Étapes de la résolution graphique">
+<button data-step="s1" aria-pressed="false">Supports connus (P et A)</button>
+<button data-step="s2" aria-pressed="false">Point de concours I</button>
+<button data-step="s3" aria-pressed="false">Support de B</button>
+<button data-step="s4" aria-pressed="false">Dynamique des forces</button>
+</div>
+<figure>
+<svg viewBox="0 0 640 540" role="img" aria-label="VTT dans une pente de 10 degrés, méthode des trois forces concourantes et dynamique des forces">
+<defs>
+<marker id="mF" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0L10,5L0,10z" fill="var(--force)"/></marker>
+<marker id="mN" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0L10,5L0,10z" fill="var(--nrm)"/></marker>
+<marker id="mT" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0L10,5L0,10z" fill="var(--tan)"/></marker>
+<marker id="mK" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0L10,5L0,10z" fill="var(--muted)"/></marker>
+</defs>
+<line x1="120" y1="460" x2="440" y2="460" stroke="var(--muted)" stroke-dasharray="4 4"/>
+<path d="M 330 460 A 210 210 0 0 1 327 497" fill="none" stroke="var(--muted)"/>
+<text x="340" y="486" style="font-size:14px">10°</text>
+<g transform="translate(120,460) rotate(10)">
+  <line x1="-80" y1="0" x2="300" y2="0" stroke="var(--ink)" stroke-width="2"/>
+  <line x1="200" y1="10" x2="260" y2="10" stroke="var(--muted)" marker-end="url(#mK)"/><text x="264" y="16" style="font-size:14px">x</text>
+  <line x1="200" y1="10" x2="200" y2="-40" stroke="var(--muted)" marker-end="url(#mK)" transform="translate(70,0)"/><text x="276" y="-36" style="font-size:14px">y</text>
+  <!-- VTT -->
+  <g fill="none" stroke="var(--muted)" stroke-width="2">
+    <circle cx="0" cy="-36" r="36"/><circle cx="121" cy="-36" r="36"/>
+    <path d="M0,-36 L48,-32 L36,-88 Z M36,-88 L100,-86 L48,-32 M100,-86 L121,-36 M100,-86 L96,-100 L108,-102 M28,-92 L46,-92"/>
+  </g>
+  <circle cx="0" cy="0" r="3.5" fill="var(--ink)"/><text x="-18" y="20">A</text>
+  <circle cx="121" cy="0" r="3.5" fill="var(--ink)"/><text x="126" y="20">B</text>
+  <circle cx="44" cy="-123" r="4" fill="var(--force)"/><text x="52" y="-128">G</text>
+  <!-- étape 1 -->
+  <g id="s1" class="hide">
+    <line x1="44" y1="-123" x2="0" y2="-373" stroke="var(--force)" stroke-dasharray="6 5" opacity=".8"/>
+    <line x1="0" y1="0" x2="0" y2="-373" stroke="var(--nrm)" stroke-dasharray="6 5" opacity=".8"/>
+    <line x1="0" y1="0" x2="0" y2="-55" stroke="var(--nrm)" stroke-width="3" marker-end="url(#mN)"/>
+    <text x="-30" y="-50" style="fill:var(--nrm)">A</text>
+  </g>
+  <!-- étape 2 -->
+  <g id="s2" class="hide">
+    <circle cx="0" cy="-373" r="6" fill="none" stroke="var(--ink)" stroke-width="2"/>
+    <text x="10" y="-378">I</text>
+  </g>
+  <!-- étape 3 -->
+  <g id="s3" class="hide">
+    <line x1="121" y1="0" x2="0" y2="-373" stroke="var(--tan)" stroke-dasharray="6 5"/>
+    <line x1="121" y1="0" x2="121" y2="-110" stroke="var(--muted)" stroke-dasharray="2 4"/>
+    <line x1="121" y1="0" x2="102.5" y2="-57" stroke="var(--tan)" stroke-width="3" marker-end="url(#mT)"/>
+    <text x="126" y="-58" style="fill:var(--tan);font-size:14px">α = 18°</text>
+  </g>
+</g>
+<!-- poids (vertical dans le repère de la page) -->
+<g id="s1b" class="hide">
+  <line x1="185" y1="346" x2="185" y2="416" stroke="var(--force)" stroke-width="3" marker-end="url(#mF)"/>
+  <text x="191" y="410" style="fill:var(--force)">P</text>
+</g>
+<!-- dynamique -->
+<g id="s4" class="hide">
+  <text class="lbl" x="468" y="36">Dynamique des forces</text>
+  <circle cx="540" cy="50" r="3" fill="var(--ink)"/>
+  <line x1="540" y1="50" x2="540" y2="267" stroke="var(--force)" stroke-width="3" marker-end="url(#mF)"/>
+  <text x="548" y="165" style="fill:var(--force)">P = 62 daN</text><text class="lbl" x="548" y="183">(12,4 cm)</text>
+  <line x1="540" y1="267" x2="523" y2="146.2" stroke="var(--tan)" stroke-width="3" marker-end="url(#mT)"/>
+  <text x="432" y="215" style="fill:var(--tan)">B = 36 daN</text><text class="lbl" x="452" y="233">(7,2 cm)</text>
+  <line x1="523" y1="146.2" x2="540" y2="50" stroke="var(--nrm)" stroke-width="3" marker-end="url(#mN)"/>
+  <text x="442" y="100" style="fill:var(--nrm)">A = 26 daN</text><text class="lbl" x="462" y="118">(5,2 cm)</text>
+  <text class="lbl" x="468" y="292">1 cm = 5 daN</text>
+</g>
+</svg>
+<figcaption>Trois forces non parallèles en équilibre sont concourantes : le support de B passe par I, intersection des supports de P et de A. Le triangle des forces se ferme.</figcaption>
+</figure>
+<div class="ans">
+<label>α<sub>roue AV</sub> = <input data-ans="18" data-tol="2" inputmode="decimal" aria-label="angle alpha roue avant"> <span class="unit">°</span></label>
+<label>‖B‖ ≈ <input data-ans="36" data-tol="2.5" inputmode="decimal" aria-label="effort en B"> <span class="unit">daN</span></label>
+<label>‖A‖ ≈ <input data-ans="26" data-tol="2.5" inputmode="decimal" aria-label="effort en A"> <span class="unit">daN</span></label>
+<button class="check">Vérifier</button><span class="fb"></span>
+</div>
+<details class="corr"><summary>Correction</summary><div>
+<p>P = (50 + 12) × 10 = 620 N = <b>62 daN</b>. Le support de A est la normale à la pente en A. Il coupe la verticale de G en I. Le support de B est la droite (BI), qui fait <b>18°</b> avec la normale <span class="m">y</span>, incliné vers l'amont : le frottement retient le vélo.</p>
+<p>Dynamique des forces à l'échelle 1 cm = 5 daN, depuis l'origine du tracé : P = 62 daN, soit 12,4 cm. On ferme le triangle avec les directions de B et de A et on mesure <b>B ≈ 7,2 cm, soit 36 daN</b>, et <b>A ≈ 5,2 cm, soit 26 daN</b>.</p>
+<p>Vérification analytique selon x : la composante tangentielle de B équilibre P·sin 10° = 620 × 0,174 = 108 N ≈ 11 daN.</p>
+</div></details>
+</div>
+
+<!-- Q2 -->
+<div class="q" data-item>
+<p><span class="num">2.</span>Pour la suite, ‖B‖ = 36 daN et α<sub>roue AV</sub> = 18°. Calculer le coefficient d'adhérence nécessaire f<sub>roue</sub>. Le VTT glisse-t-il sur route sèche (limite 0,8) ?</p>
+<div class="ans">
+<label>f<sub>roue</sub> = <input data-ans="0.325" data-tol="0.01" inputmode="decimal" aria-label="coefficient f roue"></label>
+<button class="check">Vérifier</button><span class="fb"></span>
+</div>
+<div class="choices" data-correct="b" data-fb="0,32 &lt; 0,8 : l'action est à l'intérieur du cône d'adhérence, le pneu ne glisse pas.">
+<button data-v="a">Le VTT glisse</button><button data-v="b">Le VTT ne glisse pas</button>
+</div><p class="fb"></p>
+<details><summary>Indice</summary><div>À la limite, f = tan φ. Ici l'angle entre l'action et la normale est α<sub>roue AV</sub>.</div></details>
+<details class="corr"><summary>Correction</summary><div>
+<p>f<sub>roue</sub> = tan 18° ≈ <b>0,32</b>. Or 0,32 &lt; 0,8 : B est dans le cône d'adhérence pneu/route (demi-angle 38,7°). <b>Le VTT ne glisse pas.</b></p>
+</div></details>
+</div>
+
+<!-- Q3 -->
+<div class="q" data-item>
+<p><span class="num">3.</span>Calculer les composantes normale N<sub>1</sub> et tangentielle T<sub>1</sub> de <span class="m">F<sub>sol/roue AV</sub></span>.</p>
+<figure>
+<svg viewBox="0 0 440 320" role="img" aria-label="Roue avant : centre O, contact avec le sol, effort normal N1 et effort tangentiel T1, rayon du pneu">
+<line x1="30" y1="270" x2="410" y2="270" stroke="var(--ink)" stroke-width="2"/>
+<circle cx="220" cy="150" r="120" fill="none" stroke="var(--muted)" stroke-width="6" opacity=".45"/>
+<circle cx="220" cy="150" r="102" fill="none" stroke="var(--muted)" stroke-width="2"/>
+<circle cx="220" cy="150" r="5" fill="var(--ink)"/><text x="230" y="146">O</text>
+<circle cx="220" cy="270" r="3.5" fill="var(--ink)"/><text x="226" y="292">B</text>
+<line x1="220" y1="270" x2="220" y2="170" stroke="var(--nrm)" stroke-width="3" marker-end="url(#mN)"/><text x="228" y="220" style="fill:var(--nrm)">N₁</text>
+<line x1="220" y1="270" x2="150" y2="270" stroke="var(--tan)" stroke-width="3.5" marker-end="url(#mT)"/><text x="150" y="258" style="fill:var(--tan)">T₁</text>
+<line x1="300" y1="150" x2="300" y2="270" stroke="var(--muted)" marker-start="url(#mK)" marker-end="url(#mK)"/><text x="306" y="215" style="font-size:14px">R = 0,33 m</text>
+<path d="M150,90 A95,95 0 0 1 290,90" fill="none" stroke="var(--cone)" stroke-width="2" marker-end="url(#mK)"/>
+<text x="200" y="44" style="fill:var(--cone)">C<tspan font-size="11" dy="4">f</tspan></text>
+<text class="lbl" x="34" y="306">vers l'aval (x)  →</text>
+</svg>
+<figcaption>Repère lié à la pente. N₁ passe par le centre O. T₁ est tangente au sol et dirigée vers l'amont.</figcaption>
+</figure>
+<div class="ans">
+<label>N<sub>1</sub> = <input data-ans="34.23" data-tol="0.4" inputmode="decimal" aria-label="N1"> <span class="unit">daN</span></label>
+<label>T<sub>1</sub> = <input data-ans="11.12" data-tol="0.3" data-abs="1" inputmode="decimal" aria-label="T1"> <span class="unit">daN</span></label>
+<button class="check">Vérifier</button><span class="fb"></span>
+</div>
+<details><summary>Indice</summary><div>Projetez B sur la normale (cos) et sur la tangente (sin), avec l'angle de 18°.</div></details>
+<details class="corr"><summary>Correction</summary><div>
+<p>Dans le repère (x, y) de la pente : F<sub>sol/roue</sub> = (T<sub>1</sub> ; N<sub>1</sub>) = (−36 × sin 18° ; 36 × cos 18°) = <b>(−11,12 ; 34,23) daN</b>.</p><p>T<sub>1</sub> est négatif car il est dirigé vers l'amont (−x) : il retient le vélo. Sa norme vaut 11,12 daN.</p>
+</div></details>
+</div>
+
+<!-- Q4 -->
+<div class="q" data-item>
+<p><span class="num">4.</span>Calculer ‖M<sub>O</sub>(T<sub>1</sub>)‖. En déduire le couple de freinage C<sub>f</sub> exercé par les patins pour immobiliser la roue.</p>
+<div class="ans">
+<label>‖M<sub>O</sub>(T<sub>1</sub>)‖ = <input data-ans="36.7" data-tol="0.8" data-alt="367" data-alttol="8" inputmode="decimal" aria-label="moment de T1 en O"> <span class="unit">N·m</span></label>
+<label>C<sub>f</sub> = <input data-ans="36.7" data-tol="0.8" data-alt="367" data-alttol="8" inputmode="decimal" aria-label="couple de freinage"> <span class="unit">N·m</span></label>
+<button class="check">Vérifier</button><span class="fb"></span>
+</div>
+<details><summary>Indice</summary><div>Bras de levier : la distance entre O et le support de T<sub>1</sub> est le rayon du <b>pneu</b>. On peut travailler en daN et en cm (résultat en daN·cm), puis convertir : 1 daN·cm = 0,1 N·m. Pourquoi N<sub>1</sub> n'a-t-il pas de moment en O ?</div></details>
+<details class="corr"><summary>Correction</summary><div>
+<p>‖M<sub>O</sub>(T<sub>1</sub>)‖ = T<sub>1</sub> × R<sub>pneu</sub> = 11,12 daN × 33 cm = <b>367 daN·cm = 36,7 N·m</b>. N<sub>1</sub> passe par O : son moment en O est nul.</p>
+<p>On isole la roue et on écrit l'équation des moments en O : C<sub>f</sub> − M<sub>O</sub>(T<sub>1</sub>) = 0, donc <b>C<sub>f</sub> ≥ 36,7 N·m</b> : c'est le couple minimal que les patins doivent exercer, de sens opposé à la tendance à la rotation.</p>
+</div></details>
+</div>
+
+<!-- Q5 -->
+<div class="q" data-item>
+<p><span class="num">5.</span>Schématiser l'effort tangentiel T<sub>2</sub> et l'effort normal N<sub>2</sub> du patin droit sur la jante.</p>
+<p>L'effort normal N<sub>2</sub> est :</p>
+<div class="choices" data-correct="c" data-fb="Le patin presse le flanc de la jante : N2 est perpendiculaire au flanc, donc parallèle à l'axe de la roue.">
+<button data-v="a">radial, dirigé vers le centre O</button><button data-v="b">tangent à la jante</button><button data-v="c">perpendiculaire au flanc, parallèle à l'axe de roue</button>
+</div><p class="fb"></p>
+<p>L'effort tangentiel T<sub>2</sub> est :</p>
+<div class="choices" data-correct="a" data-fb="T2 est tangent au cercle de la jante et s'oppose à la rotation de la roue.">
+<button data-v="a">tangent au cercle de la jante, opposé à la rotation</button><button data-v="b">radial vers l'extérieur</button><button data-v="c">parallèle à l'axe de roue</button>
+</div><p class="fb"></p>
+<details class="corr"><summary>Correction</summary><div>
+<figure>
+<svg viewBox="0 0 440 220" role="img" aria-label="Coupe de la jante entre deux patins : N2 horizontal vers la jante, T2 perpendiculaire au plan de la figure">
+<path d="M190,40 L190,150 Q220,175 250,150 L250,40" fill="none" stroke="var(--ink)" stroke-width="3"/>
+<rect x="150" y="70" width="32" height="50" rx="4" fill="var(--soft-t)" stroke="var(--ink)" stroke-width="2"/>
+<rect x="258" y="70" width="32" height="50" rx="4" fill="var(--soft-t)" stroke="var(--ink)" stroke-width="2"/>
+<text class="lbl" x="120" y="140">patin gauche</text><text class="lbl" x="262" y="140">patin droit</text>
+<line x1="340" y1="95" x2="256" y2="95" stroke="var(--nrm)" stroke-width="3" marker-end="url(#mN)"/><text x="310" y="85" style="fill:var(--nrm)">N₂</text>
+<circle cx="274" cy="60" r="9" fill="none" stroke="var(--tan)" stroke-width="2"/><path d="M268,54 L280,66 M280,54 L268,66" stroke="var(--tan)" stroke-width="2"/>
+<text x="290" y="54" style="fill:var(--tan)">T₂</text>
+<line x1="220" y1="190" x2="220" y2="205" stroke="var(--muted)"/><text class="lbl" x="150" y="214">axe de roue horizontal sur ce schéma</text>
+<text class="lbl" x="192" y="30">jante</text>
+</svg>
+<figcaption>Vue en coupe de la jante : N₂ presse le flanc (parallèle à l'axe de roue), T₂ est perpendiculaire au plan de la figure (tangent à la jante), opposé à la rotation.</figcaption>
+</figure>
+</div></details>
+</div>
+
+<!-- Q6 -->
+<div class="q" data-item>
+<p><span class="num">6.</span>Calculer l'effort tangentiel T<sub>2</sub> exercé par <b>un</b> patin sur la jante.</p>
+<div class="ans">
+<label>T<sub>2</sub> = <input data-ans="6.55" data-tol="0.15" inputmode="decimal" aria-label="T2"> <span class="unit">daN</span></label>
+<button class="check">Vérifier</button><span class="fb"></span>
+</div>
+<details><summary>Indice</summary><div>Deux patins, chacun à une distance égale au rayon de la <b>jante</b> (28 cm) de O. Leur couple total vaut C<sub>f</sub>.</div></details>
+<details class="corr"><summary>Correction</summary><div>
+<p>C<sub>f</sub> = 2 × T<sub>2</sub> × R<sub>jante</sub> donc T<sub>2</sub> = C<sub>f</sub> / (2 × R<sub>jante</sub>) = 367 / (2 × 28) = <b>6,55 daN</b>.</p>
+</div></details>
+</div>
+
+<!-- Q7 -->
+<div class="q" data-item>
+<p><span class="num">7.</span>Le coefficient d'adhérence patin/jante vaut f = 0,35. Calculer l'effort normal N<sub>2</sub>.</p>
+<div class="ans">
+<label>N<sub>2</sub> = <input data-ans="18.71" data-tol="0.3" inputmode="decimal" aria-label="N2"> <span class="unit">daN</span></label>
+<button class="check">Vérifier</button><span class="fb"></span>
+</div>
+<details><summary>Indice</summary><div>Loi de Coulomb à l'équilibre strict : T = N·f.</div></details>
+<details class="corr"><summary>Correction</summary><div>
+<p>T<sub>2</sub> = f · N<sub>2</sub> donc N<sub>2</sub> = T<sub>2</sub> / f = 6,55 / 0,35 = <b>18,71 daN</b>. Le patin doit presser presque trois fois plus fort que l'effort de frottement obtenu.</p>
+</div></details>
+</div>
+
+<!-- Q8 -->
+<div class="q" data-item>
+<p><span class="num">8.</span>Sur le levier droit, ‖M<sub>A</sub>(R<sub>rappel</sub>)‖ = K·α avec K = 2 N·m/rad et α = 5° (pivotement du levier). Calculer M<sub>A</sub>(R<sub>rappel</sub>) puis l'effort de traction du câble C<sub>câble/levier</sub>.</p>
+<figure>
+<svg viewBox="0 0 440 360" role="img" aria-label="Levier du V-Brake : pivot A, patin en B à 60 mm, câble en C à 156 mm au-dessus de B">
+<line x1="220" y1="330" x2="220" y2="40" stroke="var(--ink)" stroke-width="10" stroke-linecap="round" opacity=".2"/>
+<line x1="220" y1="330" x2="220" y2="40" stroke="var(--ink)" stroke-width="2"/>
+<circle cx="220" cy="330" r="9" fill="var(--sheet)" stroke="var(--ink)" stroke-width="2"/><text x="196" y="352">A</text>
+<circle cx="220" cy="252" r="4" fill="var(--ink)"/><text x="228" y="246">B</text>
+<rect x="150" y="238" width="60" height="28" rx="4" fill="var(--soft-t)" stroke="var(--ink)" stroke-width="2"/><text class="lbl" x="152" y="284">patin</text>
+<circle cx="220" cy="46" r="5" fill="var(--ink)"/><text x="228" y="40">C</text>
+<line x1="215" y1="46" x2="110" y2="46" stroke="var(--force)" stroke-width="3" marker-end="url(#mF)"/><text x="90" y="36" style="fill:var(--force)">C<tspan font-size="11" dy="4">câble/levier</tspan></text>
+<line x1="224" y1="252" x2="320" y2="252" stroke="var(--nrm)" stroke-width="3" marker-end="url(#mN)"/><text x="296" y="242" style="fill:var(--nrm)">N<tspan font-size="11" dy="4">B</tspan></text>
+<path d="M198,318 A24,24 0 1 0 242,318" fill="none" stroke="var(--cone)" stroke-width="2" marker-end="url(#mK)"/><text x="250" y="316" style="fill:var(--cone);font-size:14px">M<tspan font-size="10" dy="4">A</tspan><tspan dy="-4">(R</tspan><tspan font-size="10" dy="4">rappel</tspan><tspan dy="-4">)</tspan></text>
+<line x1="370" y1="46" x2="370" y2="252" stroke="var(--muted)" marker-start="url(#mK)" marker-end="url(#mK)"/><text x="378" y="155" style="font-size:14px">d₂ = 156</text>
+<line x1="370" y1="252" x2="370" y2="330" stroke="var(--muted)" marker-start="url(#mK)" marker-end="url(#mK)"/><text x="378" y="296" style="font-size:14px">d₁ = 60</text>
+<text class="lbl" x="330" y="352">cotes en mm</text>
+</svg>
+<figcaption>Les deux efforts sont horizontaux : leurs bras de levier par rapport à A sont les distances verticales.</figcaption>
+</figure>
+<div class="ans">
+<label>M<sub>A</sub>(R<sub>rappel</sub>) = <input data-ans="0.1745" data-tol="0.006" data-alt="0.01745" data-alttol="0.0006" inputmode="decimal" aria-label="moment de rappel"> <span class="unit">N·m</span></label>
+<label>C<sub>câble/levier</sub> = <input data-ans="5.27" data-tol="0.15" inputmode="decimal" aria-label="effort du câble"> <span class="unit">daN</span></label>
+<button class="check">Vérifier</button><span class="fb"></span>
+</div>
+<details><summary>Indice</summary><div>α doit être en radians : 5° = 5π/180 rad. Le bras de levier du câble par rapport à A vaut d<sub>1</sub> + d<sub>2</sub>. Le ressort de rappel s'oppose à la fermeture du levier, comme N<sub>2</sub>. Travaillez en daN et en m.</div></details>
+<details class="corr"><summary>Correction</summary><div>
+<p>α = 5 × π/180 = 0,0873 rad et K = 2 N·m/rad = 0,2 daN·m/rad, donc M<sub>A</sub>(R<sub>rappel</sub>) = 0,2 × 0,0873 = <b>0,0175 daN·m</b> (soit 0,175 N·m).</p>
+<p>On isole le levier : <span class="m">Σ M<sub>A</sub> = 0</span>. En projection :</p>
+<div class="formula" style="font-size:1.05rem">− M<sub>A</sub>(R<sub>rappel</sub>) − N<sub>2</sub> · d<sub>1</sub> + C<sub>câble/levier</sub> · (d<sub>1</sub> + d<sub>2</sub>) = 0</div>
+<p>C<sub>câble/levier</sub> = (0,2 × 5π/180 + 18,71 × 60·10⁻³) / ((60 + 156)·10⁻³) = <b>5,27 daN</b>.</p>
+</div></details>
+</div>
+
+<!-- Q9 -->
+<div class="q" data-item>
+<p><span class="num">9.</span>En déduire l'effort sur la poignée de frein (frottement négligé dans la gaine). La réglementation est-elle respectée ?</p>
+<div class="ans">
+<label>F<sub>poignée</sub> = <input data-ans="5.27" data-tol="0.2" inputmode="decimal" aria-label="effort sur la poignée"> <span class="unit">daN</span></label>
+<button class="check">Vérifier</button><span class="fb"></span>
+</div>
+<div class="choices" data-correct="a" data-fb="5,27 daN &lt; 6 daN : l'effort demandé par la norme suffit pour maintenir le vélo à l'arrêt.">
+<button data-v="a">Oui, la norme est respectée</button><button data-v="b">Non, la norme n'est pas respectée</button>
+</div><p class="fb"></p>
+<details class="corr"><summary>Correction</summary><div>
+<p>Sans frottement dans la gaine, la tension est transmise intégralement : F<sub>poignée</sub> = C<sub>câble/levier</sub> = <b>5,27 daN</b>. Comme 5,27 daN &lt; 6 daN, <b>la réglementation EN71 est respectée</b> : avec 6 daN à la poignée, le vélo reste à l'arrêt, avec une petite marge.</p>
+</div></details>
+</div>
+
+<!-- Q10 -->
+<div class="q" data-item>
+<p><span class="num">10.</span>Par quel coefficient l'effort de la poignée est-il multiplié sur la jante ?</p>
+<div class="ans">
+<label>k = <input data-ans="3.55" data-tol="0.12" inputmode="decimal" aria-label="coefficient multiplicateur"></label>
+<button class="check">Vérifier</button><span class="fb"></span>
+</div>
+<details class="corr"><summary>Correction</summary><div>
+<p>k = N<sub>2</sub> / C<sub>câble/levier</sub> = 18,71 / 5,27 ≈ <b>3,55</b> : l'effort de la poignée est multiplié environ 3,5 fois sur la jante. C'est quasiment le rapport des bras de levier du levier du V-Brake : (d<sub>1</sub> + d<sub>2</sub>)/d<sub>1</sub> = 216/60 = 3,6. Le ressort de rappel absorbe la petite différence.</p>
+</div></details>
+</div>
+</section>
+
+<!-- ================= BILAN ================= -->
+<section id="chaine">
+<h2>4. Bilan : la chaîne des efforts</h2>
+<p>Du doigt du cycliste jusqu'au sol, chaque étape utilise un outil du cours : un moment par bras de levier ou la loi de Coulomb.</p>
+<div class="chain">
+<div class="link"><span>Poignée</span><b>5,27 daN</b><small>≤ 6 daN (norme)</small></div><div class="arrow" aria-hidden="true">→</div>
+<div class="link"><span>Levier V-Brake</span><b>× 3,55</b><small>moments en A</small></div><div class="arrow" aria-hidden="true">→</div>
+<div class="link"><span>Normal patin N₂</span><b>18,71 daN</b><small>par patin</small></div><div class="arrow" aria-hidden="true">→</div>
+<div class="link"><span>Frottement T₂</span><b>6,55 daN</b><small>T = N·f, f = 0,35</small></div><div class="arrow" aria-hidden="true">→</div>
+<div class="link"><span>Couple de freinage</span><b>367 daN·cm</b><small>= 36,7 N·m ; 2 × T₂ × 28 cm</small></div><div class="arrow" aria-hidden="true">→</div>
+<div class="link"><span>Adhérence au sol T₁</span><b>11,12 daN</b><small>≈ P·sin 10° = 10,8 daN</small></div>
+</div>
+
+<div class="tw"><table>
+<thead><tr><th>Notion</th><th>Où dans le TD ?</th><th>Relation</th></tr></thead>
+<tbody>
+<tr><td>Trois forces concourantes</td><td>Q1 : équilibre du VTT</td><td>supports concourants en I, triangle fermé</td></tr>
+<tr><td>Cône d'adhérence</td><td>Q2 : pneu/route</td><td class="m">tan α ≤ f<sub>s</sub></td></tr>
+<tr><td>Projection N / T</td><td>Q3</td><td class="m">N = A cos α, T = A sin α</td></tr>
+<tr><td>Moment (bras de levier)</td><td>Q4, Q6, Q8</td><td class="m">M = F × d</td></tr>
+<tr><td>Loi de Coulomb</td><td>Q7 : patin/jante</td><td class="m">T = N · f</td></tr>
+</tbody></table></div>
+</section>
+
+<footer>Terminale Sciences de l'Ingénieur. Séquence 7 : modélisation des actions mécaniques, frottements et lois de Coulomb. TD frein V-Brake Shimano.</footer>
+</main>
+
+<script>
+(function(){
+  /* ---------- utilitaires ---------- */
+  function fr(x,d){return x.toFixed(d).replace('.',',');}
+  var NS='http://www.w3.org/2000/svg';
+
+  /* ---------- simulateur plan incliné ---------- */
+  var svg=document.getElementById('sim'), sA=document.getElementById('alpha'), sM=document.getElementById('mat');
+  function arrow(x1,y1,x2,y2,col,mk,w){return '<line x1="'+x1+'" y1="'+y1+'" x2="'+x2+'" y2="'+y2+'" stroke="'+col+'" stroke-width="'+(w||3)+'" marker-end="url(#'+mk+')"/>';}
+  var state={pos:270,v:0,exp:false,found:null,wait:0,expA:0};
+  function draw(){
+    var a=+sA.value, fs=+sM.value, ar=a*Math.PI/180, phi=Math.atan(fs), phid=phi*180/Math.PI;
+    var adh = a <= phid + 1e-9;
+    var c=Math.cos(ar), s=Math.sin(ar);
+    var t=[c,-s], n=[-s,-c];
+    var bx=50, by=335, L=450, s0=state.pos;
+    var A=[bx+s0*t[0], by+s0*t[1]];
+    function p(v,k,base){base=base||A;return [base[0]+k*v[0], base[1]+k*v[1]];}
+    var top=[bx+L*c, by-L*s];
+    var k=1.1; // px par N (P = 100 N)
+    var N=100*c, T= adh ? 100*s : fs*N;
+    var h='<defs>'+
+      '<marker id="sF" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0L10,5L0,10z" fill="var(--force)"/></marker>'+
+      '<marker id="sN" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0L10,5L0,10z" fill="var(--nrm)"/></marker>'+
+      '<marker id="sT" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0L10,5L0,10z" fill="var(--tan)"/></marker>'+
+      '<marker id="sR" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0L10,5L0,10z" fill="var(--ink)"/></marker></defs>';
+    h+='<polygon points="'+bx+','+by+' '+top[0]+','+top[1]+' '+top[0]+','+by+'" fill="var(--ground)" opacity=".55" stroke="var(--ink)" stroke-width="1.5"/>';
+    h+='<text x="'+(top[0]-24)+'" y="'+(by-8)+'">2</text>';
+    // arc alpha
+    if(a>0.5){h+='<path d="M'+(bx+70)+','+by+' A70,70 0 0 0 '+(bx+70*c)+','+(by-70*s)+'" fill="none" stroke="var(--muted)"/><text x="'+(bx+78)+'" y="'+(by-6)+'" style="font-size:14px">α</text>';}
+    // cone
+    var cp=Math.cos(phi), sp=Math.sin(phi), Lc=125;
+    var d1=[cp*n[0]+sp*t[0], cp*n[1]+sp*t[1]], d2=[cp*n[0]-sp*t[0], cp*n[1]-sp*t[1]];
+    var P1=p(d1,Lc), P2=p(d2,Lc);
+    h+='<polygon points="'+A+' '+P1+' '+P2+'" fill="var(--cone)" opacity=".12"/>';
+    h+='<line x1="'+A[0]+'" y1="'+A[1]+'" x2="'+P1[0]+'" y2="'+P1[1]+'" stroke="var(--cone)" stroke-dasharray="5 4"/>';
+    h+='<line x1="'+A[0]+'" y1="'+A[1]+'" x2="'+P2[0]+'" y2="'+P2[1]+'" stroke="var(--cone)" stroke-dasharray="5 4"/>';
+    // block
+    var q1=p(t,-32), q2=p(t,32), q3=p(n,64,q2), q4=p(n,64,q1);
+    h+='<polygon points="'+q1+' '+q2+' '+q3+' '+q4+'" fill="var(--sheet)" fill-opacity=".75" stroke="var(--ink)" stroke-width="2"/>';
+    var G=p(n,32);
+    h+='<circle cx="'+G[0]+'" cy="'+G[1]+'" r="3.5" fill="var(--force)"/>';
+    var lbl=p(n,56,p(t,-24));
+    h+='<text x="'+lbl[0]+'" y="'+lbl[1]+'">1</text>';
+    // normal line
+    var nEnd=p(n,Lc+10);
+    h+='<line x1="'+A[0]+'" y1="'+A[1]+'" x2="'+nEnd[0]+'" y2="'+nEnd[1]+'" stroke="var(--muted)" stroke-dasharray="2 4"/>';
+    h+='<text x="'+(nEnd[0]-14)+'" y="'+(nEnd[1]-4)+'" style="font-size:15px">n</text>';
+    // P
+    h+=arrow(G[0],G[1],G[0],G[1]+100*k,'var(--force)','sF');
+    h+='<text x="'+(G[0]+8)+'" y="'+(G[1]+100*k-6)+'" style="fill:var(--force)">P</text>';
+    // components & resultant
+    var Nend=p(n,N*k), Tend=p(t,T*k);
+    var R=[N*k*n[0]+T*k*t[0], N*k*n[1]+T*k*t[1]], Rend=[A[0]+R[0],A[1]+R[1]];
+    h+=arrow(A[0],A[1],Nend[0],Nend[1],'var(--nrm)','sN',2.5);
+    if(T*k>4) h+=arrow(A[0],A[1],Tend[0],Tend[1],'var(--tan)','sT',2.5);
+    h+='<line x1="'+Nend[0]+'" y1="'+Nend[1]+'" x2="'+Rend[0]+'" y2="'+Rend[1]+'" stroke="var(--muted)" stroke-dasharray="3 3"/>';
+    h+=arrow(A[0],A[1],Rend[0],Rend[1],'var(--ink)','sR',3);
+    h+='<text x="'+(Rend[0]+6)+'" y="'+(Rend[1]+4)+'">A<tspan font-size="11" dy="4">2/1</tspan></text>';
+    h+='<text x="'+(Nend[0]-26)+'" y="'+(Nend[1]+14)+'" style="fill:var(--nrm)">N</text>';
+    if(T*k>4) h+='<text x="'+(Tend[0]+4)+'" y="'+(Tend[1]+18)+'" style="fill:var(--tan)">T</text>';
+    h+='<circle cx="'+A[0]+'" cy="'+A[1]+'" r="3" fill="var(--ink)"/>';
+    // mouvement
+    if(!adh){var m1=p(t,-45,p(n,40)), m2=p(t,-115,p(n,40));
+      h+=arrow(m1[0],m1[1],m2[0],m2[1],'var(--bad)','sR',2);
+      h+='<text class="lbl" x="'+(m2[0]-40)+'" y="'+(m2[1]+30)+'" style="fill:var(--bad)">glissement de 1/2</text>';}
+    svg.innerHTML=h;
+    document.getElementById('alphaOut').textContent='α = '+fr(a,1)+'°';
+    document.getElementById('roPhi').textContent=fr(phid,1)+'°';
+    document.getElementById('roN').textContent=fr(N,1)+' N';
+    document.getElementById('roT').textContent=fr(T,1)+' N';
+    document.getElementById('roR').textContent=fr(T/N,3)+(adh?'  (= tan α)':'  (= fs)');
+    var acc=Math.max(0,9.81*(s-0.8*fs*c));
+    document.getElementById('roAcc').textContent= adh ? '0 (immobile)' : fr(acc,2)+' m/s²';
+    var v=document.getElementById('verdict');
+    if(adh){v.className='verdict adh';v.textContent='Adhérence : α ≤ φs, l\'action A2/1 est dans le cône. T = P·sin α reste inférieur à fs·N. Équilibre possible.';}
+    else{v.className='verdict gli';v.textContent='Glissement : α > φs. L\'action A2/1 ne peut pas sortir du cône : elle reste sur le cône (T = fs·N), le PFS n\'est plus vérifié, la pièce 1 glisse.';}
+    if(state.found!==null){v.textContent+=' Expérience : le glissement a démarré à α = '+fr(state.found,1)+'°, soit φs = arctan '+fr(fs,2)+'.';}
+  }
+  /* animation : inclinaison progressive puis glissement */
+  var last=null, reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function loop(ts){
+    var dt=last===null?0:Math.min(.05,(ts-last)/1000); last=ts;
+    var a=+sA.value, fs=+sM.value, phid=Math.atan(fs)*180/Math.PI, ar=a*Math.PI/180;
+    var sliding = a > phid + 1e-9;
+    if(state.exp && !sliding){ state.expA=Math.min(45,state.expA+4*dt); sA.value=state.expA; }
+    else if(state.exp && sliding){ state.exp=false; state.found=+sA.value; document.getElementById('expBtn').disabled=false; }
+    if(sliding){
+      if(state.wait>0){ state.wait-=dt; if(state.wait<=0){state.pos=270;state.v=0;} }
+      else{
+        var acc=Math.max(0,9.81*(Math.sin(ar)-0.8*fs*Math.cos(ar)))*150; // 150 px par mètre
+        state.v+=acc*dt; state.pos-=state.v*dt;
+        if(state.pos<=45){state.pos=45;state.v=0;state.wait=reduce?1.5:.8;}
+      }
+    } else { state.pos=270; state.v=0; state.wait=0; }
+    draw();
+    requestAnimationFrame(loop);
+  }
+  if(svg){
+    sA.addEventListener('input',function(){state.exp=false;state.found=null;document.getElementById('expBtn').disabled=false;});
+    sM.addEventListener('change',function(){state.found=null;});
+    document.getElementById('expBtn').addEventListener('click',function(){sA.value=0;state.expA=0;state.pos=270;state.v=0;state.found=null;state.exp=true;this.disabled=true;});
+    document.getElementById('resetBtn').addEventListener('click',function(){sA.value=0;state.exp=false;state.found=null;state.pos=270;state.v=0;document.getElementById('expBtn').disabled=false;});
+    draw(); requestAnimationFrame(loop);
+  }
+
+  /* ---------- étapes graphiques Q1 ---------- */
+  document.querySelectorAll('[data-step]').forEach(function(b){
+    b.addEventListener('click',function(){
+      var on=b.getAttribute('aria-pressed')!=='true';
+      b.setAttribute('aria-pressed',on);
+      var id=b.getAttribute('data-step');
+      [id, id+'b'].forEach(function(g){var el=document.getElementById(g); if(el) el.classList.toggle('hide',!on);});
+    });
+  });
+
+  /* ---------- correction automatique ---------- */
+  var items=[];
+  function num(v){v=(v||'').trim().replace(/\s/g,'').replace(',','.');return v===''?NaN:parseFloat(v);}
+  document.querySelectorAll('.ans').forEach(function(box){
+    var inputs=box.querySelectorAll('input'), fb=box.querySelector('.fb');
+    inputs.forEach(function(i){var it={done:false,q:box.closest('.q')};items.push(it);i._it=it;
+      i.addEventListener('keydown',function(e){if(e.key==='Enter')box.querySelector('.check').click();});});
+    box.querySelector('.check').addEventListener('click',function(){
+      var ok=0, empty=0;
+      inputs.forEach(function(i){
+        var x=num(i.value), a=+i.dataset.ans, tol=+i.dataset.tol;
+        i.classList.remove('good','wrong');
+        if(isNaN(x)){empty++;return;}
+        if(i.dataset.abs) x=Math.abs(x);
+        var alt=i.dataset.alt?+i.dataset.alt:null, at=+(i.dataset.alttol||0);
+        if(Math.abs(x-a)<=tol || (alt!==null && Math.abs(x-alt)<=at)){i.classList.add('good');ok++;i._it.done=true;}
+        else i.classList.add('wrong');
+      });
+      if(empty){fb.className='fb wrong';fb.textContent='Complétez toutes les valeurs.';}
+      else if(ok===inputs.length){fb.className='fb good';fb.textContent='Juste !';}
+      else{fb.className='fb wrong';fb.textContent='À revoir : consultez l\'indice ou vérifiez vos unités.';}
+      update();
+    });
+  });
+  document.querySelectorAll('.choices').forEach(function(g){
+    var it={done:false,q:g.closest('.q')}; items.push(it);
+    var fb=g.nextElementSibling;
+    g.querySelectorAll('button').forEach(function(b){
+      b.addEventListener('click',function(){
+        g.querySelectorAll('button').forEach(function(x){x.classList.remove('good','wrong');});
+        if(b.dataset.v===g.dataset.correct){b.classList.add('good');it.done=true;fb.className='fb good';fb.innerHTML='Juste. '+g.dataset.fb;}
+        else{b.classList.add('wrong');fb.className='fb wrong';fb.textContent='Pas tout à fait, réessayez.';}
+        update();
+      });
+    });
+  });
+  var tdItems=function(){return items.filter(function(i){return i.q && i.q.closest('#td');});};
+  function update(){
+    var td=tdItems(), d=td.filter(function(i){return i.done;}).length;
+    var sc=document.getElementById('score'),bf=document.getElementById('barFill');
+    if(sc){sc.textContent=d+' / '+td.length; bf.style.width=(td.length?100*d/td.length:0)+'%';}
+    document.querySelectorAll('.q').forEach(function(q){
+      var mine=items.filter(function(i){return i.q===q;});
+      q.classList.toggle('done', mine.length>0 && mine.every(function(i){return i.done;}));
+    });
+  }
+  update();
+})();
+</script>
+<script>
+/* Google Sites : les liens internes (#section) défilent dans le cadre */
+document.querySelectorAll('a[href^="#"]').forEach(function(a){a.addEventListener('click',function(e){var t=document.getElementById(a.getAttribute('href').slice(1));if(t){e.preventDefault();t.scrollIntoView({behavior:'smooth'});}});});
+</script>
+<a href="../index.html" style="position:fixed;bottom:16px;left:16px;z-index:99999;background:#1e3a5f;color:#fff;padding:10px 16px;border-radius:24px;font:600 14px system-ui,sans-serif;text-decoration:none;box-shadow:0 2px 8px rgba(0,0,0,.25)">← Sommaire</a></body>
+</html>

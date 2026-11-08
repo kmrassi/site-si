@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sciences de l&#39;ingénieur — Ressources interactives</title>
+<style>
+:root{--bleu:#1e3a5f;--bleu2:#2f5d8f;--clair:#eef3f9;--fond:#f4f6f9;--txt:#1d2733;--gris:#6b7785;--ligne:#dfe5ec;--accent:#e8913a;
+ --COURS:#1f4f8f;--COURSb:#e2ecfa;--TD:#1f7a3d;--TDb:#e5f5ea;--TP:#a65411;--TPb:#fdeedd;--SYNTHESE:#5f2f9a;--SYNTHESEb:#efe6fa;--CORRIGE:#a32a39;--CORRIGEb:#fbe4e6;--PROJET:#16727c;--PROJETb:#e0f4f6;--ETUDE:#7a5a00;--ETUDEb:#fdf3cf;--LOGICIEL:#334155;--LOGICIELb:#e2e8f0;--EVAL:#9d174d;--EVALb:#fce7f3;--EVALC:#a32a39;--EVALCb:#fbe4e6}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--fond);color:var(--txt);line-height:1.5}
+a{color:inherit}
+.layout{display:grid;grid-template-columns:290px minmax(0,1fr);min-height:100vh}
+
+/* ---------- menu de gauche ---------- */
+.side{position:sticky;top:0;height:100vh;overflow-y:auto;background:var(--bleu);color:#fff;padding:18px 12px 24px;scrollbar-width:thin}
+.brand{display:flex;gap:10px;align-items:center;padding:0 6px 14px;border-bottom:1px solid rgba(255,255,255,.15);margin-bottom:12px;text-decoration:none}
+.brand .logo{width:40px;height:40px;border-radius:11px;background:var(--accent);display:grid;place-items:center;font-size:1.3rem;flex:none}
+.brand b{display:block;font-size:1.02rem}.brand span{font-size:.78rem;opacity:.75}
+.search{width:100%;padding:8px 11px;border-radius:9px;border:0;font:inherit;font-size:.9rem;margin-bottom:10px}
+.grp{font-size:.7rem;letter-spacing:1.2px;text-transform:uppercase;opacity:.6;font-weight:800;margin:14px 8px 6px}
+.side nav a{display:flex;align-items:center;gap:9px;padding:7px 8px;border-radius:9px;text-decoration:none;font-size:.9rem;color:#e6edf6;margin-bottom:2px}
+.side nav a i{font-style:normal;flex:none;min-width:34px;padding:0 4px;height:26px;border-radius:7px;background:rgba(255,255,255,.12);display:grid;place-items:center;font-size:.78rem;font-weight:800}
+.side nav a .t{flex:1;line-height:1.25}
+.side nav a .c{font-size:.72rem;font-weight:700;background:var(--accent);color:#fff;border-radius:99px;padding:1px 7px}
+.side nav a.vide{opacity:.55}
+.side nav a:hover{background:rgba(255,255,255,.1)}
+.side nav a.on{background:#fff;color:var(--bleu)}.side nav a.on i{background:var(--accent);color:#fff}
+.menubtn{display:none}
+
+/* ---------- contenu ---------- */
+main{padding:28px 36px 60px;max-width:1100px;width:100%}
+.hero{background:linear-gradient(135deg,var(--bleu),var(--bleu2));color:#fff;border-radius:18px;padding:26px 28px;margin-bottom:22px}
+.hero .k{font-size:.78rem;letter-spacing:1.3px;text-transform:uppercase;opacity:.8;font-weight:700}
+.hero h1{margin:4px 0 6px;font-size:clamp(1.5rem,3.5vw,2.1rem);line-height:1.2}
+.hero p{margin:0;opacity:.9;max-width:720px}
+.hero .num{display:inline-grid;place-items:center;min-width:54px;height:54px;border-radius:14px;background:var(--accent);font-weight:800;font-size:1.3rem;margin-bottom:10px;padding:0 10px}
+h2{font-size:1.15rem;color:var(--bleu);margin:26px 0 10px;display:flex;align-items:center;gap:8px}
+.box{background:#fff;border:1px solid var(--ligne);border-radius:14px;padding:16px 18px}
+.obj ul{margin:6px 0 0;padding-left:20px}.obj li{margin:3px 0}
+
+/* parcours */
+.how{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.how div{background:#fff;border:1px solid var(--ligne);border-radius:14px;padding:14px;position:relative}
+.how div b{display:block;margin:6px 0 2px}.how div p{margin:0;font-size:.88rem;color:var(--gris)}
+.how .ico{font-size:1.5rem}
+.how div:not(:last-child)::after{content:"→";position:absolute;right:-12px;top:42%;color:var(--accent);font-weight:800;font-size:1.1rem}
+
+/* cartes ressources */
+.path{list-style:none;margin:0;padding:0;counter-reset:st}
+.path li{display:grid;grid-template-columns:46px 1fr;gap:12px;position:relative;padding-bottom:12px}
+.path li::before{counter-increment:st;content:counter(st);width:40px;height:40px;border-radius:50%;background:#fff;border:3px solid var(--accent);display:grid;place-items:center;font-weight:800;color:var(--bleu);z-index:1}
+.path li:not(:last-child)::after{content:"";position:absolute;left:19px;top:40px;bottom:0;width:3px;background:#f3d4b4}
+.card{display:flex;gap:14px;align-items:center;background:#fff;border:1px solid var(--ligne);border-left:6px solid var(--c);border-radius:12px;padding:12px 16px;text-decoration:none;transition:.15s}
+.card:hover{transform:translateX(3px);box-shadow:0 6px 16px rgba(30,58,95,.12)}
+.card .ic{font-size:1.6rem;flex:none}
+.card .bd{flex:1;min-width:0}
+.card b{display:block;font-size:1.02rem}
+.card .s{color:var(--gris);font-size:.87rem}
+.card .go{flex:none;font-weight:700;color:var(--bleu2);font-size:.88rem;white-space:nowrap}
+.tag{display:inline-block;font-size:.7rem;font-weight:800;letter-spacing:.05em;padding:2px 8px;border-radius:10px;margin-right:6px;color:var(--c);background:var(--cb)}
+.new{display:inline-block;font-size:.68rem;font-weight:800;background:var(--accent);color:#fff;border-radius:10px;padding:1px 7px;vertical-align:middle}
+.empty{color:var(--gris);font-style:italic;background:#fff;border:1px dashed #cfd7e0;border-radius:12px;padding:14px 16px}
+.theme{font-size:1.02rem;color:var(--bleu2);margin:20px 0 10px;padding:6px 12px;background:var(--clair);border-radius:9px;display:inline-block}
+.also{margin-top:10px}.also a{font-weight:600;color:var(--bleu2)}
+.legend{display:flex;flex-wrap:wrap;gap:8px}.legend span{display:flex;align-items:center;gap:6px;background:#fff;border:1px solid var(--ligne);border-radius:99px;padding:5px 12px;font-size:.86rem}
+.seqgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}
+.seqgrid a{display:flex;gap:10px;align-items:center;background:#fff;border:1px solid var(--ligne);border-radius:12px;padding:10px 12px;text-decoration:none}
+.seqgrid a:hover{border-color:var(--bleu2)}
+.seqgrid a i{font-style:normal;flex:none;min-width:38px;height:32px;border-radius:9px;background:var(--clair);color:var(--bleu);display:grid;place-items:center;font-weight:800;font-size:.85rem}
+.seqgrid a small{display:block;color:var(--gris)}
+.seqgrid a.vide{opacity:.55}
+.pn{display:flex;justify-content:space-between;gap:10px;margin-top:28px}
+.pn a{background:#fff;border:1px solid var(--ligne);border-radius:10px;padding:9px 14px;text-decoration:none;font-weight:600;color:var(--bleu);font-size:.9rem}
+.pn a:hover{border-color:var(--bleu2)}
+footer{text-align:center;color:var(--gris);font-size:.8rem;padding:24px}
+
+@media(max-width:900px){
+ .layout{grid-template-columns:minmax(0,1fr)}
+ .side{position:sticky;top:0;height:auto;z-index:20;padding:10px 12px}
+ .brand{border:0;margin:0;padding:0 4px}
+ .menubtn{display:block;width:100%;margin-top:8px;border:0;border-radius:9px;padding:8px;font:inherit;font-weight:700;background:var(--accent);color:#fff;cursor:pointer}
+ .side .inner{display:none;max-height:65vh;overflow-y:auto;margin-top:8px}
+ .side.open .inner{display:block}
+ main{padding:18px 14px 40px}
+ .how{grid-template-columns:1fr 1fr}.how div::after{display:none}
+ .card .go{display:none}
+}
+</style>
+</head>
+<body>
+<div class="layout">
+<aside class="side" id="side">
+ <a class="brand" href="#accueil"><div class="logo">⚙️</div><div><b>Sciences de l'ingénieur</b><span>Ressources interactives</span></div></a>
+ <button class="menubtn" id="menubtn">☰ Séquences</button>
+ <div class="inner">
+  <input class="search" id="q" type="search" placeholder="🔍 Chercher une ressource…">
+  <nav id="nav"></nav>
+ </div>
+</aside>
+<main id="main"></main>
+</div>
+
+<script>
+/* ===== Types de ressources ===== */
+const T={
+ COURS:{l:"COURS",i:"📘",d:"Je découvre les notions"},
+ TD:{l:"TD",i:"✏️",d:"Je m'entraîne sur des exercices"},
+ EVAL:{l:"ÉVALUATION",i:"📝",d:"Je fais le point sur mes acquis"},
+ EVALC:{l:"CORRIGÉ DU TEST",i:"✅",d:"Je corrige mon évaluation"},
+ LOGICIEL:{l:"LOGICIEL",i:"💾",d:"Je manipule un logiciel"},
+ ETUDE:{l:"ÉTUDE DE CAS",i:"🔍",d:"J'analyse un produit réel"},
+ TP:{l:"TP",i:"🔧",d:"J'expérimente sur un système réel"},
+ CORRIGE:{l:"CORRECTION",i:"✅",d:"Je vérifie mon travail"},
+ SYNTHESE:{l:"SYNTHÈSE",i:"🧠",d:"Je retiens l'essentiel"},
+ PROJET:{l:"PROJET",i:"🚀",d:"Je conçois et je fabrique"}
+};
+const ORDRE=["COURS","LOGICIEL","TD","CORRIGE","ETUDE","TP","SYNTHESE","PROJET"];
+
+/* ===== Séquences : [type, titre, sous-titre, fichier, nouveau?] ===== */
+const S=[
+ {id:"seq00",n:"0",t:"Analyse des systèmes",o:["Décrire un système et son environnement","Identifier les cas d'utilisation et les exigences d'un produit","Lire et construire les diagrammes SysML : cas d'utilisation, exigences, blocs (BDD, IBD), séquence"],p:[
+  ["COURS","Analyse des systèmes","RC Flip 360 : cas d'utilisation et exigences","seq00/Cours_Analyse_systemes_RC_Flip_360_cas_utilisation_exigences.html"],
+  ["TD","Diagrammes SysML","Vélib, store automatique, éclairage de couloir, poste radio","seq00/02_TD_Diagrammes_SysML.html",1],
+  ["ETUDE","Distributeur de savon automatique","5 diagrammes SysML commentés","seq00/03_Etude_SysML_Distributeur_savon.html",1],
+  ["ETUDE","Lampe de bureau didactique","5 diagrammes SysML commentés","seq00/04_Etude_SysML_Lampe_de_bureau.html",1],
+  ["ETUDE","Kit enceinte Bluetooth","5 diagrammes SysML commentés","seq00/05_Etude_SysML_Enceinte_Bluetooth.html",1],
+  ["ETUDE","Robot Maqueen Plus V2","5 diagrammes SysML commentés","seq00/06_Etude_SysML_Robot_Maqueen_Plus_V2.html",1],
+  ["ETUDE","Détecteur PIR WiFi","5 diagrammes SysML commentés","seq00/07_Etude_SysML_Detecteur_PIR_WiFi.html",1],
+  ["ETUDE","Caméra IP intérieure LSC","5 diagrammes SysML commentés","seq00/08_Etude_SysML_Camera_IP_LSC.html",1]]},
+ {id:"seq01",n:"1",t:"Kirchhoff · Transmission · Énergie",o:["Appliquer la loi des nœuds et la loi des mailles","Calculer un rapport de transmission ou de réduction","Faire un bilan de puissance et calculer un rendement"],p:[
+  ["COURS","Lois de Kirchhoff","Cours interactif","seq01/01_Cours_Lois_de_Kirchhoff.html",0,"⚡ Lois de Kirchhoff"],
+  ["TD","Lancement — Lois de Kirchhoff","Activité notée : questions de cours, nœuds, mailles, résistances équivalentes","seq01/09_TD_Kirchhoff_Lancement_activite_notee.html",1,"⚡ Lois de Kirchhoff"],
+  ["TP","TP Matlab — Lois de Kirchhoff","Guide : trouver les composants Simulink (R2025b)","seq01/10_TP_Kirchhoff_Guide_composants_Simulink.html",1,"⚡ Lois de Kirchhoff"],
+  ["COURS","Transmission de puissance","Cours interactif","seq01/02_Cours_Transmission_de_puissance.html",0,"⚙️ Transmission de puissance"],
+  ["TD","Rapport de transmission et de réduction","Tapis roulant, treuil de levage","seq01/03_TD_Transmission_Rapport_de_transmission_et_reduction.html",0,"⚙️ Transmission de puissance"],
+  ["CORRIGE","Transmissions & engrenages","Correction du TD","seq01/04_TD_Transmission_Correction_engrenages.html",0,"⚙️ Transmission de puissance"],
+  ["TP","Boîte de vitesses","Fiche interactive","seq01/05_TP_Transmission_Boite_de_vitesses.html",0,"⚙️ Transmission de puissance"],
+  ["TP","TP3 Pilote automatique","Vérification des performances — corrigé","seq01/06_TP_Transmission_TP3_Pilote_automatique_corrige.html",0,"⚙️ Transmission de puissance"],
+  ["TP","Démarche MECA3D","TP ASTROLAB","seq01/07_TP_Transmission_Demarche_MECA3D_ASTROLAB.html",0,"⚙️ Transmission de puissance"],
+  ["TP","TP Aspirateur autonome","Corrigé interactif : chaîne de puissance, rapport de réduction, vitesse","seq01/11_TP_Transmission_Aspirateur_autonome_corrige.html",0,"⚙️ Transmission de puissance"],
+  ["TD","Énergétique — TD interactifs","Ascenseur, TGV, drone, chauffe-eau solaire… avec formulaire","seq01/12_TD_Energetique_TD_interactifs.html",1,"🔋 Énergie"],
+  ["TP","Tamiya H-Cell — énergie","Corrections des TP 1.2 et 1.5 : autonomie, flux d'énergie, rendement","seq01/13_TP_Energie_Tamiya_corrections.html",1,"🔋 Énergie"],
+  ["SYNTHESE","Énergétique","Synthèse interactive","seq01/08_Synthese_Energetique_interactive.html",0,"🔋 Énergie"],
+  ["TD","Révision — Énergies, puissance, rendement","6 exercices (PV, volet, bowling, tondeuse, table élévatrice, Zoé) + fiche « À retenir » ; corrections débloquées à 90 % de réponses","seq01/14_Revision_Energetique_correction_interactive.html",1,"📝 Révision et synthèse"],
+  ["SYNTHESE","Stocker, convertir, mesurer","Batteries, moteur CC, moteur asynchrone, vérins, écarts — simulateurs + quiz","seq01/15_Synthese_Stocker_convertir_mesurer.html",1,"📝 Révision et synthèse"],
+  ["EVALC","Corrigé interactif — Évaluation : la trottinette électrique","Millman, diviseurs de courant et de tension, réducteur, vis sans fin, effort/flux, autonomie — corrigé pas à pas + 7 schémas animés","seq01/16_Evaluation_Corrige_interactif_Trottinette.html",1,"📝 Révision et synthèse"]]},
+ {id:"seq02",n:"2",t:"Cinématique",o:["Choisir un référentiel et décrire une trajectoire","Reconnaître une rotation, une translation ou un mouvement plan","Écrire les équations horaires d'un mouvement","Lire et exploiter des courbes de position, vitesse et accélération"],p:[
+  ["COURS","Les bases de la cinématique","Référentiel, trajectoire, types de mouvements — animations + quiz","seq02/00_Cours_Bases_de_la_cinematique.html",1,"〰️ Mouvements et trajectoires"],
+  ["LOGICIEL","Logiciel de cinématique","Vitesses, trajectoires, CIR — à télécharger (.exe ou .swf)","seq02/00_Logiciel_cinematique.html",1,"〰️ Mouvements et trajectoires"],
+  ["TD","Mouvements et trajectoires","Systèmes réels : Bobcat, coffre Audi A8, manège, siège de dentiste, bobines","seq02/04_TD_Mouvements_et_trajectoires.html",1,"〰️ Mouvements et trajectoires"],
+  ["COURS","Équations de mouvement","MRU, MRUV, rotation, lire un graphe, exercice SNCF + quiz","seq02/01_Cours_Equations_de_mouvement.html",0,"📈 Équations de mouvement"],
+  ["TD","TD Équations horaires","8 exercices animés : puits, moteur, grue, freinage, trains, Space Mountain…","seq02/02_TD_Equations_horaires.html",0,"📈 Équations de mouvement"],
+  ["TP","TP Tamiya H-Cell","Corrigés interactifs","seq02/03_TP_Tamiya_corriges.html",0,"📈 Équations de mouvement"],
+  ["TP","TP Essuie-glace Scénic II","Chaînes d'information et d'énergie, mécanisme, débattements, surface balayée","seq02/05_TP_Essuie-glace_Scenic_II.html",1,"〰️ Mouvements et trajectoires"],
+  ["TP","TP Volets battants VOLTEC","Mouvements, trajectoires, vecteurs vitesse, composition des vitesses","seq02/06_TP_Volets_battants_VOLTEC.html",1,"〰️ Mouvements et trajectoires"]]},
+ {id:"seq03",n:"3",t:"CAN – CNA · Chaîne d'information",o:["Comprendre la conversion d'un signal analogique en numérique, et inversement"],p:[]},
+ {id:"seq04",n:"4",t:"Réseaux · IoT",o:["Décrire un réseau et la circulation des informations entre objets connectés"],p:[]},
+ {id:"seq05",n:"5",t:"Bus de communication · Algorithmie",o:["Décrire un échange de données sur un bus","Écrire et lire un algorithme"],p:[]},
+ {id:"seq06",n:"6",t:"Liaisons cinématiques",o:["Identifier les liaisons entre les pièces d'un mécanisme","Lire et tracer un schéma cinématique"],p:[]},
+ {id:"seq07",n:"7",t:"Statique",o:["Calculer le moment d'une force (bras de levier, produit vectoriel)","Modéliser une action mécanique par un torseur et appliquer le PFS","Prendre en compte le frottement (loi de Coulomb)","Valider un modèle en comparant mesures et simulation (TP)"],p:[
+  ["COURS","Actions mécaniques & statique","Synthèse : action méc., moment, torseur, PFS, frottement, liaisons + 7 animations + quiz","seq07/00_Cours_Actions_mecaniques_Statique_synthese.html",1,"📘 Cours et test"],
+  ["COURS","Moment d'une force","Bras de levier, produit vectoriel, torseur + 7 animations","seq07/01_Cours_Moments_bras_de_levier_torseurs.html",0,"📘 Cours et test"],
+  ["EVAL","Test — Moment, bras de levier, Varignon","30 min, /20 : questions de cours, clé de roue, barrière levante (à imprimer)","seq07/01a_Evaluation_Test_Moments_Varignon.html",1,"📘 Cours et test"],
+  ["EVALC","Corrigé et barème du test","Moment, bras de levier, Varignon — réponses détaillées","seq07/01b_Evaluation_Corrige_Test_Moments_Varignon.html",1,"📘 Cours et test"],
+  ["TD","TD Torseurs statiques","Corrections : extincteur, pédale de frein, magasin automatisé, table amovible…","seq07/04_TD_Torseurs_statiques_corrections.html",1,"✏️ TD — torseurs, statique, frottements"],
+  ["TD","TD Foilboard & potence à tirant","Réduction de torseur, PFS, 3 forces concourantes — corrections","seq07/05_TD_Foilboard_Potence_a_tirant.html",1,"✏️ TD — torseurs, statique, frottements"],
+  ["TD","Frottements, loi de Coulomb","Plan incliné (simulateur) + TD frein V-Brake","seq07/02_TD_Frottements_loi_de_Coulomb_V-Brake.html",0,"✏️ TD — torseurs, statique, frottements"],
+  ["TP","TP Dobot Magician (EP sujet 42C)","La pince du robot serre-t-elle assez fort ? Mesure, Matlab, écarts","seq07/06_TP_Dobot_Magician_EP42C_pince.html",1,"🔧 TP"],
+  ["TP","TP6 Pilote automatique","L'effort dépend-il du montage et de la position du safran ?","seq07/07_TP6_Pilote_effort_montage_safran.html",1,"🔧 TP"],
+  ["TP","TP9 Pilote TP32","La chaîne d'énergie du pilote est-elle réversible ?","seq07/08_TP9_Pilote_TP32_reversibilite.html",1,"🔧 TP"],
+  ["TP","TP3 Volant G27","Concevoir un modèle pour évaluer la chaîne d'énergie du volant","seq07/09_TP3_Volant_G27_chaine_energie.html",1,"🔧 TP"],
+  ["TP","TP Volant à retour de force (bac 2026)","Épreuve pratique SI — sujet 14A","seq07/10_TP_Volant_retour_force_EP14A_bac2026.html",1,"🔧 TP"],
+  ["TP","TP Drones Tello & Makerfire","Torseurs et PFS appliqués au vol des drones","seq07/11_TP_Drone_Tello_Makerfire_torseurs_PFS.html",1,"🔧 TP"],
+  ["COURS","Rappels de maths pour la mécanique","Vecteurs, Chasles, trigonométrie, produit vectoriel — labos et exercices","seq07/00a_Cours_Rappels_maths_mecanique.html",1,"🧩 À la suite : rappels maths, synthèse, analyse des écarts, évaluation"],
+  ["SYNTHESE","Synthèse — Force ou moment ?","Porte et livre animés, tableau à retenir","seq07/01c_Synthese_Force_ou_moment.html",1,"🧩 À la suite : rappels maths, synthèse, analyse des écarts, évaluation"],
+  ["COURS","Méthode — Analyser les écarts","Réel / simulé / attendu, méthode en 6 étapes, exemple Dobot, calculateur","seq07/12_Methode_Analyse_des_ecarts.html",1,"🧩 À la suite : rappels maths, synthèse, analyse des écarts, évaluation"],
+  ["EVAL","Évaluation — Moment d'une force : le panier de basket","QCM + exercice, réponses en ligne, corrigé débloqué après validation","seq07/01d_Evaluation_Moment_panier_basket.html",1,"🧩 À la suite : rappels maths, synthèse, analyse des écarts, évaluation"],
+  ["CORRIGE","Corrigé — Devoir SI Terminale","Épreuve 1 : barrière levante de parking · Épreuve 2 : vélo à assistance électrique — avec simulations","seq07/03_Evaluation_Corrige_Devoir_SI_Barriere_VAE.html",0,"📝 Évaluations — corrigés"]]},
+ {id:"seq08",n:"8",t:"Dynamique",o:["Relier les efforts au mouvement","Vérifier qu'une pièce résiste : contrainte, flèche, coefficient de sécurité (RDM)"],p:[
+  ["TD","TD Funiculaire de Montmartre","PFS puis PFD en translation sur plan incliné, tension du câble, puissance — simulateur","seq08/02_TD_Funiculaire_Montmartre_PFS_PFD.html",1],
+  ["TP","TP Équilibreuse de roue","PFD en rotation : C = I·α, Méca3D, balourd — simulateur","seq08/03_TP_Equilibreuse_de_roue_PFD_rotation.html",1],
+  ["TP","TP10 Pilote de barre franche","RDM : flexion, concentration de contrainte, simulateur","seq08/01_TP_RDM_TP10_Pilote_de_barre_flexion.html",1]]},
+ {id:"seq09",n:"9",t:"Asservissement",o:["Repérer consigne, erreur et retour dans un système asservi","Identifier une fonction de transfert sur un diagramme de Bode","Valider un modèle en comparant mesures réelles et simulation"],p:[
+  ["COURS","Systèmes asservis","Boucle ouverte/fermée, signaux types, SLCI, gain, intégrateur, 1er et 2e ordre — animations et exercices","seq09/00_Cours_Systemes_asservis.html",1],
+  ["TP","TP12 Pilote + voilier","Valider un modèle asservi : Bode, réponse indicielle, boucle fermée","seq09/01_TP_Asservissement_TP12_Pilote_voilier.html",1],
+  ["COURS","Sphero BB-8 et asservissement","Vidéos, schéma bloc cliquable, simulateur : s'arrêter au repère avec ou sans asservissement","seq09/02_Sphero_BB8_asservissement.html",1],
+  ["TD","Exercices d'application — schémas blocs et courbes","BB-8, chauffage, gouverne d'avion à compléter + 4 réponses à un échelon : stabilité, ordre, erreur, tr5% — corrections","seq09/03_TD_Asservissement_Schemas_blocs_et_courbes.html",1],
+  ["SYNTHESE","Asservissement — document de synthèse","Fonction de transfert, 1er et 2e ordre, erreurs, stabilité, Bode, correcteurs PID, tr5% + code balancier C++/Python","seq09/04_Synthese_Asservissement.html",1]]},
+ {id:"seq10",n:"10",t:"Diagramme d'état",o:["Décrire le comportement d'un système avec des états et des transitions"],p:[],also:[["TP12 Pilote + voilier — activité 4 : logique de commande (diagramme d'états)","seq09/01_TP_Asservissement_TP12_Pilote_voilier.html#a4"]]},
+ {id:"seq11",n:"11",t:"Interrupteurs parfaits",o:["Comprendre comment des interrupteurs commandent l'énergie envoyée à un moteur"],p:[]},
+ {id:"seq12",n:"12",t:"Alimenter · Distribuer · Convertir",o:["Décrire la chaîne de puissance d'un système","Calculer puissances et rendements"],p:[
+]},
+ {id:"seq13",n:"13",t:"Intelligence artificielle",o:["Découvrir comment une machine apprend à partir de données"],p:[]},
+ {id:"option2nde",n:"2nde",t:"Option ScIng — Projet",o:["Mener un projet de conception","Modéliser une pièce en CAO avec Onshape"],p:[
+  ["PROJET","Enceinte Bluetooth","Guide élève","option2nde/01_Enceinte_BT_guide_eleve.html"],
+  ["PROJET","Onshape, premiers pas","Tutoriel en images","option2nde/02_Demarche_Onshape_premiers_pas.html"]]}
+];
+
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const badge=s=>s.n==="2nde"?"2nde":"S"+s.n;
+const label=s=>s.n==="2nde"?s.t:"Séquence "+s.n+" — "+s.t;
+const rk=k=>['LOGICIEL','EVAL','EVALC'].includes(k)?0:ORDRE.indexOf(k);
+const sorted=p=>p.map((r,i)=>[r,i]).sort((a,b)=>rk(a[0][0])-rk(b[0][0])||a[1]-b[1]).map(x=>x[0]);
+
+function card(r){const[k,a,b,h,nw]=r,ty=T[k];
+ return `<a class="card" href="${h}" style="--c:var(--${k});--cb:var(--${k}b)"><span class="ic">${ty.i}</span><span class="bd"><span class="tag">${ty.l}</span>${nw?'<span class="new">NOUVEAU</span>':''}<b>${esc(a)}</b><span class="s">${esc(b)}</span></span><span class="go">Ouvrir →</span></a>`}
+
+/* ===== menu ===== */
+function buildNav(filter){
+ const f=(filter||"").trim().toLowerCase();
+ if(f){const hits=[];S.forEach(s=>s.p.forEach(r=>{if((r[1]+" "+r[2]+" "+s.t).toLowerCase().includes(f))hits.push([s,r])}));
+  $('#nav').innerHTML=`<div class="grp">Résultats (${hits.length})</div>`+(hits.length?hits.map(([s,r])=>`<a href="${r[3]}"><i>${badge(s)}</i><span class="t">${T[r[0]].i} ${esc(r[1])}</span></a>`).join(''):'<div style="padding:6px 8px;opacity:.7;font-size:.88rem">Aucune ressource trouvée.</div>');return}
+ const item=s=>`<a href="#${s.id}" data-id="${s.id}" class="${s.p.length?'':'vide'}"><i>${badge(s)}</i><span class="t">${esc(s.t)}</span>${s.p.length?`<span class="c">${s.p.length}</span>`:''}</a>`;
+ $('#nav').innerHTML=`<a href="#accueil" data-id="accueil"><i>⌂</i><span class="t">Accueil</span></a>`+
+  `<div class="grp">Séquences</div>`+S.filter(s=>s.n!=="2nde").map(item).join('')+
+  `<div class="grp">Option 2nde</div>`+S.filter(s=>s.n==="2nde").map(item).join('');
+ markNav()}
+function markNav(){const id=(location.hash||'#accueil').slice(1);document.querySelectorAll('#nav a[data-id]').forEach(a=>a.classList.toggle('on',a.dataset.id===id))}
+
+/* ===== vues ===== */
+function home(){
+ const tot=S.reduce((n,s)=>n+s.p.length,0),nouv=[];S.forEach(s=>s.p.forEach(r=>{if(r[4])nouv.push(r)}));
+ return `<div class="hero"><div class="k">Cours · TD · TP · Synthèses</div><h1>Sciences de l'ingénieur</h1><p>${tot} ressources interactives classées par séquence. Choisis une séquence dans le menu de gauche, puis suis le parcours dans l'ordre.</p></div>
+ <h2>🧭 Comment travailler une séquence ?</h2>
+ <div class="how">${["COURS","TD","TP","SYNTHESE"].map(k=>`<div><span class="ico">${T[k].i}</span><b>${T[k].l}</b><p>${T[k].d}</p></div>`).join('')}</div>
+ <p style="color:var(--gris);font-size:.9rem;margin:10px 2px 0">Dans les pages : essaie d'abord seul, utilise les <b>indices</b> si tu bloques, et n'ouvre la <b>correction</b> qu'après avoir répondu.</p>
+ ${nouv.length?`<h2>✨ Nouveautés</h2><div style="display:grid;gap:10px">${nouv.map(card).join('')}</div>`:''}
+ <h2>📚 Toutes les séquences</h2>
+ <div class="seqgrid">${S.map(s=>`<a href="#${s.id}" class="${s.p.length?'':'vide'}"><i>${badge(s)}</i><span><b>${esc(s.t)}</b><small>${s.p.length?s.p.length+' ressource'+(s.p.length>1?'s':''):'bientôt'}</small></span></a>`).join('')}</div>
+ <h2>🏷️ Légende</h2>
+ <div class="legend">${ORDRE.map(k=>`<span>${T[k].i} <b style="color:var(--${k})">${T[k].l}</b> ${T[k].d.toLowerCase()}</span>`).join('')}</div>`}
+
+function groups(p){const th=[...new Set(p.map(r=>r[5]||''))];
+ if(th.length<2)return `<ol class="path">${sorted(p).map(r=>`<li>${card(r)}</li>`).join('')}</ol>`;
+ return th.map(t=>`${t?`<h3 class="theme">${esc(t)}</h3>`:''}<ol class="path">${((t.startsWith('🧩')||t.startsWith('📝'))?(x=>x):sorted)(p.filter(r=>(r[5]||'')===t)).map(r=>`<li>${card(r)}</li>`).join('')}</ol>`).join('')}
+function seqView(s){
+ const i=S.indexOf(s),prev=S[i-1],next=S[i+1];
+ return `<div class="hero"><div class="num">${badge(s)}</div><div class="k">${s.n==="2nde"?"Option Sciences de l'ingénieur":"Séquence "+s.n}</div><h1>${esc(s.t)}</h1></div>
+ <div class="box obj"><b>🎯 Ce que tu vas apprendre</b><ul>${s.o.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>
+ <h2>🗺️ Parcours conseillé</h2>
+ ${s.p.length?groups(s.p):`<div class="empty">Pas encore de page interactive pour cette séquence.</div>`}
+ ${s.also?`<div class="box also"><b>🔗 Voir aussi</b><br>${s.also.map(([l,h])=>`<a href="${h}">${esc(l)}</a>`).join('<br>')}</div>`:''}
+ <div class="pn">${prev?`<a href="#${prev.id}">← ${esc(label(prev))}</a>`:'<span></span>'}${next?`<a href="#${next.id}">${esc(label(next))} →</a>`:'<span></span>'}</div>`}
+
+function route(){const id=(location.hash||'#accueil').slice(1),s=S.find(x=>x.id===id);
+ $('#main').innerHTML=(s?seqView(s):home())+'<footer>Ressources SI — M\'RASSI</footer>';
+ markNav();window.scrollTo(0,0);$('#side').classList.remove('open')}
+
+$('#q').addEventListener('input',e=>buildNav(e.target.value));
+$('#menubtn').addEventListener('click',()=>$('#side').classList.toggle('open'));
+window.addEventListener('hashchange',route);
+buildNav();route();
+</script>
+</body>
+</html>

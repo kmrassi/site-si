@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Corrigés interactifs — Transmissions &amp; engrenages</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#eef1f0; --paper-raised:#ffffff; --ink:#152238; --ink-soft:#4a5568; --line:#c9d0d3;
+  --copper:#b5652f; --copper-dim:#e7cdb2; --ok:#2f7a4f; --ok-bg:#e3f2e8; --bad:#b8433a; --bad-bg:#fbeae8; --radius:3px;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background:
+    linear-gradient(rgba(21,34,56,.06) 1px, transparent 1px) 0 0/28px 28px,
+    linear-gradient(90deg, rgba(21,34,56,.06) 1px, transparent 1px) 0 0/28px 28px,
+    var(--paper);
+  color:var(--ink); font-family:'Source Serif 4', Georgia, serif; font-size:16.5px; line-height:1.62;
+}
+h1,h2,h3,h4,.mono,button,.pill{font-family:'Space Grotesk', Arial, 'Segoe UI', sans-serif;}
+
+.shell{display:grid; grid-template-columns:250px minmax(0,1fr); max-width:1180px; margin:0 auto;}
+@media (max-width:860px){.shell{grid-template-columns:1fr;}}
+nav.side{position:sticky; top:0; align-self:start; height:100vh; overflow-y:auto; padding:26px 16px 40px 22px; border-right:1px solid var(--line);}
+@media (max-width:860px){nav.side{position:static; height:auto; border-right:none; border-bottom:1px solid var(--line);}}
+.brand{font-weight:700; font-size:.9rem; margin-bottom:18px;}
+.brand span{display:block; font-family:'Source Serif 4'; font-weight:400; font-style:italic; color:var(--ink-soft); font-size:.78rem;}
+nav.side ol{list-style:none; margin:0; padding:0; counter-reset:sec;}
+nav.side li{counter-increment:sec; margin-bottom:2px;}
+nav.side a{display:flex; gap:8px; text-decoration:none; color:var(--ink-soft); font-size:.79rem; padding:6px 7px; border-radius:var(--radius); cursor:pointer;}
+nav.side a::before{content:counter(sec,decimal-leading-zero); color:var(--copper); font-weight:600; font-size:.72rem;}
+nav.side a:hover{background:var(--paper-raised); color:var(--ink);}
+nav.side a.active{background:var(--copper-dim); color:var(--ink); font-weight:600;}
+.score-widget{margin-top:22px; padding:12px; border:1px dashed var(--line); border-radius:var(--radius); font-size:.78rem; color:var(--ink-soft);}
+.score-widget .n{font-size:1.5rem; font-weight:700; color:var(--ink);}
+
+main{padding:0 0 90px;}
+.hero{padding:44px 40px 30px; border-bottom:1px solid var(--line);}
+.hero .eyebrow{color:var(--copper); font-size:.78rem; font-weight:600; margin-bottom:8px;}
+.hero h1{font-size:1.9rem; margin:0 0 10px; max-width:22ch;}
+.hero p{max-width:64ch; color:var(--ink-soft); margin:0;}
+
+section.doc{padding:0 40px; border-bottom:1px solid var(--line);}
+@media (max-width:620px){section.doc, .hero{padding-left:20px; padding-right:20px;}}
+.dhead{display:flex; align-items:center; gap:12px; cursor:pointer; padding:22px 0 14px;}
+.dhead .num{font-weight:700; color:var(--copper); font-size:.9rem; border:1px solid var(--copper); border-radius:50%; width:30px; height:30px; display:flex; align-items:center; justify-content:center; flex:none;}
+.dhead h2{margin:0; font-size:1.18rem; flex:1;}
+.dhead .src{font-size:.72rem; color:var(--ink-soft); font-weight:400; display:block; margin-top:2px;}
+.dhead .chev{color:var(--ink-soft); transition:transform .2s;}
+.doc.open .dhead .chev{transform:rotate(90deg);}
+.dbody{max-height:0; overflow:hidden;}
+.doc.open .dbody{max-height:none;}
+.dinner{padding-bottom:30px;}
+
+.exo{background:var(--paper-raised); border:1px solid var(--line); border-radius:var(--radius); margin:16px 0; overflow:hidden;}
+.exo-head{display:flex; align-items:center; justify-content:space-between; padding:10px 16px; background:var(--copper-dim); border-bottom:1px solid var(--line);}
+.exo-head span{font-weight:600; font-size:.82rem;}
+.exo-body{padding:14px 18px;}
+.exo-body p.data{margin:0 0 10px; font-size:.9rem; color:var(--ink-soft);}
+.q{margin-bottom:10px;}
+.q label{display:block; font-size:.9rem; margin-bottom:5px;}
+.answer-row{display:flex; align-items:center; gap:8px; flex-wrap:wrap;}
+.answer-row input[type=text]{width:105px; padding:6px 9px; border:1px solid var(--line); border-radius:var(--radius); font-family:'Space Grotesk'; font-size:.88rem; background:var(--paper); color:var(--ink);}
+.unit-lbl{font-size:.8rem; color:var(--ink-soft);}
+.check-btn{border:1px solid var(--ink); background:var(--ink); color:var(--paper); padding:5px 13px; border-radius:var(--radius); font-size:.76rem; font-weight:600; cursor:pointer;}
+.check-btn:hover{opacity:.85;}
+.feedback{font-size:.8rem; margin-top:4px; min-height:1.1em;}
+.feedback.ok{color:var(--ok);}
+.feedback.bad{color:var(--bad);}
+.exo-footer{padding:6px 18px 14px;}
+.reveal-btn{background:none; border:none; color:#2f6690; font-size:.78rem; cursor:pointer; text-decoration:underline; padding:0;}
+.solution{display:none; margin-top:8px; padding:10px 12px; background:var(--ok-bg); border-radius:var(--radius); font-size:.85rem;}
+.solution.show{display:block;}
+.guided{border-left:3px solid var(--copper);}
+.guided .exo-head{background:#fdf3ea;}
+.pill{display:inline-block; font-size:.65rem; padding:2px 8px; border-radius:20px; background:var(--copper-dim); color:var(--ink); margin-left:6px; font-weight:600;}
+.pill.guide{background:#fdf3ea; color:var(--copper); border:1px solid var(--copper-dim);}
+.note{font-size:.76rem; color:var(--ink-soft); font-style:italic; margin-top:6px;}
+table.mini{width:100%; border-collapse:collapse; font-size:.84rem; margin:10px 0;}
+table.mini th, table.mini td{border:1px solid var(--line); padding:6px 8px; text-align:center;}
+table.mini th{background:var(--copper-dim); font-size:.72rem;}
+select.qsel{padding:6px 8px; border:1px solid var(--line); border-radius:var(--radius); background:var(--paper); color:var(--ink); font-size:.85rem;}
+.final-bar{position:sticky; bottom:0; background:var(--paper-raised); border-top:1px solid var(--line); padding:12px 40px; display:flex; align-items:center; gap:14px; justify-content:space-between; flex-wrap:wrap;}
+.final-bar b{font-size:.95rem;}
+.progress-track{flex:1; height:8px; background:var(--line); border-radius:6px; min-width:100px; overflow:hidden;}
+.progress-fill{height:100%; width:0%; background:var(--copper); transition:width .4s ease;}
+footer.end{padding:26px 40px 60px; color:var(--ink-soft); font-size:.82rem;}
+</style>
+</head>
+<body>
+<div class="shell">
+<nav class="side" id="sidenav">
+  <div class="brand">Corrigés — Transmissions<span>10 TD, Spé SI</span></div>
+  <ol>
+    <li><a href="#d1">43 exercices engrenage</a></li>
+    <li><a href="#d2">Transmission de mouvement</a></li>
+    <li><a href="#d3">Mindstorms — Robot Arm</a></li>
+    <li><a href="#d4">Pilote automatique voilier</a></li>
+    <li><a href="#d5">Servomoteur voiture RC</a></li>
+    <li><a href="#d6">Tapis de course TC290</a></li>
+    <li><a href="#d7">Vérin électrique</a></li>
+    <li><a href="#d8">Calculs de transmissions</a></li>
+    <li><a href="#d9">Engrenages — TD</a></li>
+    <li><a href="#d10">Commutateur horaire</a></li>
+  </ol>
+  <div class="score-widget"><div class="n" id="scoreDisplay">0 / 0</div>bonnes réponses au premier essai</div>
+</nav>
+<main>
+  <header class="hero">
+    <div class="eyebrow">Spé SI — Transmission de puissance</div>
+    <h1>Corrigés interactifs — engrenages &amp; transmissions</h1>
+    <p>Les calculs sont vérifiés automatiquement quand la donnée est univoque. Pour les montages dont la disposition exacte des roues n'était pas certaine dans le texte du sujet, une méthode guidée est proposée à la place d'une réponse imposée — un encadré orange le signale.</p>
+  </header>
+
+  <!-- ============ DOC 1 : 43 EXERCICES ENGRENAGE ============ -->
+  <section class="doc open" id="d1">
+    <div class="dhead" onclick="toggleDoc(this)"><div class="num">1</div><h2>43 exercices engrenage<span class="src">train simple, réducteur 2 étages, monte-charge, chariot, treuil, bulldozer, Redex</span></h2><div class="chev">›</div></div>
+    <div class="dbody"><div class="dinner">
+
+      <div class="exo guided">
+        <div class="exo-head"><span>43.1 — Train d'engrenage simple</span><span class="pill guide">méthode guidée</span></div>
+        <div class="exo-body">
+          <p class="data">Z1=65, Z2=32, Z3=24, Z3'=48, Z4=38, Z4'=82, Z5=26, Z5'=54, Z6=42, Z7=30 (entrée en 7, sortie en 1).</p>
+          <p style="font-size:.88rem;">La disposition exacte des roues compound (lesquelles partagent un arbre) ne peut pas être garantie à partir du texte seul. <b>Méthode</b> : repérez sur votre propre schéma, pour chaque contact, la roue menante (qui reçoit le mouvement) et la roue menée ; les roues notées avec un « ' » partagent en général le même arbre (même vitesse). Le rapport global est <b>R = Π(Z menantes) / Π(Z menées)</b>. Une hypothèse de chaîne courante donne R ≈ 3,15 (multiplicateur) — à vérifier impérativement sur votre document.</p>
+        </div>
+      </div>
+
+      <div class="exo">
+        <div class="exo-head"><span>43.2 — Réducteur simple à 2 étages</span><span class="pill">calcul</span></div>
+        <div class="exo-body">
+          <p class="data">Z6=20 (pignon d'entrée), Z5=46 (roue), Z4=22 (pignon, même arbre que Z5), Z3=44 (roue de sortie). Exigence du cahier des charges : rapport de réduction = 0,3.</p>
+          <div class="q"><label>Rapport de réduction global R = (Z6/Z5)×(Z4/Z3) ?</label>
+            <div class="answer-row"><input type="text" id="d1_2r"><button class="check-btn" onclick="checkNum('d1_2r',0.2174,4)">Vérifier</button><span class="feedback" id="fb_d1_2r"></span></div></div>
+        </div>
+        <div class="exo-footer"><button class="reveal-btn" onclick="toggleSol(this)">Voir la méthode et conclure</button>
+        <div class="solution">R = (20/46)×(22/44) = 0,4348×0,5 ≈ <b>0,217</b>. La valeur obtenue est inférieure à l'exigence de 0,3 : le réducteur réduit davantage que demandé — à discuter avec la marge tolérée par le cahier des charges.</div></div>
+      </div>
+
+      <div class="exo">
+        <div class="exo-head"><span>43.3 — Monte-charge (réducteur DEMAG)</span><span class="pill">calcul</span></div>
+        <div class="exo-body">
+          <p class="data">Moteur 1500 tr/min. Chaîne : 6(Z=16) → 9a(Z=46), 9a/9b compound (Z9b=19) → 11a(Z=59), 11a/11b compound (Z11b=17) → 16(Z=85, sortie). Diamètre d'enroulement sur le tambour = 20 cm.</p>
+          <div class="q"><label>Rapport de réduction R = (Z6/Z9a)×(Z9b/Z11a)×(Z11b/Z16) ?</label>
+            <div class="answer-row"><input type="text" id="d1_3r"><button class="check-btn" onclick="checkNum('d1_3r',0.02240,4)">Vérifier</button><span class="feedback" id="fb_d1_3r"></span></div></div>
+          <div class="q"><label>Vitesse de sortie du réducteur (tambour) à 1500 tr/min moteur ?</label>
+            <div class="answer-row"><input type="text" id="d1_3n"><span class="unit-lbl">tr/min</span><button class="check-btn" onclick="checkNum('d1_3n',33.6,3)">Vérifier</button><span class="feedback" id="fb_d1_3n"></span></div></div>
+          <div class="q"><label>Vitesse de rotation du tambour nécessaire pour Vz=0,35 m/s (v=π×D×N) ?</label>
+            <div class="answer-row"><input type="text" id="d1_3vt"><span class="unit-lbl">tr/min</span><button class="check-btn" onclick="checkNum('d1_3vt',33.4,3)">Vérifier</button><span class="feedback" id="fb_d1_3vt"></span></div></div>
+        </div>
+        <div class="exo-footer"><button class="reveal-btn" onclick="toggleSol(this)">Voir la méthode et conclure</button>
+        <div class="solution">R=(16/46)×(19/59)×(17/85)≈0,0224. N_sortie=1500×0,0224≈33,6 tr/min. Besoin : N=v/(π×D)×60=0,35/(π×0,2)×60≈33,4 tr/min. Les deux valeurs sont très proches (écart &lt;1%) : <b>le choix du réducteur DEMAG est bien adapté</b> au profil de vitesse imposé.</div></div>
+      </div>
+
+      <div class="exo">
+        <div class="exo-head"><span>43.4 — Chariot de manutention HYSTER</span><span class="pill">calcul</span></div>
+        <div class="exo-body">
+          <p class="data">Moteur 1500 tr/min. Engrenage conique Z27=16 → Z35=84 (même arbre que le pignon 5) ; train cylindrique : Z5=14 → Z11=56 (roue intermédiaire, simple relais) → Z16=75 ; roue 46 solidaire de Z16, rayon r=90 mm. Exigence : vitesse du chariot ≤ 2 km/h.</p>
+          <div class="q"><label>Vitesse de rotation de la roue 46 (N=1500×(Z27/Z35)×(Z5/Z16)) ?</label>
+            <div class="answer-row"><input type="text" id="d1_4n"><span class="unit-lbl">tr/min</span><button class="check-btn" onclick="checkNum('d1_4n',53.3,3)">Vérifier</button><span class="feedback" id="fb_d1_4n"></span></div></div>
+          <div class="q"><label>Vitesse d'avance du chariot (v = r × ω, sans glissement) ?</label>
+            <div class="answer-row"><input type="text" id="d1_4v"><span class="unit-lbl">km/h</span><button class="check-btn" onclick="checkNum('d1_4v',1.81,4)">Vérifier</button><span class="feedback" id="fb_d1_4v"></span></div></div>
+        </div>
+        <div class="exo-footer"><button class="reveal-btn" onclick="toggleSol(this)">Voir la méthode et conclure</button>
+        <div class="solution">N46=1500×(16/84)×(14/75)≈53,3 tr/min. ω=53,3×2π/60≈5,59 rad/s. v=0,09×5,59≈0,503 m/s ≈ <b>1,81 km/h</b>. C'est inférieur à l'exigence de 2 km/h (marge d'environ 0,19 km/h, soit ~9,5%) : <b>le cahier des charges est respecté</b>.</div></div>
+      </div>
+
+      <div class="exo">
+        <div class="exo-head"><span>43.5 — Treuil-palan de pont roulant</span><span class="pill">calcul</span></div>
+        <div class="exo-body">
+          <p class="data">Complétez le tableau (les roues en contact partagent le même module) : Pignon1 (Z=21), Roue2 (m=2, d=102), Couronne0a (Z=123), Pignon3 (m=3, d=69), Roue4 (Z=34), Couronne0b (Z=91). Exigence : rapport de réduction &lt; 0,05.</p>
+          <div class="q"><label>Module de l'étage 1 (pignon1 / roue2 / couronne0a), déduit de d2=102=m×51 ?</label>
+            <div class="answer-row"><input type="text" id="d1_5m1"><button class="check-btn" onclick="checkNum('d1_5m1',2,1)">Vérifier</button><span class="feedback" id="fb_d1_5m1"></span></div></div>
+          <div class="q"><label>Diamètre primitif du pignon1 (d = m × Z) ?</label>
+            <div class="answer-row"><input type="text" id="d1_5d1"><span class="unit-lbl">mm</span><button class="check-btn" onclick="checkNum('d1_5d1',42,2)">Vérifier</button><span class="feedback" id="fb_d1_5d1"></span></div></div>
+          <div class="q"><label>Nombre de dents de la roue2 (Z = d/m) ?</label>
+            <div class="answer-row"><input type="text" id="d1_5z2"><button class="check-btn" onclick="checkNum('d1_5z2',51,1)">Vérifier</button><span class="feedback" id="fb_d1_5z2"></span></div></div>
+          <div class="q"><label>Nombre de dents du pignon3 (Z = d/m, m=3) ?</label>
+            <div class="answer-row"><input type="text" id="d1_5z3"><button class="check-btn" onclick="checkNum('d1_5z3',23,1)">Vérifier</button><span class="feedback" id="fb_d1_5z3"></span></div></div>
+          <div class="q"><label>Diamètre primitif de la roue4 (d = m × Z, m=3) ?</label>
+            <div class="answer-row"><input type="text" id="d1_5d4"><span class="unit-lbl">mm</span><button class="check-btn" onclick="checkNum('d1_5d4',102,2)">Vérifier</button><span class="feedback" id="fb_d1_5d4"></span></div></div>
+        </div>
+        <div class="exo-footer"><button class="reveal-btn" onclick="toggleSol(this)">Voir la méthode</button>
+        <div class="solution">Les roues en prise partagent le même module. Étage 1 (m=2) : d1=2×21=42mm, Z2=102/2=51, couronne0a d=2×123=246mm. Étage 2 (m=3) : Z3=69/3=23, d4=3×34=102mm, couronne0b d=3×91=273mm.
+        <div class="note">Le montage étant coaxial (bâti commun aux deux couronnes), il s'agit vraisemblablement d'un train épicycloïdal : le rapport de réduction dépend alors de la formule de Willis propre à cette architecture, qui ne peut pas être déduite avec certitude sans voir précisément quel élément (planétaire, satellite ou porte-satellite) joue quel rôle sur votre schéma — reportez-vous à la méthode vue en cours sur les trains épicycloïdaux.</div></div></div>
+      </div>
+
+      <div class="exo guided">
+        <div class="exo-head"><span>43.6 — Train compensateur de bulldozer</span><span class="pill guide">méthode guidée</span></div>
+        <div class="exo-body">
+          <p class="data">Z25=32, Z23=23, Z17=78. Exigence : rapport de réduction &lt; 0,3.</p>
+          <p style="font-size:.88rem;">Un « train compensateur » est en général un train épicycloïdal (comme un différentiel automobile). Sans confirmation visuelle de quel élément est planétaire, satellite ou couronne, il n'est pas possible de garantir le rapport exact. <b>Méthode</b> : identifiez sur votre dessin d'ensemble l'élément fixe (bâti), l'entrée et la sortie, puis appliquez la formule de Willis : (ω<sub>sortie</sub>−ω<sub>bâti</sub>)/(ω<sub>entrée</sub>−ω<sub>bâti</sub>) = ± Z<sub>entrée</sub>/Z<sub>sortie</sub> selon le nombre de contacts extérieurs.</p>
+        </div>
+      </div>
+
+      <div class="exo guided">
+        <div class="exo-head"><span>43.7 — Boîtier de commande de raboteuse</span><span class="pill guide">méthode guidée</span></div>
+        <div class="exo-body">
+          <p style="font-size:.88rem;">Ce montage à deux moteurs correspond à la structure d'un <b>différentiel</b> (comme sur un essieu automobile). Pour un différentiel symétrique classique, la relation générale est : <b>ω<sub>s</sub> = (ω<sub>M1</sub> + ω<sub>M2</sub>) / 2</b> (éventuellement mise à l'échelle par les rapports des étages d'engrenages situés avant le différentiel). La condition géométrique de montage impose que les roues en contact aient le même module (donc le même pas), comme pour tout engrenage.</p>
+        </div>
+      </div>
+
+      <div class="exo">
+        <div class="exo-head"><span>43.8 — Poulie Redex (train épicycloïdal)</span><span class="pill">calcul</span></div>
+        <div class="exo-body">
+          <p class="data">Planétaire fixe 24 (Z=49) lié au bâti 18. Satellites doubles 6 (Z=34, en prise avec 24) et 10 (Z=31, en prise avec le planétaire de sortie 31, Z=46), portés par la cage d'entrée 5. Sortie sur l'arbre 32, lié à 31.</p>
+          <div class="q"><label>Rapport r = ω<sub>s/18</sub> / ω<sub>e/18</sub> = 1 − (Z10×Z24)/(Z31×Z6) ?</label>
+            <div class="answer-row"><input type="text" id="d1_8r"><button class="check-btn" onclick="checkNum('d1_8r',0.0288,5)">Vérifier</button><span class="feedback" id="fb_d1_8r"></span></div></div>
+        </div>
+        <div class="exo-footer"><button class="reveal-btn" onclick="toggleSol(this)">Voir la méthode</button>
+        <div class="solution">Formule de Willis appliquée aux deux engrènements du train (satellite double, planétaire 24 fixe) : r = 1 − (Z10×Z24)/(Z31×Z6) = 1 − (31×49)/(46×34) = 1 − 1519/1564 ≈ <b>0,0288</b> (soit environ 1/35), une valeur tout à fait typique des réducteurs planétaires Redex.</div></div>
+      </div>
+
+    </div></div>
+  </section>
+
+  <!-- ============ DOC 2 : TRANSMISSION DE MOUVEMENT (roue menante/menée) ============ -->
+  <section class="doc" id="d2">
+    <div class="dhead" onclick="toggleDoc(this)"><div class="num">2</div><h2>Transmission de mouvement<span class="src">roue menante / roue menée — accélère, ralentit, ou même vitesse ?</span></h2><div class="chev">›</div></div>
+    <div class="dbody"><div class="dinner">
+      <p style="font-size:.9rem; color:var(--ink-soft);">Formule : le rapport Z<sub>menant</sub>/Z<sub>mené</sub> donne le nombre de tours de la roue menée pour 1 tour de la roue menante.</p>
+      <table class="mini">
+        <tr><th>Cas</th><th>Z menant</th><th>Z mené</th><th>Tours menée / tour menante</th><th>Comportement</th></tr>
+        <tr><td>1</td><td>15</td><td>30</td><td>0,5</td><td>Ralentit</td></tr>
+        <tr><td>2</td><td>40</td><td>30</td><td>1,33</td><td>Accélère</td></tr>
+        <tr><td>3 (conique)</td><td>14</td><td>20</td><td>0,7</td><td>Ralentit</td></tr>
+        <tr><td>4 (conique)</td><td>16</td><td>40</td><td>0,4</td><td>Ralentit</td></tr>
+        <tr><td>5 (vis Z=1)</td><td>1</td><td>20</td><td>0,05</td><td>Ralentit</td></tr>
+        <tr><td>6 (vis Z=2)</td><td>2</td><td>50</td><td>0,04</td><td>Ralentit</td></tr>
+        <tr><td>7 (chaîne)</td><td>20</td><td>10</td><td>2</td><td>Accélère</td></tr>
+        <tr><td>8 (chaîne)</td><td>20</td><td>40</td><td>0,5</td><td>Ralentit</td></tr>
+        <tr><td>9 (poulies Ø80/Ø120)</td><td>80</td><td>120</td><td>0,667</td><td>Ralentit</td></tr>
+        <tr><td>10 (poulies Ø50/Ø120)</td><td>50</td><td>120</td><td>0,417</td><td>Ralentit</td></tr>
+      </table>
+      <div class="exo">
+        <div class="exo-head"><span>Vérifiez vos réponses (cas 1 à 4)</span><span class="pill">calcul</span></div>
+        <div class="exo-body">
+          <div class="q"><label>Cas 1 (Z=15/30) — nombre de tours de la roue menée ?</label>
+            <div class="answer-row"><input type="text" id="d2_c1"><button class="check-btn" onclick="checkNum('d2_c1',0.5,2)">Vérifier</button><span class="feedback" id="fb_d2_c1"></span></div></div>
+          <div class="q"><label>Cas 2 (Z=40/30) — nombre de tours de la roue menée ?</label>
+            <div class="answer-row"><input type="text" id="d2_c2"><button class="check-btn" onclick="checkNum('d2_c2',1.333,3)">Vérifier</button><span class="feedback" id="fb_d2_c2"></span></div></div>
+          <div class="q"><label>Cas 5 (vis 1 filet, roue 20 dents) — nombre de tours de la roue menée pour 1 tour de vis ?</label>
+            <div class="answer-row"><input type="text" id="d2_c5"><button class="check-btn" onclick="checkNum('d2_c5',0.05,2)">Vérifier</button><span class="feedback" id="fb_d2_c5"></span></div></div>
+          <div class="q"><label>Cas 7 (chaîne, pignons 20/10) — nombre de tours du pignon mené ?</label>
+            <div class="answer-row"><input type="text" id="d2_c7"><button class="check-btn" onclick="checkNum('d2_c7',2,2)">Vérifier</button><span class="feedback" id="fb_d2_c7"></span></div></div>
+        </div>
+      </div>
+    </div></div>
+  </section>
+
+  <!-- ============ DOC 3 : MINDSTORMS ============ -->
+  <section class="doc" id="d3">
+    <div class="dhead" onclick="toggleDoc(this)"><div class="num">3</div><h2>Mindstorms — Robot Arm<span class="src">pince et tourelle</span></h2><div class="chev">›</div></div>
+    <div class="dbody"><div class="dinner">
+      <div class="exo">
+        <div class="exo-head"><span>Ouverture de la pince</span><span class="pill">calcul</span></div>
+        <div class="exo-body">
+          <p class="data">Axe de sortie du servomoteur : 40 tr/min. Rapport de réduction interne : 1:48 (le moteur tourne 48 fois plus vite que la sortie).</p>
+          <div class="q"><label>Vitesse de l'axe moteur (N<sub>moteur</sub> = 40 × 48) ?</label>
+            <div class="answer-row"><input type="text" id="d3_n"><span class="unit-lbl">tr/min</span><button class="check-btn" onclick="checkNum('d3_n',1920,2)">Vérifier</button><span class="feedback" id="fb_d3_n"></span></div></div>
+          <div class="q"><label>Vitesse de l'axe moteur en rad/s ?</label>
+            <div class="answer-row"><input type="text" id="d3_w"><span class="unit-lbl">rad/s</span><button class="check-btn" onclick="checkNum('d3_w',201.1,2)">Vérifier</button><span class="feedback" id="fb_d3_w"></span></div></div>
+          <div class="q"><label>Temps pour fermer la pince (rotation de 90° = π/2 rad, à la vitesse de sortie) ?</label>
+            <div class="answer-row"><input type="text" id="d3_t"><span class="unit-lbl">s</span><button class="check-btn" onclick="checkNum('d3_t',0.375,3)">Vérifier</button><span class="feedback" id="fb_d3_t"></span></div></div>
+        </div>
+        <div class="exo-footer"><button class="reveal-btn" onclick="toggleSol(this)">Voir la méthode</button>
+        <div class="solution">N<sub>moteur</sub>=40×48=1920 tr/min = 32 tr/s → ω=32×2π≈201,1 rad/s. Vitesse de sortie ω<sub>s</sub>=40 tr/min=4,189 rad/s. t=(π/2)/4,189≈0,375 s.</div></div>
+      </div>
+      <div class="exo">
+        <div class="exo-head"><span>Rotation de la tourelle</span><span class="pill">calcul</span></div>
+        <div class="exo-body">
+          <p class="data">La vis sans fin (1 filet) sur l'axe moteur entraîne une roue de 24 dents ; sur ce même axe, un pignon de 8 dents entraîne la roue de 40 dents portant la tourelle.</p>
+          <div class="q"><label>Nombre de tours de l'axe moteur pour que la tourelle tourne de 90° (soit 0,25 tour) ?</label>
+            <div class="answer-row"><input type="text" id="d3_tours"><span class="unit-lbl">tours</span><button class="check-btn" onclick="checkNum('d3_tours',30,3)">Vérifier</button><span class="feedback" id="fb_d3_tours"></span></div></div>
+        </div>
+        <div class="exo-footer"><button class="reveal-btn" onclick="toggleSol(this)">Voir la méthode</button>
+        <div class="solution">Réduction totale = (1/24)×(8/40) = 1/120. Pour 0,25 tour de tourelle, il faut 0,25×120=<b>30 tours</b> de l'axe moteur.</div></div>
+      </div>
+    </div></div>
+  </section>
+
+  <!-- ============ DOC 4 : PILOTE AUTOMATIQUE VOILIER ============ -->
+  <section class="doc" id="d4">
+    <div class="dhead" onclick="toggleDoc(this)"><div class="num">4</div><h2>Pilote automatique de voilier</h2><div class="chev">›</div></div>
+    <div class="dbody"><div class="dinner">
+      <div class="exo">
+        <div class="exo-head"><span>Système poulies-courroie + vis à billes</span><span class="pill">calcul</span></div>
+        <div class="exo-body">
+          <p class="data">Poulie motrice Z=20, poulie réceptrice Z=71 (sur l'arbre de la vis à billes, pas=3mm). Chaîne : moteur → poulie motrice(20) —courroie— poulie réceptrice(71) → vis à billes → écrou → tige.</p>
+          <div class="q"><label>1. Nombre de tours du moteur pour un déplacement de la tige de 3 cm ?</label>
+            <div class="answer-row"><input type="text" id="d4_t1"><span class="unit-lbl">tours</span><button class="check-btn" onclick="checkNum('d4_t1',35.5,3)">Vérifier</button><span class="feedback" id="fb_d4_t1"></span></div></div>
+          <div class="q"><label>2. Vitesse de rotation du moteur pour une vitesse de tige de 15 mm/s ?</label>
+            <div class="answer-row"><input type="text" id="d4_t2"><span class="unit-lbl">tr/min</span><button class="check-btn" onclick="checkNum('d4_t2',1065,3)">Vérifier</button><span class="feedback" id="fb_d4_t2"></span></div></div>
+        </div>
+        <div class="exo-footer"><button class="reveal-btn" onclick="toggleSol(this)">Voir la méthode</button>
+        <div class="solution">1. Nombre de tours de vis = distance/pas = 30/3 = 10 tours. Comme la courroie ne glisse pas (comme un engrenage), N<sub>moteur</sub>×Z<sub>motrice</sub>=N<sub>vis</sub>×Z<sub>réceptrice</sub> ⇒ N<sub>moteur</sub>=10×71/20=35,5 tours.
+        2. Vitesse de vis = 15/3=5 tr/s=300 tr/min ⇒ N<sub>moteur</sub>=300×71/20=1065 tr/min.</div></div>
+      </div>
+    </div></div>
+  </section>
+
+  <!-- ============ DOC 5 : SERVOMOTEUR VOITURE RC ============ -->
+  <section class="doc" id="d5">
+    <div class="dhead" onclick="toggleDoc(this)"><div class="num">5</div><h2>Servomoteur d'une voiture RC</h2><div class="chev">›</div></div>
+    <div class="dbody"><div class="dinner">
+      <div class="exo">
+        <div class="exo-head"><span>Cascade de pignons du réducteur</span><span class="pill">calcul</span></div>
+        <div class="exo-body">
+          <p class="data">Z1=14 → Z2a=58 (compound avec Z2b=14) → Z3a=58 (compound avec Z3b=14) → Z4a=58 (compound avec Z4b=20) → Z5=44. Le servomoteur met 5 s pour un débattement de 90° en sortie.</p>
+          <div class="q"><label>R1/2 = Z1/Z2a ?</label>
+            <div class="answer-row"><input type="text" id="d5_r1"><button class="check-btn" onclick="checkNum('d5_r1',0.2414,3)">Vérifier</button><span class="feedback" id="fb_d5_r1"></span></div></div>
+          <div class="q"><label>R4/5 = Z4b/Z5 ?</label>
+            <div class="answer-row"><input type="text" id="d5_r4"><button class="check-btn" onclick="checkNum('d5_r4',0.4545,3)">Vérifier</button><span class="feedback" id="fb_d5_r4"></span></div></div>
+          <div class="q"><label>Rapport de réduction global (R1/2 × R2/3 × R3/4 × R4/5) ?</label>
+            <div class="answer-row"><input type="text" id="d5_rg"><button class="check-btn" onclick="checkNum('d5_rg',0.006393,4)">Vérifier</button><span class="feedback" id="fb_d5_rg"></span></div></div>
+          <div class="q"><label>Vitesse de rotation du moteur (N<sub>5</sub>=0,25tr/5s=3 tr/min ; N<sub>moteur</sub>=N<sub>5</sub>/R<sub>global</sub>) ?</label>
+            <div class="answer-row"><input type="text" id="d5_nm"><span class="unit-lbl">tr/min</span><button class="check-btn" onclick="checkNum('d5_nm',469,4)">Vérifier</button><span class="feedback" id="fb_d5_nm"></span></div></div>
+        </div>
+        <div class="exo-footer"><button class="reveal-btn" onclick="toggleSol(this)">Voir la méthode</button>
+        <div class="solution">Chaque étage a le même schéma : R=(14/58)≈0,2414, répété 3 fois, puis (20/44)≈0,4545. R<sub>global</sub>=0,2414³×0,4545≈0,00639 (~1/156). N5=0,25tr/5s=3 tr/min. N<sub>moteur</sub>=3/0,00639≈469 tr/min.</div></div>
+      </div>
+    </div></div>
+  </section>
+
+  <!-- ============ DOC 6 : TAPIS DE COURSE ============ -->
+  <section class="doc" id="d6">
+    <div class="dhead" onclick="toggleDoc(this)"><div class="num">6</div><h2>Tapis de course TC290</h2><div class="chev">›</div></div>
+    <div class="dbody"><div class="dinner">
+
+      <div class="exo">
+        <div class="exo-head"><span>3.1 — Faire défiler le tapis</span><span class="pill">calcul</span></div>
+        <div class="exo-body">
+          <p class="data">Tambour d'entraînement D1=53mm, poulie réceptrice D2=109mm (solidaire du tambour), poulie motrice D3=33mm (sur l'axe moteur). N<sub>moteur max</sub>=5500 tr/min. Vitesse client souhaitée : 16 km/h.</p>
+          <div class="q"><label>Vitesse de rotation du tambour N1 nécessaire pour Vt=16 km/h ?</label>
+            <div class="answer-row"><input type="text" id="d6_n1"><span class="unit-lbl">tr/min</span><button class="check-btn" onclick="checkNum('d6_n1',1601.6,2)">Vérifier</button><span class="feedback" id="fb_d6_n1"></span></div></div>
+          <div class="q"><label>Vitesse de rotation du moteur N3 nécessaire (N3 = N1 × D2/D3) ?</label>
+            <div class="answer-row"><input type="text" id="d6_n3"><span class="unit-lbl">tr/min</span><button class="check-btn" onclick="checkNum('d6_n3',5290,2)">Vérifier</button><span class="feedback" id="fb_d6_n3"></span></div></div>
+        </div>
+        <div class="exo-footer"><button class="reveal-btn" onclick="toggleSol(this)">Voir la méthode et conclure</button>
+        <div class="solution">N1=Vt/(π×D1)×60=(16000/60)/(π×0,053)≈1601,6 tr/min (N2=N1, même arbre). N3=N2×D2/D3=1601,6×109/33≈5290 tr/min. C'est <b>inférieur</b> à 5500 tr/min : le moteur permet d'atteindre 16 km/h, avec une marge d'environ 210 tr/min (~4%).</div></div>
+      </div>
+
+      <div class="exo">
+        <div class="exo-head"><span>3.2 — Incliner le tapis</span><span class="pill">calcul</span></div>
+        <div class="exo-body">
+          <p class="data">Réducteur : Z1=7 → Z2a=25 (compound Z2b=12) → Z3a=26 (compound Z3b=12) → Z4a=29 (compound Z4b=12) → Z5=60 (écrou). N<sub>moteur max</sub>=3000 tr/min. Pas de vis p=4mm. Course=123mm pour 0→10°.</p>
+          <div class="q"><label>Rapport de réduction R du réducteur ?</label>
+            <div class="answer-row"><input type="text" id="d6_r"><button class="check-btn" onclick="checkNum('d6_r',0.010696,4)">Vérifier</button><span class="feedback" id="fb_d6_r"></span></div></div>
+          <div class="q"><label>Fréquence de rotation de l'écrou N5 à vitesse moteur max (3000 tr/min) ?</label>
+            <div class="answer-row"><input type="text" id="d6_n5"><span class="unit-lbl">tr/min</span><button class="check-btn" onclick="checkNum('d6_n5',32.09,3)">Vérifier</button><span class="feedback" id="fb_d6_n5"></span></div></div>
+          <div class="q"><label>Vitesse de la tige (V=p×N5 en tr/s) ?</label>
+            <div class="answer-row"><input type="text" id="d6_vt"><span class="unit-lbl">mm/s</span><button class="check-btn" onclick="checkNum('d6_vt',2.139,3)">Vérifier</button><span class="feedback" id="fb_d6_vt"></span></div></div>
+          <div class="q"><label>Temps pour l'inclinaison de 0 à 10° (course/vitesse) ?</label>
+            <div class="answer-row"><input type="text" id="d6_temps"><span class="unit-lbl">s</span><button class="check-btn" onclick="checkNum('d6_temps',57.5,3)">Vérifier</button><span class="feedback" id="fb_d6_temps"></span></div></div>
+          <div class="q"><label>Vitesse moteur nécessaire pour une durée &lt; 30 s (en ne changeant que le moteur) ?</label>
+            <div class="answer-row"><input type="text" id="d6_nq14"><span class="unit-lbl">tr/min</span><button class="check-btn" onclick="checkNum('d6_nq14',5751,3)">Vérifier</button><span class="feedback" id="fb_d6_nq14"></span></div></div>
+          <div class="q"><label>Nouveau pas de vis nécessaire pour une durée &lt; 30 s (moteur inchangé) ?</label>
+            <div class="answer-row"><input type="text" id="d6_pq15"><span class="unit-lbl">mm</span><button class="check-btn" onclick="checkNum('d6_pq15',7.67,3)">Vérifier</button><span class="feedback" id="fb_d6_pq15"></span></div></div>
+        </div>
+        <div class="exo-footer"><button class="reveal-btn" onclick="toggleSol(this)">Voir la méthode</button>
+        <div class="solution">R=(7/25)×(12/26)×(12/29)×(12/60)≈0,01070. N5=3000×R≈32,09 tr/min=0,5348 tr/s. Vtige=4×0,5348≈2,14 mm/s. t=123/2,14≈57,5 s.
+        Pour t&lt;30s il faut Vtige≥123/30=4,1mm/s. Q14 (moteur seul) : N5 nécessaire=4,1/4=1,025tr/s=61,5tr/min ⇒ N<sub>moteur</sub>=61,5/R≈5751 tr/min. Q15 (pas seul, moteur à 3000tr/min donc N5 inchangée à 0,5348tr/s) : pas=4,1/0,5348≈7,67mm. Q16 (réducteur seul) : R nécessaire=61,5/3000≈0,0205 (à comparer au R initial de 0,0107).</div></div>
+      </div>
+    </div></div>
+  </section>
+
+  <!-- ============ DOC 7 : VERIN ELECTRIQUE ============ -->
+  <section class="doc" id="d7">
+    <div class="dhead" onclick="toggleDoc(this)"><div class="num">7</div><h2>Vérin électrique</h2><div class="chev">›</div></div>
+    <div class="dbody"><div class="dinner">
+      <div class="exo">
+        <div class="exo-head"><span>Courroie crantée + vis sans fin à billes</span><span class="pill">calcul</span></div>
+        <div class="exo-body">
+          <p class="data">Pignon moteur (courroie) : 20 dents. Pignon sur l'arbre de la vis : 15 dents. Pas de vis = 1,5 mm (filet unique).</p>
+          <div class="q"><label>R1 = N<sub>vis</sub>/N<sub>moteur</sub> (courroie sans glissement) ?</label>
+            <div class="answer-row"><input type="text" id="d7_r1"><button class="check-btn" onclick="checkNum('d7_r1',1.333,3)">Vérifier</button><span class="feedback" id="fb_d7_r1"></span></div></div>
+          <div class="q"><label>Vitesse de rotation du moteur pour une vitesse de tige de 0,2 m/s ?</label>
+            <div class="answer-row"><input type="text" id="d7_nm"><span class="unit-lbl">tr/min</span><button class="check-btn" onclick="checkNum('d7_nm',6000,2)">Vérifier</button><span class="feedback" id="fb_d7_nm"></span></div></div>
+        </div>
+        <div class="exo-footer"><button class="reveal-btn" onclick="toggleSol(this)">Voir la méthode</button>
+        <div class="solution">R1=20/15≈1,333. V<sub>tige</sub>(mm/s)=pas×N<sub>vis</sub>(tr/s)=1,5×(4/3)×N<sub>moteur</sub>(tr/min)/60=N<sub>moteur</sub>/30. Pour V=200mm/s : N<sub>moteur</sub>=200×30=<b>6000 tr/min</b>.</div></div>
+      </div>
+    </div></div>
+  </section>
+
+  <!-- ============ DOC 8 : CALCULS DE TRANSMISSIONS (5 exercices) ============ -->
+  <section class="doc" id="d8">
+    <div class="dhead" onclick="toggleDoc(this)"><div class="num">8</div><h2>Calculs de transmissions<span class="src">5 mini-exercices</span></h2><div class="chev">›</div></div>
+    <div class="dbody"><div class="dinner">
+
+      <div class="exo">
+        <div class="exo-head"><span>Exercice 1 — poulies-courroie</span><span class="pill">calcul</span></div>
+        <div class="exo-body">
+          <p class="data">Poulie menante D=24cm, poulie menée r=200mm(=D 40cm). Menante à 30 tr/min.</p>
+          <div class="q"><label>Vitesse de la poulie menée ?</label>
+            <div class="answer-row"><input type="text" id="d8_1"><span class="unit-lbl">tr/min</span><button class="check-btn" onclick="checkNum('d8_1',18,3)">Vérifier</button><span class="feedback" id="fb_d8_1"></span></div></div>
+        </div>
+        <div class="exo-footer"><button class="reveal-btn" onclick="toggleSol(this)">Voir la méthode</button>
+        <div class="solution">N<sub>menée</sub>=N<sub>menante</sub>×D<sub>menante</sub>/D<sub>menée</sub>=30×24/40=18 tr/min ≈1,885 rad/s.</div></div>
+      </div>
+
+      <div class="exo">
+        <div class="exo-head"><span>Exercice 2 — tapis roulant</span><span class="pill">calcul</span></div>
+        <div class="exo-body">
+          <p class="data">Vitesse d'avance 8 km/h, diamètre de la poulie 30 cm.</p>
+          <div class="q"><label>Vitesse de rotation de l'axe de la poulie ?</label>
+            <div class="answer-row"><input type="text" id="d8_2"><span class="unit-lbl">tr/min</span><button class="check-btn" onclick="checkNum('d8_2',141.5,3)">Vérifier</button><span class="feedback" id="fb_d8_2"></span></div></div>
+        </div>
+        <div class="exo-footer"><button class="reveal-btn" onclick="toggleSol(this)">Voir la méthode</button>
+        <div class="solution">N=v/(π×D)×60=(8000/60)/(π×0,3)≈141,5 tr/min ≈14,8 rad/s.</div></div>
+      </div>
+
+      <div class="exo">
+        <div class="exo-head"><span>Exercice 3 — réducteur à engrenages</span><span class="pill">calcul</span></div>
+        <div class="exo-body">
+          <p class="data">Z1=45, Z3=9, Z8=15, Z4=42. Chaîne supposée : 3 (entrée, 230 tr/min) → 4 → (4/8 même arbre) → 1 (sortie).</p>
+          <div class="q"><label>Vitesse de rotation de la roue 1 (N1 = 230 × (Z3/Z4) × (Z8/Z1)) ?</label>
+            <div class="answer-row"><input type="text" id="d8_3"><span class="unit-lbl">tr/min</span><button class="check-btn" onclick="checkNum('d8_3',16.43,3)">Vérifier</button><span class="feedback" id="fb_d8_3"></span></div></div>
+        </div>
+        <div class="exo-footer"><button class="reveal-btn" onclick="toggleSol(this)">Voir la méthode</button>
+        <div class="solution">N1=230×(9/42)×(15/45)≈16,43 tr/min≈1,72 rad/s. Le rapport global &lt;1 confirme un <b>réducteur</b>, cohérent avec l'énoncé.</div></div>
+      </div>
+
+      <div class="exo">
+        <div class="exo-head"><span>Exercice 4 — multiplicateur à engrenages</span><span class="pill">calcul</span></div>
+        <div class="exo-body">
+          <p class="data">ZA=120, ZB=40, ZC=60, ZD=15. Roue A à 15 tr/min ; chaîne A→B→(B/C même arbre)→D.</p>
+          <div class="q"><label>Vitesse de rotation de la roue D ?</label>
+            <div class="answer-row"><input type="text" id="d8_4"><span class="unit-lbl">tr/min</span><button class="check-btn" onclick="checkNum('d8_4',180,2)">Vérifier</button><span class="feedback" id="fb_d8_4"></span></div></div>
+        </div>
+        <div class="exo-footer"><button class="reveal-btn" onclick="toggleSol(this)">Voir la méthode</button>
+        <div class="solution">N_B=15×120/40=45 tr/min (=N_C). N_D=45×60/15=180 tr/min≈18,85 rad/s. r=ND/NA=12 : bien un <b>multiplicateur</b>.</div></div>
+      </div>
+
+      <div class="exo">
+        <div class="exo-head"><span>Exercice 5 — système vis-écrou</span><span class="pill">calcul</span></div>
+        <div class="exo-body">
+          <p class="data">Coulisseau à 2 km/h, pas de vis = 3 mm.</p>
+          <div class="q"><label>Vitesse de rotation de la vis ?</label>
+            <div class="answer-row"><input type="text" id="d8_5n"><span class="unit-lbl">tr/min</span><button class="check-btn" onclick="checkNum('d8_5n',11111,2)">Vérifier</button><span class="feedback" id="fb_d8_5n"></span></div></div>
+          <div class="q"><label>Distance parcourue par le coulisseau en 5 s ?</label>
+            <div class="answer-row"><input type="text" id="d8_5d"><span class="unit-lbl">mm</span><button class="check-btn" onclick="checkNum('d8_5d',2778,2)">Vérifier</button><span class="feedback" id="fb_d8_5d"></span></div></div>
+        </div>
+        <div class="exo-footer"><button class="reveal-btn" onclick="toggleSol(this)">Voir la méthode</button>
+        <div class="solution">v=2km/h≈555,6mm/s. N(tr/s)=v/pas=185,2 tr/s=11111tr/min≈1163,7 rad/s. En 5s : angle≈926 tours (333 343°), distance=v×t≈2778mm.</div></div>
+      </div>
+    </div></div>
+  </section>
+
+  <!-- ============ DOC 9 : ENGRENAGES TD (3 exercices) ============ -->
+  <section class="doc" id="d9">
+    <div class="dhead" onclick="toggleDoc(this)"><div class="num">9</div><h2>Engrenages — Travaux dirigés</h2><div class="chev">›</div></div>
+    <div class="dbody"><div class="dinner">
+
+      <div class="exo">
+        <div class="exo-head"><span>Exercice 1 — réducteur à 3 trains hélicoïdaux</span><span class="pill">calcul</span></div>
+        <div class="exo-body">
+          <p class="data">Z1=32→Z2=64 (même arbre que Z3=24)→Z4=80 (même arbre que Z5=18)→Z6=50. N1=1500 tr/min.</p>
+          <div class="q"><label>Rapport de réduction global R=(Z1/Z2)×(Z3/Z4)×(Z5/Z6) ?</label>
+            <div class="answer-row"><input type="text" id="d9_1r"><button class="check-btn" onclick="checkNum('d9_1r',0.054,3)">Vérifier</button><span class="feedback" id="fb_d9_1r"></span></div></div>
+          <div class="q"><label>Vitesse de sortie N6 ?</label>
+            <div class="answer-row"><input type="text" id="d9_1n"><span class="unit-lbl">tr/min</span><button class="check-btn" onclick="checkNum('d9_1n',81,3)">Vérifier</button><span class="feedback" id="fb_d9_1n"></span></div></div>
+        </div>
+        <div class="exo-footer"><button class="reveal-btn" onclick="toggleSol(this)">Voir la méthode</button>
+        <div class="solution">R=(Z1/Z2)×(Z3/Z4)×(Z5/Z6)=(32/64)×(24/80)×(18/50)=0,5×0,3×0,36=0,054. N6=1500×0,054≈81 tr/min. Trois engrènements (nombre impair) : <b>le sens de rotation de la sortie est inversé</b> par rapport à l'entrée.</div></div>
+      </div>
+
+      <div class="exo guided">
+        <div class="exo-head"><span>Exercice 2 — train d'engrenages hélicoïdaux</span><span class="pill guide">méthode guidée</span></div>
+        <div class="exo-body">
+          <p class="data">Z1=20(m=1), Z2=80(m=1), Z3=27(m=1,5), Z4=14(m=1,5), Z5=20(m=1,5), Z6=34(m=1,5). Entrée en 1, sortie en 6.</p>
+          <p style="font-size:.88rem;">La disposition précise des arbres compound n'est pas certaine à partir du texte seul. <b>Méthode</b> : repérez sur votre schéma cinématique colorié (roues menantes en rouge, menées en vert comme demandé en Q3) chaque contact, notez la roue intermédiaire éventuelle (elle change le sens mais pas la valeur du rapport), puis appliquez R = Π(Z menantes)/Π(Z menées).</p>
+        </div>
+      </div>
+
+      <div class="exo">
+        <div class="exo-head"><span>Exercice 3 — vis sans fin + train d'engrenages</span><span class="pill">calcul</span></div>
+        <div class="exo-body">
+          <p class="data">A : vis sans fin (1) Z1=4 filets → roue (2) Z2=80 dents. B : train (3)Z=20→(4, intermédiaire)Z=30→(5)Z=60, (5)/(6)Z=40 même arbre →(7)Z=80. N<sub>moteur</sub>=N1=2400 tr/min.</p>
+          <div class="q"><label>1. R2/1 = N2/N1 = Z1/Z2 ?</label>
+            <div class="answer-row"><input type="text" id="d9_3r21"><button class="check-btn" onclick="checkNum('d9_3r21',0.05,2)">Vérifier</button><span class="feedback" id="fb_d9_3r21"></span></div></div>
+          <div class="q"><label>2d. R7/3 = N7/N3 = (Z3×Z6)/(Z5×Z7) ?</label>
+            <div class="answer-row"><input type="text" id="d9_3r73"><button class="check-btn" onclick="checkNum('d9_3r73',0.16667,3)">Vérifier</button><span class="feedback" id="fb_d9_3r73"></span></div></div>
+          <div class="q"><label>6. Rapport global R7/1 = R2/1 × R7/3 ?</label>
+            <div class="answer-row"><input type="text" id="d9_3r71"><button class="check-btn" onclick="checkNum('d9_3r71',0.008333,4)">Vérifier</button><span class="feedback" id="fb_d9_3r71"></span></div></div>
+          <div class="q"><label>8. Vitesse de sortie N7 = N1 × R7/1 (avec R7/1=1/120 donné) ?</label>
+            <div class="answer-row"><input type="text" id="d9_3n7"><span class="unit-lbl">tr/min</span><button class="check-btn" onclick="checkNum('d9_3n7',20,2)">Vérifier</button><span class="feedback" id="fb_d9_3n7"></span></div></div>
+          <div class="q"><label>9. Vitesse angulaire ω7 (rad/s) ?</label>
+            <div class="answer-row"><input type="text" id="d9_3w7"><span class="unit-lbl">rad/s</span><button class="check-btn" onclick="checkNum('d9_3w7',2.094,3)">Vérifier</button><span class="feedback" id="fb_d9_3w7"></span></div></div>
+        </div>
+        <div class="exo-footer"><button class="reveal-btn" onclick="toggleSol(this)">Voir la méthode complète</button>
+        <div class="solution">
+        1. R2/1=Z1/Z2=4/80=0,05.<br>
+        2a. Menantes : 1, 3, 4, 6. 2b. Menées : 2, 4, 5, 7 (la roue 4 est à la fois menante et menée : c'est une roue intermédiaire, simple relais).<br>
+        2c/d. R7/3=(Z3×Z4×Z6)/(Z4×Z5×Z7)=(Z3×Z6)/(Z5×Z7) [Z4 s'annule] = (20×40)/(60×80)=1/6≈0,1667.<br>
+        3. La roue intermédiaire (4) n'a <b>pas d'influence</b> sur la valeur du rapport (elle s'annule dans le calcul).<br>
+        4. Train B comporte 3 contacts extérieurs (3-4, 4-5, 6-7) : nombre impair ⇒ sens de (7) <b>inversé</b> par rapport à (3).<br>
+        5. Rôle de la roue intermédiaire : inverser le sens de rotation sans changer la valeur du rapport (et permettre d'ajuster l'entraxe).<br>
+        6. R7/1=R2/1×R7/3=0,05×1/6=1/120≈0,00833 — <b>cette valeur confirme exactement le R7/1=1/120 donné dans l'énoncé</b>, validant la démarche.<br>
+        7. R7/1&lt;1 : c'est un <b>réducteur</b>.<br>
+        8. N7=2400×1/120=20 tr/min.<br>
+        9. ω7=20×2π/60≈2,094 rad/s.
+        </div></div>
+      </div>
+    </div></div>
+  </section>
+
+  <!-- ============ DOC 10 : COMMUTATEUR HORAIRE ============ -->
+  <section class="doc" id="d10">
+    <div class="dhead" onclick="toggleDoc(this)"><div class="num">10</div><h2>Commutateur horaire</h2><div class="chev">›</div></div>
+    <div class="dbody"><div class="dinner">
+      <div class="exo">
+        <div class="exo-head"><span>Réducteur à engrenages du commutateur horaire</span><span class="pill">calcul</span></div>
+        <div class="exo-body">
+          <p class="data">Moteur : 1 tour toutes les 2 s. Chaîne commune : 1(Z=8)→2(Z=40, avec 3 même arbre, Z3=8)→4(Z=40, avec 5, Z5=8)→6(Z=44, avec 7, Z7=14)→8(Z=36, avec 9, Z9=11). Puis deux branches depuis l'arbre (8,9) : <b>aiguille des minutes</b> via 9→15(Z=56) directement ; <b>disque de programmation</b> via 9→10(Z=54, avec 11, Z11=9)→12(Z=42, avec 13, Z13=15)→14(Z=80).</p>
+          <div class="q"><label>1. Vitesse du moteur en tr/s ?</label>
+            <div class="answer-row"><input type="text" id="d10_nm"><span class="unit-lbl">tr/s</span><button class="check-btn" onclick="checkNum('d10_nm',0.5,2)">Vérifier</button><span class="feedback" id="fb_d10_nm"></span></div></div>
+          <div class="q"><label>2. Fréquence de rotation de l'aiguille des minutes (via 9→15) ?</label>
+            <div class="answer-row"><input type="text" id="d10_naig"><span class="unit-lbl">tr/s</span><button class="check-btn" onclick="checkNum('d10_naig',0.0002778,6)">Vérifier</button><span class="feedback" id="fb_d10_naig"></span></div></div>
+          <div class="q"><label>3. Période de rotation de l'aiguille des minutes (1/N) ?</label>
+            <div class="answer-row"><input type="text" id="d10_taig"><span class="unit-lbl">s</span><button class="check-btn" onclick="checkNum('d10_taig',3600,2)">Vérifier</button><span class="feedback" id="fb_d10_taig"></span></div></div>
+          <div class="q"><label>4. Période de rotation du disque de programmation (via 9→10→12→14) ?</label>
+            <div class="answer-row"><input type="text" id="d10_tdis"><span class="unit-lbl">s</span><button class="check-btn" onclick="checkNum('d10_tdis',86400,3)">Vérifier</button><span class="feedback" id="fb_d10_tdis"></span></div></div>
+        </div>
+        <div class="exo-footer"><button class="reveal-btn" onclick="toggleSol(this)">Voir la méthode et valider</button>
+        <div class="solution">
+        Nm=1tour/2s=0,5 tr/s.<br>
+        Vitesse de l'arbre (8,9) : N9=Nm×(Z1/Z2)×(Z3/Z4)×(Z5/Z6)×(Z7/Z8)=0,5×(8/40)×(8/40)×(8/44)×(14/36)≈0,001414 tr/s.<br>
+        <b>Aiguille des minutes</b> (mesh direct 9-15) : N15=N9×Z9/Z15=0,001414×(11/56)≈0,0002778 tr/s = exactement <b>1/3600 tr/s</b> ⇒ période = <b>3600 s = 60 min</b>. Cohérent avec une aiguille des minutes !<br>
+        <b>Disque de programmation</b> (chaîne plus longue 9→10→12→14) : N14=N9×(Z9/Z10)×(Z11/Z12)×(Z13/Z14)≈0,0000116 tr/s ⇒ période ≈ <b>86 400 s = 24 h</b>. Cohérent avec un programmateur journalier !
+        <div class="note">Les deux résultats (60 min et 24 h) valident la cohérence du mécanisme : c'est exactement le test demandé en Q8.</div>
+        </div></div>
+      </div>
+    </div></div>
+  </section>
+
+  <footer class="end">Corrigés reconstitués à partir de vos 10 documents de TD. Pour les montages signalés « méthode guidée », la topologie exacte des engrenages n'a pas pu être confirmée à partir du texte seul du sujet : reportez-vous à votre schéma pour finaliser le calcul.</footer>
+</main>
+</div>
+
+<div class="final-bar">
+  <b id="scoreDisplayBar">Score : 0 / 0</b>
+  <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+</div>
+
+<script>
+let correctFirstTry = 0;
+const seenTried = new Set();
+
+function toggleDoc(head){ head.parentElement.classList.toggle('open'); }
+function toggleSol(btn){ const sol=btn.nextElementSibling; sol.classList.toggle('show'); btn.textContent = sol.classList.contains('show') ? 'Masquer la méthode' : 'Voir la méthode'; }
+
+function updateScore(){
+  document.getElementById('scoreDisplay').textContent = correctFirstTry + ' / ' + seenTried.size;
+  document.getElementById('scoreDisplayBar').textContent = 'Score : ' + correctFirstTry + ' / ' + seenTried.size;
+  const pct = seenTried.size ? Math.round(100*correctFirstTry/seenTried.size) : 0;
+  document.getElementById('progressFill').style.width = pct + '%';
+}
+
+function checkNum(id, expected, tolPct){
+  const inp = document.getElementById(id);
+  const fb = document.getElementById('fb_' + id);
+  const val = parseFloat(inp.value.replace(',', '.').trim());
+  if(isNaN(val)){ fb.textContent = 'Entrez un nombre.'; fb.className='feedback bad'; return; }
+  const tol = Math.abs(expected) * (tolPct/100) + Math.abs(expected)*0.001 + 0.0001;
+  const ok = Math.abs(val - expected) <= tol;
+  if(!seenTried.has(id)){ seenTried.add(id); if(ok) correctFirstTry++; updateScore(); }
+  fb.textContent = ok ? '✓ correct' : '✗ à revoir (attendu ≈ ' + expected + ')';
+  fb.className = 'feedback ' + (ok ? 'ok' : 'bad');
+}
+
+const navLinks = document.querySelectorAll('nav.side a');
+const sections = document.querySelectorAll('section.doc');
+const io = new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      navLinks.forEach(l=>l.classList.remove('active'));
+      const link = document.querySelector('nav.side a[href="#'+e.target.id+'"]');
+      if(link) link.classList.add('active');
+    }
+  });
+}, {rootMargin:'-20% 0px -70% 0px'});
+sections.forEach(s=>io.observe(s));
+
+navLinks.forEach(l=>{
+  l.addEventListener('click', (e)=>{
+    e.preventDefault();
+    const id = l.getAttribute('href').slice(1);
+    const target = document.getElementById(id);
+    target.classList.add('open');
+    const top = target.getBoundingClientRect().top + window.pageYOffset - 10;
+    window.scrollTo({top, behavior:'smooth'});
+  });
+});
+
+updateScore();
+</script>
+<a href="../index.html" style="position:fixed;bottom:16px;left:16px;z-index:99999;background:#1e3a5f;color:#fff;padding:10px 16px;border-radius:24px;font:600 14px system-ui,sans-serif;text-decoration:none;box-shadow:0 2px 8px rgba(0,0,0,.25)">← Sommaire</a></body>
+</html>

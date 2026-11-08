@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TD interactif – Mouvements et trajectoires</title>
+<style>
+:root{--bleu:#1f4e8c;--rouge:#d62828;--vert:#2a9d4b;--gris:#5b6470;--fond:#f6f8fb;--carte:#fff;--bord:#d5dde8;}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Segoe UI",Roboto,Arial,sans-serif;background:var(--fond);color:#1d2430;line-height:1.55}
+header{background:linear-gradient(135deg,#1f4e8c,#2f6fbf);color:#fff;padding:18px 20px 14px}
+header .tag{font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;opacity:.85}
+header h1{margin:4px 0 2px;font-size:1.5rem}
+header p{margin:0;opacity:.9;font-size:.95rem}
+.progress{height:6px;background:rgba(255,255,255,.25);border-radius:3px;margin-top:12px;overflow:hidden}
+.progress span{display:block;height:100%;width:0;background:#ffd166;transition:width .4s}
+nav{display:flex;gap:6px;overflow-x:auto;padding:10px 12px;background:#fff;border-bottom:1px solid var(--bord);position:sticky;top:0;z-index:5}
+nav button{flex:0 0 auto;border:1px solid var(--bord);background:#fff;border-radius:20px;padding:7px 14px;font-size:.9rem;cursor:pointer;color:var(--bleu);font-weight:600}
+nav button.active{background:var(--bleu);color:#fff;border-color:var(--bleu)}
+nav button.vu::after{content:" ✓";color:var(--vert)}
+nav button.active.vu::after{color:#ffd166}
+main{max-width:920px;margin:0 auto;padding:16px}
+section{display:none}
+section.active{display:block;animation:fade .35s}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+h2{color:var(--bleu);border-left:6px solid var(--bleu);padding-left:10px;margin:8px 0 14px}
+h3{color:var(--bleu);margin:22px 0 8px;font-size:1.12rem}
+.card{background:var(--carte);border:1px solid var(--bord);border-radius:12px;padding:14px 16px;margin:12px 0;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.def{border-left:6px solid var(--rouge)}
+.def b{color:var(--rouge)}
+.clair{background:#eaf7ee;border-color:#b6e2c2}
+.clair::before{content:"💡 En clair : ";font-weight:700;color:var(--vert)}
+.consigne{background:#fff8e1;border-color:#f3d27a}
+.consigne::before{content:"📝 Consigne : ";font-weight:700;color:#a86b00}
+.lab{background:#eef4fb;border:1px dashed #9db8dc;border-radius:12px;padding:12px;margin:14px 0}
+.lab .titre{font-weight:700;color:var(--bleu);margin-bottom:6px}
+.lab .titre::before{content:"🔬 "}
+canvas{width:100%;height:auto;background:#fff;border:1px solid var(--bord);border-radius:8px;display:block;touch-action:manipulation}
+.ctrl{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;margin-top:10px;font-size:.93rem}
+.ctrl label{display:flex;align-items:center;gap:6px}
+input[type=range]{width:200px;accent-color:var(--bleu)}
+.btn{border:none;background:var(--bleu);color:#fff;padding:8px 14px;border-radius:8px;cursor:pointer;font-weight:600;font-size:.9rem}
+.btn.sec{background:#fff;color:var(--bleu);border:1px solid var(--bleu)}
+.btn.petit{padding:5px 10px;font-size:.84rem}
+.seg{display:inline-flex;border:1px solid var(--bleu);border-radius:8px;overflow:hidden;flex-wrap:wrap}
+.seg button{border:none;border-right:1px solid var(--bord);background:#fff;color:var(--bleu);padding:6px 10px;cursor:pointer;font-weight:600;font-size:.85rem}
+.seg button:last-child{border-right:none}
+.seg button.on{background:var(--bleu);color:#fff}
+.out{font-weight:600;padding:6px 10px;border-radius:6px;background:#fff;border:1px solid var(--bord);display:inline-block;margin-top:8px}
+.ok{color:var(--vert)} .ko{color:var(--rouge)}
+.suite{display:flex;justify-content:space-between;gap:10px;margin:24px 0 6px}
+table{width:100%;border-collapse:collapse;font-size:.93rem;background:#fff}
+th,td{border:1px solid var(--bord);padding:7px 8px;text-align:left;vertical-align:middle}
+th{background:var(--bleu);color:#fff}
+.tdt td.nt{font-family:"Cambria Math",Georgia,serif;font-weight:bold;color:var(--bleu);font-size:1.15rem;white-space:nowrap;width:1%}
+.tdt select{width:100%;padding:6px;border-radius:6px;border:1px solid var(--bord);font-size:.92rem;background:#fff}
+.tdt td.vd{width:1%;font-size:1.2rem;text-align:center}
+.tdt td.ey{width:1%}
+.tdt tr.bon td{background:#e3f6e8}
+.tdt tr.faux td{background:#fde8e8}
+.tdt .cor{display:none;margin-top:5px;font-size:.88rem;color:#14365f;background:#eef4fb;border-radius:6px;padding:4px 8px}
+.tdt.sol .cor{display:block}
+.eye{border:1px solid var(--bleu);background:#fff;border-radius:8px;cursor:pointer;padding:4px 8px;font-size:1rem}
+.eye:hover{background:#ffd166}
+.legende{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;font-size:.85rem}
+.legende span{display:inline-flex;align-items:center;gap:5px;background:#fff;border:1px solid var(--bord);border-radius:14px;padding:2px 9px}
+.legende i{display:inline-block;width:12px;height:12px;border-radius:3px;border:1px solid #0003}
+.reveal{display:none;margin-top:8px;background:#eaf7ee;border:1px solid #b6e2c2;border-radius:8px;padding:8px 10px}
+.reveal.on{display:block}
+.q{margin:10px 0}
+.q > b{color:var(--bleu)}
+.mini{font-size:.86rem;color:var(--gris)}
+.calc input[type=number]{width:90px;padding:5px;border:1px solid var(--bord);border-radius:6px;font-size:.95rem}
+.rule{display:flex;gap:10px;align-items:flex-start}
+.rule .ic{font-size:1.6rem;line-height:1}
+.dec select{padding:5px;border-radius:6px;border:1px solid var(--bord);font-size:.95rem}
+.big{font-family:"Cambria Math",Georgia,serif;font-size:1.3rem;font-weight:bold;color:var(--rouge)}
+small.note{color:var(--gris)}
+@media (max-width:560px){header h1{font-size:1.2rem} input[type=range]{width:140px} .tdt td.nt{font-size:1rem}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="tag">Spécialité SI · 1re · Séquence 2 · TD</div>
+  <h1>Mouvements et trajectoires : étude de systèmes réels</h1>
+  <p>Anime les mécanismes, change d’observateur et complète les tableaux</p>
+  <div class="progress"><span id="prog"></span></div>
+</header>
+
+<nav>
+  <button data-go="s0">Méthode</button>
+  <button data-go="s1">Chargeur Bobcat</button>
+  <button data-go="s2">Coffre Audi A8</button>
+  <button data-go="s3">Manège</button>
+  <button data-go="s4">Siège dentiste</button>
+  <button data-go="s5">Bobines</button>
+  <button data-go="s6">Bobcat S185 : étude</button>
+</nav>
+
+<main>
+
+<!-- ===================== MÉTHODE ===================== -->
+<section id="s0">
+  <h2>La méthode en 3 étapes</h2>
+  <p>Dans ce TD, tu dois trouver des <b>mouvements</b> (M) et des <b>trajectoires</b> (T). Voici comment faire à chaque fois.</p>
+
+  <div class="card">
+    <h3 style="margin-top:0">1. Je lis la notation</h3>
+    <p><span class="big">M<sub>3/0</sub></span> = mouvement de la pièce <b>3</b> par rapport à la pièce <b>0</b>.<br>
+    <span class="big">T<sub>E∈3/0</sub></span> = trajectoire du point <b>E</b> qui appartient à la pièce <b>3</b>, par rapport à la pièce <b>0</b>.</p>
+    <div class="lab dec">
+      <div class="titre">Décodeur de notation</div>
+      <div class="ctrl" style="margin-top:0">
+        <select id="decK"><option value="M">M</option><option value="T">T</option></select>
+        <span id="decPtBox">point <select id="decP"></select> ∈</span>
+        pièce <select id="decI"></select> / <select id="decJ"></select>
+      </div>
+      <div class="out" id="decOut"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3 style="margin-top:0">2. Je trouve le mouvement : je regarde la liaison entre les 2 pièces</h3>
+    <div class="rule"><span class="ic">🔩</span><div>Les 2 pièces sont reliées par une <b>articulation (liaison pivot)</b> d’axe (X, z) → <b style="color:var(--rouge)">rotation d’axe (X, z)</b>.</div></div>
+    <div class="rule" style="margin-top:8px"><span class="ic">↔️</span><div>Les 2 pièces sont reliées par une <b>glissière</b> (ou c’est la tige et le corps d’un vérin) → <b style="color:var(--rouge)">translation rectiligne</b>.</div></div>
+    <div class="rule" style="margin-top:8px"><span class="ic">🔀</span><div>Il n’y a <b>pas de liaison directe</b> entre les 2 pièces → le mouvement est souvent un <b style="color:var(--rouge)">mouvement plan</b> (quelconque). Attention : ça peut aussi être une <b>translation</b> : vérifie si la pièce tourne ou pas (utilise l’animation !).</div></div>
+  </div>
+
+  <div class="card">
+    <h3 style="margin-top:0">3. J’en déduis la trajectoire du point</h3>
+    <table>
+      <thead><tr><th>Si le mouvement M<sub>i/k</sub> est…</th><th>alors la trajectoire T<sub>P∈i/k</sub> est…</th></tr></thead>
+      <tbody>
+        <tr><td>une rotation d’axe (O, z)</td><td>un <b>cercle ou un arc de cercle de centre O</b> et de rayon OP</td></tr>
+        <tr><td>une rotation, et P est sur l’axe (P = O)</td><td>un <b>point</b> : P ne bouge pas</td></tr>
+        <tr><td>une translation rectiligne</td><td>un <b>segment de droite</b></td></tr>
+        <tr><td>une translation circulaire</td><td>un <b>arc de cercle</b> (pas le même centre pour tous les points)</td></tr>
+        <tr><td>un mouvement plan</td><td>une <b>courbe quelconque</b> : on la trace point par point</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="card clair">pour trouver <b>T<sub>P∈i/k</sub></b>, cherche toujours <b>d’abord M<sub>i/k</sub></b>. La trajectoire découle du mouvement.</div>
+
+  <div class="card">
+    <h3 style="margin-top:0">Comment utiliser les animations</h3>
+    <ul style="margin:0;padding-left:20px">
+      <li><b>Curseur</b> ou <b>▶ Animer</b> : fais fonctionner le mécanisme.</li>
+      <li><b>Observateur</b> : choisis la pièce sur laquelle tu « t’assois ». Elle reste immobile à l’écran, et tu vois le mouvement des autres pièces <b>par rapport à elle</b>.</li>
+      <li><b>👁</b> dans les tableaux : montre directement la ligne du tableau (bon observateur + trajectoire tracée).</li>
+      <li><b>Tracer</b> : choisis un point et une pièce pour dessiner n’importe quelle trajectoire.</li>
+    </ul>
+  </div>
+  <div class="suite"><span></span><button class="btn" data-go="s1">Commencer : chargeur Bobcat →</button></div>
+</section>
+
+<!-- ===================== BOBCAT TD ===================== -->
+<section id="s1">
+  <h2>Chargeur Bobcat</h2>
+  <div class="card consigne">complète le tableau en identifiant le mouvement ou la trajectoire de chaque ligne.</div>
+  <div class="lab">
+    <div class="titre">Schéma animé du chargeur</div>
+    <canvas id="bcCv"></canvas>
+    <div class="ctrl">
+      <label>Levée du bras <input type="range" id="bcU" min="0" max="1000" value="0"></label>
+      <button class="btn" id="bcPlay">▶ Animer</button>
+      <button class="btn sec" id="bcClr">↺ Effacer</button>
+    </div>
+    <div class="ctrl">👁 Observateur : <span class="seg" id="bcObs"></span></div>
+    <div class="ctrl" id="bcTr"></div>
+    <div class="legende" id="bcLeg"></div>
+  </div>
+  <div id="bcTab"></div>
+  <div class="card mini">0 : châssis · 1 : bras principal + godet · 2 : bras supérieur · 3 : barre · 4 : corps du vérin · 5 : tige du vérin. Le vérin de cavage est bloqué : le godet est fixé au bras 1. Le point D (articulation du vérin sur le châssis) n’est pas nommé sur ta fiche.</div>
+  <div class="suite"><button class="btn sec" data-go="s0">← Méthode</button><button class="btn" data-go="s2">Suite : coffre Audi A8 →</button></div>
+</section>
+
+<!-- ===================== AUDI ===================== -->
+<section id="s2">
+  <h2>Coffre motorisé de l’Audi A8</h2>
+  <p>Un moteur électrique fait tourner le <b>levier 25</b>. Le couvercle de coffre <b>28</b> (avec sa platine 27) est relié au support fixe <b>16</b> par le levier 25 et par le <b>bras 22</b>. Tout le mécanisme est un « quadrilatère articulé ».</p>
+  <div class="card consigne">complète le tableau du TD.</div>
+  <div class="lab">
+    <div class="titre">Schéma animé de la charnière (côté droit, motorisé)</div>
+    <canvas id="auCv"></canvas>
+    <div class="ctrl">
+      <label>Fermé ↔ Ouvert <input type="range" id="auU" min="0" max="1000" value="0"></label>
+      <button class="btn" id="auPlay">▶ Animer</button>
+      <button class="btn sec" id="auClr">↺ Effacer</button>
+    </div>
+    <div class="ctrl">👁 Observateur : <span class="seg" id="auObs"></span></div>
+    <div class="ctrl" id="auTr"></div>
+    <div class="legende" id="auLeg"></div>
+  </div>
+  <div id="auTab"></div>
+
+  <h3>Pour aller plus loin : sujet Bac 2008 (DR1 et DR2)</h3>
+  <p class="mini">Dans le sujet de Bac, l’extrémité du coffre s’appelle <b>E</b> (ici, c’est le point H du TD).</p>
+  <div id="auTab2"></div>
+  <div class="card calc">
+    <div class="q"><b>Question 5 : vitesse angulaire du levier 25</b><br>
+      Le levier balaie un angle α pendant l’ouverture, qui dure <b>t = 6,3 s</b>. Mesure α sur ton DR1 puis entre-le :
+      <div class="ctrl">α = <input type="number" id="auAlpha" step="1" placeholder="en °"> °
+        <button class="btn petit" id="auCalc">Calculer ω</button></div>
+      <div class="out" id="auOmega">ω = α / t (avec α en radians)</div>
+      <div class="ctrl"><button class="btn sec petit" data-rev="auR5">Voir la correction</button></div>
+      <div class="reveal" id="auR5">Pour retrouver la valeur du constructeur (DT4 : N = 2,1 tr/min), il faut α ≈ <b>79°</b>.<br>
+        α = 79° = 79 × π / 180 ≈ <b>1,38 rad</b><br>
+        ω = α / t = 1,38 / 6,3 ≈ <b>0,22 rad/s</b><br>
+        N = ω × 60 / (2π) = 0,22 × 60 / 6,28 ≈ <b>2,1 tr/min</b> → c’est bien la valeur du DT4 ✓</div>
+    </div>
+    <div class="q"><b>Question 11 : vitesse du point B</b><br>
+      On prend ω<sub>25/16</sub> = 0,22 rad/s et AB = 114 mm. Le levier 25 tourne autour de A, donc :
+      <div class="ctrl"><button class="btn sec petit" data-rev="auR11">Voir la correction</button></div>
+      <div class="reveal" id="auR11">
+        • <b>Support</b> : perpendiculaire à (AB), car B tourne autour de A.<br>
+        • <b>Sens</b> : celui de la rotation du levier.<br>
+        • <b>Intensité</b> : ‖V<sub>B∈25/16</sub>‖ = ω × AB = 0,22 × 0,114 ≈ <b>0,025 m/s = 25 mm/s</b>
+      </div>
+    </div>
+  </div>
+  <div class="card mini">Les dimensions de l’animation sont simplifiées : pour les mesures (α, recul de sécurité), utilise ton document réponse DR1 à l’échelle 1:4.</div>
+  <div class="suite"><button class="btn sec" data-go="s1">← Bobcat</button><button class="btn" data-go="s3">Suite : manège →</button></div>
+</section>
+
+<!-- ===================== MANÈGE ===================== -->
+<section id="s3">
+  <h2>Manège Bully</h2>
+  <p>Le disque <b>3</b> est entraîné en rotation (autour de A) par un moteur. Il fait bouger la voiture <b>2</b>, qui est aussi tenue par la biellette <b>4</b>. Résultat : la voiture se balance.</p>
+  <div class="card consigne">complète le tableau du TD.</div>
+  <div class="lab">
+    <div class="titre">Schéma animé du manège</div>
+    <canvas id="maCv"></canvas>
+    <div class="ctrl">
+      <label>Tour du disque 3 <input type="range" id="maU" min="0" max="1000" value="0"></label>
+      <button class="btn" id="maPlay">▶ Animer</button>
+      <button class="btn sec" id="maClr">↺ Effacer</button>
+    </div>
+    <div class="ctrl">👁 Observateur : <span class="seg" id="maObs"></span></div>
+    <div class="ctrl" id="maTr"></div>
+    <div class="legende" id="maLeg"></div>
+  </div>
+  <div id="maTab"></div>
+  <div class="suite"><button class="btn sec" data-go="s2">← Coffre Audi</button><button class="btn" data-go="s4">Suite : siège dentiste →</button></div>
+</section>
+
+<!-- ===================== SIÈGE ===================== -->
+<section id="s4">
+  <h2>Siège de dentiste</h2>
+  <div class="card">
+    • 2 est une bague, qui coulisse sur 5 selon X et est articulée (axe z) en K avec 3.<br>
+    • 9 est aussi une bague, qui coulisse sur 1 selon X et est articulée (axe z) en J avec 4.<br>
+    • 7 est une tige filetée (vis) mise en rotation par le motoréducteur 6 ; l’écrou 8 se visse dessus. L’écrou 8 est articulé en B avec 3.<br>
+    • Au point A, le motoréducteur 6 est articulé sur le bâti 1.
+  </div>
+  <div class="card consigne">complète le tableau du TD.</div>
+  <div class="lab">
+    <div class="titre">Schéma animé du siège (système « ciseaux »)</div>
+    <canvas id="siCv"></canvas>
+    <div class="ctrl">
+      <label>Bas ↔ Haut <input type="range" id="siU" min="0" max="1000" value="400"></label>
+      <button class="btn" id="siPlay">▶ Animer</button>
+      <button class="btn sec" id="siClr">↺ Effacer</button>
+    </div>
+    <div class="ctrl">👁 Observateur : <span class="seg" id="siObs"></span></div>
+    <div class="ctrl" id="siTr"></div>
+    <div class="legende" id="siLeg"></div>
+  </div>
+  <div id="siTab"></div>
+  <div class="card clair">l’assise 5 <b>monte sans tourner</b> : elle reste toujours horizontale. Tous ses points montent en ligne droite, verticalement. C’est une <b>translation rectiligne</b>, alors qu’aucune glissière verticale ne la guide : c’est le système de ciseaux qui produit ce mouvement.</div>
+  <div class="suite"><button class="btn sec" data-go="s3">← Manège</button><button class="btn" data-go="s5">Suite : bobines →</button></div>
+</section>
+
+<!-- ===================== BOBINES ===================== -->
+<section id="s5">
+  <h2>Soulèvement de bobines</h2>
+  <p>Ce système soulève des bobines de bandes plastiques (1) pour alimenter une chaîne de production. Le vérin hydraulique (3 + 4) tire sur le bras 5, qui tourne autour de C et fait monter la bobine.</p>
+  <div class="card">
+    <b>Hypothèses</b> : étude dans le plan de symétrie. Les liaisons en A, B, C et D sont des articulations (pivots) d’axe z. En position basse, D est en <b>D<sub>0</sub></b>. En position haute, D est en <b>D<sub>1</sub></b>. CD = 740 mm, BC = 230 mm, échelle du schéma 1:6.
+  </div>
+  <div class="lab">
+    <div class="titre">Schéma animé : phase « montée bobine »</div>
+    <canvas id="boCv"></canvas>
+    <div class="ctrl">
+      <label>D<sub>0</sub> (bas) ↔ D<sub>1</sub> (haut) <input type="range" id="boU" min="0" max="1000" value="283"></label>
+      <button class="btn" id="boPlay">▶ Animer</button>
+      <button class="btn sec" id="boClr">↺ Effacer</button>
+    </div>
+    <div class="ctrl">👁 Observateur : <span class="seg" id="boObs"></span></div>
+    <div class="ctrl">
+      <button class="btn sec petit" id="boD0">Aller en D<sub>0</sub></button>
+      <button class="btn sec petit" id="boD1">Aller en D<sub>1</sub></button>
+      <label><input type="checkbox" id="boMes"> Afficher les mesures (question 6)</label>
+    </div>
+    <div class="ctrl" id="boTr"></div>
+    <div class="out" id="boOut" style="display:none"></div>
+  </div>
+  <div class="card consigne">questions 1 à 5 : choisis la bonne réponse.</div>
+  <div id="boTab"></div>
+  <div class="card">
+    <div class="q"><b>Question 5 (suite) : points B<sub>0</sub> et B<sub>1</sub></b><br>
+      Le bras 5 est indéformable : quand D passe de D<sub>0</sub> à D<sub>1</sub>, <b>B tourne du même angle</b> autour de C.
+      <div class="ctrl"><button class="btn sec petit" id="boShowB">Montrer B<sub>0</sub> et B<sub>1</sub></button></div>
+    </div>
+    <div class="q"><b>Question 6 : mesures</b><br>
+      Amplitude angulaire du bras 5 = angle D<sub>0</sub>CD<sub>1</sub>. Course utile du vérin = AB<sub>0</sub> − AB<sub>1</sub>.
+      <div class="ctrl"><button class="btn sec petit" data-rev="boR6">Voir la correction</button></div>
+      <div class="reveal" id="boR6">
+        • Amplitude angulaire du bras 5 : environ <b id="boAmp">72°</b>.<br>
+        • Course utile mesurée sur la figure : environ <b id="boCf">41 mm</b>.<br>
+        • Valeur réelle (échelle 1:6) : environ <b id="boCr">245 mm</b>.<br>
+        <span class="mini">Ces valeurs viennent du schéma : selon la précision de ton tracé, tu peux trouver quelques millimètres d’écart.</span><br>
+        <span class="mini">Le vérin <b>rentre</b> pendant la montée : il tire sur le bras 5.</span>
+      </div>
+    </div>
+  </div>
+  <div class="suite"><button class="btn sec" data-go="s4">← Siège dentiste</button><button class="btn" data-go="s6">Suite : étude Bobcat S185 →</button></div>
+</section>
+
+<!-- ===================== BOBCAT ÉTUDE ===================== -->
+<section id="s6">
+  <h2>Étude cinématique du chargeur Bobcat S185</h2>
+  <div class="card" style="border-left:6px solid #f08a3c"><b>Attention, la numérotation change par rapport au TD !</b><br>
+    0 : châssis · 1 : bras supérieur · 2 : bras principal + godet · 3 : tige du vérin · 4 : corps du vérin · 5 : barre.<br>
+    Notations du document : Mvt(1/2), T(A,1/2) = trajectoire de A ∈ 1 par rapport à 2, V(A,1/2) = vecteur vitesse de A ∈ 1 par rapport à 2.</div>
+  <div class="lab">
+    <div class="titre">Schéma animé : levée du bras 2</div>
+    <canvas id="bsCv"></canvas>
+    <div class="ctrl">
+      <label>Levée <input type="range" id="bsU" min="0" max="1000" value="0"></label>
+      <button class="btn" id="bsPlay">▶ Animer</button>
+      <span class="seg" id="bsPos"><button data-k="0">Position basse</button><button data-k="1">E<sub>1</sub></button><button data-k="2">E<sub>2</sub></button><button data-k="3">E<sub>3</sub></button><button data-k="4">E<sub>4</sub></button></span>
+    </div>
+    <div class="ctrl">
+      <label><input type="checkbox" id="bsTB"> T(B,1/0)</label>
+      <label><input type="checkbox" id="bsTE" checked> T(E,5/0) et E<sub>1</sub>…E<sub>4</sub></label>
+      <label><input type="checkbox" id="bsCons"> Construction des B<sub>i</sub></label>
+      <label><input type="checkbox" id="bsBi"> B<sub>1</sub>…B<sub>4</sub></label>
+      <label><input type="checkbox" id="bsGi"> G<sub>1</sub>…G<sub>4</sub></label>
+      <label><input type="checkbox" id="bsTG"> T(G,2/0)</label>
+    </div>
+    <div class="ctrl" style="border-top:1px dashed #9db8dc;padding-top:8px">
+      <b>Vitesses :</b>
+      <label><input type="checkbox" id="bsV1"> V(B,2/0) et V(E,2/0) (6°)</label>
+      <label><input type="checkbox" id="bsV2"> CIR I<sub>2/0</sub> (7°)</label>
+      <label><input type="checkbox" id="bsV3"> Vitesses en C (8° à 11°)</label>
+      <label><input type="checkbox" id="bsV4"> V(H,2/0) (12°)</label>
+    </div>
+    <div class="out" id="bsOut" style="display:none"></div>
+  </div>
+
+  <h3>1re partie : trajectoire du godet</h3>
+  <div class="card">
+    <div class="q"><b>1°</b> Définir le Mvt(1/0) et tracer T(B,1/0).
+      <div class="ctrl"><button class="btn sec petit" data-rev="bsR1" data-on="bsTB">Correction</button></div>
+      <div class="reveal" id="bsR1">1 est articulé en A sur le châssis 0 → <b>Mvt(1/0) = rotation d’axe (A, z)</b>.<br>T(B,1/0) = <b>arc de cercle de centre A et de rayon AB</b>.</div></div>
+    <div class="q"><b>2°</b> À partir de E<sub>1</sub> à E<sub>4</sub>, trouver les positions B<sub>1</sub> à B<sub>4</sub>.
+      <div class="ctrl"><button class="btn sec petit" data-rev="bsR2" data-on="bsCons,bsBi,bsTB">Correction</button></div>
+      <div class="reveal" id="bsR2">Le bras 2 est indéformable : la distance <b>EB reste toujours la même</b>. B est donc à la fois :<br>
+        • sur T(B,1/0), l’arc de centre A ;<br>
+        • sur un arc de centre E<sub>i</sub> et de rayon EB (pris au compas).<br>
+        → B<sub>i</sub> = <b>intersection des deux arcs</b>.</div></div>
+    <div class="q"><b>3°</b> Trouver G<sub>1</sub> à G<sub>4</sub>, puis tracer T(G,2/0).
+      <div class="ctrl"><button class="btn sec petit" data-rev="bsR3" data-on="bsGi,bsTG">Correction</button></div>
+      <div class="reveal" id="bsR3">G appartient aussi au bras 2 : on reporte au compas la distance <b>EG</b> depuis E<sub>i</sub> et la distance <b>BG</b> depuis B<sub>i</sub>. G<sub>i</sub> est à l’intersection des deux arcs. On relie ensuite G<sub>0</sub>, G<sub>1</sub>… G<sub>4</sub> à main levée : c’est T(G,2/0), une <b>courbe quelconque</b> (Mvt 2/0 = mouvement plan).</div></div>
+    <div class="q"><b>4°</b> Quel est l’intérêt de ce système de levage ?
+      <div class="ctrl"><button class="btn sec petit" data-rev="bsR4" data-on="bsTG,bsGi">Correction</button></div>
+      <div class="reveal" id="bsR4">La trajectoire de G est <b>presque une droite verticale</b> : le godet monte tout droit, au lieu de partir vers l’avant sur un arc de cercle.<br>
+        → La charge reste près de la machine : le chargeur <b>ne bascule pas vers l’avant</b> (stabilité), et on peut vider le godet dans une benne de camion <b>sans avancer</b>.</div></div>
+  </div>
+
+  <h3>2e partie : vitesse du godet</h3>
+  <p class="mini">On cherche la vitesse de levée du godet V(H,2/0) quand la tige du vérin sort à <b>6 cm/s</b>. Utilise le curseur pour choisir la position, puis coche les étapes « Vitesses » au-dessus du schéma.</p>
+  <div class="card">
+    <div class="q"><b>5° et 6°</b> Mvt(1/0) = rotation d’axe (A, z) ; Mvt(5/0) = rotation d’axe (F, z).
+      <div class="ctrl"><button class="btn sec petit" data-rev="bsR6" data-on="bsV1,bsTB,bsTE">Correction</button></div>
+      <div class="reveal" id="bsR6">B est le centre de l’articulation entre 1 et 2, donc <b>V(B,1/0) = V(B,2/0)</b>. Comme B ∈ 1 tourne autour de A, ce vecteur est <b>perpendiculaire à (AB)</b> (tangent à T(B,1/0)).<br>
+        De même, <b>V(E,5/0) = V(E,2/0)</b>, et ce vecteur est <b>perpendiculaire à (FE)</b>.</div></div>
+    <div class="q"><b>7°</b> Déterminer le CIR I<sub>2/0</sub>.
+      <div class="ctrl"><button class="btn sec petit" data-rev="bsR7" data-on="bsV2,bsV1">Correction</button></div>
+      <div class="reveal" id="bsR7">Le CIR (centre instantané de rotation) est sur la perpendiculaire à chaque vecteur vitesse. Ici, ces perpendiculaires sont les droites <b>(AB)</b> et <b>(FE)</b>.<br>→ <b>I<sub>2/0</sub> = intersection de (AB) et (FE)</b>. À cet instant, le bras 2 « tourne » autour de I<sub>2/0</sub>.</div></div>
+    <div class="q"><b>8° à 11°</b> Vitesses au point C.
+      <div class="ctrl"><button class="btn sec petit" data-rev="bsR8" data-on="bsV2,bsV3">Correction</button></div>
+      <div class="reveal" id="bsR8">• C est le centre de l’articulation entre 2 et 3 : <b>V(C,3/0) = V(C,2/0)</b>, perpendiculaire à (I<sub>2/0</sub>C).<br>
+        • Mvt(3/4) = <b>translation rectiligne</b> de direction (DC) → V(C,3/4) est porté par (DC), avec ‖V(C,3/4)‖ = 6 cm/s.<br>
+        • Mvt(4/0) = <b>rotation d’axe (D, z)</b> → V(C,4/0) est perpendiculaire à (DC).<br>
+        • Composition des vitesses : <b>V(C,3/0) = V(C,3/4) + V(C,4/0)</b>. On trace V(C,3/4), puis on ferme le triangle avec les deux directions connues.</div></div>
+    <div class="q"><b>12°</b> Déterminer V(H,2/0).
+      <div class="ctrl"><button class="btn sec petit" data-rev="bsR12" data-on="bsV2,bsV4">Correction</button></div>
+      <div class="reveal" id="bsR12">Tous les points de 2 tournent autour de I<sub>2/0</sub> à la même vitesse angulaire : ‖V‖ est <b>proportionnelle à la distance au CIR</b>.<br>
+        ‖V(H,2/0)‖ = ‖V(C,2/0)‖ × I<sub>2/0</sub>H / I<sub>2/0</sub>C, et V(H,2/0) est perpendiculaire à (I<sub>2/0</sub>H).<br>
+        <span class="mini">La valeur affichée sous le schéma est calculée sur l’animation : elle donne un ordre de grandeur. Fais ta mesure sur le document p. 4.</span></div></div>
+  </div>
+  <div class="suite"><button class="btn sec" data-go="s5">← Bobines</button><button class="btn sec" data-go="s0">Revenir à la méthode</button></div>
+</section>
+
+</main>
+
+<script>
+/* =====================================================================
+   NAVIGATION
+   ===================================================================== */
+const sections=[...document.querySelectorAll('section')];
+const navBtns=[...document.querySelectorAll('nav button')];
+const vus=new Set(); let current='s0';
+function show(id){
+  current=id;
+  sections.forEach(s=>s.classList.toggle('active',s.id===id));
+  navBtns.forEach(b=>{b.classList.toggle('active',b.dataset.go===id); if(b.dataset.go===id) b.classList.add('vu');});
+  vus.add(id);
+  document.getElementById('prog').style.width=(vus.size/sections.length*100)+'%';
+  window.scrollTo({top:0,behavior:'smooth'});
+  SIMS.forEach(s=>{if(s.sec===id)s.draw();});
+}
+document.querySelectorAll('[data-go]').forEach(b=>b.addEventListener('click',()=>show(b.dataset.go)));
+
+/* =====================================================================
+   OUTILS GÉOMÉTRIQUES (poses planes : rotation a + translation x,y)
+   ===================================================================== */
+const R2=(p,a)=>[p[0]*Math.cos(a)-p[1]*Math.sin(a),p[0]*Math.sin(a)+p[1]*Math.cos(a)];
+const ID={a:0,x:0,y:0};
+const ap=(T,p)=>{const r=R2(p,T.a);return [r[0]+T.x,r[1]+T.y];};
+const cmp=(T1,T2)=>{const t=ap(T1,[T2.x,T2.y]);return {a:T1.a+T2.a,x:t[0],y:t[1]};};
+const inv=T=>{const t=R2([-T.x,-T.y],-T.a);return {a:-T.a,x:t[0],y:t[1]};};
+const slideRot=(a,P0,P)=>{const r=R2(P0,a);return {a,x:P[0]-r[0],y:P[1]-r[1]};};
+const rotAbout=(Q,a)=>slideRot(a,Q,Q);
+const trans=d=>({a:0,x:d[0],y:d[1]});
+const ang=(P,Q)=>Math.atan2(Q[1]-P[1],Q[0]-P[0]);
+const dist=(P,Q)=>Math.hypot(Q[0]-P[0],Q[1]-P[1]);
+const cross=(o,p,q)=>(p[0]-o[0])*(q[1]-o[1])-(p[1]-o[1])*(q[0]-o[0]);
+const add=(p,q)=>[p[0]+q[0],p[1]+q[1]], sub=(p,q)=>[p[0]-q[0],p[1]-q[1]], mul=(p,k)=>[p[0]*k,p[1]*k];
+const unit=(P,Q)=>{const d=dist(P,Q);return [(Q[0]-P[0])/d,(Q[1]-P[1])/d];};
+const from2=(P0,Q0,P,Q)=>slideRot(ang(P,Q)-ang(P0,Q0),P0,P);
+const deg=Math.PI/180;
+function inter2(P,r1,Q,r2,s0){
+  const d=dist(P,Q),a=(r1*r1-r2*r2+d*d)/(2*d),h=Math.sqrt(Math.max(0,r1*r1-a*a));
+  const ux=(Q[0]-P[0])/d,uy=(Q[1]-P[1])/d,mx=P[0]+a*ux,my=P[1]+a*uy;
+  const c1=[mx-h*uy,my+h*ux],c2=[mx+h*uy,my-h*ux];
+  return Math.sign(cross(P,c1,Q))===s0?c1:c2;
+}
+function lineInter(P1,P2,Q1,Q2){
+  const d=(P2[0]-P1[0])*(Q2[1]-Q1[1])-(P2[1]-P1[1])*(Q2[0]-Q1[0]); if(Math.abs(d)<1e-9)return null;
+  const t=((Q1[0]-P1[0])*(Q2[1]-Q1[1])-(Q1[1]-P1[1])*(Q2[0]-Q1[0]))/d;
+  return [P1[0]+t*(P2[0]-P1[0]),P1[1]+t*(P2[1]-P1[1])];
+}
+/* formes */
+const poly=(p,pts,fill,stroke)=>({p,t:'poly',pts,fill,stroke:stroke||'#2b3340'});
+const bar=(p,pts,w,col)=>({p,t:'line',pts,w,col});
+const circ=(p,c,r,fill,stroke)=>({p,t:'circ',c,r,fill,stroke:stroke||'#2b3340'});
+const hatch=(p,at,dir)=>({p,t:'hatch',at,dir});
+const num=(p,at,txt)=>({p,t:'num',at,txt});
+const TRC=['#d62828','#1d4ed8','#16a34a','#a21caf','#ea580c','#0891b2'];
+
+/* =====================================================================
+   SIMULATEUR GÉNÉRIQUE
+   ===================================================================== */
+const SIMS=[];
+class Sim{
+  constructor(cv,sys,sec){
+    this.cv=cv;this.c=cv.getContext('2d');this.sys=sys;this.sec=sec;
+    this.u=sys.u0??0;this.ref=sys.fixed;this.traces=[];this.ghost=null;this.hl=null;
+    this.play=false;this.dir=1;this.fits={};this.cache=new Map();this.overlay=null;
+    this.W=760;this.H=sys.H||420;
+    const dpr=Math.min(2,window.devicePixelRatio||1);cv.width=this.W*dpr;cv.height=this.H*dpr;
+    this.c.setTransform(dpr,0,0,dpr,0,0);SIMS.push(this);
+  }
+  poses(u){const k=Math.round(Math.min(1,Math.max(0,u))*4000);let p=this.cache.get(k);
+    if(!p){p=this.sys.solve(k/4000);if(this.cache.size>9000)this.cache.clear();this.cache.set(k,p);}return p;}
+  V(s){return this.ref===this.sys.fixed?ID:inv(this.poses(s)[this.ref]);}
+  T(i,s){return cmp(this.V(s),this.poses(s)[i]);}
+  ptW(n,s){const P=this.sys.pts[n];return ap(this.poses(s)[P.on],P.c);}
+  ptV(n,s){return ap(this.V(s),this.ptW(n,s));}
+  setRef(r){this.ref=r;this.onRef&&this.onRef();this.draw();}
+  fit(){
+    if(this.fits[this.ref])return this.fits[this.ref];
+    let x0=1e9,y0=1e9,x1=-1e9,y1=-1e9;const acc=p=>{x0=Math.min(x0,p[0]);x1=Math.max(x1,p[0]);y0=Math.min(y0,p[1]);y1=Math.max(y1,p[1]);};
+    for(let k=0;k<=20;k++){const s=k/20;
+      for(const sh of this.sys.shapes){const T=this.T(sh.p,s);
+        if(sh.t==='circ'){const c=ap(T,sh.c);acc([c[0]-sh.r,c[1]-sh.r]);acc([c[0]+sh.r,c[1]+sh.r]);}
+        else if(sh.pts)sh.pts.forEach(p=>acc(ap(T,p)));
+        else if(sh.at)acc(ap(T,sh.at));}}
+    (this.sys.extra||[]).forEach(acc);
+    const m=26,top=34,s=Math.min((this.W-2*m)/(x1-x0),(this.H-m-top)/(y1-y0));
+    const F={s,ox:(this.W-s*(x0+x1))/2,oy:top+(this.H-top-m+s*(y0+y1))/2};
+    this.fits[this.ref]=F;return F;
+  }
+  draw(){
+    if(current!==this.sec)return;
+    const c=this.c,F=this.fit();this.F=F;const X=p=>[F.ox+F.s*p[0],F.oy-F.s*p[1]];this.X=X;
+    c.clearRect(0,0,this.W,this.H);c.fillStyle='#fff';c.fillRect(0,0,this.W,this.H);
+    c.strokeStyle='#f0f3f7';c.lineWidth=1;
+    for(let x=0;x<this.W;x+=30){c.beginPath();c.moveTo(x,0);c.lineTo(x,this.H);c.stroke();}
+    for(let y=0;y<this.H;y+=30){c.beginPath();c.moveTo(0,y);c.lineTo(this.W,y);c.stroke();}
+    if(this.ghost)for(let k=0;k<=6;k++)this.drawPiece(this.ghost,k/6,true);
+    for(const id of this.sys.order)this.drawPiece(id,this.u,false);
+    this.drawJoints();
+    this.traces.forEach((tr,i)=>this.drawTrace(tr,TRC[i%TRC.length]));
+    if(this.overlay)this.overlay(this,c,X);
+    // bandeau observateur
+    const pc=this.sys.pieces[this.ref];
+    c.font='bold 14px Segoe UI, Arial';const txt=`👁 Observateur assis sur la pièce ${this.ref} (${pc.n})`;
+    const w=c.measureText(txt).width+16;c.fillStyle='rgba(31,78,140,.92)';c.beginPath();c.roundRect?c.roundRect(8,6,w,24,6):c.rect(8,6,w,24);c.fill();
+    c.fillStyle='#fff';c.fillText(txt,16,23);
+  }
+  drawPiece(id,s,ghost){
+    const c=this.c,T=this.T(id,s),X=this.X,F=this.F,col=this.sys.pieces[id].col;
+    const glow=!ghost&&this.hl===id;
+    for(const sh of this.sys.shapes){ if(sh.p!==id)continue;
+      c.save();c.lineJoin='round';c.lineCap='round';
+      if(ghost){c.globalAlpha=.35;c.setLineDash([4,3]);}
+      if(glow){c.shadowColor='rgba(255,190,0,.95)';c.shadowBlur=14;}
+      if(sh.t==='poly'){const pts=sh.pts.map(p=>X(ap(T,p)));c.beginPath();pts.forEach((p,i)=>i?c.lineTo(p[0],p[1]):c.moveTo(p[0],p[1]));c.closePath();
+        if(!ghost&&sh.fill){c.fillStyle=sh.fill;c.fill();}c.strokeStyle=ghost?'#556':sh.stroke;c.lineWidth=ghost?1.2:1.5;c.stroke();}
+      else if(sh.t==='line'){const pts=sh.pts.map(p=>X(ap(T,p)));const w=Math.max(2.5,sh.w*F.s);
+        const path=()=>{c.beginPath();pts.forEach((p,i)=>i?c.lineTo(p[0],p[1]):c.moveTo(p[0],p[1]));};
+        if(ghost){path();c.strokeStyle='#556';c.lineWidth=1.3;c.stroke();}
+        else{path();c.strokeStyle='#2b3340';c.lineWidth=w+2.5;c.stroke();c.shadowBlur=0;path();c.strokeStyle=sh.col||col;c.lineWidth=w;c.stroke();}}
+      else if(sh.t==='circ'){const p=X(ap(T,sh.c));c.beginPath();c.arc(p[0],p[1],sh.r*F.s,0,7);
+        if(!ghost&&sh.fill){c.fillStyle=sh.fill;c.fill();}c.strokeStyle=ghost?'#556':sh.stroke;c.lineWidth=ghost?1.2:1.5;c.stroke();}
+      else if(sh.t==='hatch'&&!ghost){const P=ap(T,sh.at),d=sh.dir*deg+T.a,Q=[P[0]+22/F.s*Math.cos(d),P[1]+22/F.s*Math.sin(d)];
+        const p=X(P),q=X(Q),dx=q[0]-p[0],dy=q[1]-p[1],L=Math.hypot(dx,dy),ux=dx/L,uy=dy/L,nx=-uy,ny=ux;
+        c.strokeStyle='#2b3340';c.lineWidth=2;c.beginPath();c.moveTo(p[0],p[1]);c.lineTo(q[0],q[1]);
+        c.moveTo(q[0]-nx*14,q[1]-ny*14);c.lineTo(q[0]+nx*14,q[1]+ny*14);c.stroke();c.lineWidth=1.2;c.beginPath();
+        for(let k=-12;k<=12;k+=6){const bx=q[0]+nx*k,by=q[1]+ny*k;c.moveTo(bx,by);c.lineTo(bx+ux*7-nx*5,by+uy*7-ny*5);}c.stroke();}
+      else if(sh.t==='num'&&!ghost){const p=X(ap(T,sh.at));c.shadowBlur=0;c.beginPath();c.arc(p[0],p[1],11,0,7);c.fillStyle='#fff';c.fill();
+        c.strokeStyle=col==='#c9ced6'?'#6b7480':col;c.lineWidth=2.5;c.stroke();c.fillStyle='#14365f';c.font='bold 13px Segoe UI, Arial';
+        c.textAlign='center';c.textBaseline='middle';c.fillText(sh.txt,p[0],p[1]+1);}
+      c.restore();}
+  }
+  drawJoints(){
+    const c=this.c,X=this.X;
+    for(const [n,P] of Object.entries(this.sys.pts)){
+      const p=X(this.ptV(n,this.u));
+      if(P.dot){c.fillStyle='#14365f';c.beginPath();c.arc(p[0],p[1],4,0,7);c.fill();}
+      else if(!P.hide){c.fillStyle='#fff';c.strokeStyle='#14365f';c.lineWidth=2;c.beginPath();c.arc(p[0],p[1],5.5,0,7);c.fill();c.stroke();
+        c.fillStyle='#14365f';c.beginPath();c.arc(p[0],p[1],1.6,0,7);c.fill();}
+      if(P.hide)continue;
+      const o=P.lab||[9,-9];c.font='italic bold 15px Georgia, serif';c.lineWidth=3;c.strokeStyle='#fff';c.textAlign='left';c.textBaseline='alphabetic';
+      c.strokeText(n,p[0]+o[0],p[1]+o[1]);c.fillStyle='#b3121c';c.fillText(n,p[0]+o[0],p[1]+o[1]);
+    }
+  }
+  curve(pt,on,N=160){
+    const loc=ap(inv(this.poses(this.u)[on]),this.ptW(pt,this.u));const pts=[];
+    for(let k=0;k<=N;k++)pts.push(ap(this.T(on,k/N),loc));
+    return {pts,cur:ap(this.T(on,this.u),loc)};
+  }
+  drawTrace(tr,col){
+    const c=this.c,X=this.X,{pts,cur}=this.curve(tr.pt,tr.on);const P=pts.map(X);
+    let len=0;for(let k=1;k<P.length;k++)len+=Math.hypot(P[k][0]-P[k-1][0],P[k][1]-P[k-1][1]);
+    const q=X(cur);c.save();c.strokeStyle=col;c.fillStyle=col;
+    if(len<3){c.lineWidth=3;c.beginPath();c.arc(q[0],q[1],11,0,7);c.stroke();}
+    else{c.lineWidth=3.5;c.globalAlpha=.85;c.beginPath();P.forEach((p,i)=>i?c.lineTo(p[0],p[1]):c.moveTo(p[0],p[1]));c.stroke();c.globalAlpha=1;}
+    c.beginPath();c.arc(q[0],q[1],5,0,7);c.fill();
+    const lab=`T ${tr.pt}∈${tr.on}/${this.ref}`;c.font='bold 13px Segoe UI, Arial';c.lineWidth=4;c.strokeStyle='#fff';
+    let lx,ly;
+    if(len<3){lx=q[0]+14;ly=q[1]+24;c.textAlign='left';}
+    else{const m=P[Math.floor(P.length*0.5)];let cx=0,cy=0;P.forEach(p=>{cx+=p[0];cy+=p[1];});cx/=P.length;cy/=P.length;
+      let dx=m[0]-cx,dy=m[1]-cy,L=Math.hypot(dx,dy);if(L<4){dx=1;dy=-1;L=Math.SQRT2;}
+      if(len<120){const xs=P.map(p=>p[0]);const i=xs.indexOf(Math.max(...xs));lx=P[i][0]+16;ly=P[i][1]+4;c.textAlign='left';}
+      else{lx=m[0]+dx/L*18;ly=m[1]+dy/L*18+4;c.textAlign=dx<0?'right':'left';}}
+    c.strokeText(lab,lx,ly);c.fillText(lab,lx,ly);c.restore();
+  }
+  tick(dt){
+    if(!this.play||current!==this.sec)return;
+    const sp=this.sys.speed||0.2;this.u+=this.dir*sp*dt;
+    if(this.sys.loop)this.u=(this.u%1+1)%1;
+    else{if(this.u>1){this.u=1;this.dir=-1;}if(this.u<0){this.u=0;this.dir=1;}}
+    this.onU&&this.onU();this.draw();
+  }
+}
+
+/* construit le panneau de contrôle standard */
+function setupSim(pre,sys,sec){
+  const sim=new Sim(document.getElementById(pre+'Cv'),sys,sec);
+  const sl=document.getElementById(pre+'U');
+  sim.u=sl.value/1000;
+  sl.addEventListener('input',()=>{sim.u=sl.value/1000;sim.draw();});
+  sim.onU=()=>{sl.value=Math.round(sim.u*1000);};
+  const pb=document.getElementById(pre+'Play');
+  sim.setPlay=v=>{sim.play=v;pb.textContent=v?'⏸ Pause':'▶ Animer';};
+  pb.addEventListener('click',()=>sim.setPlay(!sim.play));
+  const ob=document.getElementById(pre+'Obs');
+  if(ob){
+    ob.innerHTML=sys.obs.map(id=>`<button data-r="${id}">${id}</button>`).join('');
+    ob.querySelectorAll('button').forEach(b=>{b.title=sys.pieces[b.dataset.r].n;b.addEventListener('click',()=>sim.setRef(b.dataset.r));});
+    sim.onRef=()=>ob.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.r===sim.ref));
+  }
+  const clr=document.getElementById(pre+'Clr');
+  if(clr)clr.addEventListener('click',()=>{sim.traces=[];sim.ghost=null;sim.hl=null;sim.setRef(sys.fixed);});
+  const tr=document.getElementById(pre+'Tr');
+  if(tr){
+    const ptn=Object.keys(sys.pts);
+    tr.innerHTML=`✏️ Tracer la trajectoire du point <select>${ptn.map(n=>`<option>${n}</option>`).join('')}</select>
+      appartenant à <select>${sys.obs.map(i=>`<option value="${i}">${i}</option>`).join('')}</select>
+      <button class="btn petit">Tracer</button>`;
+    const [sP,sI]=tr.querySelectorAll('select');
+    const sync=()=>{const P=sys.pts[sP.value];sI.value=P.on;};sP.addEventListener('change',sync);sync();
+    tr.querySelector('button').addEventListener('click',()=>{sim.traces.push({pt:sP.value,on:sI.value});if(sim.traces.length>6)sim.traces.shift();sim.draw();});
+  }
+  const lg=document.getElementById(pre+'Leg');
+  if(lg)lg.innerHTML=sys.obs.map(id=>`<span><i style="background:${sys.pieces[id].col}"></i><b>${id}</b> ${sys.pieces[id].n}</span>`).join('');
+  sim.onRef&&sim.onRef();
+  return sim;
+}
+
+/* =====================================================================
+   TABLEAUX DU TD
+   ===================================================================== */
+function optionsFor(r,sys){
+  const pv=sys.pivots;
+  if(r.k==='M')return ['<option value="">— choisis —</option>',...pv.map(p=>`<option value="rot:${p}">Rotation d’axe (${p}, z)</option>`),
+    '<option value="tr">Translation rectiligne</option>','<option value="tc">Translation circulaire</option>','<option value="plan">Mouvement plan (quelconque)</option>'].join('');
+  return ['<option value="">— choisis —</option>',...pv.map(p=>`<option value="arc:${p}">Cercle ou arc de cercle de centre ${p}</option>`),
+    '<option value="seg">Segment de droite</option>','<option value="courbe">Courbe quelconque</option>','<option value="point">Un point (le point ne bouge pas)</option>'].join('');
+}
+function notation(r){return r.k==='M'?`M<sub>${r.i}/${r.j}</sub>`:`T<sub>${r.pt}∈${r.i}/${r.j}</sub>`;}
+function makeTable(elId,sim,rows,secId){
+  const el=document.getElementById(elId),sys=sim.sys;
+  el.innerHTML=`<table class="tdt"><thead><tr><th>Notation</th><th>Ta réponse</th><th></th><th>Voir</th></tr></thead><tbody>${
+    rows.map((r,n)=>`<tr data-n="${n}"><td class="nt">${notation(r)}</td><td><select>${optionsFor(r,sys)}</select><div class="cor">✔ ${r.cor}</div></td><td class="vd"></td><td class="ey"><button class="eye" title="Voir dans l’animation">👁</button></td></tr>`).join('')
+  }</tbody></table><div class="ctrl"><button class="btn chk">✔ Vérifier mes réponses</button><button class="btn sec sol">Afficher la correction</button><span class="out sc" style="display:none"></span></div>`;
+  const tab=el.querySelector('table');
+  el.querySelectorAll('tbody tr').forEach(tr=>{
+    const r=rows[+tr.dataset.n];
+    tr.querySelector('select').addEventListener('change',()=>{tr.classList.remove('bon','faux');tr.querySelector('.vd').textContent='';});
+    tr.querySelector('.eye').addEventListener('click',()=>{
+      sim.ref=r.j;sim.hl=r.i;
+      if(r.k==='M'){sim.ghost=r.i;sim.traces=sys.pieces[r.i].pts.filter(p=>p!==undefined).map(p=>({pt:p,on:r.i}));}
+      else{sim.ghost=null;sim.traces=[{pt:r.pt,on:r.i}];}
+      sim.onRef&&sim.onRef();sim.setPlay&&sim.setPlay(true);sim.draw();
+      sim.cv.scrollIntoView({behavior:'smooth',block:'center'});
+    });
+  });
+  el.querySelector('.chk').addEventListener('click',()=>{
+    let ok=0;el.querySelectorAll('tbody tr').forEach(tr=>{const r=rows[+tr.dataset.n],v=tr.querySelector('select').value;
+      const good=[].concat(r.ans).includes(v);if(good)ok++;
+      tr.classList.toggle('bon',good);tr.classList.toggle('faux',!good);tr.querySelector('.vd').textContent=v===''?'?':(good?'✅':'❌');});
+    const sc=el.querySelector('.sc');sc.style.display='inline-block';
+    sc.innerHTML=`Score : ${ok} / ${rows.length} `+(ok===rows.length?'<span class="ok">— Parfait ! 🏆</span>':'<span class="mini">— clique sur 👁 pour comprendre une ligne fausse</span>');
+  });
+  el.querySelector('.sol').addEventListener('click',e=>{tab.classList.toggle('sol');e.target.textContent=tab.classList.contains('sol')?'Cacher la correction':'Afficher la correction';});
+}
+
+/* =====================================================================
+   SYSTÈME 1 : CHARGEUR BOBCAT (géométrie commune, numérotation au choix)
+   ===================================================================== */
+function makeBobcat(N){
+  const F=[236,240],E0=[446,240],A=[565,328],B0=[498,420],C0=[468,320],D=[538,157],G=[122,74],H=[36,40];
+  const rFE=dist(F,E0),rAB=dist(A,B0),rEB=dist(E0,B0),s0=Math.sign(cross(A,B0,E0)),TH=62*deg;
+  function solve(u){
+    const th=u*TH,E=[F[0]+rFE*Math.cos(th),F[1]+rFE*Math.sin(th)],B=inter2(A,rAB,E,rEB,s0);
+    const P={};P[N.ch]=ID;P[N.bar]=rotAbout(F,th);P[N.rear]=rotAbout(A,ang(A,B)-ang(A,B0));
+    P[N.arm]=from2(E0,B0,E,B);const C=ap(P[N.arm],C0);const a=ang(D,C)-ang(D,C0);
+    P[N.body]=rotAbout(D,a);P[N.rod]=slideRot(a,C0,C);return P;
+  }
+  // longueurs du vérin
+  let dmin=1e9,dmax=0;for(let k=0;k<=40;k++){const P=solve(k/40);const C=ap(P[N.arm],C0);const d=dist(D,C);dmin=Math.min(dmin,d);dmax=Math.max(dmax,d);}
+  const d0=dist(D,C0),u=unit(D,C0),Lb=Math.max(0.62*d0,dmax-dmin+28),Lr=d0-12;
+  const pieces={};
+  pieces[N.ch]={n:'Châssis',col:'#c9ced6',pts:['F','A','D']};
+  pieces[N.arm]={n:'Bras principal + godet',col:'#5b8def',pts:['E','B','C','H']};
+  pieces[N.rear]={n:'Bras supérieur',col:'#f08a3c',pts:['A','B']};
+  pieces[N.bar]={n:'Barre',col:'#f2c230',pts:['F','E']};
+  pieces[N.body]={n:'Corps du vérin',col:'#9aa3ad',pts:['D']};
+  pieces[N.rod]={n:'Tige du vérin',col:'#7cc36e',pts:['C']};
+  const shapes=[
+    bar(N.ch,[[60,40],[700,40]],2,'#8a7a5a'),
+    poly(N.ch,[[140,70],[625,70],[630,345],[585,362],[545,352],[525,300],[505,300],[505,215],[262,215],[244,256],[200,256],[200,215],[140,215]],'#d9dde3'),
+    poly(N.ch,[[262,215],[278,330],[302,372],[468,378],[505,300],[505,215]],'rgba(180,188,198,.35)','#7b8592'),
+    circ(N.ch,[205,102],60,'#3a3f47'),circ(N.ch,[205,102],28,'#c4c9cf'),
+    circ(N.ch,[442,102],60,'#3a3f47'),circ(N.ch,[442,102],28,'#c4c9cf'),
+    num(N.ch,[600,120],N.ch),
+    bar(N.body,[D,add(D,mul(u,Lb))],17,'#9aa3ad'),num(N.body,add(D,mul(u,Lb*0.45)),N.body),
+    bar(N.rod,[C0,sub(C0,mul(u,Lr))],7,'#7cc36e'),num(N.rod,sub(C0,mul(u,22)),N.rod),
+    bar(N.bar,[F,E0],12,'#f2c230'),num(N.bar,[330,240],N.bar),
+    bar(N.rear,[A,B0],24,'#f08a3c'),num(N.rear,[548,368],N.rear),
+    poly(N.arm,[[122,74],[100,108],[140,225],[205,305],[300,350],[425,372],[488,440],[518,432],[515,400],[486,318],[462,228],[432,226],[436,292],[300,318],[228,282],[180,212],[152,90]],'#7ea6f2'),
+    poly(N.arm,[[130,96],[60,118],[28,72],[34,34],[118,38],[142,62]],'#5b8def'),
+    num(N.arm,[300,333],N.arm)
+  ];
+  return {fixed:N.ch,pieces,shapes,solve,u0:0,speed:0.18,H:430,
+    order:[N.ch,N.body,N.rod,N.bar,N.arm,N.rear],obs:[N.ch,N.arm,N.rear,N.bar,N.body,N.rod].sort(),
+    pts:{F:{c:F,on:N.ch,lab:[-16,-10]},A:{c:A,on:N.ch,lab:[10,4]},D:{c:D,on:N.ch,lab:[10,4]},E:{c:E0,on:N.bar,lab:[8,16]},
+      B:{c:B0,on:N.rear,lab:[8,-8]},C:{c:C0,on:N.arm,lab:[-18,-6]},G:{c:G,on:N.arm,lab:[8,14]},H:{c:H,on:N.arm,dot:true,lab:[-16,-6]}},
+    pivots:['A','B','C','D','E','F','G'],geo:{F,A,D,C0,E0,B0,G,H}};
+}
+const bcSim=setupSim('bc',makeBobcat({ch:'0',arm:'1',rear:'2',bar:'3',body:'4',rod:'5'}),'s1');
+makeTable('bcTab',bcSim,[
+  {k:'M',i:'3',j:'0',ans:'rot:F',cor:'Rotation d’axe (F, z) : la barre 3 est articulée en F sur le châssis 0.'},
+  {k:'M',i:'3',j:'1',ans:'rot:E',cor:'Rotation d’axe (E, z) : la barre 3 est articulée en E sur le bras 1.'},
+  {k:'M',i:'2',j:'0',ans:'rot:A',cor:'Rotation d’axe (A, z) : le bras 2 est articulé en A sur le châssis 0.'},
+  {k:'M',i:'1',j:'0',ans:'plan',cor:'Mouvement plan : pas de liaison directe entre 1 et 0, et le bras 1 tourne en avançant.'},
+  {k:'T',pt:'E',i:'3',j:'0',ans:'arc:F',cor:'Arc de cercle de centre F et de rayon FE (car M3/0 = rotation d’axe (F, z)).'},
+  {k:'T',pt:'F',i:'3',j:'1',ans:'arc:E',cor:'Arc de cercle de centre E et de rayon EF (car M3/1 = rotation d’axe (E, z)).'},
+  {k:'T',pt:'H',i:'1',j:'2',ans:'arc:B',cor:'Arc de cercle de centre B et de rayon BH (car M1/2 = rotation d’axe (B, z)).'}
+]);
+
+/* =====================================================================
+   SYSTÈME 2 : COFFRE AUDI A8 (quadrilatère articulé)
+   ===================================================================== */
+function makeAudi(){
+  const D=[0,0],A=[180,-20],a0=12*deg,B0=[A[0]+82*Math.cos(a0),A[1]+82*Math.sin(a0)],C0=[216,0],H=[-190,-190];
+  const rDC=dist(D,C0),rBC=dist(B0,C0),s0=Math.sign(cross(D,C0,B0)),TH=79.4*deg;
+  function solve(u){const t=u*TH,B=ap(rotAbout(A,t),B0),C=inter2(D,rDC,B,rBC,s0);
+    return {'16':ID,'25':rotAbout(A,t),'22':rotAbout(D,ang(D,C)-ang(D,C0)),'28':from2(C0,B0,C,B)};}
+  return {fixed:'16',solve,u0:0,speed:0.22,H:420,order:['16','22','25','28'],obs:['16','22','25','28'],
+    pieces:{'16':{n:'Support (fixé à la voiture)',col:'#c9ced6',pts:['D','A']},'22':{n:'Bras',col:'#d94fd0',pts:['D','C']},
+      '25':{n:'Levier (moteur)',col:'#f2c230',pts:['A','B']},'28':{n:'Couvercle + platine 27',col:'#8fb0d8',pts:['C','B','H']}},
+    shapes:[
+      poly('16',[[-30,-8],[10,-32],[240,-48],[285,-35],[275,-15],[200,-8],[30,14]],'#d9dde3'),hatch('16',[120,-40],-90),num('16',[60,-26],'16'),
+      bar('22',[[0,0],[50,22],[150,22],[216,0]],10,'#d94fd0'),num('22',[110,24],'22'),
+      bar('25',[A,B0],9,'#f2c230'),num('25',[205,-38],'25'),
+      bar('28',[[300,48],[-80,48],[-140,28],[-175,-30],[-190,-190]],14,'#8fb0d8'),
+      bar('28',[C0,B0,[268,24],[284,46]],6,'#e05a5a'),num('28',[-120,60],'28')
+    ],
+    pts:{D:{c:D,on:'16',lab:[-18,-8]},A:{c:A,on:'16',lab:[-6,20]},C:{c:C0,on:'22',lab:[-20,-8]},B:{c:B0,on:'25',lab:[10,6]},H:{c:H,on:'28',dot:true,lab:[-18,4]}},
+    pivots:['A','B','C','D']};
+}
+const auSim=setupSim('au',makeAudi(),'s2');
+makeTable('auTab',auSim,[
+  {k:'M',i:'28',j:'25',ans:'rot:B',cor:'Rotation d’axe (B, z) : le couvercle 28 est articulé en B sur le levier 25.'},
+  {k:'M',i:'28',j:'22',ans:'rot:C',cor:'Rotation d’axe (C, z) : le couvercle 28 est articulé en C sur le bras 22.'},
+  {k:'M',i:'25',j:'16',ans:'rot:A',cor:'Rotation d’axe (A, z) : le levier 25 est articulé en A sur le support 16.'},
+  {k:'T',pt:'H',i:'28',j:'22',ans:'arc:C',cor:'Arc de cercle de centre C et de rayon CH.'},
+  {k:'T',pt:'H',i:'28',j:'25',ans:'arc:B',cor:'Arc de cercle de centre B et de rayon BH.'},
+  {k:'M',i:'28',j:'16',ans:'plan',cor:'Mouvement plan : le coffre n’est pas articulé directement sur 16 ; il tourne et se déplace en même temps.'}
+]);
+makeTable('auTab2',auSim,[
+  {k:'M',i:'22',j:'16',ans:'rot:D',cor:'Question 2 : rotation d’axe (D, z).'},
+  {k:'M',i:'25',j:'16',ans:'rot:A',cor:'Question 2 : rotation d’axe (A, z).'},
+  {k:'T',pt:'C',i:'22',j:'16',ans:'arc:D',cor:'Question 3 : arc de cercle de centre D et de rayon DC.'},
+  {k:'T',pt:'B',i:'25',j:'16',ans:'arc:A',cor:'Question 3 : arc de cercle de centre A et de rayon AB (114 mm).'},
+  {k:'T',pt:'H',i:'28',j:'16',ans:'courbe',cor:'Question 9 : courbe quelconque, tracée point par point (H₁, H₂… à partir de B₁, C₁…).'}
+]);
+document.getElementById('auCalc').addEventListener('click',()=>{
+  const a=parseFloat(document.getElementById('auAlpha').value.replace(',','.'));const o=document.getElementById('auOmega');
+  if(!(a>0)){o.innerHTML='<span class="ko">Entre d’abord un angle en degrés.</span>';return;}
+  const r=a*deg,w=r/6.3,n=w*60/(2*Math.PI),f=v=>v.toFixed(2).replace('.',',');
+  o.innerHTML=`α = ${a}° = ${f(r)} rad → ω = ${f(r)} / 6,3 = <b>${f(w)} rad/s</b> = <b>${f(n)} tr/min</b> `+(Math.abs(n-2.1)<0.25?'<span class="ok">✓ proche de 2,1 tr/min (DT4)</span>':'<span class="ko">≠ 2,1 tr/min (DT4) : vérifie ta mesure</span>');
+});
+
+/* =====================================================================
+   SYSTÈME 3 : MANÈGE BULLY
+   ===================================================================== */
+function makeManege(){
+  const A=[100,75],B0=[120,75],D=[198,93],C0=[198+30*Math.cos(60*deg),93+30*Math.sin(60*deg)],E=[148,338];
+  const rBC=dist(B0,C0),s0=Math.sign(cross(D,C0,B0));
+  function solve(u){const t=2*Math.PI*u,B=[A[0]+20*Math.cos(t),A[1]+20*Math.sin(t)],C=inter2(D,30,B,rBC,s0);
+    return {'1':ID,'3':rotAbout(A,t),'4':rotAbout(D,ang(D,C)-ang(D,C0)),'2':from2(B0,C0,B,C)};}
+  return {fixed:'1',solve,u0:0,loop:true,speed:0.25,H:400,order:['1','3','4','2'],obs:['1','2','3','4'],
+    pieces:{'1':{n:'Bâti',col:'#c9ced6',pts:['A','D']},'2':{n:'Voiture',col:'#ffb36b',pts:['B','C','E']},'3':{n:'Disque (manivelle)',col:'#d62828',pts:['A','B']},'4':{n:'Biellette',col:'#2a9d4b',pts:['D','C']}},
+    shapes:[
+      poly('1',[[30,18],[350,18],[350,36],[30,36]],'#d9dde3'),poly('1',[[40,18],[56,18],[56,0],[40,0]],'#9aa3ad'),poly('1',[[324,18],[340,18],[340,0],[324,0]],'#9aa3ad'),
+      poly('1',[[86,36],[114,36],[100,75]],'#c9ced6'),poly('1',[[186,36],[210,36],[198,93]],'#c9ced6'),num('1',[300,27],'1'),
+      circ('3',A,30,'#f1f4f8'),bar('3',[A,B0],7,'#d62828'),circ('3',[A[0]-18,A[1]+12],3,'#d62828'),num('3',[68,100],'3'),
+      bar('4',[D,C0],7,'#2a9d4b'),num('4',[232,104],'4'),
+      bar('2',[B0,[120,150]],7,'#b05d00'),bar('2',[C0,[213,150]],7,'#b05d00'),
+      poly('2',[[80,150],[330,150],[336,205],[300,222],[255,222],[236,302],[120,308],[96,250],[78,205]],'#ffd6a5','#b05d00'),
+      poly('2',[[112,250],[178,250],[172,336],[124,340]],'#ffb36b','#b05d00'),
+      circ('2',[132,150],24,'#444'),circ('2',[132,150],9,'#bbb'),circ('2',[284,150],24,'#444'),circ('2',[284,150],9,'#bbb'),num('2',[260,190],'2')
+    ],
+    pts:{A:{c:A,on:'1',lab:[-24,-8]},B:{c:B0,on:'3',lab:[8,-8]},D:{c:D,on:'1',lab:[-20,6]},C:{c:C0,on:'4',lab:[10,0]},E:{c:E,on:'2',dot:true,lab:[8,-6]}},
+    pivots:['A','B','C','D']};
+}
+const maSim=setupSim('ma',makeManege(),'s3');
+makeTable('maTab',maSim,[
+  {k:'M',i:'4',j:'1',ans:'rot:D',cor:'Rotation d’axe (D, z) : la biellette 4 est articulée en D sur le bâti 1.'},
+  {k:'M',i:'2',j:'4',ans:'rot:C',cor:'Rotation d’axe (C, z) : la voiture 2 est articulée en C sur la biellette 4.'},
+  {k:'M',i:'3',j:'1',ans:'rot:A',cor:'Rotation d’axe (A, z) : le disque 3 tourne autour de A.'},
+  {k:'M',i:'2',j:'1',ans:'plan',cor:'Mouvement plan : la voiture se balance (elle tourne et se déplace).'},
+  {k:'T',pt:'C',i:'4',j:'1',ans:'arc:D',cor:'Arc de cercle de centre D et de rayon DC.'},
+  {k:'T',pt:'E',i:'2',j:'4',ans:'arc:C',cor:'Arc de cercle de centre C et de rayon CE.'},
+  {k:'T',pt:'B',i:'3',j:'1',ans:'arc:A',cor:'Cercle complet de centre A et de rayon AB (le disque fait des tours complets).'}
+]);
+
+/* =====================================================================
+   SYSTÈME 4 : SIÈGE DE DENTISTE (ciseaux)
+   ===================================================================== */
+function makeSiege(){
+  const D=[325,157],L=217,p0=27.7*deg,pmin=12*deg,pmax=46*deg,A=[262,50];
+  const geo=p=>({K:[D[0]-L*Math.cos(p),D[1]+L*Math.sin(p)],J:[D[0]-L*Math.cos(p),D[1]],E:[D[0],D[1]+L*Math.sin(p)]});
+  const g0=geo(p0),K0=g0.K,J0=g0.J,E0=g0.E,C0=[(K0[0]+D[0])/2,(K0[1]+D[1])/2],B0=[212,185];
+  const dirAB=unit(A,B0);
+  function solve(u){const p=pmin+u*(pmax-pmin),g=geo(p),P={'1':ID};
+    P['3']=rotAbout(D,-(p-p0));P['4']=slideRot(p-p0,J0,g.J);P['5']=trans([0,g.E[1]-E0[1]]);
+    P['2']=trans(sub(g.K,K0));P['9']=trans(sub(g.J,J0));const B=ap(P['3'],B0),a6=ang(A,B)-ang(A,B0);
+    P['6']=rotAbout(A,a6);P['7']=P['6'];P['8']=slideRot(a6,B0,B);return P;}
+  return {fixed:'1',solve,u0:(p0-pmin)/(pmax-pmin),speed:0.2,H:420,order:['1','6','7','8','9','4','3','5','2'],obs:['1','2','3','4','5','6','8','9'],
+    pieces:{'1':{n:'Bâti',col:'#c9ced6',pts:['D','A']},'2':{n:'Bague (sur 5)',col:'#556070',pts:['K']},'3':{n:'Bras',col:'#4cc3f0',pts:['K','C','D','B']},
+      '4':{n:'Bras',col:'#f28b82',pts:['J','C','E']},'5':{n:'Assise',col:'#7ad3a6',pts:['E','K']},'6':{n:'Motoréducteur',col:'#b8c0ca',pts:['A','B']},
+      '7':{n:'Vis',col:'#555',pts:[]},'8':{n:'Écrou',col:'#888',pts:['B']},'9':{n:'Bague (sur 1)',col:'#556070',pts:['J']}},
+    shapes:[
+      poly('1',[[175,22],[350,22],[350,140],[175,140]],'rgba(200,205,212,.45)','#7b8592'),
+      poly('1',[[50,140],[352,140],[352,152],[50,152]],'#9aa3ad'),bar('1',[[60,140],[60,8]],7,'#9aa3ad'),bar('1',[[342,140],[342,8]],7,'#9aa3ad'),
+      poly('1',[[315,152],[335,152],[325,157]],'#9aa3ad'),num('1',[320,60],'1'),
+      circ('6',A,22,'#cfd5dc'),bar('6',[A,add(A,mul(dirAB,26))],20,'#b8c0ca'),num('6',[228,40],'6'),
+      bar('7',[add(A,mul(dirAB,24)),add(A,mul(dirAB,178))],3,'#555'),
+      bar('8',[sub(B0,mul(dirAB,10)),add(B0,mul(dirAB,10))],13,'#888'),
+      poly('9',[[J0[0]-14,148],[J0[0]+14,148],[J0[0]+14,162],[J0[0]-14,162]],'#556070'),
+      bar('4',[J0,E0],15,'#f28b82'),num('4',[283,232],'4'),
+      bar('3',[K0,D],15,'#4cc3f0'),bar('3',[[212,216],B0],7,'#4cc3f0'),num('3',[175,224],'3'),
+      poly('5',[[50,264],[365,264],[365,302],[50,302]],'#7ad3a6','#2f7d55'),num('5',[200,284],'5'),
+      poly('2',[[K0[0]-14,250],[K0[0]+14,250],[K0[0]+14,264],[K0[0]-14,264]],'#556070')
+    ],
+    pts:{D:{c:D,on:'1',lab:[10,-6]},A:{c:A,on:'1',lab:[10,14]},K:{c:K0,on:'3',lab:[-6,-12]},J:{c:J0,on:'4',lab:[-20,16]},
+      C:{c:C0,on:'3',lab:[8,16]},E:{c:E0,on:'4',lab:[10,-6]},B:{c:B0,on:'3',lab:[-18,4]}},
+    pivots:['A','B','C','D','E','J','K']};
+}
+const siSim=setupSim('si',makeSiege(),'s4');
+makeTable('siTab',siSim,[
+  {k:'M',i:'4',j:'5',ans:'rot:E',cor:'Rotation d’axe (E, z) : le bras 4 est articulé en E sur l’assise 5.'},
+  {k:'M',i:'3',j:'1',ans:'rot:D',cor:'Rotation d’axe (D, z) : le bras 3 est articulé en D sur le bâti 1.'},
+  {k:'M',i:'5',j:'1',ans:'tr',cor:'Translation rectiligne verticale (direction Y) : l’assise monte sans tourner.'},
+  {k:'M',i:'6',j:'1',ans:'rot:A',cor:'Rotation d’axe (A, z) : le motoréducteur 6 est articulé en A sur le bâti 1.'},
+  {k:'M',i:'8',j:'3',ans:'rot:B',cor:'Rotation d’axe (B, z) : l’écrou 8 est articulé en B sur le bras 3.'},
+  {k:'T',pt:'C',i:'4',j:'5',ans:'arc:E',cor:'Arc de cercle de centre E et de rayon EC.'},
+  {k:'T',pt:'C',i:'3',j:'1',ans:'arc:D',cor:'Arc de cercle de centre D et de rayon DC.'},
+  {k:'T',pt:'E',i:'5',j:'1',ans:'seg',cor:'Segment de droite vertical (direction Y), car M5/1 est une translation rectiligne.'},
+  {k:'T',pt:'B',i:'6',j:'1',ans:'arc:A',cor:'Arc de cercle de centre A et de rayon AB.'}
+]);
+
+/* =====================================================================
+   SYSTÈME 5 : SOULÈVEMENT DE BOBINES
+   ===================================================================== */
+function makeBobines(){
+  const C=[537,360],Dr=[199,512],B0=[583,260],E0=[610,331],A=[165,244],D0m=[165,385],D1m=[447,720];
+  const aD=ang(C,Dr),aLow=ang(C,D0m)-aD,aHigh=ang(C,D1m)-aD;
+  const a5=u=>aLow+u*(aHigh-aLow),dAB=unit(A,B0);
+  function solve(u){const P={'2':ID};P['5']=rotAbout(C,a5(u));const B=ap(P['5'],B0),D=ap(P['5'],Dr);
+    const a=ang(A,B)-ang(A,B0);P['3']=rotAbout(A,a);P['4']=slideRot(a,B0,B);P['1']=trans(sub(D,Dr));return P;}
+  return {fixed:'2',solve,u0:-aLow/(aHigh-aLow),speed:0.18,H:430,order:['2','1','3','4','5'],obs:['1','2','3','4','5'],
+    pieces:{'1':{n:'Bobine',col:'#9db8dc',pts:['D']},'2':{n:'Bâti',col:'#c9ced6',pts:['A','C']},'3':{n:'Corps du vérin',col:'#cfd5dc',pts:['A']},
+      '4':{n:'Tige du vérin',col:'#555',pts:['B']},'5':{n:'Bras',col:'#3b4655',pts:['C','D','B']}},
+    shapes:[
+      poly('2',[[128,150],[146,150],[146,340],[128,340]],'#d9dde3'),hatch('2',A,180),
+      poly('2',[[525,338],[549,338],[537,360]],'#c9ced6'),hatch('2',[537,338],-90),num('2',[118,170],'2'),
+      circ('1',Dr,147,'rgba(31,78,140,.07)','#1f4e8c'),circ('1',Dr,22,'#e3eaf3','#1f4e8c'),num('1',[120,420],'1'),
+      bar('3',[add(A,mul(dAB,16)),add(A,mul(dAB,240))],20,'#cfd5dc'),num('3',add(A,mul(dAB,120)),'3'),
+      bar('4',[B0,sub(B0,mul(dAB,230))],5,'#555'),bar('4',[sub(B0,mul(dAB,232)),sub(B0,mul(dAB,226))],18,'#555'),num('4',sub(B0,mul(dAB,60)),'4'),
+      bar('5',[[127,545],C,E0,B0],7,'#3b4655'),bar('5',[[183,536],Dr,[218,528]],5,'#3b4655'),num('5',[400,440],'5')
+    ],
+    pts:{A:{c:A,on:'2',lab:[-6,-14]},C:{c:C,on:'2',lab:[10,-8]},B:{c:B0,on:'5',lab:[10,6]},D:{c:Dr,on:'5',lab:[10,-10]},E:{c:E0,on:'5',dot:true,lab:[8,-6]}},
+    pivots:['A','B','C','D'],extra:[D0m,D1m],geo:{C,Dr,B0,A,D0m,D1m,aLow,aHigh}};
+}
+const boSys=makeBobines();
+const boSim=setupSim('bo',boSys,'s5');
+makeTable('boTab',boSim,[
+  {k:'M',i:'4',j:'3',ans:'tr',cor:'Question 1 : translation rectiligne de direction (AB) : la tige coulisse dans le corps du vérin.'},
+  {k:'M',i:'3',j:'2',ans:'rot:A',cor:'Question 2 : rotation d’axe (A, z).'},
+  {k:'M',i:'5',j:'2',ans:'rot:C',cor:'Question 3 : rotation d’axe (C, z).'},
+  {k:'T',pt:'D',i:'5',j:'2',ans:'arc:C',cor:'Question 4 : arc de cercle de centre C et de rayon CD = 740 mm (de D₀ à D₁).'},
+  {k:'T',pt:'B',i:'5',j:'2',ans:'arc:C',cor:'Question 5 : arc de cercle de centre C et de rayon CB = 230 mm.'}
+]);
+const boG=boSys.geo,uB=k=>k;let boShowB=false;
+const PX2MM=25.4/80; // 1 pixel du schéma = 0,3175 mm sur la feuille
+function boMeasures(){const b0=boSim.ptW('B',0),b1=boSim.ptW('B',1);const AB0=dist(boG.A,b0),AB1=dist(boG.A,b1);
+  return {amp:Math.abs(boG.aHigh-boG.aLow)/deg,cf:(AB0-AB1)*PX2MM,cr:(AB0-AB1)*PX2MM*6,b0,b1};}
+(()=>{const m=boMeasures();document.getElementById('boAmp').textContent=Math.round(m.amp)+'°';
+  document.getElementById('boCf').textContent=Math.round(m.cf)+' mm';document.getElementById('boCr').textContent=Math.round(m.cr/5)*5+' mm';})();
+function cross2(c,p,col,lab){c.strokeStyle=col;c.lineWidth=2.5;c.beginPath();c.moveTo(p[0]-7,p[1]-7);c.lineTo(p[0]+7,p[1]+7);c.moveTo(p[0]-7,p[1]+7);c.lineTo(p[0]+7,p[1]-7);c.stroke();
+  c.font='italic bold 14px Georgia, serif';c.fillStyle=col;c.lineWidth=3;c.strokeStyle='#fff';c.strokeText(lab,p[0]+8,p[1]-8);c.fillText(lab,p[0]+8,p[1]-8);}
+boSim.overlay=(sim,c,X)=>{
+  if(sim.ref!=='2')return;
+  cross2(c,X(boG.D0m),'#1f4e8c','D₀');cross2(c,X(boG.D1m),'#1f4e8c','D₁');
+  const mes=document.getElementById('boMes').checked,out=document.getElementById('boOut');
+  if(boShowB||mes){const m=boMeasures();cross2(c,X(m.b0),'#a21caf','B₀');cross2(c,X(m.b1),'#a21caf','B₁');}
+  if(mes){const Cp=X(boG.C);const a0=ang(boG.C,boG.D0m),a1=ang(boG.C,boG.D1m);
+    c.setLineDash([5,4]);c.strokeStyle='#ea580c';c.lineWidth=1.5;[boG.D0m,boG.D1m].forEach(p=>{const q=X(p);c.beginPath();c.moveTo(Cp[0],Cp[1]);c.lineTo(q[0],q[1]);c.stroke();});c.setLineDash([]);
+    c.lineWidth=3;c.beginPath();c.arc(Cp[0],Cp[1],60,-a0,-a1,false);c.stroke();
+    const u=sim.u,ab=dist(boG.A,sim.ptW('B',u)),ab0=dist(boG.A,boMeasures().b0),rot=Math.abs((u)*(boG.aHigh-boG.aLow))/deg;
+    out.style.display='inline-block';
+    out.innerHTML=`Bras 5 : tourné de <b>${rot.toFixed(0)}°</b> depuis D₀ · Le vérin a rentré de <b>${((ab0-ab)*PX2MM).toFixed(0)} mm</b> sur le schéma (≈ ${Math.round((ab0-ab)*PX2MM*6)} mm en réel)`;
+  }else out.style.display='none';
+};
+document.getElementById('boMes').addEventListener('change',()=>boSim.draw());
+document.getElementById('boD0').addEventListener('click',()=>{boSim.setPlay(false);boSim.u=0;boSim.onU();boSim.setRef('2');});
+document.getElementById('boD1').addEventListener('click',()=>{boSim.setPlay(false);boSim.u=1;boSim.onU();boSim.setRef('2');});
+document.getElementById('boShowB').addEventListener('click',()=>{boShowB=true;boSim.traces=[{pt:'B',on:'5'},{pt:'D',on:'5'}];boSim.setRef('2');boSim.cv.scrollIntoView({behavior:'smooth',block:'center'});});
+
+/* =====================================================================
+   SYSTÈME 6 : ÉTUDE BOBCAT S185 (numérotation du document)
+   ===================================================================== */
+const bsSys=makeBobcat({ch:'0',arm:'2',rear:'1',bar:'5',body:'4',rod:'3'});
+bsSys.u0=0;
+const bsSim=setupSim('bs',bsSys,'s6');
+const bsG=bsSys.geo,Ek=[0,15,30,45,60].map(t=>t/62);
+const $=id=>document.getElementById(id);
+function arrow(c,p,q,col,lab,w=2.5){const dx=q[0]-p[0],dy=q[1]-p[1],L=Math.hypot(dx,dy);if(L<2)return;const ux=dx/L,uy=dy/L;
+  c.strokeStyle=col;c.fillStyle=col;c.lineWidth=w;c.beginPath();c.moveTo(p[0],p[1]);c.lineTo(q[0]-ux*8,q[1]-uy*8);c.stroke();
+  c.beginPath();c.moveTo(q[0],q[1]);c.lineTo(q[0]-ux*12-uy*5,q[1]-uy*12+ux*5);c.lineTo(q[0]-ux*12+uy*5,q[1]-uy*12-ux*5);c.fill();
+  if(lab){c.font='bold 12px Segoe UI, Arial';c.lineWidth=3;c.strokeStyle='#fff';c.strokeText(lab,q[0]+6,q[1]-4);c.fillText(lab,q[0]+6,q[1]-4);}}
+function dline(c,p,q,col,ext=0){const dx=q[0]-p[0],dy=q[1]-p[1];c.strokeStyle=col;c.lineWidth=1.3;c.setLineDash([6,4]);c.beginPath();
+  c.moveTo(p[0]-dx*ext,p[1]-dy*ext);c.lineTo(q[0]+dx*ext,q[1]+dy*ext);c.stroke();c.setLineDash([]);}
+function bsVel(u){
+  u=Math.min(0.985,Math.max(0.015,u));const h=0.006;
+  const DC=s=>dist(bsG.D,bsSim.ptW('C',s)),dDC=Math.abs(DC(u+h)-DC(u-h)),k=6/dDC;
+  const v=n=>mul(sub(bsSim.ptW(n,u+h),bsSim.ptW(n,u-h)),k);
+  return {u,V:{B:v('B'),E:v('E'),C:v('C'),H:v('H')},P:{A:bsG.A,F:bsG.F,D:bsG.D,B:bsSim.ptW('B',u),E:bsSim.ptW('E',u),C:bsSim.ptW('C',u),H:bsSim.ptW('H',u)},sgn:Math.sign(DC(u+h)-DC(u-h))};
+}
+bsSim.overlay=(sim,c,X)=>{
+  const F=sim.F,mk=(p,lab,col)=>{const q=X(p);c.fillStyle=col;c.beginPath();c.arc(q[0],q[1],4.5,0,7);c.fill();
+    c.font='italic bold 13px Georgia, serif';c.lineWidth=3;c.strokeStyle='#fff';c.strokeText(lab,q[0]+7,q[1]+14);c.fillText(lab,q[0]+7,q[1]+14);};
+  if($('bsTE').checked)for(let k=1;k<=4;k++){const q=X(sim.ptW('E',Ek[k]));const f=X(bsG.F);dline(c,f,q,'#999');mk(sim.ptW('E',Ek[k]),'E'+'₁₂₃₄'[k-1],'#ea580c');}
+  if($('bsCons').checked){const rEB=dist(bsG.E0,bsG.B0);c.strokeStyle='#a21caf';c.setLineDash([4,4]);c.lineWidth=1.2;
+    for(let k=1;k<=4;k++){const e=sim.ptW('E',Ek[k]),b=sim.ptW('B',Ek[k]),q=X(e),a=ang(e,b);c.beginPath();c.arc(q[0],q[1],rEB*F.s,-(a+0.25),-(a-0.25));c.stroke();}c.setLineDash([]);}
+  if($('bsBi').checked)for(let k=1;k<=4;k++)mk(sim.ptW('B',Ek[k]),'B'+'₁₂₃₄'[k-1],'#a21caf');
+  if($('bsGi').checked)for(let k=0;k<=4;k++)mk(sim.ptW('G',Ek[k]),'G'+'₀₁₂₃₄'[k],'#16a34a');
+  const out=$('bsOut');
+  const anyV=['bsV1','bsV2','bsV3','bsV4'].some(i=>$(i).checked);
+  if(!anyV){out.style.display='none';return;}
+  const r=bsVel(sim.u),S=7*F.s,P=r.P,V=r.V,Xp=n=>X(P[n]),tip=(n,v)=>X(add(P[n],mul(v,6)));
+  const I=lineInter(P.A,P.B,P.F,P.E);
+  if($('bsV1').checked){arrow(c,Xp('B'),tip('B',V.B),'#1d4ed8','V(B,2/0)');arrow(c,Xp('E'),tip('E',V.E),'#1d4ed8','V(E,2/0)');}
+  let txt=[];
+  if($('bsV2').checked&&I){const q=X(I);dline(c,X(P.A),q,'#e11d48');dline(c,X(P.F),q,'#e11d48');
+    c.fillStyle='#e11d48';c.beginPath();c.arc(q[0],q[1],6,0,7);c.fill();c.font='bold 14px Segoe UI, Arial';c.fillText('I2/0',q[0]+8,q[1]-8);
+    if(q[0]<0||q[0]>sim.W||q[1]<0||q[1]>sim.H)txt.push('<span class="ko">I₂/₀ est hors du cadre dans cette position : déplace le curseur.</span>');}
+  const vC=Math.hypot(...V.C),vH=Math.hypot(...V.H);
+  if($('bsV3').checked){const u=unit(P.D,P.C),v34=mul(u,6*r.sgn),v40=sub(V.C,v34);
+    if(I)dline(c,X(I),Xp('C'),'#e11d48');
+    arrow(c,Xp('C'),tip('C',v34),'#16a34a','');arrow(c,tip('C',v34),tip('C',V.C),'#ea580c','');arrow(c,Xp('C'),tip('C',V.C),'#1d4ed8','',3);
+    txt.push(`<span style="color:#16a34a">■</span> ‖V(C,3/4)‖ = 6 cm/s · <span style="color:#ea580c">■</span> ‖V(C,4/0)‖ ≈ ${Math.hypot(...v40).toFixed(1).replace('.',',')} cm/s · <span style="color:#1d4ed8">■</span> ‖V(C,3/0)‖ ≈ <b>${vC.toFixed(1).replace('.',',')} cm/s</b>`);}
+  if($('bsV4').checked){if(I)dline(c,X(I),Xp('H'),'#e11d48');arrow(c,Xp('H'),tip('H',V.H),'#d62828','V(H,2/0)',3);
+    txt.push(`<span style="color:#d62828">■</span> ‖V(H,2/0)‖ ≈ <b>${vH.toFixed(0)} cm/s</b> dans cette position (≈ ${(vH/vC).toFixed(1).replace('.',',')} × ‖V(C,2/0)‖)`);}
+  out.style.display=txt.length?'inline-block':'none';out.innerHTML=txt.join('<br>');
+};
+['bsTB','bsTE','bsTG'].forEach(id=>$(id).addEventListener('change',bsTraces));
+function bsTraces(){bsSim.traces=[];if($('bsTE').checked)bsSim.traces.push({pt:'E',on:'5'});if($('bsTB').checked)bsSim.traces.push({pt:'B',on:'1'});if($('bsTG').checked)bsSim.traces.push({pt:'G',on:'2'});bsSim.draw();}
+['bsCons','bsBi','bsGi','bsV1','bsV2','bsV3','bsV4'].forEach(id=>$(id).addEventListener('change',()=>bsSim.draw()));
+document.querySelectorAll('#bsPos button').forEach(b=>b.addEventListener('click',()=>{bsSim.setPlay(false);bsSim.u=Ek[+b.dataset.k];bsSim.onU();bsSim.draw();}));
+bsTraces();
+
+/* =====================================================================
+   BOUTONS « CORRECTION » + DÉCODEUR
+   ===================================================================== */
+document.querySelectorAll('[data-rev]').forEach(b=>b.addEventListener('click',()=>{
+  const r=document.getElementById(b.dataset.rev);r.classList.toggle('on');
+  if(b.dataset.on&&r.classList.contains('on')){b.dataset.on.split(',').forEach(id=>{$(id).checked=true;});bsTraces();
+    if(b.dataset.on.includes('bsV')&&bsSim.u<0.05){bsSim.u=Ek[2];bsSim.onU();}bsSim.draw();}
+}));
+(()=>{const P='ABCDEFGHJK'.split(''),I='0123456789'.split('');
+  $('decP').innerHTML=P.map(x=>`<option${x==='E'?' selected':''}>${x}</option>`).join('');
+  $('decI').innerHTML=I.map(x=>`<option${x==='3'?' selected':''}>${x}</option>`).join('');
+  $('decJ').innerHTML=I.map(x=>`<option${x==='0'?' selected':''}>${x}</option>`).join('');
+  const upd=()=>{const k=$('decK').value,p=$('decP').value,i=$('decI').value,j=$('decJ').value;$('decPtBox').style.display=k==='T'?'':'none';
+    $('decOut').innerHTML=i===j?'<span class="ko">Les deux pièces doivent être différentes !</span>':
+      (k==='M'?`<span class="big">M<sub>${i}/${j}</sub></span> = mouvement de la pièce <b>${i}</b> par rapport à la pièce <b>${j}</b>.`
+              :`<span class="big">T<sub>${p}∈${i}/${j}</sub></span> = trajectoire du point <b>${p}</b>, qui appartient à la pièce <b>${i}</b>, par rapport à la pièce <b>${j}</b>.`);};
+  ['decK','decP','decI','decJ'].forEach(id=>$(id).addEventListener('change',upd));upd();})();
+
+/* =====================================================================
+   BOUCLE D'ANIMATION
+   ===================================================================== */
+let last=performance.now();
+function loop(now){const dt=Math.min(.05,(now-last)/1000);last=now;SIMS.forEach(s=>s.tick(dt));requestAnimationFrame(loop);}
+show('s0');
+requestAnimationFrame(loop);
+</script>
+<a href="../index.html" style="position:fixed;bottom:16px;left:16px;z-index:99999;background:#1e3a5f;color:#fff;padding:10px 16px;border-radius:24px;font:600 14px system-ui,sans-serif;text-decoration:none;box-shadow:0 2px 8px rgba(0,0,0,.25)">← Sommaire</a></body>
+</html>

@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TD interactif — Diagrammes SysML</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#eef2f6;
+    --grid:rgba(22,50,79,.07);
+    --ink:#16324f;
+    --ink-soft:#3c5670;
+    --line:#9fb4c7;
+    --copper:#c1622d;
+    --copper-soft:#f0dccb;
+    --ok:#2f7d5f;
+    --ok-bg:#e2f2ea;
+    --bad:#b0392c;
+    --bad-bg:#fbe6e2;
+    --card:#ffffff;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0; color:var(--ink); font-family:'IBM Plex Sans',sans-serif; font-size:16px; line-height:1.55;
+    background-color:var(--paper);
+    background-image:
+      linear-gradient(var(--grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+    background-size:26px 26px;
+  }
+  h1,h2,h3{font-family:'Space Grotesk',sans-serif; color:var(--ink); margin:0 0 .3em;}
+  .topbar{
+    position:sticky; top:0; z-index:20; background:rgba(238,242,246,.92); backdrop-filter:blur(6px);
+    border-bottom:2px solid var(--ink); padding:14px 5vw;
+  }
+  .topbar h1{font-size:1.35rem;}
+  .topbar .sub{font-family:'IBM Plex Mono',monospace; font-size:.78rem; color:var(--ink-soft); letter-spacing:.02em;}
+  nav.tabs{display:flex; gap:8px; flex-wrap:wrap; margin-top:10px;}
+  nav.tabs a{
+    font-size:.85rem; text-decoration:none; color:var(--ink); background:var(--card);
+    border:1.5px solid var(--line); padding:5px 12px; border-radius:3px; font-weight:500;
+    cursor:pointer;
+  }
+  nav.tabs a:hover, nav.tabs a.active{border-color:var(--copper); color:var(--copper);}
+  main{max-width:920px; margin:0 auto; padding:10px 5vw 90px;}
+  section.exo{margin-top:56px; scroll-margin-top:120px;}
+  .frame{
+    border:2px solid var(--ink); border-radius:2px; background:var(--card); position:relative; margin-top:26px; padding:34px 22px 22px;
+  }
+  .frame-tab{
+    position:absolute; top:-16px; left:16px; background:var(--ink); color:#fff; font-family:'IBM Plex Mono',monospace;
+    font-size:.72rem; padding:4px 10px 5px; letter-spacing:.02em;
+    clip-path:polygon(0 0,100% 0,100% 70%,88% 100%,0 100%);
+  }
+  .statement{color:var(--ink-soft); font-size:.98rem; margin-bottom:2px;}
+  .diagram-row{display:flex; gap:18px; align-items:stretch; flex-wrap:wrap; margin-top:8px;}
+  .actor-col{display:flex; flex-direction:column; justify-content:space-around; gap:14px; min-width:110px;}
+  .actor{text-align:center; font-size:.82rem; font-weight:500;}
+  .actor svg{display:block; margin:0 auto 4px;}
+  .actor.non-human{
+    border:1.5px solid var(--ink); padding:10px 6px; border-radius:2px; font-family:'IBM Plex Mono',monospace; font-size:.75rem;
+    background:#f4f6f8;
+  }
+  .usecases{
+    flex:1; min-width:220px; border:1.5px dashed var(--line); border-radius:4px; padding:16px;
+    display:flex; flex-wrap:wrap; gap:12px; align-content:flex-start; justify-content:center;
+    background:repeating-linear-gradient(135deg, transparent, transparent 18px, rgba(22,50,79,.02) 18px, rgba(22,50,79,.02) 19px);
+  }
+  .uc-bubble{
+    border:1.5px solid var(--ink); border-radius:50%/38%; padding:14px 16px; font-size:.82rem; text-align:center;
+    background:#fff; min-width:120px; max-width:150px; font-weight:500;
+  }
+  .relations{margin-top:22px;}
+  .relations h4{font-family:'IBM Plex Mono',monospace; font-size:.78rem; text-transform:none; color:var(--ink-soft); margin-bottom:10px; letter-spacing:.02em;}
+  .rel-row{
+    display:flex; align-items:center; gap:10px; flex-wrap:wrap; padding:9px 10px; border-radius:3px; margin-bottom:6px; background:#f7f9fb;
+    border:1px solid var(--line);
+  }
+  .rel-row .lbl{font-size:.88rem; flex:1; min-width:220px;}
+  .rel-row .lbl b{font-weight:600;}
+  select{
+    font-family:'IBM Plex Mono',monospace; font-size:.82rem; padding:5px 8px; border-radius:3px; border:1.5px solid var(--line);
+    background:#fff; color:var(--ink);
+  }
+  select.correct{border-color:var(--ok); background:var(--ok-bg);}
+  select.incorrect{border-color:var(--bad); background:var(--bad-bg);}
+  .check-group{margin-top:6px;}
+  label.chk{display:flex; align-items:center; gap:8px; font-size:.85rem; padding:4px 0;}
+  .actions{display:flex; gap:10px; margin-top:18px; flex-wrap:wrap; align-items:center;}
+  button{
+    font-family:'IBM Plex Sans',sans-serif; font-weight:600; font-size:.85rem; padding:9px 18px; border-radius:3px;
+    border:1.5px solid var(--copper); background:var(--copper); color:#fff; cursor:pointer;
+  }
+  button.ghost{background:#fff; color:var(--copper);}
+  button:hover{opacity:.88;}
+  .score{font-family:'IBM Plex Mono',monospace; font-size:.82rem; color:var(--ink-soft);}
+  .solution{
+    display:none; margin-top:14px; border-left:3px solid var(--copper); padding:10px 14px; background:var(--copper-soft);
+    font-size:.87rem; border-radius:0 3px 3px 0;
+  }
+  .solution.show{display:block;}
+  .note{font-size:.78rem; color:var(--ink-soft); font-style:italic; margin-top:8px;}
+  .tree{display:flex; flex-direction:column; align-items:center; gap:6px; margin-top:14px;}
+  .tree .lvl{display:flex; gap:14px; justify-content:center; flex-wrap:wrap; width:100%;}
+  .req-box{
+    border:1.5px solid var(--ink); background:#fdf9f4; border-radius:2px; padding:10px 12px; font-size:.78rem; width:190px;
+  }
+  .req-box .stereo{font-family:'IBM Plex Mono',monospace; font-size:.68rem; color:var(--copper); display:block; margin-bottom:2px;}
+  .req-box .name{font-weight:600; display:block; margin-bottom:4px;}
+  .req-box.fixed{background:var(--copper-soft); border-color:var(--copper);}
+  .req-box select{width:100%; margin-top:6px;}
+  .connector{font-family:'IBM Plex Mono',monospace; font-size:.7rem; color:var(--ink-soft); text-align:center;}
+  footer{text-align:center; padding:30px; font-size:.78rem; color:var(--ink-soft);}
+</style>
+</head>
+<body>
+
+<div class="topbar" id="topbar">
+  <h1>Diagrammes SysML — TD interactif</h1>
+  <div class="sub">Analyse Fonctionnelle / Structurelle · ucd &amp; req</div>
+  <nav class="tabs" id="tabnav">
+    <a data-target="ex1">1 · Vélib (ucd)</a>
+    <a data-target="ex2">2 · Store automatique (ucd)</a>
+    <a data-target="ex3">3 · Éclairage couloir (req)</a>
+    <a data-target="ex4">4 · Poste radio (req)</a>
+  </nav>
+</div>
+
+<main>
+
+<!-- EXERCICE 1 : VELIB -->
+<section class="exo" id="ex1">
+  <h2>Exercice « ucd » — Vélo en libre service</h2>
+  <p class="statement">Lorsque l'on souhaite utiliser un vélo mis en libre-service, il faut d'abord s'abonner. Une fois abonné, on retire le vélo soit avec un code (fiche de reçu), soit avec sa carte bancaire, soit avec la carte de transports en commun. Pour restituer le vélo, il suffit de le raccrocher à n'importe quelle borne libre.</p>
+
+  <div class="frame">
+    <div class="frame-tab">uc [Modèle] Velib [Cas d'utilisation]</div>
+    <div class="diagram-row">
+      <div class="actor-col">
+        <div class="actor">
+          <svg width="34" height="50" viewBox="0 0 34 50"><circle cx="17" cy="8" r="7" fill="none" stroke="#16324f" stroke-width="2"/><line x1="17" y1="15" x2="17" y2="32" stroke="#16324f" stroke-width="2"/><line x1="17" y1="20" x2="4" y2="27" stroke="#16324f" stroke-width="2"/><line x1="17" y1="20" x2="30" y2="27" stroke="#16324f" stroke-width="2"/><line x1="17" y1="32" x2="6" y2="48" stroke="#16324f" stroke-width="2"/><line x1="17" y1="32" x2="28" y2="48" stroke="#16324f" stroke-width="2"/></svg>
+          Utilisateur
+        </div>
+        <div class="actor">
+          <svg width="34" height="50" viewBox="0 0 34 50"><circle cx="17" cy="8" r="7" fill="none" stroke="#16324f" stroke-width="2"/><line x1="17" y1="15" x2="17" y2="32" stroke="#16324f" stroke-width="2"/><line x1="17" y1="20" x2="4" y2="27" stroke="#16324f" stroke-width="2"/><line x1="17" y1="20" x2="30" y2="27" stroke="#16324f" stroke-width="2"/><line x1="17" y1="32" x2="6" y2="48" stroke="#16324f" stroke-width="2"/><line x1="17" y1="32" x2="28" y2="48" stroke="#16324f" stroke-width="2"/></svg>
+          Utilisateur abonné
+        </div>
+      </div>
+      <div class="usecases">
+        <div class="uc-bubble">S'abonner</div>
+        <div class="uc-bubble">Retirer un vélo</div>
+        <div class="uc-bubble">Restituer un vélo</div>
+        <div class="uc-bubble">Retirer avec un code</div>
+        <div class="uc-bubble">Retirer avec une CB</div>
+        <div class="uc-bubble">Retirer avec la carte de transport</div>
+      </div>
+      <div class="actor-col">
+        <div class="actor non-human">Système<br>informatique</div>
+      </div>
+    </div>
+
+    <div class="relations" data-exo="1">
+      <h4>Complétez les associations et précisez le type de relation :</h4>
+
+      <div class="rel-row">
+        <div class="lbl"><b>Utilisateur</b> —association— <b>S'abonner</b></div>
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:.75rem;color:var(--ok);">✓ toujours vraie</span>
+      </div>
+      <div class="rel-row">
+        <div class="lbl"><b>Utilisateur abonné</b> —association— <b>Retirer un vélo</b> et <b>Restituer un vélo</b></div>
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:.75rem;color:var(--ok);">✓ toujours vraie</span>
+      </div>
+      <div class="rel-row">
+        <div class="lbl"><b>Retirer avec un code</b> ——?——▶ <b>Retirer un vélo</b></div>
+        <select data-answer="include">
+          <option value="">choisir…</option>
+          <option value="include">« include »</option>
+          <option value="extend">« extend »</option>
+          <option value="none">aucune relation</option>
+        </select>
+      </div>
+      <div class="rel-row">
+        <div class="lbl"><b>Retirer avec une carte bancaire</b> ——?——▶ <b>Retirer un vélo</b></div>
+        <select data-answer="include">
+          <option value="">choisir…</option>
+          <option value="include">« include »</option>
+          <option value="extend">« extend »</option>
+          <option value="none">aucune relation</option>
+        </select>
+      </div>
+      <div class="rel-row">
+        <div class="lbl"><b>Retirer avec la carte de transport</b> ——?——▶ <b>Retirer un vélo</b></div>
+        <select data-answer="include">
+          <option value="">choisir…</option>
+          <option value="include">« include »</option>
+          <option value="extend">« extend »</option>
+          <option value="none">aucune relation</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button onclick="checkExo(1)">Vérifier</button>
+      <button class="ghost" onclick="toggleSol(1)">Voir le corrigé</button>
+      <span class="score" id="score1"></span>
+    </div>
+    <div class="solution" id="sol1">
+      Les trois moyens de retrait (code, carte bancaire, carte de transport) sont chacun des façons obligatoires d'accomplir « Retirer un vélo » : chaque cas spécifique <b>include</b> le comportement générique. On n'utilise pas « extend » ici car ces méthodes ne sont pas optionnelles — l'utilisateur doit choisir l'une d'elles pour retirer un vélo.
+    </div>
+  </div>
+</section>
+
+<!-- EXERCICE 2 : STORE AUTOMATIQUE -->
+<section class="exo" id="ex2">
+  <h2>Exercice « ucd » — Store automatique</h2>
+  <p class="statement">Le store réagit à son environnement : si l'ensoleillement dépasse le seuil fixé, il abaisse la toile (et la remonte sinon). Si le vent dépasse son seuil, la toile est remontée quel que soit l'ensoleillement, pour éviter qu'elle se déchire.</p>
+
+  <div class="frame">
+    <div class="frame-tab">uc [Modèle] Store automatique [Cas d'utilisation]</div>
+    <div class="diagram-row">
+      <div class="actor-col">
+        <div class="actor">
+          <svg width="34" height="50" viewBox="0 0 34 50"><circle cx="17" cy="8" r="7" fill="none" stroke="#16324f" stroke-width="2"/><line x1="17" y1="15" x2="17" y2="32" stroke="#16324f" stroke-width="2"/><line x1="17" y1="20" x2="4" y2="27" stroke="#16324f" stroke-width="2"/><line x1="17" y1="20" x2="30" y2="27" stroke="#16324f" stroke-width="2"/><line x1="17" y1="32" x2="6" y2="48" stroke="#16324f" stroke-width="2"/><line x1="17" y1="32" x2="28" y2="48" stroke="#16324f" stroke-width="2"/></svg>
+          Utilisateur
+        </div>
+        <div class="actor">
+          <svg width="34" height="50" viewBox="0 0 34 50"><circle cx="17" cy="8" r="7" fill="none" stroke="#16324f" stroke-width="2"/><line x1="17" y1="15" x2="17" y2="32" stroke="#16324f" stroke-width="2"/><line x1="17" y1="20" x2="4" y2="27" stroke="#16324f" stroke-width="2"/><line x1="17" y1="20" x2="30" y2="27" stroke="#16324f" stroke-width="2"/><line x1="17" y1="32" x2="6" y2="48" stroke="#16324f" stroke-width="2"/><line x1="17" y1="32" x2="28" y2="48" stroke="#16324f" stroke-width="2"/></svg>
+          Installateur
+        </div>
+      </div>
+      <div class="usecases">
+        <div class="uc-bubble">Protéger automatiquement la toile du vent</div>
+        <div class="uc-bubble">Protéger automatiquement l'espace du soleil</div>
+        <div class="uc-bubble">Actionner manuellement le store</div>
+        <div class="uc-bubble">Régler le seuil du vent</div>
+        <div class="uc-bubble">Régler le seuil du soleil</div>
+        <div class="uc-bubble">Fixer le store</div>
+      </div>
+      <div class="actor-col">
+        <div class="actor non-human">Vent</div>
+        <div class="actor non-human">Soleil</div>
+        <div class="actor non-human">Bâtiment</div>
+      </div>
+    </div>
+
+    <div class="relations" data-exo="2">
+      <h4>Associez chaque élément non humain aux cas d'utilisation concernés (plusieurs réponses possibles) :</h4>
+
+      <div class="rel-row" style="flex-direction:column;align-items:stretch;">
+        <div class="lbl"><b>Vent</b> est en relation avec :</div>
+        <div class="check-group" data-group="vent">
+          <label class="chk"><input type="checkbox" value="Protéger automatiquement la toile du vent"> Protéger automatiquement la toile du vent</label>
+          <label class="chk"><input type="checkbox" value="Régler le seuil du vent"> Régler le seuil du vent</label>
+          <label class="chk"><input type="checkbox" value="Protéger automatiquement l'espace du soleil"> Protéger automatiquement l'espace du soleil</label>
+          <label class="chk"><input type="checkbox" value="Fixer le store"> Fixer le store</label>
+        </div>
+      </div>
+      <div class="rel-row" style="flex-direction:column;align-items:stretch;">
+        <div class="lbl"><b>Soleil</b> est en relation avec :</div>
+        <div class="check-group" data-group="soleil">
+          <label class="chk"><input type="checkbox" value="Protéger automatiquement l'espace du soleil"> Protéger automatiquement l'espace du soleil</label>
+          <label class="chk"><input type="checkbox" value="Régler le seuil du soleil"> Régler le seuil du soleil</label>
+          <label class="chk"><input type="checkbox" value="Actionner manuellement le store"> Actionner manuellement le store</label>
+          <label class="chk"><input type="checkbox" value="Fixer le store"> Fixer le store</label>
+        </div>
+      </div>
+      <div class="rel-row" style="flex-direction:column;align-items:stretch;">
+        <div class="lbl"><b>Bâtiment</b> est en relation avec :</div>
+        <div class="check-group" data-group="batiment">
+          <label class="chk"><input type="checkbox" value="Fixer le store"> Fixer le store</label>
+          <label class="chk"><input type="checkbox" value="Actionner manuellement le store"> Actionner manuellement le store</label>
+          <label class="chk"><input type="checkbox" value="Régler le seuil du vent"> Régler le seuil du vent</label>
+        </div>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button onclick="checkCheckboxes()">Vérifier</button>
+      <button class="ghost" onclick="toggleSol(2)">Voir le corrigé</button>
+      <span class="score" id="score2"></span>
+    </div>
+    <div class="solution" id="sol2">
+      <b>Vent</b> → protéger la toile du vent, régler le seuil du vent.<br>
+      <b>Soleil</b> → protéger l'espace du soleil, régler le seuil du soleil.<br>
+      <b>Bâtiment</b> → fixer le store (le store est un objet fixé au bâtiment, sans lien fonctionnel avec le vent ou le soleil).
+    </div>
+  </div>
+</section>
+
+<!-- EXERCICE 3 : ECLAIRAGE COULOIR -->
+<section class="exo" id="ex3">
+  <h2>Exercice « req » — Éclairage automatique d'un couloir</h2>
+  <p class="statement">En fonction de la luminosité dans le couloir, si une personne est détectée, les lampes doivent s'allumer et s'éteindre automatiquement. Ajoutez, pour chaque paire d'exigences, la flèche « deriveReqt » ou « refine ».</p>
+
+  <div class="frame">
+    <div class="frame-tab">req [Modèle] Éclairage automatique [Diagramme des exigences]</div>
+
+    <div class="tree">
+      <div class="lvl">
+        <div class="req-box" style="width:320px;">
+          <span class="name">Éclairage automatique</span>
+          « Éclairer un couloir sans intervention manuelle quand la luminosité devient insuffisante et qu'un personnel est présent. »
+        </div>
+      </div>
+      <div class="connector">⊕ (décomposition)</div>
+      <div class="lvl">
+        <div class="req-box"><span class="name">Éclairer le couloir</span>« Le couloir doit être éclairé. »</div>
+        <div class="req-box"><span class="name">Détection</span>« On doit détecter un personnel dans le couloir. »</div>
+        <div class="req-box"><span class="name">Lumière</span>« On doit détecter la luminosité ambiante du couloir. »</div>
+        <div class="req-box"><span class="name">Temporisation</span>« On doit garder le couloir éclairé un certain temps. »</div>
+      </div>
+      <div class="lvl" data-exo="3">
+        <div class="req-box fixed">
+          <span class="name">Ampoules</span>« Les ampoules ne doivent pas avoir un allumage progressif. »
+          <select data-answer="deriveReqt" data-target="Éclairer le couloir">
+            <option value="">relation vers « Éclairer le couloir » ?</option>
+            <option value="deriveReqt">«deriveReqt»</option>
+            <option value="refine">«refine»</option>
+          </select>
+        </div>
+        <div class="req-box fixed">
+          <span class="name">Distance</span>« On doit pouvoir régler la distance de détection. »
+          <select data-answer="refine" data-target="Détection">
+            <option value="">relation vers « Détection » ?</option>
+            <option value="deriveReqt">«deriveReqt»</option>
+            <option value="refine">«refine»</option>
+          </select>
+        </div>
+        <div class="req-box fixed">
+          <span class="name">Luminosité</span>« On doit pouvoir régler le seuil de luminosité. »
+          <select data-answer="refine" data-target="Lumière">
+            <option value="">relation vers « Lumière » ?</option>
+            <option value="deriveReqt">«deriveReqt»</option>
+            <option value="refine">«refine»</option>
+          </select>
+        </div>
+        <div class="req-box fixed">
+          <span class="name">Temps</span>« On doit pouvoir régler le temps d'éclairage. »
+          <select data-answer="refine" data-target="Temporisation">
+            <option value="">relation vers « Temporisation » ?</option>
+            <option value="deriveReqt">«deriveReqt»</option>
+            <option value="refine">«refine»</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button onclick="checkExo(3)">Vérifier</button>
+      <button class="ghost" onclick="toggleSol(3)">Voir le corrigé</button>
+      <span class="score" id="score3"></span>
+    </div>
+    <div class="solution" id="sol3">
+      <b>Distance → Détection</b>, <b>Luminosité → Lumière</b> et <b>Temps → Temporisation</b> sont des « refine » : ils précisent un paramètre réglable de l'exigence déjà énoncée, sans changer de nature. <b>Ampoules → Éclairer le couloir</b> est un « deriveReqt » : c'est une contrainte technique (matérielle) différente, qui découle de l'exigence fonctionnelle générale.
+      <div class="note">Corrigé proposé à titre pédagogique — à confirmer avec votre professeur si le sujet officiel diffère.</div>
+    </div>
+  </div>
+</section>
+
+<!-- EXERCICE 4 : POSTE RADIO -->
+<section class="exo" id="ex4">
+  <h2>Exercice « req » — Poste de radio</h2>
+  <p class="statement">Le poste de radio étudié permet uniquement des stations qui émettent sur des fréquences FM et AM. Reconstituez l'arbre des exigences en plaçant chaque case au bon endroit. <span class="note" style="display:inline">Essais illimités — utilisez « Vérifier » autant que nécessaire.</span></p>
+
+  <div class="frame">
+    <div class="frame-tab">req [Modèle] poste radio [Diagramme des exigences]</div>
+
+    <div class="tree" data-exo="4">
+      <div class="lvl">
+        <div class="req-box" style="width:300px;">
+          <span class="stereo">«requirement»</span>
+          <select data-answer="Gestion poste radio">
+            <option value="">— case racine —</option>
+            <option>Gestion poste radio</option>
+            <option>Gestion réveil</option>
+            <option>Gestion station</option>
+            <option>Gestion heure</option>
+            <option>Gestion volume</option>
+            <option>Fréquences radios</option>
+          </select>
+        </div>
+      </div>
+      <div class="connector">⊕ (décomposition)</div>
+      <div class="lvl">
+        <div class="req-box">
+          <span class="stereo">«requirement»</span>
+          <select data-answer="Gestion station">
+            <option value="">— case —</option>
+            <option>Gestion poste radio</option>
+            <option>Gestion réveil</option>
+            <option>Gestion station</option>
+            <option>Gestion heure</option>
+            <option>Gestion volume</option>
+            <option>Fréquences radios</option>
+          </select>
+        </div>
+        <div class="req-box">
+          <span class="stereo">«requirement»</span>
+          <select data-answer="Gestion volume">
+            <option value="">— case —</option>
+            <option>Gestion poste radio</option>
+            <option>Gestion réveil</option>
+            <option>Gestion station</option>
+            <option>Gestion heure</option>
+            <option>Gestion volume</option>
+            <option>Fréquences radios</option>
+          </select>
+        </div>
+        <div class="req-box">
+          <span class="stereo">«requirement»</span>
+          <select data-answer="Gestion réveil">
+            <option value="">— case —</option>
+            <option>Gestion poste radio</option>
+            <option>Gestion réveil</option>
+            <option>Gestion station</option>
+            <option>Gestion heure</option>
+            <option>Gestion volume</option>
+            <option>Fréquences radios</option>
+          </select>
+        </div>
+      </div>
+      <div class="connector">⊕ / «refine»</div>
+      <div class="lvl">
+        <div class="req-box fixed">
+          <span class="stereo">«requirement» (déjà placée)</span>
+          <span class="name">Fréquences radios</span>
+          « FM = 88–108 MHz · AM = 150–26100 kHz »
+        </div>
+        <div class="req-box">
+          <span class="stereo">«requirement»</span>
+          <select data-answer="Gestion heure">
+            <option value="">— case —</option>
+            <option>Gestion poste radio</option>
+            <option>Gestion réveil</option>
+            <option>Gestion station</option>
+            <option>Gestion heure</option>
+            <option>Gestion volume</option>
+            <option>Fréquences radios</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button onclick="checkExo(4)">Vérifier</button>
+      <button class="ghost" onclick="toggleSol(4)">Voir le corrigé</button>
+      <span class="score" id="score4"></span>
+    </div>
+    <div class="solution" id="sol4">
+      <b>Gestion poste radio</b> (racine) se décompose en <b>Gestion station</b>, <b>Gestion volume</b> et <b>Gestion réveil</b>. <b>Fréquences radios</b> précise (« refine ») <b>Gestion station</b>, et <b>Gestion heure</b> est nécessaire pour <b>Gestion réveil</b>.
+      <div class="note">Corrigé proposé — la case « Fréquences radios » était déjà positionnée dans le sujet d'origine.</div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>Document d'entraînement personnel — Spé SI, d'après le TD « Diagrammes SysML » et le sujet « Poste de radio ».</footer>
+
+<script>
+function checkExo(n){
+  const scope = document.querySelector(`[data-exo="${n}"]`);
+  const selects = scope.querySelectorAll('select[data-answer]');
+  let correct = 0;
+  selects.forEach(s=>{
+    s.classList.remove('correct','incorrect');
+    if(s.value === s.dataset.answer){ s.classList.add('correct'); correct++; }
+    else if(s.value !== ''){ s.classList.add('incorrect'); }
+  });
+  document.getElementById('score'+n).textContent = `${correct} / ${selects.length} bonnes réponses`;
+}
+
+function checkCheckboxes(){
+  const answers = {
+    vent: ["Protéger automatiquement la toile du vent","Régler le seuil du vent"],
+    soleil: ["Protéger automatiquement l'espace du soleil","Régler le seuil du soleil"],
+    batiment: ["Fixer le store"]
+  };
+  let correct = 0, total = 0;
+  document.querySelectorAll('.check-group').forEach(group=>{
+    const key = group.dataset.group;
+    group.querySelectorAll('input[type=checkbox]').forEach(cb=>{
+      total++;
+      const shouldBeChecked = answers[key].includes(cb.value);
+      cb.parentElement.style.color = '';
+      if(cb.checked === shouldBeChecked){ correct++; cb.parentElement.style.color = 'var(--ok)'; }
+      else { cb.parentElement.style.color = 'var(--bad)'; }
+    });
+  });
+  document.getElementById('score2').textContent = `${correct} / ${total} cases correctes`;
+}
+
+function toggleSol(n){
+  document.getElementById('sol'+n).classList.toggle('show');
+}
+
+/* --- Navigation interne robuste (fonctionne dans les iframes sandboxées, ex. Google Sites) --- */
+(function(){
+  const tabLinks = document.querySelectorAll('#tabnav a[data-target]');
+  const topbar = document.getElementById('topbar');
+
+  function scrollToSection(id){
+    const target = document.getElementById(id);
+    if(!target) return;
+    const headerH = topbar.offsetHeight + 16;
+    const top = target.getBoundingClientRect().top + window.pageYOffset - headerH;
+    window.scrollTo({top: Math.max(top,0), behavior: 'smooth'});
+  }
+
+  tabLinks.forEach(a=>{
+    a.addEventListener('click', function(e){
+      e.preventDefault();
+      tabLinks.forEach(l=>l.classList.remove('active'));
+      a.classList.add('active');
+      scrollToSection(a.dataset.target);
+    });
+  });
+
+  // Met en surbrillance l'onglet correspondant à la section visible
+  const sections = document.querySelectorAll('section.exo');
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(entry=>{
+      if(entry.isIntersecting){
+        tabLinks.forEach(l=>l.classList.remove('active'));
+        const link = document.querySelector(`#tabnav a[data-target="${entry.target.id}"]`);
+        if(link) link.classList.add('active');
+      }
+    });
+  }, {rootMargin: '-30% 0px -60% 0px'});
+  sections.forEach(s=>io.observe(s));
+})();
+</script>
+
+<a href="../index.html" style="position:fixed;bottom:16px;left:16px;z-index:99999;background:#1e3a5f;color:#fff;padding:10px 16px;border-radius:24px;font:600 14px system-ui,sans-serif;text-decoration:none;box-shadow:0 2px 8px rgba(0,0,0,.25)">← Sommaire</a></body>
+</html>

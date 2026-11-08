@@ -1,0 +1,1372 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Torseurs statiques — Corrections SEQ.7</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0b1622;
+  --bg-panel:#0f1e2d;
+  --bg-card:#122437;
+  --grid:rgba(120,170,220,.07);
+  --border:#22384f;
+  --border-soft:#1a2c40;
+  --text:#e9f1fa;
+  --text-dim:#8ea3ba;
+  --text-faint:#5d7189;
+  --amber:#ffb454;
+  --amber-dim:#c98a3d;
+  --green:#68d391;
+  --blue:#5eb1e0;
+  --mono:'IBM Plex Mono',monospace;
+  --sans:'IBM Plex Sans',sans-serif;
+  --head:'Space Grotesk',sans-serif;
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  margin:0;
+  background:
+    linear-gradient(var(--grid) 1px, transparent 1px) 0 0/40px 40px,
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px) 0 0/40px 40px,
+    var(--bg);
+  color:var(--text);
+  font-family:var(--sans);
+  font-size:15.5px;
+  line-height:1.55;
+}
+::selection{background:var(--amber);color:#1a1200;}
+
+/* ---------- layout ---------- */
+.app{display:flex;min-height:100vh;}
+.sidebar{
+  position:sticky; top:0; align-self:flex-start;
+  width:270px; min-width:270px; height:100vh; overflow-y:auto;
+  background:var(--bg-panel);
+  border-right:1px solid var(--border);
+  padding:22px 0 30px;
+}
+.sidebar::-webkit-scrollbar{width:6px;}
+.sidebar::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px;}
+
+.brand{padding:0 22px 18px; border-bottom:1px solid var(--border-soft); margin-bottom:14px;}
+.brand .tag{font-family:var(--mono); font-size:10.5px; letter-spacing:.12em; color:var(--amber); text-transform:uppercase;}
+.brand h1{font-family:var(--head); font-size:19px; margin:6px 0 4px; line-height:1.25; color:var(--text);}
+.brand .sub{font-size:12.5px; color:var(--text-dim);}
+
+.navlist{list-style:none; margin:0; padding:0 10px;}
+.navlist li{margin-bottom:2px;}
+.navlist a{
+  display:flex; align-items:center; gap:10px;
+  padding:9px 12px; border-radius:6px;
+  color:var(--text-dim); text-decoration:none; font-size:13.5px;
+  border-left:2px solid transparent;
+  transition:background .15s, color .15s, border-color .15s;
+}
+.navlist a .num{
+  font-family:var(--mono); font-size:11px; color:var(--text-faint);
+  width:18px; flex:none;
+}
+.navlist a:hover{background:var(--bg-card); color:var(--text);}
+.navlist a.active{background:var(--bg-card); color:var(--amber); border-left-color:var(--amber);}
+.navlist a.active .num{color:var(--amber);}
+
+.progress{margin:16px 22px 0; padding-top:14px; border-top:1px solid var(--border-soft);}
+.progress .label{font-family:var(--mono); font-size:10.5px; color:var(--text-faint); text-transform:uppercase; letter-spacing:.08em; margin-bottom:6px;}
+.progress-bar{height:5px; background:var(--bg); border-radius:3px; overflow:hidden; border:1px solid var(--border);}
+.progress-fill{height:100%; width:0%; background:linear-gradient(90deg,var(--amber-dim),var(--amber)); transition:width .3s;}
+.progress .count{font-family:var(--mono); font-size:11px; color:var(--text-dim); margin-top:6px;}
+
+.main{flex:1; min-width:0; padding:44px 48px 100px; max-width:980px;}
+
+/* ---------- top header ---------- */
+.doc-header{margin-bottom:46px; position:relative;}
+.doc-header .eyebrow{font-family:var(--mono); color:var(--amber); font-size:12px; letter-spacing:.1em;}
+.doc-header h1{font-family:var(--head); font-size:34px; margin:8px 0 10px; letter-spacing:-.01em;}
+.doc-header p{color:var(--text-dim); max-width:640px; font-size:14.5px;}
+.doc-header .frame-tick{position:absolute; right:0; top:0; width:64px; height:64px; border-top:1px solid var(--border); border-right:1px solid var(--border);}
+.competences{display:flex; flex-wrap:wrap; gap:8px; margin-top:18px;}
+.competences span{
+  font-family:var(--mono); font-size:11px; color:var(--blue);
+  border:1px solid var(--border); background:var(--bg-panel);
+  padding:5px 10px; border-radius:4px;
+}
+
+/* ---------- section (exercise) ---------- */
+.exo{
+  scroll-margin-top:24px;
+  margin-bottom:64px;
+  padding-top:36px;
+  border-top:1px solid var(--border-soft);
+}
+.exo:first-of-type{border-top:none;}
+.exo-head{display:flex; justify-content:space-between; align-items:flex-end; gap:20px; margin-bottom:6px; flex-wrap:wrap;}
+.exo-head .exo-title-wrap .idx{font-family:var(--mono); font-size:12px; color:var(--text-faint);}
+.exo-head h2{font-family:var(--head); font-size:24px; margin:2px 0 0;}
+.exo-obj{color:var(--text-dim); font-size:13.5px; margin:10px 0 18px; padding:10px 14px; background:var(--bg-panel); border-left:2px solid var(--amber-dim); border-radius:0 6px 6px 0;}
+.exo-actions{display:flex; gap:8px;}
+.btn-toggle-all{
+  font-family:var(--mono); font-size:11.5px; color:var(--text-dim);
+  background:var(--bg-card); border:1px solid var(--border); border-radius:5px;
+  padding:7px 12px; cursor:pointer; white-space:nowrap;
+  transition:border-color .15s, color .15s;
+}
+.btn-toggle-all:hover{border-color:var(--amber-dim); color:var(--amber);}
+
+.hyp-box{
+  font-size:13px; color:var(--text-dim); background:var(--bg-panel);
+  border:1px dashed var(--border); border-radius:6px; padding:12px 16px; margin:0 0 22px;
+}
+.hyp-box .lbl{font-family:var(--mono); font-size:10.5px; color:var(--text-faint); text-transform:uppercase; letter-spacing:.08em; display:block; margin-bottom:6px;}
+.hyp-box ul{margin:0; padding-left:18px;}
+.hyp-box li{margin-bottom:3px;}
+
+.data-line{font-family:var(--mono); font-size:13px; color:var(--blue); margin:0 0 20px;}
+
+/* ---------- question card ---------- */
+.q-card{
+  background:var(--bg-card); border:1px solid var(--border); border-radius:10px;
+  margin-bottom:16px; overflow:hidden;
+}
+.q-top{display:flex; align-items:flex-start; gap:12px; padding:16px 18px; cursor:pointer; user-select:none;}
+.q-tag{
+  font-family:var(--mono); font-size:11px; color:#0b1622; background:var(--amber);
+  border-radius:4px; padding:2px 7px; flex:none; margin-top:2px; font-weight:600;
+}
+.q-prompt{flex:1; font-size:14px; color:var(--text);}
+.q-prompt b{color:var(--text);}
+.chevron{
+  flex:none; width:18px; height:18px; margin-top:2px;
+  color:var(--text-faint); transition:transform .25s;
+}
+.q-card.open .chevron{transform:rotate(180deg); color:var(--amber);}
+
+.q-answer{
+  max-height:0; overflow:hidden; transition:max-height .35s ease;
+  border-top:1px solid transparent;
+}
+.q-card.open .q-answer{border-top:1px solid var(--border-soft);}
+.q-answer-inner{padding:18px 20px 22px; font-size:13.8px;}
+
+.reveal-hint{
+  font-family:var(--mono); font-size:11px; color:var(--text-faint);
+  padding:0 18px 14px; margin-top:-6px;
+}
+
+/* ---------- torseur bracket ---------- */
+.torseur-row{display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin:14px 0;}
+.torseur{display:inline-flex; align-items:stretch; font-family:var(--mono); font-size:13.5px;}
+.torseur .lbl{align-self:center; margin-right:8px; color:var(--text);}
+.torseur .brace{width:11px; border:2px solid var(--text-dim); border-right:none; border-radius:6px 0 0 6px; margin-right:0;}
+.torseur .braceR{width:11px; border:2px solid var(--text-dim); border-left:none; border-radius:0 6px 6px 0; margin-left:0;}
+.torseur .grid{display:grid; grid-template-columns:1fr 1fr; gap:2px 16px; padding:4px 10px;}
+.torseur .grid .cell{padding:1px 2px; color:var(--text); white-space:nowrap;}
+.torseur .grid .cell.zero{color:var(--text-faint);}
+.torseur .pt{align-self:flex-end; font-size:10px; color:var(--amber); margin:0 2px 2px -4px;}
+
+.eqn-block{
+  font-family:var(--mono); font-size:13.5px; color:var(--text);
+  background:var(--bg-panel); border:1px solid var(--border-soft); border-radius:8px;
+  padding:14px 18px; margin:14px 0; overflow-x:auto;
+}
+.eqn-block div{padding:2px 0; white-space:nowrap;}
+.eqn-block .comment{color:var(--text-faint); font-family:var(--sans); font-size:12px;}
+
+.vec{white-space:nowrap;}
+.vec .arrow{position:relative;}
+
+.step-title{font-family:var(--mono); font-size:11px; text-transform:uppercase; letter-spacing:.07em; color:var(--text-faint); margin:16px 0 6px;}
+.step-title:first-child{margin-top:0;}
+
+.result-box{
+  margin:16px 0 4px; padding:14px 18px; border-radius:8px;
+  background:linear-gradient(180deg, rgba(255,180,84,.12), rgba(255,180,84,.05));
+  border:1px solid var(--amber-dim);
+  display:flex; align-items:center; gap:12px; flex-wrap:wrap;
+}
+.result-box .rlabel{font-size:12.5px; color:var(--text-dim);}
+.result-box .rval{font-family:var(--mono); font-size:17px; color:var(--amber); font-weight:600;}
+
+.conform-box{
+  margin:14px 0 4px; padding:12px 16px; border-radius:8px;
+  background:rgba(104,211,145,.08); border:1px solid rgba(104,211,145,.4);
+  display:flex; gap:10px; align-items:flex-start; font-size:13px; color:var(--text-dim);
+}
+.conform-box svg{flex:none; margin-top:2px; color:var(--green);}
+.conform-box b{color:var(--green);}
+
+/* svg diagram frame */
+.diagram{
+  background:var(--bg-panel); border:1px solid var(--border-soft); border-radius:8px;
+  padding:14px; margin:14px 0; text-align:center;
+}
+.diagram svg{max-width:100%; height:auto;}
+.diagram .cap{font-family:var(--mono); font-size:10.5px; color:var(--text-faint); margin-top:8px;}
+
+table.corr-table{width:100%; border-collapse:collapse; margin:14px 0; font-size:13px;}
+table.corr-table th, table.corr-table td{border:1px solid var(--border-soft); padding:8px 10px; text-align:left;}
+table.corr-table th{background:var(--bg-panel); color:var(--text-dim); font-weight:500; font-family:var(--mono); font-size:11.5px;}
+
+footer{
+  max-width:980px; margin-left:270px; padding:30px 48px 60px;
+  color:var(--text-faint); font-size:12px; border-top:1px solid var(--border-soft);
+}
+
+@media(max-width:880px){
+  .sidebar{position:fixed; left:-280px; z-index:20; transition:left .2s; box-shadow:20px 0 40px rgba(0,0,0,.4);}
+  .sidebar.open{left:0;}
+  .main{padding:80px 20px 80px;}
+  footer{margin-left:0; padding:30px 20px 60px;}
+  .menu-btn{
+    position:fixed; top:14px; left:14px; z-index:30;
+    background:var(--bg-card); border:1px solid var(--border); color:var(--text);
+    width:38px; height:38px; border-radius:8px; display:flex; align-items:center; justify-content:center;
+  }
+}
+@media(min-width:881px){.menu-btn{display:none;}}
+</style>
+</head>
+<body>
+<button class="menu-btn" id="menuBtn">☰</button>
+<div class="app">
+
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <div class="tag">Bac SI · Séq. 7</div>
+      <h1>Torseurs statiques</h1>
+      <div class="sub">Modélisation des actions mécaniques — corrections</div>
+    </div>
+    <ul class="navlist" id="navlist">
+      <li><a href="#ex1"><span class="num">01</span> Extincteur</a></li>
+      <li><a href="#ex2"><span class="num">02</span> Pédale de frein</a></li>
+      <li><a href="#ex3"><span class="num">03</span> Magasin automatisé</a></li>
+      <li><a href="#ex4"><span class="num">04</span> Table amovible</a></li>
+      <li><a href="#ex5"><span class="num">05</span> Frein VTT (V-brake)</a></li>
+      <li><a href="#ex6"><span class="num">06</span> Évaluation 1</a></li>
+      <li><a href="#ex7"><span class="num">07</span> Évaluation 2 — Robot DINO</a></li>
+      <li><a href="#ex8"><span class="num">08</span> Statique analytique — 3 TD courts</a></li>
+      <li><a href="#ex9"><span class="num">09</span> Avion de chasse</a></li>
+      <li><a href="#ex10"><span class="num">10</span> Voiture + bateau</a></li>
+    </ul>
+    <div class="progress">
+      <div class="label">Progression</div>
+      <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+      <div class="count" id="progressCount">0 / 0 corrections révélées</div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="doc-header">
+      <div class="frame-tick"></div>
+      <div class="eyebrow">Académie de Toulouse — Éléments de correction</div>
+      <h1>Torseurs statiques &amp; actions mécaniques</h1>
+      <p>Sept corrections de TD et d'évaluations regroupées. Chaque question est masquée par défaut :
+      clique dessus pour révéler la correction, et vérifie ton raisonnement avant de regarder.</p>
+      <div class="competences">
+        <span>Modéliser les actions mécaniques</span>
+        <span>Torseurs — transport de moment</span>
+        <span>Équilibre statique (PFS)</span>
+        <span>Frottement — loi de Coulomb</span>
+      </div>
+    </header>
+
+    <!-- ======================= EX 1 — EXTINCTEUR ======================= -->
+    <section class="exo" id="ex1">
+      <div class="exo-head">
+        <div class="exo-title-wrap"><div class="idx">01 / Torseurs statiques</div><h2>L'extincteur</h2></div>
+        <div class="exo-actions"><button class="btn-toggle-all">Tout révéler</button></div>
+      </div>
+      <div class="exo-obj">Objectif : déterminer l'effort à appliquer par l'opérateur pour percer la capsule.</div>
+      <div class="hyp-box">
+        <span class="lbl">Hypothèses</span>
+        <ul>
+          <li>Le poids des pièces est négligé</li>
+          <li>Les liaisons sont supposées parfaites</li>
+          <li>L'effort de l'opérateur est vertical</li>
+          <li>Capsule percée ⇒ l'action de la tige sur le levier vaut (−5&nbsp;;&nbsp;40&nbsp;;&nbsp;0) en N</li>
+        </ul>
+      </div>
+      <div class="data-line">Données : AB (30&nbsp;;&nbsp;−5&nbsp;;&nbsp;0)&nbsp;mm — BC (100&nbsp;;&nbsp;25&nbsp;;&nbsp;0)&nbsp;mm</div>
+
+      <div class="diagram">
+        <svg viewBox="0 0 520 190" xmlns="http://www.w3.org/2000/svg">
+          <line x1="60" y1="140" x2="470" y2="80" stroke="#5eb1e0" stroke-width="4" stroke-linecap="round"/>
+          <circle cx="60" cy="140" r="6" fill="#ffb454"/><text x="52" y="164" fill="#8ea3ba" font-size="12" font-family="IBM Plex Mono">A</text>
+          <circle cx="160" cy="122" r="5" fill="#e9f1fa"/><text x="152" y="112" fill="#8ea3ba" font-size="12" font-family="IBM Plex Mono">B</text>
+          <circle cx="470" cy="80" r="6" fill="#e9f1fa"/><text x="476" y="70" fill="#8ea3ba" font-size="12" font-family="IBM Plex Mono">C</text>
+          <line x1="160" y1="122" x2="140" y2="40" stroke="#ffb454" stroke-width="3" marker-end="url(#arrow1)"/>
+          <text x="98" y="45" fill="#ffb454" font-size="12" font-family="IBM Plex Mono">Effort utilisateur</text>
+          <line x1="470" y1="80" x2="500" y2="35" stroke="#68d391" stroke-width="2.5" marker-end="url(#arrow1)"/>
+          <text x="430" y="30" fill="#68d391" font-size="11" font-family="IBM Plex Mono">Tige → levier</text>
+          <defs><marker id="arrow1" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="currentColor"/></marker></defs>
+        </svg>
+        <div class="cap">Levier 1 — action de l'utilisateur en B, tige (pièce 2) en A, capsule/bouteille en C</div>
+      </div>
+
+      <div class="q-card">
+        <div class="q-top"><span class="q-tag">Q1</span>
+          <div class="q-prompt">Compléter les torseurs agissant sur le levier 1 et les <b>transporter au point A</b>.</div>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+        <div class="q-answer"><div class="q-answer-inner">
+
+          <div class="step-title">Transport de {T2/1} (tige en B) au point A</div>
+          <div class="eqn-block">
+<div>M<sub>A,2/1</sub> = M<sub>B,2/1</sub> + AB→ ∧ B<sub>2/1</sub></div>
+<div>&nbsp;&nbsp;&nbsp;&nbsp;= (0,0,0) + (30,−5,0) ∧ (−5,40,0)</div>
+<div>&nbsp;&nbsp;&nbsp;&nbsp;= (0, 0, <b style="color:#ffb454">1175</b>) &nbsp;<span class="comment">// 30×40 − (−5)×(−5) = 1200 − 25</span></div>
+          </div>
+
+          <div class="step-title">Transport de {Top/1} (bouteille en C) au point A</div>
+          <div class="eqn-block">
+<div>M<sub>A,op/1</sub> = M<sub>C,op/1</sub> + AC→ ∧ C<sub>op/1</sub> &nbsp;&nbsp;<span class="comment">AC→ = AB→ + BC→ = (130, 20, 0)</span></div>
+<div>&nbsp;&nbsp;&nbsp;&nbsp;= (0,0,0) + (130,20,0) ∧ (0,Y<sub>C</sub>,0)</div>
+<div>&nbsp;&nbsp;&nbsp;&nbsp;= (0, 0, <b style="color:#ffb454">130 Y<sub>C</sub></b>)</div>
+          </div>
+
+          <div class="step-title">Torseurs ramenés au point A</div>
+          <div class="torseur-row">
+            <div class="torseur"><span class="lbl">{T<sub>0/1</sub>}</span><div class="brace"></div><div class="grid">
+              <div class="cell">X<sub>A</sub></div><div class="cell zero">0</div>
+              <div class="cell">Y<sub>A</sub></div><div class="cell zero">0</div>
+              <div class="cell zero">0</div><div class="cell zero">0</div>
+            </div><div class="braceR"></div><span class="pt">A</span></div>
+
+            <div class="torseur"><span class="lbl">{T<sub>2/1</sub>}</span><div class="brace"></div><div class="grid">
+              <div class="cell">−5</div><div class="cell zero">0</div>
+              <div class="cell">40</div><div class="cell zero">0</div>
+              <div class="cell zero">0</div><div class="cell">1175</div>
+            </div><div class="braceR"></div><span class="pt">A</span></div>
+
+            <div class="torseur"><span class="lbl">{T<sub>op/1</sub>}</span><div class="brace"></div><div class="grid">
+              <div class="cell zero">0</div><div class="cell zero">0</div>
+              <div class="cell">Y<sub>C</sub></div><div class="cell zero">0</div>
+              <div class="cell zero">0</div><div class="cell">130 Y<sub>C</sub></div>
+            </div><div class="braceR"></div><span class="pt">A</span></div>
+          </div>
+
+        </div></div>
+      </div>
+
+      <div class="q-card">
+        <div class="q-top"><span class="q-tag">Q2</span>
+          <div class="q-prompt">Déterminer l'effort nécessaire pour percuter la capsule.</div>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+        <div class="q-answer"><div class="q-answer-inner">
+          <div class="step-title">PFS appliqué à la pièce 1 en A</div>
+          <div class="eqn-block">
+<div>{T<sub>0/1</sub>}<sub>A</sub> + {T<sub>2/1</sub>}<sub>A</sub> + {T<sub>op/1</sub>}<sub>A</sub> = {0}</div>
+<div>X<sub>A</sub> − 5 + 0 = 0 &nbsp;&nbsp;&nbsp;&nbsp;(1)</div>
+<div>Y<sub>A</sub> + 40 + Y<sub>C</sub> = 0 &nbsp;&nbsp;&nbsp;&nbsp;(2)</div>
+<div>130 Y<sub>C</sub> + 1175 = 0 &nbsp;&nbsp;&nbsp;&nbsp;(3)</div>
+          </div>
+          <div class="step-title">Résolution</div>
+          <div class="eqn-block">
+<div>(3) ⇒ Y<sub>C</sub> = −1175 / 130 = <b style="color:#ffb454">−9 N</b></div>
+<div>(1) ⇒ X<sub>A</sub> = 5 N</div>
+<div>(2) ⇒ Y<sub>A</sub> = −Y<sub>C</sub> − 40 = 9 − 40 = −31 N</div>
+          </div>
+          <div class="result-box"><span class="rlabel">Effort à appliquer par l'utilisateur :</span><span class="rval">9 N</span></div>
+        </div></div>
+      </div>
+    </section>
+
+    <!-- ======================= EX 2 — PEDALE DE FREIN ======================= -->
+    <section class="exo" id="ex2">
+      <div class="exo-head">
+        <div class="exo-title-wrap"><div class="idx">02 / Torseurs statiques</div><h2>La pédale de frein</h2></div>
+        <div class="exo-actions"><button class="btn-toggle-all">Tout révéler</button></div>
+      </div>
+      <div class="exo-obj">Pédale 1 en liaison pivot d'axe B<u>z</u> par rapport au châssis 0. Le pilote exerce en A une force
+      F<sub>pied/1</sub> dirigée suivant −<u>y</u>, avec F<sub>pied/1</sub> = 50&nbsp;N. La pédale transmet l'effort à un câble qui actionne les mâchoires de frein.</div>
+      <div class="hyp-box">
+        <span class="lbl">Hypothèses</span>
+        <ul>
+          <li>Poids des pièces négligés — liaisons parfaites</li>
+          <li>Le câble conserve la même direction au cours du freinage</li>
+          <li>La force du pilote reste perpendiculaire à la pédale</li>
+        </ul>
+      </div>
+      <div class="data-line">BA = (120, 0, 0) — BC = (−61, 51, 0) &nbsp;(mm)</div>
+
+      <div class="diagram">
+        <svg viewBox="0 0 480 190" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="230" cy="120" r="14" fill="none" stroke="#5eb1e0" stroke-width="3"/><text x="238" y="150" fill="#8ea3ba" font-size="12" font-family="IBM Plex Mono">B (pivot /0)</text>
+          <line x1="230" y1="120" x2="380" y2="150" stroke="#e9f1fa" stroke-width="8" stroke-linecap="round" opacity=".85"/>
+          <text x="386" y="154" fill="#8ea3ba" font-size="12" font-family="IBM Plex Mono">A</text>
+          <line x1="380" y1="150" x2="380" y2="90" stroke="#ffb454" stroke-width="2.5" marker-end="url(#arrow2)"/>
+          <text x="392" y="120" fill="#ffb454" font-size="11" font-family="IBM Plex Mono">F pied/1 = 50N</text>
+          <line x1="230" y1="120" x2="90" y2="60" stroke="#e9f1fa" stroke-width="5" stroke-linecap="round" opacity=".85"/>
+          <text x="70" y="48" fill="#8ea3ba" font-size="12" font-family="IBM Plex Mono">C</text>
+          <line x1="90" y1="60" x2="55" y2="30" stroke="#68d391" stroke-width="2.5" marker-end="url(#arrow2)"/>
+          <text x="20" y="20" fill="#68d391" font-size="11" font-family="IBM Plex Mono">Câble</text>
+          <defs><marker id="arrow2" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="currentColor"/></marker></defs>
+        </svg>
+        <div class="cap">Pédale 1 : pivot en B, force pilote en A, câble en C</div>
+      </div>
+
+      <div class="q-card">
+        <div class="q-top"><span class="q-tag">Q1</span>
+          <div class="q-prompt">Isoler la pédale 1 et compléter le bilan des actions mécaniques extérieures.</div>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+        <div class="q-answer"><div class="q-answer-inner">
+          <div class="torseur-row">
+            <div class="torseur"><span class="lbl">{T<sub>A,pied/1</sub>}</span><div class="brace"></div><div class="grid">
+              <div class="cell zero">0</div><div class="cell zero">0</div>
+              <div class="cell">−50</div><div class="cell zero">0</div>
+              <div class="cell zero">0</div><div class="cell zero">0</div>
+            </div><div class="braceR"></div><span class="pt">A</span></div>
+
+            <div class="torseur"><span class="lbl">{T<sub>B,0/1</sub>}</span><div class="brace"></div><div class="grid">
+              <div class="cell">X<sub>B</sub></div><div class="cell">L<sub>B</sub></div>
+              <div class="cell">Y<sub>B</sub></div><div class="cell">M<sub>B</sub></div>
+              <div class="cell zero">0</div><div class="cell zero">0</div>
+            </div><div class="braceR"></div><span class="pt">B</span></div>
+
+            <div class="torseur"><span class="lbl">{T<sub>C,cable/1</sub>}</span><div class="brace"></div><div class="grid">
+              <div class="cell">−X<sub>C</sub></div><div class="cell zero">0</div>
+              <div class="cell zero">0</div><div class="cell zero">0</div>
+              <div class="cell zero">0</div><div class="cell zero">0</div>
+            </div><div class="braceR"></div><span class="pt">C</span></div>
+          </div>
+        </div></div>
+      </div>
+
+      <div class="q-card">
+        <div class="q-top"><span class="q-tag">Q2</span>
+          <div class="q-prompt">Calculer le moment de F<sub>pied/1</sub> en B, noté M<sub>B</sub>(F<sub>pied/1</sub>).</div>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+        <div class="q-answer"><div class="q-answer-inner">
+          <div class="eqn-block">
+<div>M<sub>B</sub>(F<sub>pied/1</sub>) = BA→ ∧ F<sub>pied/1</sub> = (120,0,0) ∧ (0,−50,0)</div>
+<div>&nbsp;&nbsp;&nbsp;&nbsp;= (0, 0, <b style="color:#ffb454">−6000</b>) &nbsp;<span class="comment">N·mm</span></div>
+          </div>
+        </div></div>
+      </div>
+
+      <div class="q-card">
+        <div class="q-top"><span class="q-tag">Q3</span>
+          <div class="q-prompt">Calculer le moment du câble en B, noté M<sub>B</sub>(C<sub>câble/1</sub>).</div>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+        <div class="q-answer"><div class="q-answer-inner">
+          <div class="eqn-block">
+<div>M<sub>B</sub>(C<sub>câble/1</sub>) = BC→ ∧ C<sub>câble/1</sub> = (−61,51,0) ∧ (−X<sub>C</sub>,0,0)</div>
+<div>&nbsp;&nbsp;&nbsp;&nbsp;= (0, 0, <b style="color:#ffb454">51 X<sub>C</sub></b>)</div>
+          </div>
+        </div></div>
+      </div>
+
+      <div class="q-card">
+        <div class="q-top"><span class="q-tag">Q4</span>
+          <div class="q-prompt">Écrire l'équation d'équilibre en rotation de la pédale et déterminer C<sub>câble/1</sub>.</div>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+        <div class="q-answer"><div class="q-answer-inner">
+          <div class="eqn-block"><div>−6000 + 51 X<sub>C</sub> = 0</div></div>
+          <div class="result-box"><span class="rlabel">C<sub>câble/1</sub> = 6000 / 51 =</span><span class="rval">117,65 N</span></div>
+        </div></div>
+      </div>
+    </section>
+
+    <!-- ======================= EX 3 — MAGASIN AUTOMATISE ======================= -->
+    <section class="exo" id="ex3">
+      <div class="exo-head">
+        <div class="exo-title-wrap"><div class="idx">03 / Torseurs statiques</div><h2>Magasin automatisé</h2></div>
+        <div class="exo-actions"><button class="btn-toggle-all">Tout révéler</button></div>
+      </div>
+      <div class="exo-obj">Un magasin automatique stocke/déstocke des caisses. Une pince manipule les caisses selon x, y, z.
+      Le guidage du manipulateur selon x est réalisé par deux douilles en A et B ; un galet en C assure la stabilité.</div>
+      <div class="hyp-box">
+        <span class="lbl">Hypothèses</span>
+        <ul>
+          <li>Liaison en C : ponctuelle de normale <u>y</u></li>
+          <li>Masse de l'ensemble mobile : 65 kg (g = 10 m/s²)</li>
+        </ul>
+      </div>
+      <div class="data-line">AG = (−0,18 ; 0,12 ; 0,86) — AB = (−0,36 ; 0 ; 0) — AC = (−0,18 ; 0,14 ; 1,46) &nbsp;(m)</div>
+
+      <div class="q-card">
+        <div class="q-top"><span class="q-tag">Q1</span>
+          <div class="q-prompt">Écrire les actions mécaniques sous forme de torseurs aux points G, C, A et B.</div>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+        <div class="q-answer"><div class="q-answer-inner">
+          <div class="torseur-row">
+            <div class="torseur"><span class="lbl">{T}<sub>A</sub></span><div class="brace"></div><div class="grid">
+              <div class="cell zero">0</div><div class="cell zero">0</div>
+              <div class="cell">Y<sub>A</sub></div><div class="cell zero">0</div>
+              <div class="cell">Z<sub>A</sub></div><div class="cell zero">0</div>
+            </div><div class="braceR"></div><span class="pt">A</span></div>
+
+            <div class="torseur"><span class="lbl">{T}<sub>B</sub></span><div class="brace"></div><div class="grid">
+              <div class="cell zero">0</div><div class="cell zero">0</div>
+              <div class="cell">Y<sub>B</sub></div><div class="cell zero">0</div>
+              <div class="cell">Z<sub>B</sub></div><div class="cell zero">0</div>
+            </div><div class="braceR"></div><span class="pt">B</span></div>
+
+            <div class="torseur"><span class="lbl">{T}<sub>C</sub></span><div class="brace"></div><div class="grid">
+              <div class="cell zero">0</div><div class="cell zero">0</div>
+              <div class="cell">Y<sub>C</sub></div><div class="cell zero">0</div>
+              <div class="cell zero">0</div><div class="cell zero">0</div>
+            </div><div class="braceR"></div><span class="pt">C</span></div>
+
+            <div class="torseur"><span class="lbl">{T}<sub>G</sub></span><div class="brace"></div><div class="grid">
+              <div class="cell zero">0</div><div class="cell zero">0</div>
+              <div class="cell zero">0</div><div class="cell zero">0</div>
+              <div class="cell">−650</div><div class="cell zero">0</div>
+            </div><div class="braceR"></div><span class="pt">G</span></div>
+          </div>
+          <div class="eqn-block"><div class="comment">Poids : −m·g = −65 × 10 = −650 N suivant z</div></div>
+        </div></div>
+      </div>
+
+      <div class="q-card">
+        <div class="q-top"><span class="q-tag">Q2</span>
+          <div class="q-prompt">Écrire les 3 torseurs G, B et C au point A (transport du moment).</div>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+        <div class="q-answer"><div class="q-answer-inner">
+          <div class="step-title">Transport de G en A</div>
+          <div class="eqn-block">
+<div>M<sub>A</sub> = M<sub>G</sub> + AG→ ∧ P = (0,0,0) + (−0,18 ; 0,12 ; 0,86) ∧ (0,0,−650)</div>
+<div>&nbsp;&nbsp;&nbsp;&nbsp;⇒ Force (0, 0, −650) &nbsp;&amp;&nbsp; Moment (<b style="color:#ffb454">−78</b>, <b style="color:#ffb454">−52</b>, 0)</div>
+          </div>
+          <div class="step-title">Transport de B en A</div>
+          <div class="eqn-block">
+<div>M<sub>A</sub> = M<sub>B</sub> + AB→ ∧ F<sub>B</sub> = (0,0,0) + (−0,36 ; 0 ; 0) ∧ (0, Y<sub>B</sub>, Z<sub>B</sub>)</div>
+<div>&nbsp;&nbsp;&nbsp;&nbsp;⇒ Moment (0, <b style="color:#ffb454">0,36 Z<sub>B</sub></b>, <b style="color:#ffb454">−0,36 Y<sub>B</sub></b>)</div>
+          </div>
+          <div class="step-title">Transport de C en A</div>
+          <div class="eqn-block">
+<div>M<sub>A</sub> = M<sub>C</sub> + AC→ ∧ F<sub>C</sub> = (0,0,0) + (−0,18 ; 0,14 ; 1,46) ∧ (0, Y<sub>C</sub>, 0)</div>
+<div>&nbsp;&nbsp;&nbsp;&nbsp;⇒ Moment (<b style="color:#ffb454">−1,46 Y<sub>C</sub></b>, 0, <b style="color:#ffb454">−0,18 Y<sub>C</sub></b>)</div>
+          </div>
+        </div></div>
+      </div>
+
+      <div class="q-card">
+        <div class="q-top"><span class="q-tag">Q3</span>
+          <div class="q-prompt">Écrire les équations d'équilibre, résoudre le système et déterminer les actions mécaniques.</div>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+        <div class="q-answer"><div class="q-answer-inner">
+          <div class="eqn-block">
+<div>Y<sub>A</sub> + Y<sub>B</sub> + Y<sub>C</sub> = 0</div>
+<div>Z<sub>A</sub> + Z<sub>B</sub> − 650 = 0</div>
+<div>−78 − 1,46 Y<sub>C</sub> = 0</div>
+<div>−52 + 0,36 Z<sub>B</sub> = 0</div>
+<div>−0,18 Y<sub>C</sub> − 0,36 Y<sub>B</sub> = 0</div>
+          </div>
+          <div class="step-title">Résolution</div>
+          <table class="corr-table">
+            <tr><th>Inconnue</th><th>Valeur</th><th>Inconnue</th><th>Valeur</th></tr>
+            <tr><td>Y<sub>C</sub></td><td style="color:#ffb454">−53,42 N</td><td>Z<sub>B</sub></td><td style="color:#ffb454">144,4 N</td></tr>
+            <tr><td>Y<sub>B</sub></td><td style="color:#ffb454">26,71 N</td><td>Y<sub>A</sub></td><td style="color:#ffb454">26,71 N</td></tr>
+            <tr><td>Z<sub>A</sub></td><td style="color:#ffb454">505 N</td><td></td><td></td></tr>
+          </table>
+          <div class="result-box"><span class="rlabel">‖A‖ = 506 N &nbsp;·&nbsp; ‖B‖ = 146,2 N &nbsp;·&nbsp;</span><span class="rval">‖C‖ = 53,4 N</span></div>
+        </div></div>
+      </div>
+    </section>
+
+    <!-- ======================= EX 4 — TABLE AMOVIBLE ======================= -->
+    <section class="exo" id="ex4">
+      <div class="exo-head">
+        <div class="exo-title-wrap"><div class="idx">04 / Torseurs statiques</div><h2>Table amovible</h2></div>
+        <div class="exo-actions"><button class="btn-toggle-all">Tout révéler</button></div>
+      </div>
+      <div class="exo-obj">Une table (7) est inclinée par un vérin (1-2) et levée par un ensemble bielle/vérin (3-4-5-6), le tout articulé
+      sur le bâti (0). On étudie l'effort que doit fournir le vérin d'inclinaison.</div>
+      <div class="data-line">m = 68 kg — g = 9,81 m/s² — bras de levier : 0,194 m (poids) et 0,135 m (vérin) — θ : inclinaison de la tige du vérin</div>
+
+      <div class="q-card">
+        <div class="q-top"><span class="q-tag">Q1-Q2</span>
+          <div class="q-prompt">Compléter le graphe des liaisons et le schéma cinématique de la table.</div>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+        <div class="q-answer"><div class="q-answer-inner">
+          <div class="diagram">
+            <svg viewBox="0 0 620 260" xmlns="http://www.w3.org/2000/svg" font-family="IBM Plex Mono" font-size="11">
+              <ellipse cx="310" cy="30" rx="140" ry="20" fill="none" stroke="#e9f1fa" stroke-width="1.5"/><text x="290" y="35" fill="#e9f1fa">7 : Table</text>
+              <ellipse cx="450" cy="95" rx="45" ry="16" fill="none" stroke="#5eb1e0" stroke-width="1.5"/><text x="425" y="99" fill="#5eb1e0">6 : Axe</text>
+              <ellipse cx="380" cy="150" rx="45" ry="16" fill="none" stroke="#5eb1e0" stroke-width="1.5"/><text x="352" y="154" fill="#5eb1e0">5 : bielle</text>
+              <ellipse cx="500" cy="150" rx="70" ry="16" fill="none" stroke="#5eb1e0" stroke-width="1.5"/><text x="450" y="154" fill="#5eb1e0">4 : tige vérin levage</text>
+              <ellipse cx="520" cy="205" rx="80" ry="16" fill="none" stroke="#5eb1e0" stroke-width="1.5"/><text x="465" y="209" fill="#5eb1e0">3 : corps vérin levage</text>
+              <ellipse cx="200" cy="150" rx="75" ry="16" fill="none" stroke="#ffb454" stroke-width="1.5"/><text x="150" y="154" fill="#ffb454">2 : tige vérin inclin.</text>
+              <ellipse cx="140" cy="205" rx="80" ry="16" fill="none" stroke="#ffb454" stroke-width="1.5"/><text x="88" y="209" fill="#ffb454">1 : corps vérin inclin.</text>
+              <ellipse cx="310" cy="240" rx="140" ry="18" fill="none" stroke="#e9f1fa" stroke-width="1.5"/><text x="290" y="245" fill="#e9f1fa">0 : bâti</text>
+              <line x1="360" y1="45" x2="440" y2="82" stroke="#7e97b3"/><text x="368" y="60" fill="#7e97b3">Pivot(A,z)</text>
+              <line x1="420" y1="105" x2="390" y2="138" stroke="#7e97b3"/><text x="422" y="122" fill="#7e97b3">Pivot(A,z)</text>
+              <line x1="470" y1="110" x2="495" y2="136" stroke="#7e97b3"/><text x="470" y="122" fill="#7e97b3">Pivot(A,z)</text>
+              <line x1="500" y1="166" x2="510" y2="190" stroke="#7e97b3"/><text x="512" y="182" fill="#7e97b3">Glissière AB</text>
+              <line x1="520" y1="221" x2="480" y2="232" stroke="#7e97b3"/><text x="500" y="235" fill="#7e97b3">Pivot(B,z)</text>
+              <line x1="380" y1="166" x2="340" y2="190" stroke="#7e97b3"/><text x="336" y="182" fill="#7e97b3">Pivot(C,z)</text>
+              <line x1="260" y1="42" x2="220" y2="136" stroke="#7e97b3"/><text x="220" y="90" fill="#7e97b3">Pivot(D,z)</text>
+              <line x1="180" y1="166" x2="160" y2="190" stroke="#7e97b3"/><text x="160" y="182" fill="#7e97b3">Glissière DE</text>
+              <line x1="140" y1="221" x2="220" y2="232" stroke="#7e97b3"/><text x="150" y="248" fill="#7e97b3">Pivot(E,z)</text>
+            </svg>
+            <div class="cap">Graphe des liaisons — table (7), axe/bielle de levage (3-4-5-6), vérin d'inclinaison (1-2), bâti (0)</div>
+          </div>
+        </div></div>
+      </div>
+
+      <div class="q-card">
+        <div class="q-top"><span class="q-tag">Q3</span>
+          <div class="q-prompt">Réaliser l'inventaire des actions mécaniques extérieures s'exerçant sur la table.</div>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+        <div class="q-answer"><div class="q-answer-inner">
+          <p>La table est soumise à 3 actions extérieures : son poids, l'action du vérin d'inclinaison en D (direction connue ED),
+          et l'action inconnue de l'axe en A (pivot d'axe z).</p>
+          <div class="torseur-row">
+            <div class="torseur"><span class="lbl">{Poids<sub>pes→7</sub>}</span><div class="brace"></div><div class="grid">
+              <div class="cell zero">0</div><div class="cell zero">0</div>
+              <div class="cell">−m·g</div><div class="cell zero">0</div>
+              <div class="cell zero">0</div><div class="cell zero">0</div>
+            </div><div class="braceR"></div><span class="pt">G</span></div>
+
+            <div class="torseur"><span class="lbl">{D<sub>2→7</sub>}</span><div class="brace"></div><div class="grid">
+              <div class="cell">F<sub>D</sub></div><div class="cell zero">0</div>
+              <div class="cell zero">0</div><div class="cell zero">0</div>
+              <div class="cell zero">0</div><div class="cell zero">0</div>
+            </div><div class="braceR"></div><span class="pt">D</span></div>
+
+            <div class="torseur"><span class="lbl">{A<sub>6→7</sub>}</span><div class="brace"></div><div class="grid">
+              <div class="cell">X<sub>A</sub></div><div class="cell zero">0</div>
+              <div class="cell">Y<sub>A</sub></div><div class="cell zero">0</div>
+              <div class="cell zero">0</div><div class="cell zero">0</div>
+            </div><div class="braceR"></div><span class="pt">A</span></div>
+          </div>
+        </div></div>
+      </div>
+
+      <div class="q-card">
+        <div class="q-top"><span class="q-tag">Q4</span>
+          <div class="q-prompt">Exprimer le PFS appliqué à la table au point A, en déduire les équations vectorielles d'équilibre.</div>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+        <div class="q-answer"><div class="q-answer-inner">
+          <div class="eqn-block">
+<div>{Poids<sub>pes→7</sub>} + {D<sub>2→7</sub>} + {A<sub>6→7</sub>} = {0}</div>
+<div class="comment">soit, en effets dynamiques négligeables :</div>
+<div>ΣF : P<sub>pes→7</sub> + D<sub>2→7</sub> + A<sub>6→7</sub> = 0→</div>
+<div>ΣM<sub>A</sub> : M<sub>A,pes→7</sub> + M<sub>A,2→7</sub> + M<sub>A,6→7</sub> = 0→</div>
+          </div>
+        </div></div>
+      </div>
+
+      <div class="q-card">
+        <div class="q-top"><span class="q-tag">Q5</span>
+          <div class="q-prompt">La table étant à l'équilibre, déterminer l'action du vérin d'inclinaison. Le vérin travaille-t-il en traction ou en compression ?</div>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+        <div class="q-answer"><div class="q-answer-inner">
+          <div class="eqn-block">
+<div>M<sub>A,pes→7</sub> = −0,194·m·g·z &nbsp;&nbsp;&nbsp; M<sub>A,2→7</sub> = 135·F<sub>D</sub>·z</div>
+<div class="comment">Équations d'équilibre des forces :</div>
+<div>X<sub>A</sub> + F<sub>D</sub>·cos(θ) = 0</div>
+<div>−m·g + Y<sub>A</sub> + F<sub>D</sub>·sin(θ) = 0</div>
+<div>Z<sub>A</sub> = 0</div>
+<div class="comment">Équation d'équilibre des moments :</div>
+<div>−0,194·m·g + 0,135·F<sub>D</sub> = 0</div>
+          </div>
+          <div class="eqn-block">
+<div>F<sub>D</sub> = (0,194 × m × g) / 0,135 = (0,194 × 68 × 9,81) / 0,135</div>
+          </div>
+          <div class="result-box"><span class="rlabel">Action du vérin d'inclinaison :</span><span class="rval">F<sub>D</sub> = 965,58 N</span></div>
+          <div class="conform-box">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>
+            <div>F<sub>D</sub> &gt; 0 dans le sens de x→ retenu ⇒ le vérin <b>pousse</b> la table : il travaille en <b>compression</b>.</div>
+          </div>
+        </div></div>
+      </div>
+
+      <div class="q-card">
+        <div class="q-top"><span class="q-tag">Q6</span>
+          <div class="q-prompt">Le vérin d'inclinaison supporte-t-il la charge max et satisfait-il au critère d'irréversibilité (contrainte C3) ?</div>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+        <div class="q-answer"><div class="q-answer-inner">
+          <div class="conform-box">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>
+            <div>Pour 1000 N sur la table, le vérin d'inclinaison supporte un effort maximum proche de <b>6500 N</b>, bien inférieur aux <b>13000 N</b>
+            de la limite de réversibilité. Le vérin 36080CH répond aux critères du cahier des charges (C3).</div>
+          </div>
+        </div></div>
+      </div>
+
+      <div class="q-card">
+        <div class="q-top"><span class="q-tag">Q7</span>
+          <div class="q-prompt">Conclure sur la capacité du vérin à mouvoir la table.</div>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+        <div class="q-answer"><div class="q-answer-inner">
+          <div class="conform-box">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>
+            <div>Le vérin est largement capable de déplacer la table : sa capacité de déplacement en charge est de <b>10000 N</b>,
+            au-dessus des besoins réels de la table.</div>
+          </div>
+        </div></div>
+      </div>
+    </section>
+
+    <!-- ======================= EX 5 — FREIN VTT ======================= -->
+    <section class="exo" id="ex5">
+      <div class="exo-head">
+        <div class="exo-title-wrap"><div class="idx">05 / Frottements — loi de Coulomb</div><h2>Frein VTT — V-brake Shimano</h2></div>
+        <div class="exo-actions"><button class="btn-toggle-all">Tout révéler</button></div>
+      </div>
+      <div class="exo-obj">Freinage au niveau de la roue avant. On étudie la chaîne d'efforts sol → pneu → jante → câble → poignée,
+      en tenant compte de l'adhérence pneu/sol et du frottement patin/jante.</div>
+      <div class="data-line">R<sub>pneu</sub> = 33 cm — R<sub>jante</sub> = 28 cm — d₁ = 60 mm — d₂ = 156 mm — f<sub>patin/jante</sub> = 0,35 — α = 18°</div>
+
+      <div class="q-card">
+        <div class="q-top"><span class="q-tag">Q2</span>
+          <div class="q-prompt">Comparer f = tan α au coefficient d'adhérence limite (0,8). Conclure.</div>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+        <div class="q-answer"><div class="q-answer-inner">
+          <div class="eqn-block"><div>α = 18° ⇒ f = tan 18° = 0,32</div></div>
+          <div class="conform-box">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>
+            <div>f = 0,32 &lt; 0,8 ⇒ <b>il y a adhérence</b> (pas de glissement roue/sol).</div>
+          </div>
+        </div></div>
+      </div>
+
+      <div class="q-card">
+        <div class="q-top"><span class="q-tag">Q3</span>
+          <div class="q-prompt">Déterminer F<sub>sol/roue</sub> = (T₁, N₁) avec ‖F<sub>sol/roue</sub>‖ = 36 daN.</div>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+        <div class="q-answer"><div class="q-answer-inner">
+          <div class="eqn-block">
+<div>F<sub>sol/roue</sub> = (T₁, N₁) = (−36·sin18°, 36·cos18°)</div>
+          </div>
+          <div class="result-box"><span class="rlabel">T₁ = −11,12 daN &nbsp;·&nbsp;</span><span class="rval">N₁ = 34,23 daN</span></div>
+        </div></div>
+      </div>
+
+      <div class="q-card">
+        <div class="q-top"><span class="q-tag">Q4</span>
+          <div class="q-prompt">Calculer le moment de T₁ en O (moyeu) et en déduire le couple de freinage requis C<sub>f</sub>.</div>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+        <div class="q-answer"><div class="q-answer-inner">
+          <div class="eqn-block"><div>‖M<sub>O</sub>(T₁)‖ = T₁ × R<sub>pneu</sub> = 11,12 × 33 = 367 daN·cm</div></div>
+          <div class="result-box"><span class="rlabel">Couple de freinage requis :</span><span class="rval">C<sub>f</sub> ≥ 36,7 N·m</span></div>
+        </div></div>
+      </div>
+
+      <div class="q-card">
+        <div class="q-top"><span class="q-tag">Q6-Q7</span>
+          <div class="q-prompt">Déterminer T₂ (effort tangentiel patin/jante), puis N₂ (effort normal patin/jante).</div>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+        <div class="q-answer"><div class="q-answer-inner">
+          <div class="eqn-block">
+<div>C<sub>f</sub> = 2 · T₂ · R<sub>jante</sub> ⇒ T₂ = C<sub>f</sub> / (2·R<sub>jante</sub>) = 367 / (2×28) = <b style="color:#ffb454">6,55 daN</b></div>
+<div>T₂ = f · N₂ ⇒ N₂ = T₂ / f = 6,55 / 0,35 = <b style="color:#ffb454">18,71 daN</b></div>
+          </div>
+        </div></div>
+      </div>
+
+      <div class="q-card">
+        <div class="q-top"><span class="q-tag">Q8</span>
+          <div class="q-prompt">Écrire l'équilibre en moment du levier de frein en A et en déduire l'effort du câble.</div>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+        <div class="q-answer"><div class="q-answer-inner">
+          <div class="eqn-block">
+<div>ΣM<sub>A</sub> = 0→ &nbsp;⇒&nbsp; −M<sub>A</sub>(R<sub>rappel</sub>) − N₂·d₁ + C<sub>câble/levier</sub>·(d₁+d₂) = 0</div>
+          </div>
+          <div class="eqn-block">
+<div>C<sub>câble/levier</sub> = [0,2×5×π/180 + 18,71×60×10⁻³] / [(60+156)×10⁻³]</div>
+          </div>
+          <div class="result-box"><span class="rlabel">C<sub>câble/levier</sub> =</span><span class="rval">5,27 daN</span></div>
+        </div></div>
+      </div>
+
+      <div class="q-card">
+        <div class="q-top"><span class="q-tag">Q9-Q10</span>
+          <div class="q-prompt">Comparer l'effort sur la poignée à la réglementation (6 daN) et calculer le rapport de démultiplication.</div>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+        <div class="q-answer"><div class="q-answer-inner">
+          <div class="conform-box">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>
+            <div>L'effort sur la poignée est de <b>5,27 daN</b> (frottements du câble dans la gaine négligés) : la réglementation
+            de <b>6 daN maximum</b> est respectée.</div>
+          </div>
+          <div class="eqn-block"><div>Coeff = N₂ / C<sub>câble/levier</sub> = 18,71 / 5,27 = 3,55</div></div>
+          <div class="result-box"><span class="rlabel">L'effort de la poignée est démultiplié environ</span><span class="rval">3,5 fois</span></div>
+        </div></div>
+      </div>
+    </section>
+
+    <!-- ======================= EX 6 — EVALUATION 1 ======================= -->
+    <section class="exo" id="ex6">
+      <div class="exo-head">
+        <div class="exo-title-wrap"><div class="idx">06 / Évaluation n°1</div><h2>Moment d'une force</h2></div>
+        <div class="exo-actions"><button class="btn-toggle-all">Tout révéler</button></div>
+      </div>
+
+      <div class="q-card">
+        <div class="q-top"><span class="q-tag">Q1</span>
+          <div class="q-prompt">Donner la définition précise d'un moment d'une force.</div>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+        <div class="q-answer"><div class="q-answer-inner">
+          <p>Le <b>moment</b> d'une force par rapport à un point est un outil qui permet de mesurer la capacité de cette force
+          à créer un <b>mouvement de rotation</b> autour de ce point.</p>
+        </div></div>
+      </div>
+
+      <div class="q-card">
+        <div class="q-top"><span class="q-tag">Q2</span>
+          <div class="q-prompt">Compléter : paramètres du vecteur moment, et convention de signe.</div>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+        <div class="q-answer"><div class="q-answer-inner">
+          <p>Le moment de F par rapport à A, noté M<sub>A</sub>(F), est un vecteur défini par les mêmes 4 paramètres qu'une force :
+          point d'application, sens, direction, intensité.</p>
+          <table class="corr-table">
+            <tr><th>Sens</th><th>Condition</th></tr>
+            <tr><td style="color:#68d391">Positif</td><td>la force fait tourner la pièce dans le sens inverse des aiguilles d'une montre (sens trigonométrique)</td></tr>
+            <tr><td style="color:#ffb454">Négatif</td><td>la force fait tourner la pièce dans le sens des aiguilles d'une montre</td></tr>
+          </table>
+        </div></div>
+      </div>
+
+      <div class="q-card">
+        <div class="q-top"><span class="q-tag">Ex.1</span>
+          <div class="q-prompt">Une main exerce 10 daN sur une clef (AB = 0,2 m). Quel est le moment de serrage sur la vis ?</div>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+        <div class="q-answer"><div class="q-answer-inner">
+          <div class="eqn-block">
+<div>M<sub>A</sub>(F<sub>B</sub>) = AB→ ∧ F<sub>B</sub> = (0,2 ; 0 ; 0) ∧ (0 ; −10 ; 0) = (0 ; 0 ; −2 daN·m)</div>
+          </div>
+          <div class="result-box"><span class="rlabel">M<sub>A</sub>(F<sub>B</sub>) =</span><span class="rval">−20 N·m</span></div>
+          <div class="conform-box">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>
+            <div>Négatif car la clé et la tête de vis tournent dans le <b>sens des aiguilles d'une montre</b>.</div>
+          </div>
+        </div></div>
+      </div>
+
+      <div class="q-card">
+        <div class="q-top"><span class="q-tag">Ex.2</span>
+          <div class="q-prompt">Même clef, main inclinée à 45°, ‖F<sub>B</sub>‖ = 10 daN. Déterminer le moment de serrage.</div>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+        <div class="q-answer"><div class="q-answer-inner">
+          <div class="eqn-block">
+<div>M<sub>A</sub>(F<sub>B</sub>) = AB→ ∧ F<sub>B</sub> = (0,2 ; 0 ; 0) ∧ (100·cos45° ; −100·sin45° ; 0)</div>
+          </div>
+          <div class="result-box"><span class="rlabel">M<sub>A</sub>(F<sub>B</sub>) =</span><span class="rval">−14,14 N·m</span></div>
+          <p style="color:#8ea3ba; font-size:12.5px;">Seule la composante de F perpendiculaire à la clef travaille dans le moment — d'où la réduction par rapport aux 20 N·m de l'exercice 1.</p>
+        </div></div>
+      </div>
+
+      <div class="q-card">
+        <div class="q-top"><span class="q-tag">Ex.3</span>
+          <div class="q-prompt">Vérin 4/5 : diamètre du piston 30 mm, pression 50 bars. Montrer que le torseur au point G du vérin 4 s'écrit sous la forme donnée.</div>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+        <div class="q-answer"><div class="q-answer-inner">
+          <div class="eqn-block">
+<div>‖G‖ = P × S = (π×D²/4) × P = π × 0,03²/4 × 50×10⁵ = 3532 N</div>
+<div>Projection sur x : X<sub>G</sub> = ‖G‖ × cos70° = 121 daN</div>
+<div>Projection sur y : Y<sub>G</sub> = ‖G‖ × sin70° = 332 daN</div>
+<div>Pas de projection sur z : Z<sub>G</sub> = 0 &nbsp;—&nbsp; moment au point G nul (liaison glissière)</div>
+          </div>
+          <div class="torseur-row">
+            <div class="torseur"><span class="lbl">{T<sub>G,4/5</sub>}</span><div class="brace"></div><div class="grid">
+              <div class="cell">121 daN</div><div class="cell zero">0</div>
+              <div class="cell">332 daN</div><div class="cell zero">0</div>
+              <div class="cell zero">0</div><div class="cell zero">0</div>
+            </div><div class="braceR"></div><span class="pt">G</span></div>
+          </div>
+        </div></div>
+      </div>
+    </section>
+
+    <!-- ======================= EX 7 — EVALUATION 2 — DINO ======================= -->
+    <section class="exo" id="ex7">
+      <div class="exo-head">
+        <div class="exo-title-wrap"><div class="idx">07 / Évaluation n°2</div><h2>Robot DINO — désherbage mécanique</h2></div>
+        <div class="exo-actions"><button class="btn-toggle-all">Tout révéler</button></div>
+      </div>
+      <div class="exo-obj">Le robot DINO (Naïo) désherbe mécaniquement des planches de légumes à l'aide d'un soc, maintenu à 2 cm sous terre
+      grâce à une roue montée sur parallélogramme déformable. On valide que l'action de la roue sur le sol permet d'amorcer le binage.</div>
+      <div class="hyp-box">
+        <span class="lbl">Cahier des charges — Amorçage du binage</span>
+        <ul><li>Effort du soc sur le sol : <b>120 N</b>, flexibilité <b>± 20 %</b> (soit entre 96 N et 144 N)</li></ul>
+      </div>
+      <div class="data-line">m = 6,25 kg (point G) — g = 9,81 m/s² — bras de levier en B : 79 mm (A) / 51 mm (P<sub>soc</sub>) / 112 mm (C)</div>
+
+      <div class="q-card">
+        <div class="q-top"><span class="q-tag">Q1</span>
+          <div class="q-prompt">Exprimer le principe fondamental de la statique appliqué au soc, au point B.</div>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+        <div class="q-answer"><div class="q-answer-inner">
+          <p>Les mouvements du soc étant lents, les effets dynamiques sont négligeables : le PFD se réduit au PFS.</p>
+          <div class="eqn-block">
+<div>ΣF<sub>ext→soc</sub> = 0→</div>
+<div>ΣM<sub>B,ext→soc</sub> = 0→</div>
+          </div>
+        </div></div>
+      </div>
+
+      <div class="q-card">
+        <div class="q-top"><span class="q-tag">Q2</span>
+          <div class="q-prompt">En déduire les équations vectorielles d'équilibre du soc.</div>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+        <div class="q-answer"><div class="q-answer-inner">
+          <div class="eqn-block">
+<div>A<sub>sol→soc</sub> + P<sub>soc</sub> + B<sub>ressort→soc</sub> + B<sub>inférieur→soc</sub> + C<sub>supérieur→soc</sub> = 0→</div>
+<div>M<sub>B,sol→soc</sub> + M<sub>B,poids</sub> + M<sub>B,supérieur→soc</sub> = 0→</div>
+          </div>
+        </div></div>
+      </div>
+
+      <div class="q-card">
+        <div class="q-top"><span class="q-tag">Q3</span>
+          <div class="q-prompt">Exprimer l'équation scalaire du moment en B et déterminer l'action de la biellette supérieure en C.</div>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+        <div class="q-answer"><div class="q-answer-inner">
+          <div class="eqn-block"><div>−79·A<sub>sol→soc</sub> + 51·P<sub>soc</sub> + 112·C<sub>supérieur→soc</sub> = 0</div></div>
+          <div class="result-box"><span class="rlabel">‖C(supérieur→soc)‖ =</span><span class="rval">55 N</span></div>
+        </div></div>
+      </div>
+
+      <div class="q-card">
+        <div class="q-top"><span class="q-tag">Q4-Q5</span>
+          <div class="q-prompt">Déterminer l'action du sol sur le soc en A et la comparer au cahier des charges.</div>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+        <div class="q-answer"><div class="q-answer-inner">
+          <div class="eqn-block"><div>A<sub>sol→soc</sub> = (51·P<sub>soc</sub> + 112·C<sub>supérieur→soc</sub>) / 79</div></div>
+          <div class="result-box"><span class="rlabel">A<sub>sol→soc</sub> =</span><span class="rval">118 N</span></div>
+          <div class="conform-box">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>
+            <div>Le cahier des charges impose 120 N ± 20 %. L'effort calculé de <b>118 N</b> est <b>conforme</b>.</div>
+          </div>
+        </div></div>
+      </div>
+
+      <div class="q-card">
+        <div class="q-top"><span class="q-tag">Q6</span>
+          <div class="q-prompt">Comparer l'effort obtenu par simulation (variation de hauteur ± 3 cm) au cahier des charges. Conclure.</div>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+        <div class="q-answer"><div class="q-answer-inner">
+          <p>Sur l'amplitude de déplacement du point A, la simulation numérique donne un effort compris entre <b>95 N</b> et <b>145 N</b>.
+          Le cahier des charges impose un effort compris entre <b>96 N</b> et <b>144 N</b>.</p>
+          <div class="conform-box">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>
+            <div>L'écart est négligeable (±1 N aux bornes) : l'effort estimé est <b>acceptable</b> au regard du cahier des charges.</div>
+          </div>
+        </div></div>
+      </div>
+    </section>
+
+    <!-- ======================= EX 8 — STATIQUE ANALYTIQUE (3 TD) ======================= -->
+    <section class="exo" id="ex8">
+      <div class="exo-head">
+        <div class="exo-title-wrap"><div class="idx">08 / Statique analytique</div><h2>Trois mises en situation courtes</h2></div>
+        <div class="exo-actions"><button class="btn-toggle-all">Tout révéler</button></div>
+      </div>
+      <div class="exo-obj">Trois exercices indépendants d'application directe du PFS sur un système à 2 ou 3 actions extérieures.</div>
+
+      <div class="q-card">
+        <div class="q-top"><span class="q-tag">Ex.1</span>
+          <div class="q-prompt"><b>Le plongeur</b> — Un plongeur de masse m = 80&nbsp;kg se tient à l'extrémité d'un plongeoir. Les appuis A et B sont des liaisons ponctuelles avec le sol (AB = 0,75&nbsp;m, distance A→plongeur = 3&nbsp;m). Calculer les efforts en A et B.</div>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+        <div class="q-answer"><div class="q-answer-inner">
+          <div class="diagram">
+            <svg viewBox="0 0 420 130" xmlns="http://www.w3.org/2000/svg" font-family="IBM Plex Mono" font-size="12">
+              <line x1="40" y1="90" x2="380" y2="90" stroke="#e9f1fa" stroke-width="5" stroke-linecap="round"/>
+              <polygon points="40,90 30,110 50,110" fill="none" stroke="#ffb454" stroke-width="2"/><text x="26" y="126" fill="#ffb454">A</text>
+              <polygon points="120,90 110,110 130,110" fill="none" stroke="#ffb454" stroke-width="2"/><text x="106" y="126" fill="#ffb454">B</text>
+              <circle cx="380" cy="80" r="8" fill="#5eb1e0"/><line x1="380" y1="90" x2="380" y2="130" stroke="#5eb1e0" stroke-width="2" marker-end="url(#arrow3)"/><text x="386" y="122" fill="#5eb1e0">P (poids)</text>
+              <text x="70" y="80" fill="#7e97b3">0,75 m</text>
+              <text x="190" y="112" fill="#7e97b3">3 m (A → G)</text>
+              <defs><marker id="arrow3" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="currentColor"/></marker></defs>
+            </svg>
+            <div class="cap">Plongeoir en appui ponctuel sur A et B, plongeur (poids P) à l'extrémité, à 3 m de A</div>
+          </div>
+          <div class="step-title">Isolement du plongeoir + PFS — moment en A</div>
+          <div class="eqn-block">
+<div>P = m·g = 80 × 9,81 = <b style="color:#ffb454">784,8 N</b></div>
+<div>ΣM<sub>A</sub> = 0 ⇒ Y<sub>B</sub> × 0,75 − P × 3 = 0</div>
+<div>Y<sub>B</sub> = 3 × 784,8 / 0,75 = <b style="color:#ffb454">3139,2 N</b></div>
+<div>ΣF<sub>y</sub> = 0 ⇒ Y<sub>A</sub> = P − Y<sub>B</sub> = 784,8 − 3139,2 = <b style="color:#ffb454">−2354,4 N</b></div>
+          </div>
+          <div class="result-box"><span class="rlabel">Y<sub>B</sub> = 3139,2 N (vers le haut) &nbsp;·&nbsp;</span><span class="rval">Y<sub>A</sub> = −2354,4 N</span></div>
+          <div class="conform-box">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 9v4M12 17h.01M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>
+            <div>Y<sub>A</sub> est négatif : l'appui A doit retenir le plongeoir vers le bas (il n'est pas seulement posé, il doit être bridé), car le poids appliqué au-delà de B tend à faire basculer le plongeoir. <i>(g = 9,81 m/s² non précisé dans l'énoncé — avec g = 10, on obtient des valeurs rondes : Y<sub>B</sub> = 3200 N, Y<sub>A</sub> = −2400 N.)</i></div>
+          </div>
+        </div></div>
+      </div>
+
+      <div class="q-card">
+        <div class="q-top"><span class="q-tag">Ex.2</span>
+          <div class="q-prompt"><b>La balance romaine</b> — Balancier (2) articulé en O sur le crochet de fixation (1). La charge à peser (4) est fixée en B, à b = 100&nbsp;mm de O. La masse d'équilibrage (3), ‖P<sub>me</sub>‖ = 5&nbsp;daN, est réglée à a = 700&nbsp;mm de O. Calculer le poids ‖P‖ de la charge 4 à l'équilibre.</div>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+        <div class="q-answer"><div class="q-answer-inner">
+          <div class="diagram">
+            <svg viewBox="0 0 420 140" xmlns="http://www.w3.org/2000/svg" font-family="IBM Plex Mono" font-size="12">
+              <line x1="60" y1="50" x2="380" y2="50" stroke="#e9f1fa" stroke-width="5" stroke-linecap="round"/>
+              <circle cx="150" cy="50" r="7" fill="#5eb1e0"/><text x="140" y="35" fill="#5eb1e0">O</text>
+              <line x1="60" y1="50" x2="60" y2="95" stroke="#ffb454" stroke-width="2" marker-end="url(#arrow4)"/><text x="20" y="112" fill="#ffb454">P (charge 4), en B</text>
+              <line x1="330" y1="50" x2="330" y2="95" stroke="#68d391" stroke-width="2" marker-end="url(#arrow4)"/><text x="300" y="112" fill="#68d391">P_me = 5 daN</text>
+              <text x="90" y="70" fill="#7e97b3">b = 100 mm</text>
+              <text x="220" y="70" fill="#7e97b3">a = 700 mm</text>
+              <defs><marker id="arrow4" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="currentColor"/></marker></defs>
+            </svg>
+            <div class="cap">Pivot en O ; charge en B (bras court b) ; masse d'équilibrage réglable (bras long a)</div>
+          </div>
+          <div class="step-title">PFS sur le balancier (2), moment en O (le pivot n'introduit aucun moment)</div>
+          <div class="eqn-block">
+<div>ΣM<sub>O</sub> = 0 ⇒ P × b − P<sub>me</sub> × a = 0</div>
+<div>P = P<sub>me</sub> × a / b = 5 × 700 / 100</div>
+          </div>
+          <div class="result-box"><span class="rlabel">Poids de la charge :</span><span class="rval">‖P‖ = 35 daN = 350 N</span></div>
+        </div></div>
+      </div>
+
+      <div class="q-card">
+        <div class="q-top"><span class="q-tag">Ex.3</span>
+          <div class="q-prompt"><b>Le chariot transporteur</b> — Chariot tubulaire (2) sur deux roues (3), liaison pivot en A. Poids du chariot et frottements négligés. Poids du fût (1) : P = 1200&nbsp;N. Calculer l'effort que doit fournir l'opérateur en B.</div>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+        <div class="q-answer"><div class="q-answer-inner">
+          <div class="hyp-box">
+            <span class="lbl">Hypothèse de modélisation retenue</span>
+            <ul><li>L'ensemble {fût 1 + chariot 2} est isolé ; la liaison pivot en A (avec la roue 3) n'introduit aucun moment et sert de point de réduction.</li>
+            <li>L'effort de l'opérateur F<sub>conducteur</sub> en B est modélisé <b>horizontal</b> (hypothèse usuelle pour ce type de diable de manutention) — à ajuster si ton énoncé précise une autre direction.</li></ul>
+          </div>
+          <div class="step-title">PFS sur {1+2}, moment en A</div>
+          <div class="eqn-block">
+<div>ΣM<sub>A</sub> = 0 ⇒ (x<sub>G</sub> − x<sub>A</sub>)×(−P) − (y<sub>B</sub> − y<sub>A</sub>)×F<sub>conducteur</sub> = 0</div>
+<div>avec x<sub>G</sub> − x<sub>A</sub> = 270 mm (bras du poids) et y<sub>B</sub> − y<sub>A</sub> = 600 mm (hauteur de la poignée B)</div>
+<div>F<sub>conducteur</sub> = P × 270 / 600 = 1200 × 270 / 600</div>
+          </div>
+          <div class="result-box"><span class="rlabel">F<sub>conducteur</sub> =</span><span class="rval">540 N</span></div>
+          <p style="color:#8ea3ba; font-size:12.5px;">La réaction pivot en A (2 composantes inconnues) disparaît du calcul puisqu'on prend le moment précisément en A — c'est tout l'intérêt de bien choisir son point de réduction.</p>
+        </div></div>
+      </div>
+    </section>
+
+    <!-- ======================= EX 9 — AVION DE CHASSE ======================= -->
+    <section class="exo" id="ex9">
+      <div class="exo-head">
+        <div class="exo-title-wrap"><div class="idx">09 / Statique analytique</div><h2>Avion de chasse — Rafale</h2></div>
+        <div class="exo-actions"><button class="btn-toggle-all">Tout révéler</button></div>
+      </div>
+      <div class="exo-obj">Le Rafale évolue en ascension à vitesse constante suivant l'axe (O,x) incliné de 15° par rapport à l'horizontale.
+      Objectif : déterminer complètement les torseurs des actions mécaniques A→ (aile), B→ (gouverne avant) et T→ (résistance de l'air).</div>
+      <div class="hyp-box">
+        <span class="lbl">Données &amp; hypothèses</span>
+        <ul>
+          <li>Poids de l'appareil : 23 t, soit P = 23000 × 9,81 = 225 630 N — vitesse constante ⇒ équilibre (ΣF = 0, ΣM = 0)</li>
+          <li>2 réacteurs en fonctionnement, poussée F = 2 × 49000 = 98 000 N, suivant x</li>
+          <li>Repère (O, x, y) lié à la trajectoire : x le long du vol (incliné à 15°), y perpendiculaire — le poids P (vertical terrestre) doit donc être projeté sur x et y</li>
+          <li>Points d'application, mesurés depuis O le long de l'axe x (longueur totale ≈ 15 m, cohérent avec le Rafale réel) :
+          F en O (0 m) — A à 4 m — G à 7 m — B à 9 m — T à 15 m</li>
+        </ul>
+      </div>
+
+      <div class="q-card">
+        <div class="q-top"><span class="q-tag">1</span>
+          <div class="q-prompt">Projeter le poids P sur les axes (O,x,y) liés à la trajectoire.</div>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+        <div class="q-answer"><div class="q-answer-inner">
+          <div class="eqn-block">
+<div>P<sub>x</sub> = −P·sin15° = −225630 × 0,2588 = −58 393 N &nbsp;<span class="comment">(freine l'avancement en montée)</span></div>
+<div>P<sub>y</sub> = −P·cos15° = −225630 × 0,9659 = −217 940 N &nbsp;<span class="comment">(perpendiculaire à la trajectoire)</span></div>
+          </div>
+        </div></div>
+      </div>
+
+      <div class="q-card">
+        <div class="q-top"><span class="q-tag">2</span>
+          <div class="q-prompt">Écrire l'équilibre selon x et en déduire la résistance de l'air T.</div>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+        <div class="q-answer"><div class="q-answer-inner">
+          <div class="eqn-block">
+<div>ΣF<sub>x</sub> = 0 ⇒ F − T − P·sin15° = 0</div>
+<div>T = F − P·sin15° = 98 000 − 58 393</div>
+          </div>
+          <div class="result-box"><span class="rlabel">‖T‖ =</span><span class="rval">39 607 N</span></div>
+          <div class="torseur-row">
+            <div class="torseur"><span class="lbl">{T}</span><div class="brace"></div><div class="grid">
+              <div class="cell">−39607</div><div class="cell zero">0</div>
+              <div class="cell zero">0</div><div class="cell zero">0</div>
+              <div class="cell zero">0</div><div class="cell zero">0</div>
+            </div><div class="braceR"></div><span class="pt">T</span></div>
+          </div>
+        </div></div>
+      </div>
+
+      <div class="q-card">
+        <div class="q-top"><span class="q-tag">3</span>
+          <div class="q-prompt">Écrire l'équilibre selon y et le moment en O, puis résoudre pour A et B.</div>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+        <div class="q-answer"><div class="q-answer-inner">
+          <div class="eqn-block">
+<div>ΣF<sub>y</sub> = 0 ⇒ A + B − P·cos15° = 0 &nbsp;&nbsp;&nbsp;&nbsp;(i)</div>
+<div>ΣM<sub>O</sub> = 0 ⇒ 4·A + 7·(−P·cos15°) + 9·B = 0 &nbsp;&nbsp;&nbsp;&nbsp;(ii)</div>
+<div class="comment">seules les forces perpendiculaires à x (A, B, et la composante P·cos15°) créent un moment, tous les points étant alignés sur l'axe du fuselage</div>
+          </div>
+          <div class="eqn-block">
+<div>(i) et (ii) ⇒ 5·B = 3·P·cos15° ⇒ B = 0,6 × P·cos15°</div>
+<div>A = P·cos15° − B = 0,4 × P·cos15°</div>
+          </div>
+          <div class="result-box"><span class="rlabel">A = 87 176 N &nbsp;·&nbsp;</span><span class="rval">B = 130 764 N</span></div>
+          <div class="torseur-row">
+            <div class="torseur"><span class="lbl">{A}</span><div class="brace"></div><div class="grid">
+              <div class="cell zero">0</div><div class="cell zero">0</div>
+              <div class="cell">87176</div><div class="cell zero">0</div>
+              <div class="cell zero">0</div><div class="cell zero">0</div>
+            </div><div class="braceR"></div><span class="pt">A</span></div>
+
+            <div class="torseur"><span class="lbl">{B}</span><div class="brace"></div><div class="grid">
+              <div class="cell zero">0</div><div class="cell zero">0</div>
+              <div class="cell">130764</div><div class="cell zero">0</div>
+              <div class="cell zero">0</div><div class="cell zero">0</div>
+            </div><div class="braceR"></div><span class="pt">B</span></div>
+          </div>
+          <p style="color:#8ea3ba; font-size:12.5px;">Le moment propre de chaque action est pris nul au point où elle s'applique (portance/traînée modélisées comme des forces pures, sans couple associé).</p>
+        </div></div>
+      </div>
+    </section>
+
+    <!-- ======================= EX 10 — VOITURE + BATEAU ======================= -->
+    <section class="exo" id="ex10">
+      <div class="exo-head">
+        <div class="exo-title-wrap"><div class="idx">10 / Statique analytique</div><h2>Voiture tractant une remorque + bateau</h2></div>
+        <div class="exo-actions"><button class="btn-toggle-all">Tout révéler</button></div>
+      </div>
+      <div class="exo-obj">Une voiture (1) tracte une remorque chargée d'un bateau (2). Objectif : déterminer complètement les actions mécaniques
+      aux contacts roues/sol (A, B et D) et à l'attelage (C).</div>
+      <div class="hyp-box">
+        <span class="lbl">Méthode &amp; conventions</span>
+        <ul>
+          <li>Isoler la remorque + bateau (2), PFS avec moment en C ⇒ actions en D et C</li>
+          <li>Isoler ensuite la voiture (1), PFS avec moment en A ⇒ actions en A et B</li>
+          <li>Contacts roue/sol (A, B, D) : liaisons ponctuelles de normale y → seule une composante verticale Y est non nulle</li>
+          <li>Attelage en C : liaison pivot d'axe z → composantes X<sub>C</sub> et Y<sub>C</sub>, moment nul</li>
+        </ul>
+      </div>
+      <div class="data-line">P<sub>1</sub> (voiture) = 1500 daN = 15 000 N — P<sub>2</sub> (remorque+bateau) = 800 daN = 8 000 N<br>
+      Positions depuis A (mm) : A = 0 — G₁ = 1550 — B = 2370 — C = 3330 — G₂ = 6630 — D = 7170</div>
+
+      <div class="diagram">
+        <svg viewBox="0 0 640 150" xmlns="http://www.w3.org/2000/svg" font-family="IBM Plex Mono" font-size="11">
+          <line x1="30" y1="110" x2="610" y2="110" stroke="#3a5068" stroke-width="2"/>
+          <circle cx="30" cy="110" r="10" fill="none" stroke="#e9f1fa" stroke-width="2"/><text x="22" y="132" fill="#e9f1fa">A</text>
+          <circle cx="140" cy="110" r="10" fill="none" stroke="#e9f1fa" stroke-width="2"/><text x="132" y="132" fill="#e9f1fa">B</text>
+          <circle cx="195" cy="110" r="6" fill="#ffb454"/><text x="188" y="132" fill="#ffb454">C</text>
+          <circle cx="420" cy="110" r="10" fill="none" stroke="#e9f1fa" stroke-width="2"/><text x="412" y="132" fill="#e9f1fa">D</text>
+          <line x1="90" y1="60" x2="90" y2="105" stroke="#5eb1e0" stroke-width="2" marker-end="url(#arrow5)"/><text x="60" y="50" fill="#5eb1e0">P1 = 1500 daN (G1)</text>
+          <line x1="370" y1="60" x2="370" y2="105" stroke="#68d391" stroke-width="2" marker-end="url(#arrow5)"/><text x="330" y="50" fill="#68d391">P2 = 800 daN (G2)</text>
+          <defs><marker id="arrow5" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="currentColor"/></marker></defs>
+        </svg>
+        <div class="cap">Voiture (roues A, B) — attelage C — remorque/bateau (roue D)</div>
+      </div>
+
+      <div class="q-card">
+        <div class="q-top"><span class="q-tag">1</span>
+          <div class="q-prompt">Isoler l'ensemble remorque + bateau (2) et écrire les 3 torseurs d'AM extérieures.</div>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+        <div class="q-answer"><div class="q-answer-inner">
+          <div class="torseur-row">
+            <div class="torseur"><span class="lbl">{τ<sub>pes→2</sub>}</span><div class="brace"></div><div class="grid">
+              <div class="cell zero">0</div><div class="cell zero">0</div>
+              <div class="cell">−P<sub>2</sub></div><div class="cell zero">0</div>
+              <div class="cell zero">0</div><div class="cell zero">0</div>
+            </div><div class="braceR"></div><span class="pt">G₂</span></div>
+
+            <div class="torseur"><span class="lbl">{τ<sub>sol→2</sub>}</span><div class="brace"></div><div class="grid">
+              <div class="cell zero">0</div><div class="cell zero">0</div>
+              <div class="cell">Y<sub>D</sub></div><div class="cell zero">0</div>
+              <div class="cell zero">0</div><div class="cell zero">0</div>
+            </div><div class="braceR"></div><span class="pt">D</span></div>
+
+            <div class="torseur"><span class="lbl">{τ<sub>1→2</sub>}</span><div class="brace"></div><div class="grid">
+              <div class="cell">X<sub>C</sub></div><div class="cell zero">0</div>
+              <div class="cell">Y<sub>C</sub></div><div class="cell zero">0</div>
+              <div class="cell zero">0</div><div class="cell zero">0</div>
+            </div><div class="braceR"></div><span class="pt">C</span></div>
+          </div>
+        </div></div>
+      </div>
+
+      <div class="q-card">
+        <div class="q-top"><span class="q-tag">2</span>
+          <div class="q-prompt">Écrire les moments de chaque AM en C, appliquer le PFS et résoudre pour trouver Y<sub>D</sub>, X<sub>C</sub>, Y<sub>C</sub>.</div>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+        <div class="q-answer"><div class="q-answer-inner">
+          <div class="eqn-block">
+<div>M<sub>C</sub>(pes→2) = CG₂→ ∧ P<sub>2</sub> &nbsp;&nbsp;avec CG₂ = 6630 − 3330 = 3300 mm &nbsp;⇒&nbsp; M<sub>C</sub> = −3300 × P<sub>2</sub></div>
+<div>M<sub>C</sub>(sol→2) = CD→ ∧ Y<sub>D</sub> &nbsp;&nbsp;avec CD = 7170 − 3330 = 3840 mm &nbsp;⇒&nbsp; M<sub>C</sub> = 3840 × Y<sub>D</sub></div>
+<div>M<sub>C</sub>(1→2) = 0 &nbsp;<span class="comment">(appliqué en C même)</span></div>
+          </div>
+          <div class="eqn-block">
+<div>ΣM<sub>C</sub> = 0 ⇒ −3300×P<sub>2</sub> + 3840×Y<sub>D</sub> = 0 ⇒ Y<sub>D</sub> = 3300×8000 / 3840</div>
+<div>ΣF<sub>x</sub> = 0 ⇒ X<sub>C</sub> = 0</div>
+<div>ΣF<sub>y</sub> = 0 ⇒ Y<sub>C</sub> = P<sub>2</sub> − Y<sub>D</sub></div>
+          </div>
+          <div class="result-box"><span class="rlabel">Y<sub>D</sub> = 6875 N &nbsp;·&nbsp; X<sub>C</sub> = 0 &nbsp;·&nbsp;</span><span class="rval">Y<sub>C</sub> = 1125 N</span></div>
+          <p style="color:#8ea3ba; font-size:12.5px;">Sans frottement de roulement ni traînée modélisés, aucun effort horizontal n'est nécessaire à l'attelage : c'est cohérent avec le report de charge classique d'une remorque (une partie du poids du bateau, ici 1125 N, se reporte sur l'arrière de la voiture).</p>
+        </div></div>
+      </div>
+
+      <div class="q-card">
+        <div class="q-top"><span class="q-tag">3</span>
+          <div class="q-prompt">Isoler la voiture (1), écrire les 4 torseurs d'AM extérieures et appliquer le PFS (moment en A) pour trouver Y<sub>A</sub> et Y<sub>B</sub>.</div>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+        <div class="q-answer"><div class="q-answer-inner">
+          <div class="eqn-block">
+<div class="comment">Par le principe des actions réciproques : {τ<sub>2→1</sub>} en C = − {τ<sub>1→2</sub>} = (0 , −1125 , 0)</div>
+          </div>
+          <div class="eqn-block">
+<div>M<sub>A</sub>(pes→1) = 1550 × (−P<sub>1</sub>) = −23 250 000</div>
+<div>M<sub>A</sub>(sol→1, en B) = 2370 × Y<sub>B</sub></div>
+<div>M<sub>A</sub>(2→1, en C) = 3330 × (−1125) = −3 746 250</div>
+<div>ΣM<sub>A</sub> = 0 ⇒ 2370×Y<sub>B</sub> = 23 250 000 + 3 746 250 = 26 996 250</div>
+          </div>
+          <div class="eqn-block">
+<div>Y<sub>B</sub> = 26 996 250 / 2370 = 11 391 N</div>
+<div>ΣF<sub>y</sub> = 0 ⇒ Y<sub>A</sub> + Y<sub>B</sub> − P<sub>1</sub> − 1125 = 0 ⇒ Y<sub>A</sub> = 16 125 − 11 391</div>
+          </div>
+          <div class="result-box"><span class="rlabel">Y<sub>A</sub> = 4734 N &nbsp;·&nbsp;</span><span class="rval">Y<sub>B</sub> = 11 391 N</span></div>
+          <div class="conform-box">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>
+            <div>Vérification globale : Y<sub>A</sub> + Y<sub>B</sub> + Y<sub>D</sub> = 4734 + 11391 + 6875 = <b>23 000 N</b> = P<sub>1</sub> + P<sub>2</sub> ✓ — l'ensemble du poids est bien repris par les 3 points de contact au sol.</div>
+          </div>
+        </div></div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<footer>
+  Compilation des éléments de correction — Académie de Toulouse, filière SI. Document de révision généré pour un usage personnel.
+</footer>
+
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+  var cards = Array.from(document.querySelectorAll('.q-card'));
+  var fill = document.getElementById('progressFill');
+  var countEl = document.getElementById('progressCount');
+
+  function updateProgress(){
+    var opened = cards.filter(function(c){return c.classList.contains('open');}).length;
+    var pct = cards.length ? Math.round(opened/cards.length*100) : 0;
+    fill.style.width = pct + '%';
+    countEl.textContent = opened + ' / ' + cards.length + ' corrections révélées';
+  }
+
+  cards.forEach(function(card){
+    var top = card.querySelector('.q-top');
+    var answer = card.querySelector('.q-answer');
+    top.addEventListener('click', function(){
+      var isOpen = card.classList.toggle('open');
+      answer.style.maxHeight = isOpen ? answer.scrollHeight + 'px' : null;
+      updateProgress();
+    });
+  });
+
+  // toggle-all buttons per exercise section
+  document.querySelectorAll('.btn-toggle-all').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var section = btn.closest('.exo');
+      var sectionCards = section.querySelectorAll('.q-card');
+      var anyClosed = Array.from(sectionCards).some(function(c){return !c.classList.contains('open');});
+      sectionCards.forEach(function(c){
+        var ans = c.querySelector('.q-answer');
+        if(anyClosed){
+          c.classList.add('open');
+          ans.style.maxHeight = ans.scrollHeight + 'px';
+        } else {
+          c.classList.remove('open');
+          ans.style.maxHeight = null;
+        }
+      });
+      btn.textContent = anyClosed ? 'Tout masquer' : 'Tout révéler';
+      updateProgress();
+    });
+  });
+
+  updateProgress();
+
+  // recalc open max-heights on resize (font reflow etc.)
+  window.addEventListener('resize', function(){
+    document.querySelectorAll('.q-card.open .q-answer').forEach(function(a){
+      a.style.maxHeight = a.scrollHeight + 'px';
+    });
+  });
+
+  // sidebar active link on scroll
+  var sections = Array.from(document.querySelectorAll('.exo'));
+  var links = Array.from(document.querySelectorAll('.navlist a'));
+  var observer = new IntersectionObserver(function(entries){
+    entries.forEach(function(entry){
+      var id = entry.target.getAttribute('id');
+      var link = links.find(function(l){return l.getAttribute('href') === '#' + id;});
+      if(entry.isIntersecting && link){
+        links.forEach(function(l){l.classList.remove('active');});
+        link.classList.add('active');
+      }
+    });
+  }, {rootMargin:'-15% 0px -70% 0px', threshold:0});
+  sections.forEach(function(s){observer.observe(s);});
+
+  // mobile menu
+  var menuBtn = document.getElementById('menuBtn');
+  var sidebar = document.getElementById('sidebar');
+  if(menuBtn){
+    menuBtn.addEventListener('click', function(){ sidebar.classList.toggle('open'); });
+  }
+
+  // explicit click-to-scroll (more reliable than native #hash jumps inside embedded previews)
+  links.forEach(function(l){
+    l.addEventListener('click', function(e){
+      e.preventDefault();
+      var targetId = l.getAttribute('href').slice(1);
+      var target = document.getElementById(targetId);
+      if(target){
+        target.scrollIntoView({behavior:'smooth', block:'start'});
+        links.forEach(function(x){x.classList.remove('active');});
+        l.classList.add('active');
+      }
+      if(sidebar) sidebar.classList.remove('open');
+    });
+  });
+});
+</script>
+<a href="../index.html" style="position:fixed;bottom:16px;left:16px;z-index:99999;background:#1e3a5f;color:#fff;padding:10px 16px;border-radius:24px;font:600 14px system-ui,sans-serif;text-decoration:none;box-shadow:0 2px 8px rgba(0,0,0,.25)">← Sommaire</a></body>
+</html>
