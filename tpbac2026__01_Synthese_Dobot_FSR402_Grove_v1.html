@@ -1,0 +1,1018 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Synthèse – Bras Robot DOBOT & FSR 402 + Grove Shield</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg:         #0d0f14;
+      --surface:    #13161e;
+      --card:       #181c27;
+      --border:     #232840;
+      --accent:     #e8512a;
+      --accent2:    #f0a500;
+      --accent3:    #3ecfcf;
+      --text:       #e8eaf0;
+      --muted:      #7a7f96;
+      --code-bg:    #0a0c10;
+      --code-border:#2a3050;
+      --green:      #4ade80;
+      --purple:     #c084fc;
+      --radius:     12px;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Syne', sans-serif;
+      font-size: 15px;
+      line-height: 1.7;
+      min-height: 100vh;
+    }
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+      pointer-events: none; z-index: 0; opacity: .6;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(13,15,20,.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 40px;
+      display: flex; align-items: center; gap: 0;
+      overflow-x: auto;
+    }
+    nav a {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 14px 16px;
+      font-family: 'DM Mono', monospace;
+      font-size: .72rem;
+      letter-spacing: .5px;
+      color: var(--muted);
+      text-decoration: none;
+      border-bottom: 2px solid transparent;
+      white-space: nowrap;
+      transition: color .2s, border-color .2s;
+    }
+    nav a:hover { color: var(--text); border-color: var(--accent); }
+    nav a .n { color: var(--accent); margin-right: 2px; }
+
+    /* ── HEADER ── */
+    header {
+      position: relative; overflow: hidden;
+      padding: 80px 60px 60px;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(135deg, #0d0f14 0%, #141828 60%, #0d0f14 100%);
+    }
+    header::after {
+      content: '';
+      position: absolute; top: -80px; right: -80px;
+      width: 420px; height: 420px;
+      background: radial-gradient(circle, rgba(232,81,42,.18) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .header-tag {
+      display: inline-block;
+      font-family: 'DM Mono', monospace; font-size: 11px;
+      letter-spacing: 2px; text-transform: uppercase;
+      color: var(--accent); border: 1px solid var(--accent);
+      padding: 4px 12px; border-radius: 40px; margin-bottom: 24px;
+      animation: fadeUp .6s ease both;
+    }
+    header h1 {
+      font-size: clamp(2rem, 5vw, 3.4rem);
+      font-weight: 800; line-height: 1.1; letter-spacing: -1px;
+      animation: fadeUp .7s .1s ease both;
+    }
+    header h1 span { color: var(--accent); }
+    .header-sub {
+      font-family: 'Instrument Serif', serif; font-style: italic;
+      color: var(--muted); font-size: 1.1rem; margin-top: 14px;
+      animation: fadeUp .7s .2s ease both;
+    }
+    .header-badges {
+      display: flex; flex-wrap: wrap; gap: 10px; margin-top: 28px;
+      animation: fadeUp .7s .3s ease both;
+    }
+    .badge {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 6px; padding: 6px 14px;
+      font-family: 'DM Mono', monospace; font-size: 12px; color: var(--accent3);
+    }
+    .badge.grove { color: var(--green); border-color: rgba(74,222,128,.3); background: rgba(74,222,128,.07); }
+
+    /* ── LAYOUT ── */
+    .wrapper { max-width: 1100px; margin: 0 auto; padding: 0 40px 80px; }
+
+    /* ── SECTION ── */
+    .section { margin-top: 64px; animation: fadeUp .6s ease both; }
+    .section-label { display: flex; align-items: center; gap: 12px; margin-bottom: 28px; }
+    .section-num {
+      font-family: 'DM Mono', monospace; font-size: 11px;
+      color: var(--accent); background: rgba(232,81,42,.1);
+      border: 1px solid rgba(232,81,42,.3);
+      border-radius: 4px; padding: 3px 8px;
+    }
+    .section-title { font-size: 1.4rem; font-weight: 700; letter-spacing: -.3px; }
+    hr.section-rule { border: none; border-top: 1px solid var(--border); margin-bottom: 28px; }
+
+    /* ── GRIDS ── */
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; }
+    .grid-4 { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; }
+
+    /* ── CARDS ── */
+    .card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 24px;
+      transition: border-color .25s, transform .25s;
+    }
+    .card:hover { border-color: var(--accent); transform: translateY(-3px); }
+    .card-icon {
+      width: 40px; height: 40px; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; margin-bottom: 14px;
+    }
+    .card-icon.orange { background: rgba(232,81,42,.15); }
+    .card-icon.teal   { background: rgba(62,207,207,.12); }
+    .card-icon.yellow { background: rgba(240,165,0,.12); }
+    .card-icon.green  { background: rgba(74,222,128,.1); }
+    .card-icon.purple { background: rgba(192,132,252,.1); }
+    .card h3 { font-size: .95rem; font-weight: 700; margin-bottom: 6px; }
+    .card p, .card li { color: var(--muted); font-size: .87rem; }
+    .card ul { list-style: none; display: flex; flex-direction: column; gap: 5px; }
+    .card ul li::before { content: '→ '; color: var(--accent3); }
+
+    /* ── TABLES ── */
+    .spec-table { width: 100%; border-collapse: collapse; font-size: .88rem; }
+    .spec-table thead tr { background: var(--surface); border-bottom: 2px solid var(--accent); }
+    .spec-table th {
+      text-align: left; padding: 12px 16px;
+      font-family: 'DM Mono', monospace; font-size: .78rem;
+      letter-spacing: 1px; text-transform: uppercase; color: var(--accent);
+    }
+    .spec-table tbody tr { border-bottom: 1px solid var(--border); transition: background .15s; }
+    .spec-table tbody tr:hover { background: rgba(255,255,255,.03); }
+    .spec-table td { padding: 11px 16px; color: var(--muted); }
+    .spec-table td:first-child { color: var(--text); font-weight: 600; }
+    .spec-table td .val { font-family: 'DM Mono', monospace; color: var(--accent3); }
+    .spec-table td .val.green { color: var(--green); }
+    .spec-table td .val.orange { color: var(--accent); }
+    .spec-table td .val.purple { color: var(--purple); }
+
+    /* ── GROVE PIN TABLE ── */
+    .pin-table { width: 100%; border-collapse: collapse; font-size: .85rem; }
+    .pin-table thead tr { background: rgba(74,222,128,.08); border-bottom: 2px solid rgba(74,222,128,.3); }
+    .pin-table th {
+      text-align: left; padding: 11px 16px;
+      font-family: 'DM Mono', monospace; font-size: .75rem;
+      letter-spacing: 1px; text-transform: uppercase; color: var(--green);
+    }
+    .pin-table tbody tr { border-bottom: 1px solid var(--border); transition: background .15s; }
+    .pin-table tbody tr:hover { background: rgba(74,222,128,.04); }
+    .pin-table td { padding: 10px 16px; }
+    .pin-table td:first-child { font-family: 'DM Mono', monospace; font-weight: 700; }
+    .pin-vcc  { color: #f87171; }
+    .pin-gnd  { color: #60a5fa; }
+    .pin-sig  { color: var(--accent3); }
+    .pin-nc   { color: var(--muted); }
+    .pin-sda  { color: var(--purple); }
+    .pin-scl  { color: var(--accent2); }
+
+    /* ── WIRING BOX ── */
+    .wiring-box {
+      background: var(--code-bg); border: 1px solid var(--code-border);
+      border-radius: var(--radius); padding: 28px 32px;
+      font-family: 'DM Mono', monospace; font-size: .82rem;
+      line-height: 2.1; overflow-x: auto;
+    }
+    .w-5v    { color: #f87171; }
+    .w-gnd   { color: #60a5fa; }
+    .w-pin   { color: var(--accent3); }
+    .w-comp  { color: var(--accent2); }
+    .w-node  { color: var(--purple); }
+    .w-grove { color: var(--green); }
+    .w-comment { color: #4b5563; font-style: italic; }
+
+    /* ── FORMULA ── */
+    .formula-box {
+      background: linear-gradient(135deg, rgba(62,207,207,.07), rgba(232,81,42,.07));
+      border: 1px solid var(--border); border-left: 3px solid var(--accent3);
+      border-radius: var(--radius); padding: 24px 28px; margin: 20px 0;
+    }
+    .formula-box .formula {
+      font-family: 'DM Mono', monospace; font-size: 1.05rem;
+      color: var(--accent3); display: block; margin: 10px 0;
+    }
+    .formula-box p { color: var(--muted); font-size: .87rem; }
+    .formula-box strong { color: var(--text); }
+
+    /* ── CODE BLOCK ── */
+    .code-wrap { background: var(--code-bg); border: 1px solid var(--code-border); border-radius: var(--radius); overflow: hidden; }
+    .code-header {
+      display: flex; align-items: center; justify-content: space-between;
+      background: #111418; padding: 10px 20px; border-bottom: 1px solid var(--code-border);
+    }
+    .code-header span { font-family: 'DM Mono', monospace; font-size: .75rem; color: var(--muted); }
+    .code-dots { display: flex; gap: 6px; }
+    .code-dots i { width: 10px; height: 10px; border-radius: 50%; display: block; }
+    .dot-r { background: #f87171; } .dot-y { background: #facc15; } .dot-g { background: #4ade80; }
+    pre {
+      padding: 24px 28px; overflow-x: auto;
+      font-family: 'DM Mono', monospace; font-size: .8rem; line-height: 1.8; color: #c9d1d9;
+    }
+    .kw  { color: #ff7b72; } .typ { color: #ffa657; }
+    .cmt { color: #4b5563; font-style: italic; }
+    .str { color: #a5d6ff; } .num { color: #79c0ff; }
+    .fn  { color: #d2a8ff; } .var { color: #e8eaf0; } .op  { color: var(--accent3); }
+
+    /* ── DIFF TABLE ── */
+    .diff-table { width: 100%; border-collapse: collapse; font-size: .87rem; }
+    .diff-table th {
+      background: var(--surface); border-bottom: 2px solid var(--border);
+      padding: 12px 16px; text-align: left;
+      font-size: .78rem; letter-spacing: 1px; text-transform: uppercase; color: var(--muted);
+    }
+    .diff-table td { padding: 11px 16px; border-bottom: 1px solid var(--border); }
+    .diff-table td:first-child { color: var(--text); font-weight: 600; font-size: .85rem; }
+    .old     { color: #f87171; font-family: 'DM Mono', monospace; font-size: .8rem; }
+    .new-val { color: var(--green); font-family: 'DM Mono', monospace; font-size: .8rem; }
+
+    /* ── CALLOUT ── */
+    .callout {
+      display: flex; gap: 16px; border-radius: var(--radius);
+      padding: 18px 22px; margin: 20px 0;
+    }
+    .callout.warn  { background: rgba(240,165,0,.08);   border: 1px solid rgba(240,165,0,.25); }
+    .callout.info  { background: rgba(62,207,207,.08);  border: 1px solid rgba(62,207,207,.2); }
+    .callout.ok    { background: rgba(74,222,128,.06);  border: 1px solid rgba(74,222,128,.2); }
+    .callout.grove { background: rgba(74,222,128,.06);  border: 1px solid rgba(74,222,128,.3); }
+    .callout-icon  { font-size: 1.2rem; flex-shrink: 0; margin-top: 2px; }
+    .callout p     { font-size: .87rem; color: var(--muted); }
+    .callout strong { color: var(--text); display: block; margin-bottom: 4px; }
+
+    /* ── STEPS ── */
+    .steps { display: flex; flex-direction: column; gap: 0; }
+    .step  { display: flex; gap: 20px; padding: 20px 0; border-bottom: 1px solid var(--border); }
+    .step:last-child { border-bottom: none; }
+    .step-num {
+      width: 36px; height: 36px; flex-shrink: 0;
+      background: var(--accent); border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'DM Mono', monospace; font-size: .8rem; font-weight: 700; color: #fff;
+    }
+    .step-content h4 { font-size: .95rem; font-weight: 700; margin-bottom: 5px; }
+    .step-content p  { font-size: .87rem; color: var(--muted); }
+    .step-content code {
+      background: var(--code-bg); border: 1px solid var(--code-border);
+      border-radius: 4px; padding: 1px 7px;
+      font-family: 'DM Mono', monospace; font-size: .8rem; color: var(--accent3);
+    }
+
+    /* ── GROVE CONNECTOR VISUAL ── */
+    .grove-connector-wrap {
+      display: grid; grid-template-columns: auto 1fr; gap: 28px;
+      align-items: start;
+    }
+    .grove-visual {
+      background: var(--code-bg); border: 1px solid rgba(74,222,128,.3);
+      border-radius: var(--radius); padding: 24px 20px;
+      font-family: 'DM Mono', monospace; font-size: .78rem; line-height: 1;
+      white-space: pre; color: var(--muted); flex-shrink: 0;
+    }
+    .gv-title { color: var(--green); font-weight: 700; display: block; margin-bottom: 12px; text-align: center; }
+
+    /* ── FOOTER ── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 30px 60px;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 12px;
+    }
+    footer p { font-family: 'DM Mono', monospace; font-size: .75rem; color: var(--muted); }
+    footer .ft-badge {
+      background: rgba(232,81,42,.1); border: 1px solid rgba(232,81,42,.3);
+      color: var(--accent); padding: 4px 12px; border-radius: 40px;
+      font-size: .75rem; font-family: 'DM Mono', monospace;
+    }
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(18px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 800px) {
+      header { padding: 48px 24px 40px; }
+      .wrapper { padding: 0 20px 60px; }
+      .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+      .grove-connector-wrap { grid-template-columns: 1fr; }
+      footer { padding: 24px; }
+      nav { padding: 0 16px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══ NAV ══ -->
+<nav>
+  <a href="#presentation"><span class="n">01</span> Présentation</a>
+  <a href="#materiel"><span class="n">02</span> Matériel</a>
+  <a href="#fsr402"><span class="n">03</span> FSR 402</a>
+  <a href="#grove"><span class="n">04</span> Grove Shield</a>
+  <a href="#cablage"><span class="n">05</span> Câblage</a>
+  <a href="#code"><span class="n">06</span> Code Arduino</a>
+  <a href="#modifs"><span class="n">07</span> Modifications</a>
+  <a href="#calibration"><span class="n">08</span> Calibration</a>
+  <a href="#vigilance"><span class="n">09</span> Vigilance</a>
+  <a href="#chaine"><span class="n">10</span> Chaîne de mesure</a>
+</nav>
+
+<!-- ══ HEADER ══ -->
+<header>
+  <div class="header-tag">Système Pluritechnologique</div>
+  <h1>Bras Robot <span>DOBOT</span><br/>Force de Préhension</h1>
+  <p class="header-sub">Protocole expérimental — Capteur FSR® 402 · Arduino + Grove Base Shield · LCD I²C</p>
+  <div class="header-badges">
+    <span class="badge">FSR® 402 — Interlink Electronics</span>
+    <span class="badge">Arduino UNO</span>
+    <span class="badge grove">✦ Grove Base Shield 103030000</span>
+    <span class="badge">LCD 16×2 I²C</span>
+    <span class="badge">Plage : 0,2 N – 20 N</span>
+  </div>
+</header>
+
+<div class="wrapper">
+
+  <!-- ══ 01 PRÉSENTATION ══ -->
+  <div class="section" id="presentation">
+    <div class="section-label">
+      <span class="section-num">01</span>
+      <span class="section-title">Présentation du système</span>
+    </div>
+    <hr class="section-rule"/>
+    <div class="grid-3">
+      <div class="card">
+        <div class="card-icon orange">🤖</div>
+        <h3>Bras DOBOT</h3>
+        <ul>
+          <li>Robot 4 axes</li>
+          <li>Pince à deux mors symétriques</li>
+          <li>Fermeture motorisée</li>
+          <li>Usage pédagogique / industriel</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="card-icon teal">📏</div>
+        <h3>Mesure de force</h3>
+        <ul>
+          <li>Capteur FSR 402 sur un mors</li>
+          <li>Pont diviseur + Grove Shield</li>
+          <li>Lecture analogique Arduino A0</li>
+          <li>Conversion R → Force (N)</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="card-icon yellow">📺</div>
+        <h3>Interface utilisateur</h3>
+        <ul>
+          <li>LCD 16×2 I²C sur port Grove I2C</li>
+          <li>Affichage temps réel en Newton</li>
+          <li>Débogage moniteur série</li>
+          <li>Rafraîchissement toutes 200 ms</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ 02 MATÉRIEL ══ -->
+  <div class="section" id="materiel">
+    <div class="section-label">
+      <span class="section-num">02</span>
+      <span class="section-title">Matériel nécessaire</span>
+    </div>
+    <hr class="section-rule"/>
+    <table class="spec-table">
+      <thead>
+        <tr>
+          <th>Composant</th>
+          <th>Référence</th>
+          <th>Connexion Grove</th>
+          <th>Remarque</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Bras de robot</td>
+          <td><span class="val">DOBOT Magician</span></td>
+          <td>—</td>
+          <td>Pince à deux mors symétriques</td>
+        </tr>
+        <tr>
+          <td>Microcontrôleur</td>
+          <td><span class="val">Arduino UNO</span></td>
+          <td>—</td>
+          <td>ADC 10 bits, alimentation 5 V</td>
+        </tr>
+        <tr>
+          <td>Shield de connexion</td>
+          <td><span class="val green">Grove Base Shield 103030000</span></td>
+          <td><span class="val green">Support de tous les ports</span></td>
+          <td>Se clippe directement sur l'UNO</td>
+        </tr>
+        <tr>
+          <td>Capteur de force</td>
+          <td><span class="val">FSR® 402 — Interlink</span></td>
+          <td><span class="val orange">Port A0 (câble Grove adapté)</span></td>
+          <td>Ø 14,68 mm · 0,2 – 20 N</td>
+        </tr>
+        <tr>
+          <td>Résistance de mesure</td>
+          <td><span class="val">10 kΩ</span></td>
+          <td><span class="val orange">Entre SIG et GND du câble Grove</span></td>
+          <td>À intégrer sur le câble (externe au shield)</td>
+        </tr>
+        <tr>
+          <td>Câble Grove 4 fils</td>
+          <td><span class="val green">Câble Grove universel</span></td>
+          <td><span class="val green">Connecte FSR + R_M au port A0</span></td>
+          <td>Câble femelle coupé côté FSR</td>
+        </tr>
+        <tr>
+          <td>Afficheur LCD</td>
+          <td><span class="val">LCD16X2I2C (rgb_lcd)</span></td>
+          <td><span class="val green">Port I2C du Grove Shield</span></td>
+          <td>Branchement direct, aucun câblage manuel</td>
+        </tr>
+        <tr>
+          <td>Adhésif / colle</td>
+          <td><span class="val">Point de colle</span></td>
+          <td>—</td>
+          <td>Fixation FSR sur le mors (centré)</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="callout grove" style="margin-top:20px;">
+      <span class="callout-icon">🟢</span>
+      <div>
+        <strong>Avantage du Grove Base Shield</strong>
+        <p>Le Grove Base Shield élimine tout câblage fil-à-fil pour le LCD (port I2C) et le FSR (port A0). Les connecteurs standardisés 4 broches (VCC · GND · SIG · NC) réduisent les erreurs de câblage et accélèrent le montage.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ 03 FSR 402 ══ -->
+  <div class="section" id="fsr402">
+    <div class="section-label">
+      <span class="section-num">03</span>
+      <span class="section-title">Capteur FSR® 402 — Caractéristiques clés</span>
+    </div>
+    <hr class="section-rule"/>
+    <div class="grid-2" style="margin-bottom:20px;">
+      <div class="card">
+        <div class="card-icon teal">📐</div>
+        <h3>Données mécaniques</h3>
+        <ul>
+          <li>Zone active : <strong style="color:var(--accent3)">Ø 14,68 mm</strong></li>
+          <li>Épaisseur nominale : <strong style="color:var(--accent3)">0,46 mm</strong></li>
+          <li>Course de commutation : 0,15 mm</li>
+          <li>Structure multicouche PTF</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="card-icon orange">⚡</div>
+        <h3>Performances électriques</h3>
+        <ul>
+          <li>Force de déclenchement : <strong style="color:var(--accent)">≥ 0,2 N</strong></li>
+          <li>Plage de sensibilité : <strong style="color:var(--accent)">0,2 – 20 N</strong></li>
+          <li>Résistance au repos : <strong style="color:var(--accent3)">> 10 MΩ</strong></li>
+          <li>Temps de réponse : <strong style="color:var(--accent3)">&lt; 3 µs</strong></li>
+        </ul>
+      </div>
+    </div>
+    <table class="spec-table">
+      <thead>
+        <tr><th>Paramètre</th><th>Valeur</th><th>Impact sur le protocole</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Répétabilité (même capteur)</td><td><span class="val">± 2 %</span></td><td>Mesures reproductibles</td></tr>
+        <tr><td>Répétabilité (lot à lot)</td><td><span class="val">± 6 %</span></td><td>Calibration individuelle recommandée</td></tr>
+        <tr><td>Hystérésis</td><td><span class="val">+10 % moy.</span></td><td>Légère différence montée/descente</td></tr>
+        <tr><td>Dérive long terme (35 j, 1 kg)</td><td><span class="val">&lt; 5 % log(t)</span></td><td>Stable en conditions normales</td></tr>
+        <tr><td>Durée de vie</td><td><span class="val">10 millions d'actuations</span></td><td>Très robuste pour usage intensif</td></tr>
+        <tr><td>Température d'utilisation</td><td><span class="val">−40°C … +85°C</span></td><td>Compatible usage atelier</td></tr>
+        <tr><td>EMI / ESD</td><td><span class="val">Aucune / Non sensible</span></td><td>Pas de protection externe requise</td></tr>
+        <tr><td>Conformité</td><td><span class="val">RoHS · UL 94 V-1</span></td><td>Compatible environnement scolaire</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ══ 04 GROVE SHIELD ══ -->
+  <div class="section" id="grove">
+    <div class="section-label">
+      <span class="section-num">04</span>
+      <span class="section-title">Grove Base Shield 103030000 — Ports utilisés</span>
+    </div>
+    <hr class="section-rule"/>
+
+    <div class="grove-connector-wrap">
+      <!-- Visual connecteur Grove -->
+      <div class="grove-visual">
+<span class="gv-title">Connecteur Grove 4 broches</span><span style="color:var(--green)">┌─────────────────────┐
+│  Grove 4-pin socket │
+└──┬───┬───┬───┬──────┘</span>
+   <span style="color:#f87171">█</span>   <span style="color:#60a5fa">█</span>   <span style="color:var(--accent3)">█</span>   <span style="color:var(--muted)">█</span>
+  <span style="color:#f87171">VCC</span> <span style="color:#60a5fa">GND</span> <span style="color:var(--accent3)">SIG</span>  <span style="color:var(--muted)">NC</span>
+  <span style="color:#f87171">5V</span>  <span style="color:#60a5fa">0V</span>  <span style="color:var(--accent3)">A0</span>
+
+<span style="color:var(--green)">┌─────────────────────┐
+│  Grove I2C socket   │
+└──┬───┬───┬───┬──────┘</span>
+   <span style="color:#f87171">█</span>   <span style="color:#60a5fa">█</span>   <span style="color:var(--purple)">█</span>   <span style="color:var(--accent2)">█</span>
+  <span style="color:#f87171">VCC</span> <span style="color:#60a5fa">GND</span> <span style="color:var(--purple)">SDA</span> <span style="color:var(--accent2)">SCL</span>
+  <span style="color:#f87171">5V</span>  <span style="color:#60a5fa">0V</span>  <span style="color:var(--purple)">A4</span>  <span style="color:var(--accent2)">A5</span>
+      </div>
+
+      <!-- Table des broches -->
+      <div>
+        <table class="pin-table">
+          <thead>
+            <tr>
+              <th>Broche</th>
+              <th>Couleur câble</th>
+              <th>Signal</th>
+              <th>Connecté à</th>
+              <th>Rôle</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="pin-vcc">Pin 1 — VCC</td>
+              <td><span style="color:#f87171">■</span> Rouge</td>
+              <td class="pin-vcc">5 V</td>
+              <td>Borne + du FSR 402</td>
+              <td>Alimentation pont diviseur</td>
+            </tr>
+            <tr>
+              <td class="pin-gnd">Pin 2 — GND</td>
+              <td><span style="color:#60a5fa">■</span> Noir</td>
+              <td class="pin-gnd">0 V</td>
+              <td>Borne − de R_M (10 kΩ)</td>
+              <td>Référence commune</td>
+            </tr>
+            <tr>
+              <td class="pin-sig">Pin 3 — SIG</td>
+              <td><span style="color:var(--accent3)">■</span> Blanc/Jaune</td>
+              <td class="pin-sig">A0</td>
+              <td>Nœud FSR / R_M</td>
+              <td>Lecture tension V_OUT</td>
+            </tr>
+            <tr>
+              <td class="pin-nc">Pin 4 — NC</td>
+              <td><span style="color:var(--muted)">■</span> Jaune/Blanc</td>
+              <td class="pin-nc">Non connecté</td>
+              <td>—</td>
+              <td>Non utilisé</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div style="margin-top:16px;">
+          <table class="pin-table">
+            <thead>
+              <tr>
+                <th>Broche I2C</th>
+                <th>Couleur câble</th>
+                <th>Signal Arduino</th>
+                <th>Connecté à (LCD)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="pin-vcc">Pin 1 — VCC</td>
+                <td><span style="color:#f87171">■</span> Rouge</td>
+                <td class="pin-vcc">5 V</td>
+                <td>VCC LCD</td>
+              </tr>
+              <tr>
+                <td class="pin-gnd">Pin 2 — GND</td>
+                <td><span style="color:#60a5fa">■</span> Noir</td>
+                <td class="pin-gnd">0 V</td>
+                <td>GND LCD</td>
+              </tr>
+              <tr>
+                <td class="pin-sda">Pin 3 — SDA</td>
+                <td><span style="color:var(--purple)">■</span> Blanc</td>
+                <td class="pin-sda">A4 (SDA)</td>
+                <td>SDA LCD</td>
+              </tr>
+              <tr>
+                <td class="pin-scl">Pin 4 — SCL</td>
+                <td><span style="color:var(--accent2)">■</span> Jaune</td>
+                <td class="pin-scl">A5 (SCL)</td>
+                <td>SCL LCD</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout info" style="margin-top:20px;">
+      <span class="callout-icon">ℹ️</span>
+      <div>
+        <strong>LCD Grove — branchement direct, zéro câblage</strong>
+        <p>Le LCD 16×2 I²C Grove se branche <strong>directement</strong> sur l'un des deux ports I2C du Grove Base Shield via son câble 4 fils natif. Aucun câblage supplémentaire n'est nécessaire. C'est le principal avantage du shield pour ce composant.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ 05 CÂBLAGE ══ -->
+  <div class="section" id="cablage">
+    <div class="section-label">
+      <span class="section-num">05</span>
+      <span class="section-title">Schéma de câblage complet — Avec Grove Shield</span>
+    </div>
+    <hr class="section-rule"/>
+
+    <div class="formula-box">
+      <p>Le FSR 402 est intégré dans un <strong>pont diviseur de tension</strong> :</p>
+      <span class="formula">V_OUT = ( R_M × V+ ) / ( R_M + R_FSR )</span>
+      <p>La résistance <strong>R_M = 10 kΩ</strong> n'est pas intégrée au Grove Shield — elle doit être câblée <strong>en externe</strong> entre la broche SIG et GND du câble Grove, directement sur le fil ou sur une mini breadboard.</p>
+    </div>
+
+    <div class="wiring-box">
+<span class="w-grove">┌──────────────────────────────────────────────────────────┐
+│              GROVE BASE SHIELD (sur Arduino UNO)         │
+│                                                          │
+│  Port A0          Port I2C (LCD)                         │
+│  [VCC|GND|SIG|NC] [VCC|GND|SDA|SCL]                     │
+└────┬────┬────┬─────────────────────────────────────────-─┘</span>
+     │    │    │
+     │    │    └──────────────────────── <span class="w-pin">A0 Arduino</span>
+     │    │                                    │
+     │    │                             <span class="w-comment">← point de mesure V_OUT</span>
+     │    │                                    │
+     │    │                            <span class="w-comp">[ 10 kΩ R_M ]</span>  <span class="w-comment">← externe au shield</span>
+     │    │                                    │
+     │    └────────────────────────────────────┘
+     │                                <span class="w-gnd">GND commun</span>
+     │
+     └──── <span class="w-5v">5V</span>
+            │
+      <span class="w-comp">[ FSR 402 ]</span>    <span class="w-comment">← collé sur le mors de la pince</span>
+            │
+            └──── <span class="w-pin">SIG (A0)</span> ── <span class="w-comp">[ 10 kΩ R_M ]</span> ── <span class="w-gnd">GND</span>
+
+<span class="w-comment">─────────────────── LCD I²C ───────────────────────────────</span>
+<span class="w-grove">Port I2C Grove</span> ──── câble Grove 4 fils ──── <span class="w-comp">LCD rgb_lcd Grove</span>
+  <span class="w-5v">VCC</span> ─── <span class="w-comp">LCD VCC</span>
+  <span class="w-gnd">GND</span> ─── <span class="w-comp">LCD GND</span>
+  <span class="w-node">SDA</span> ─── <span class="w-comp">LCD SDA</span>   <span class="w-comment">← branchement plug-and-play</span>
+  <span class="w-node">SCL</span> ─── <span class="w-comp">LCD SCL</span>   <span class="w-comment">← aucun câblage manuel requis</span>
+    </div>
+
+    <div class="grid-2" style="margin-top:20px;">
+      <div class="callout grove">
+        <span class="callout-icon">🟢</span>
+        <div>
+          <strong>Ce que le Grove Shield simplifie</strong>
+          <p>Le LCD I²C se branche en <strong>plug-and-play</strong> sur le port I2C. Plus aucun fil individuel SDA/SCL à gérer. Le port A0 fournit directement VCC, GND et SIG pour le pont diviseur.</p>
+        </div>
+      </div>
+      <div class="callout warn">
+        <span class="callout-icon">⚠️</span>
+        <div>
+          <strong>Ce que le Grove Shield ne fait pas</strong>
+          <p>La résistance de mesure <strong>R_M = 10 kΩ</strong> doit toujours être câblée manuellement entre SIG (A0) et GND. Elle n'est pas intégrée au shield ni au FSR 402.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout info" style="margin-top: 4px;">
+      <span class="callout-icon">🔧</span>
+      <div>
+        <strong>Solution pratique pour la résistance 10 kΩ</strong>
+        <p>Couper un câble Grove femelle côté FSR, puis souder la résistance de 10 kΩ directement entre le fil <span style="color:var(--accent3)">SIG (blanc/jaune)</span> et le fil <span style="color:#60a5fa">GND (noir)</span>. Protéger avec de la gaine thermorétractable. Le FSR 402 se connecte ensuite entre <span style="color:#f87171">VCC (rouge)</span> et <span style="color:var(--accent3)">SIG (blanc/jaune)</span>.</p>
+      </div>
+    </div>
+
+    <div class="callout warn" style="margin-top:4px;">
+      <span class="callout-icon">📌</span>
+      <div>
+        <strong>Fixation du FSR 402 sur le mors</strong>
+        <p>Coller le FSR 402 sur <strong>l'un des deux mors</strong> de la pince avec un point de colle. Centrer la zone active (Ø 14,68 mm). La fermeture étant symétrique, le choix du mors n'a pas d'incidence sur la mesure.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ 06 CODE ══ -->
+  <div class="section" id="code">
+    <div class="section-label">
+      <span class="section-num">06</span>
+      <span class="section-title">Code Arduino — Version FSR 402 + Grove Shield</span>
+    </div>
+    <hr class="section-rule"/>
+
+    <div class="code-wrap">
+      <div class="code-header">
+        <div class="code-dots"><i class="dot-r"></i><i class="dot-y"></i><i class="dot-g"></i></div>
+        <span>sketch_fsr402_grove.ino</span>
+        <span>Arduino C++</span>
+      </div>
+      <pre><span class="cmt">// ═══════════════════════════════════════════════════════════════
+// Bras Robot DOBOT — Mesure de force de préhension
+// Capteur  : FSR® 402 (Interlink Electronics)
+// Shield   : Grove Base Shield 103030000
+//   FSR402 + R_M (10kΩ) → Port analogique A0 du Grove Shield
+//   LCD rgb_lcd          → Port I2C du Grove Shield (plug-and-play)
+// ═══════════════════════════════════════════════════════════════</span>
+
+<span class="kw">#include</span> <span class="str">&lt;Wire.h&gt;</span>       <span class="cmt">// Communication I²C (LCD via Grove I2C)</span>
+<span class="kw">#include</span> <span class="str">"rgb_lcd.h"</span>    <span class="cmt">// Bibliothèque LCD Grove</span>
+
+<span class="typ">rgb_lcd</span> <span class="var">lcd</span>;
+
+<span class="cmt">// ── Constantes ──────────────────────────────────────────────────
+// FSR 402 branché sur le port A0 du Grove Base Shield
+// Pont diviseur : 5V → FSR402 → nœud SIG(A0) → 10kΩ → GND</span>
+<span class="kw">const</span> <span class="typ">int</span>   <span class="var">sensorPin</span> <span class="op">=</span> <span class="var">A0</span>;       <span class="cmt">// Port A0 Grove Shield → broche A0 Arduino</span>
+<span class="kw">const</span> <span class="typ">float</span> <span class="var">VCC</span>       <span class="op">=</span> <span class="num">5.0</span>;      <span class="cmt">// Tension alimentation Grove Shield (V)</span>
+<span class="kw">const</span> <span class="typ">float</span> <span class="var">RM</span>        <span class="op">=</span> <span class="num">10000.0</span>; <span class="cmt">// Résistance de mesure externe (10 kΩ)</span>
+<span class="kw">const</span> <span class="typ">int</span>   <span class="var">colorR</span>    <span class="op">=</span> <span class="num">0</span>;
+<span class="kw">const</span> <span class="typ">int</span>   <span class="var">colorG</span>    <span class="op">=</span> <span class="num">0</span>;
+<span class="kw">const</span> <span class="typ">int</span>   <span class="var">colorB</span>    <span class="op">=</span> <span class="num">0</span>;
+
+<span class="cmt">// ── Variables ────────────────────────────────────────────────────</span>
+<span class="typ">int</span>   <span class="var">rawValue</span> <span class="op">=</span> <span class="num">0</span>;    <span class="cmt">// Valeur brute ADC 10 bits (0–1023)</span>
+<span class="typ">float</span> <span class="var">vOut</span>     <span class="op">=</span> <span class="num">0.0</span>; <span class="cmt">// Tension au nœud SIG du Grove A0 (V)</span>
+<span class="typ">float</span> <span class="var">rFSR</span>     <span class="op">=</span> <span class="num">0.0</span>; <span class="cmt">// Résistance du FSR 402 calculée (Ω)</span>
+<span class="typ">float</span> <span class="var">force</span>    <span class="op">=</span> <span class="num">0.0</span>; <span class="cmt">// Force de préhension estimée (N)</span>
+
+<span class="cmt">// ── Setup ────────────────────────────────────────────────────────</span>
+<span class="typ">void</span> <span class="fn">setup</span>() {
+  <span class="var">Serial</span>.<span class="fn">begin</span>(<span class="num">9600</span>);
+  <span class="cmt">// LCD connecté sur le port I2C du Grove Shield</span>
+  <span class="cmt">// Wire.begin() appelé automatiquement par rgb_lcd</span>
+  <span class="var">lcd</span>.<span class="fn">begin</span>(<span class="num">16</span>, <span class="num">2</span>);
+  <span class="var">lcd</span>.<span class="fn">setRGB</span>(<span class="var">colorR</span>, <span class="var">colorG</span>, <span class="var">colorB</span>);
+  <span class="var">lcd</span>.<span class="fn">print</span>(<span class="str">"Force (N) :"</span>);
+  <span class="fn">delay</span>(<span class="num">1000</span>);
+}
+
+<span class="cmt">// ── Loop ─────────────────────────────────────────────────────────</span>
+<span class="typ">void</span> <span class="fn">loop</span>() {
+
+  <span class="cmt">// 1. Lecture brute ADC — port A0 Grove Shield</span>
+  <span class="var">rawValue</span> <span class="op">=</span> <span class="fn">analogRead</span>(<span class="var">sensorPin</span>);
+
+  <span class="cmt">// 2. Conversion ADC → tension V_OUT au nœud SIG</span>
+  <span class="var">vOut</span> <span class="op">=</span> <span class="var">rawValue</span> <span class="op">*</span> (<span class="var">VCC</span> <span class="op">/</span> <span class="num">1023.0</span>);
+
+  <span class="cmt">// 3. Calcul résistance FSR 402 via pont diviseur inversé
+  //    V_OUT = RM*VCC/(RM+R_FSR) → R_FSR = RM*(VCC/V_OUT - 1)</span>
+  <span class="kw">if</span> (<span class="var">vOut</span> <span class="op">></span> <span class="num">0.01</span>) {   <span class="cmt">// Évite division par zéro (FSR non actionné)</span>
+    <span class="var">rFSR</span> <span class="op">=</span> <span class="var">RM</span> <span class="op">*</span> ((<span class="var">VCC</span> <span class="op">/</span> <span class="var">vOut</span>) <span class="op">-</span> <span class="num">1.0</span>);
+
+    <span class="cmt">// 4. Conversion R_FSR → Force (N)
+    //    Loi empirique basée sur courbe datasheet FSR 402
+    //    F(N) ≈ 1 / (R_FSR × 4e-5)  ← à affiner par calibration</span>
+    <span class="var">force</span> <span class="op">=</span> <span class="num">1.0</span> <span class="op">/</span> (<span class="var">rFSR</span> <span class="op">*</span> <span class="num">4e-5</span>);
+
+    <span class="cmt">// 5. Limitation à la plage utile du FSR 402 (0,2 N – 20 N)</span>
+    <span class="var">force</span> <span class="op">=</span> <span class="fn">constrain</span>(<span class="var">force</span>, <span class="num">0.0</span>, <span class="num">20.0</span>);
+  } <span class="kw">else</span> {
+    <span class="var">force</span> <span class="op">=</span> <span class="num">0.0</span>;  <span class="cmt">// Pince ouverte — aucune force</span>
+  }
+
+  <span class="cmt">// 6. Affichage LCD (port I2C Grove Shield)</span>
+  <span class="var">lcd</span>.<span class="fn">setCursor</span>(<span class="num">0</span>, <span class="num">1</span>);
+  <span class="var">lcd</span>.<span class="fn">print</span>(<span class="str">"                "</span>); <span class="cmt">// Efface la ligne 2</span>
+  <span class="var">lcd</span>.<span class="fn">setCursor</span>(<span class="num">0</span>, <span class="num">1</span>);
+  <span class="var">lcd</span>.<span class="fn">print</span>(<span class="var">force</span>, <span class="num">2</span>);
+  <span class="var">lcd</span>.<span class="fn">print</span>(<span class="str">" N    "</span>);
+
+  <span class="cmt">// 7. Débogage port série (aide à la calibration)</span>
+  <span class="var">Serial</span>.<span class="fn">print</span>(<span class="str">"ADC="</span>);    <span class="var">Serial</span>.<span class="fn">print</span>(<span class="var">rawValue</span>);
+  <span class="var">Serial</span>.<span class="fn">print</span>(<span class="str">" | Vout="</span>); <span class="var">Serial</span>.<span class="fn">print</span>(<span class="var">vOut</span>, <span class="num">3</span>);  <span class="var">Serial</span>.<span class="fn">print</span>(<span class="str">" V"</span>);
+  <span class="var">Serial</span>.<span class="fn">print</span>(<span class="str">" | Rfsr="</span>); <span class="var">Serial</span>.<span class="fn">print</span>(<span class="var">rFSR</span>, <span class="num">0</span>);  <span class="var">Serial</span>.<span class="fn">print</span>(<span class="str">" Ohm"</span>);
+  <span class="var">Serial</span>.<span class="fn">print</span>(<span class="str">" | F="</span>);    <span class="var">Serial</span>.<span class="fn">print</span>(<span class="var">force</span>, <span class="num">2</span>); <span class="var">Serial</span>.<span class="fn">println</span>(<span class="str">" N"</span>);
+
+  <span class="fn">delay</span>(<span class="num">200</span>);
+}</pre>
+    </div>
+  </div>
+
+  <!-- ══ 07 MODIFICATIONS ══ -->
+  <div class="section" id="modifs">
+    <div class="section-label">
+      <span class="section-num">07</span>
+      <span class="section-title">Modifications apportées au code original</span>
+    </div>
+    <hr class="section-rule"/>
+    <table class="diff-table">
+      <thead>
+        <tr><th>Élément</th><th>Code original (Grove capteur)</th><th>Code modifié (FSR 402 + Grove Shield)</th><th>Raison</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Conversion force</td>
+          <td><span class="old">0.005 * exp(0.013 * value)</span></td>
+          <td><span class="new-val">Calcul physique V → R → F</span></td>
+          <td>Loi empirique Grove invalide pour FSR 402</td>
+        </tr>
+        <tr>
+          <td>Broche capteur</td>
+          <td><span class="old">A0 (câblage direct)</span></td>
+          <td><span class="new-val">A0 via port Grove Shield</span></td>
+          <td>Même broche, connecteur standardisé</td>
+        </tr>
+        <tr>
+          <td>LCD I²C</td>
+          <td><span class="old">Câblage SDA/SCL manuel</span></td>
+          <td><span class="new-val">Port I2C Grove (plug-and-play)</span></td>
+          <td>Shield gère le câblage I²C automatiquement</td>
+        </tr>
+        <tr>
+          <td>Calcul intermédiaire</td>
+          <td><span class="old">Aucun</span></td>
+          <td><span class="new-val">vOut → rFSR → force</span></td>
+          <td>Respecte le principe du pont diviseur</td>
+        </tr>
+        <tr>
+          <td>Protection /0</td>
+          <td><span class="old">Absente</span></td>
+          <td><span class="new-val">if (vOut > 0.01)</span></td>
+          <td>Évite crash si FSR non appuyé</td>
+        </tr>
+        <tr>
+          <td>Effacement LCD</td>
+          <td><span class="old">Absent (artefacts)</span></td>
+          <td><span class="new-val">lcd.print("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;")</span></td>
+          <td>Supprime les caractères résiduels</td>
+        </tr>
+        <tr>
+          <td>Limitation plage</td>
+          <td><span class="old">Absente</span></td>
+          <td><span class="new-val">constrain(0.0, 20.0)</span></td>
+          <td>Respecte les limites du FSR 402</td>
+        </tr>
+        <tr>
+          <td>Débogage série</td>
+          <td><span class="old">Absent</span></td>
+          <td><span class="new-val">Serial.print() ADC + V + R + F</span></td>
+          <td>Facilite la calibration</td>
+        </tr>
+        <tr>
+          <td>Délai boucle</td>
+          <td><span class="old">100 ms × 2 blocs</span></td>
+          <td><span class="new-val">200 ms unique en fin de loop</span></td>
+          <td>Rafraîchissement cohérent</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ══ 08 CALIBRATION ══ -->
+  <div class="section" id="calibration">
+    <div class="section-label">
+      <span class="section-num">08</span>
+      <span class="section-title">Protocole de calibration</span>
+    </div>
+    <hr class="section-rule"/>
+    <div class="callout info" style="margin-bottom:24px;">
+      <span class="callout-icon">📌</span>
+      <div>
+        <strong>Pourquoi calibrer ?</strong>
+        <p>La constante <code style="background:var(--code-bg);border:1px solid var(--code-border);padding:1px 7px;border-radius:4px;font-family:'DM Mono',monospace;color:var(--accent3)">4e-5</code> est une valeur de départ issue de la courbe typique de la datasheet FSR 402. Elle doit être ajustée pour chaque montage (géométrie des mors, surface de contact, colle, câble Grove).</p>
+      </div>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-content">
+          <h4>Préparer une masse étalon</h4>
+          <p>Utiliser une masse connue : <strong>100 g</strong> (= 0,981 N) ou <strong>500 g</strong> (= 4,905 N). Ces valeurs servent de référence de calibration.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-content">
+          <h4>Placer la masse entre les mors</h4>
+          <p>Fermer la pince DOBOT sur la masse étalon afin de comprimer le FSR 402 de façon stable. Vérifier que la zone active du capteur est bien en contact.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-content">
+          <h4>Relever R_FSR via le moniteur série</h4>
+          <p>Ouvrir le moniteur série à <code>9600 bauds</code>. Lire la valeur <code>Rfsr=XXXX Ohm</code> affichée. Noter cette résistance R_mesurée.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-content">
+          <h4>Calculer la nouvelle constante</h4>
+          <p>Appliquer : <code>k = 1.0 / (R_mesurée × F_réelle)</code> où F_réelle est la force connue en Newton. Remplacer <code>4e-5</code> par la valeur calculée dans le code.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">5</div>
+        <div class="step-content">
+          <h4>Vérifier avec plusieurs masses</h4>
+          <p>Répéter avec 2 à 3 masses différentes (ex. 100 g, 300 g, 500 g) pour valider la linéarité et affiner si nécessaire.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ 09 VIGILANCE ══ -->
+  <div class="section" id="vigilance">
+    <div class="section-label">
+      <span class="section-num">09</span>
+      <span class="section-title">Points de vigilance</span>
+    </div>
+    <hr class="section-rule"/>
+    <div class="grid-2">
+      <div class="callout warn">
+        <span class="callout-icon">⚠️</span>
+        <div>
+          <strong>Résistance R_M obligatoire</strong>
+          <p>Le Grove Base Shield <strong>n'intègre pas</strong> la résistance de mesure 10 kΩ. Elle doit être ajoutée manuellement entre SIG et GND du câble Grove. Sans elle, la mesure est impossible.</p>
+        </div>
+      </div>
+      <div class="callout warn">
+        <span class="callout-icon">⚠️</span>
+        <div>
+          <strong>Hystérésis du capteur</strong>
+          <p>Le FSR 402 présente une hystérésis d'environ <strong>+10 %</strong> entre montée et descente en force. Les mesures peuvent légèrement différer selon le sens d'application.</p>
+        </div>
+      </div>
+      <div class="callout ok">
+        <span class="callout-icon">✅</span>
+        <div>
+          <strong>LCD — aucun conflit I²C</strong>
+          <p>Le port I2C du Grove Shield est dédié. Le LCD rgb_lcd utilise l'adresse I²C 0x62 par défaut. Aucun conflit avec d'autres périphériques si le port reste exclusif au LCD.</p>
+        </div>
+      </div>
+      <div class="callout ok">
+        <span class="callout-icon">✅</span>
+        <div>
+          <strong>Robustesse mécanique FSR 402</strong>
+          <p>Testé à <strong>10 millions d'actuations</strong> à 1 kg / 4 Hz. Parfaitement adapté à un usage pédagogique intensif sans dégradation prématurée.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ 10 CHAÎNE DE MESURE ══ -->
+  <div class="section" id="chaine">
+    <div class="section-label">
+      <span class="section-num">10</span>
+      <span class="section-title">Chaîne de mesure complète</span>
+    </div>
+    <hr class="section-rule"/>
+    <div class="wiring-box" style="line-height:2.4;">
+<span class="w-comp">[ Pince DOBOT ]</span>
+     │  ← Force mécanique sur les mors
+     ▼
+<span class="w-comp">[ FSR 402 ]</span>  ── collé sur le mors · zone active Ø14,68 mm
+     │  ← R_FSR varie (↓ quand force ↑)
+     ▼
+<span class="w-comp">[ Pont diviseur : FSR + 10 kΩ ]</span>  ── intégré sur câble Grove A0
+     │  ← V_OUT = f(Force)  (0 – 5 V)
+     ▼
+<span class="w-grove">[ Grove Base Shield — Port A0 ]</span>
+     │  ← Reroute vers broche A0 Arduino
+     ▼
+<span class="w-pin">[ Arduino UNO — ADC A0 ]</span>  ── 10 bits (0 → 1023)
+     │  ← Traitement logiciel
+     ▼
+<span class="w-node">[ Calcul : ADC → V_OUT → R_FSR → Force (N) ]</span>
+     │
+     ├──► <span class="w-grove">[ Grove Shield Port I2C ]</span> ── câble Grove ── <span class="w-comp">[ LCD 16×2 rgb_lcd ]</span>  "X.XX N"
+     │
+     └──► <span class="w-comp">[ Moniteur Série USB ]</span>  ── Débogage · Calibration
+    </div>
+  </div>
+
+</div><!-- /wrapper -->
+
+<!-- ══ FOOTER ══ -->
+<footer>
+  <p>Système Pluritechnologique · Bras de Robot DOBOT · FSR® 402 + Grove Base Shield</p>
+  <p>Interlink Electronics FSR® 400 Series — Datasheet PDS-10004-C</p>
+  <span class="ft-badge">Arduino · Grove · I²C</span>
+</footer>
+
+</body>
+</html>

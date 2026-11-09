@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SI Terminale — Exercices Interactifs</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Sora:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0e0f14;
+  --surface:#16181f;
+  --surface2:#1e2028;
+  --border:#2a2d38;
+  --border2:#363a48;
+  --text:#e8eaf0;
+  --muted:#7c8096;
+  --accent:#6c63ff;
+  --accent2:#a78bfa;
+  --green:#22c55e;
+  --red:#ef4444;
+  --amber:#f59e0b;
+  --cyan:#22d3ee;
+  --font:'Sora',sans-serif;
+  --mono:'JetBrains Mono',monospace;
+}
+body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:100vh}
+
+/* LAYOUT */
+.app{display:flex;height:100vh;overflow:hidden}
+.sidebar{width:260px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;overflow:hidden}
+.main{flex:1;overflow-y:auto;padding:40px 48px}
+
+/* SIDEBAR */
+.sidebar-header{padding:24px 20px 16px;border-bottom:1px solid var(--border)}
+.sidebar-logo{font-size:13px;font-weight:600;letter-spacing:.05em;color:var(--accent2)}
+.sidebar-sub{font-size:11px;color:var(--muted);margin-top:3px}
+.sidebar-scroll{overflow-y:auto;flex:1;padding:12px 0}
+.cat-label{font-size:10px;font-weight:600;letter-spacing:.1em;color:var(--muted);padding:12px 20px 6px;text-transform:uppercase}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 20px;cursor:pointer;border-left:2px solid transparent;transition:all .15s;font-size:13px;color:var(--muted)}
+.nav-item:hover{color:var(--text);background:rgba(108,99,255,.07)}
+.nav-item.active{color:var(--accent2);border-left-color:var(--accent);background:rgba(108,99,255,.1)}
+.nav-icon{width:20px;height:20px;flex-shrink:0;opacity:.7}
+.nav-item.active .nav-icon{opacity:1}
+.progress-bar-wrap{padding:16px 20px;border-top:1px solid var(--border)}
+.progress-label{font-size:11px;color:var(--muted);margin-bottom:6px;display:flex;justify-content:space-between}
+.progress-track{height:4px;background:var(--border2);border-radius:2px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:2px;transition:width .4s ease}
+
+/* MAIN */
+.section{display:none}
+.section.active{display:block}
+.page-title{font-size:26px;font-weight:600;margin-bottom:6px;letter-spacing:-.02em}
+.page-desc{font-size:14px;color:var(--muted);margin-bottom:32px;line-height:1.6}
+
+/* FORMULA CHIP */
+.formula-chip{display:inline-flex;align-items:center;gap:8px;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:8px 14px;margin-bottom:24px;font-family:var(--mono);font-size:13.5px;color:var(--accent2)}
+.formula-chip .chip-label{font-family:var(--font);font-size:11px;color:var(--muted);margin-right:4px}
+
+/* EXERCISE CARD */
+.ex-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:24px;margin-bottom:20px;position:relative;overflow:hidden}
+.ex-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--accent),var(--accent2));opacity:0;transition:opacity .2s}
+.ex-card:focus-within::before{opacity:1}
+.ex-number{font-size:10px;font-weight:600;letter-spacing:.1em;color:var(--accent);text-transform:uppercase;margin-bottom:8px}
+.ex-question{font-size:15px;line-height:1.6;margin-bottom:18px;color:var(--text)}
+.ex-question strong{color:var(--accent2);font-weight:500}
+.given-vals{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px}
+.given-chip{font-family:var(--mono);font-size:12.5px;background:rgba(108,99,255,.1);border:1px solid rgba(108,99,255,.25);color:var(--accent2);border-radius:6px;padding:4px 10px}
+.input-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.input-label{font-size:13px;color:var(--muted);min-width:80px}
+.ex-input{background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:10px 14px;color:var(--text);font-size:14px;font-family:var(--mono);width:160px;outline:none;transition:border-color .15s}
+.ex-input:focus{border-color:var(--accent)}
+.ex-input.correct{border-color:var(--green);background:rgba(34,197,94,.07)}
+.ex-input.wrong{border-color:var(--red);background:rgba(239,68,68,.07)}
+.unit-label{font-size:13px;color:var(--muted);font-family:var(--mono)}
+.check-btn{padding:9px 20px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-family:var(--font);font-size:13px;font-weight:500;cursor:pointer;transition:all .15s}
+.check-btn:hover{background:var(--accent2);transform:translateY(-1px)}
+.check-btn:active{transform:translateY(0)}
+.feedback{margin-top:12px;padding:10px 14px;border-radius:8px;font-size:13px;line-height:1.5;display:none}
+.feedback.show{display:block}
+.feedback.ok{background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.3);color:#86efac}
+.feedback.fail{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);color:#fca5a5}
+.feedback.hint{background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3);color:#fcd34d}
+.hint-btn{font-size:12px;color:var(--muted);background:none;border:none;cursor:pointer;padding:4px 0;text-decoration:underline;font-family:var(--font);margin-top:8px;display:block}
+.hint-btn:hover{color:var(--amber)}
+
+/* MULTIPLE CHOICE */
+.choices{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}
+.choice-btn{background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:11px 14px;color:var(--text);font-size:13.5px;font-family:var(--mono);cursor:pointer;text-align:left;transition:all .15s}
+.choice-btn:hover{border-color:var(--accent);background:rgba(108,99,255,.08)}
+.choice-btn.correct-ans{border-color:var(--green);background:rgba(34,197,94,.1);color:#86efac}
+.choice-btn.wrong-ans{border-color:var(--red);background:rgba(239,68,68,.08);color:#fca5a5}
+.choice-btn:disabled{cursor:default}
+
+/* FILL BLANK */
+.blank-input{background:var(--surface2);border:none;border-bottom:2px solid var(--accent);border-radius:0;padding:2px 8px;color:var(--accent2);font-family:var(--mono);font-size:14px;width:90px;outline:none;text-align:center;margin:0 4px}
+.blank-input.correct{border-bottom-color:var(--green);color:#86efac}
+.blank-input.wrong{border-bottom-color:var(--red);color:#fca5a5}
+
+/* SCENARIO CARD */
+.scenario-box{background:linear-gradient(135deg,rgba(108,99,255,.08),rgba(34,211,238,.05));border:1px solid rgba(108,99,255,.2);border-radius:10px;padding:14px 16px;margin-bottom:16px;font-size:13.5px;line-height:1.6;color:#c4c8db}
+
+/* STEPS */
+.step-list{list-style:none;counter-reset:step}
+.step-item{counter-increment:step;display:flex;gap:12px;margin-bottom:10px;font-size:13.5px;color:var(--muted)}
+.step-item::before{content:counter(step);width:22px;height:22px;background:var(--accent);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;flex-shrink:0;margin-top:1px}
+
+/* SCORE BADGE */
+.score-badge{position:fixed;bottom:24px;right:24px;background:var(--surface);border:1px solid var(--border2);border-radius:12px;padding:10px 16px;font-size:13px;display:flex;align-items:center;gap:8px;box-shadow:0 4px 20px rgba(0,0,0,.4);z-index:100}
+.score-num{font-size:18px;font-weight:600;color:var(--accent2);font-family:var(--mono)}
+
+/* RESPONSIVE */
+@media(max-width:720px){
+  .app{flex-direction:column}
+  .sidebar{width:100%;height:auto;border-right:none;border-bottom:1px solid var(--border)}
+  .sidebar-scroll{display:flex;overflow-x:auto;flex:none;padding:8px}
+  .cat-label{display:none}
+  .nav-item{border-left:none;border-bottom:2px solid transparent;white-space:nowrap;flex-shrink:0}
+  .nav-item.active{border-left:none;border-bottom-color:var(--accent)}
+  .main{padding:20px 16px}
+  .choices{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="sidebar-header">
+    <div class="sidebar-logo">SI — Terminale</div>
+    <div class="sidebar-sub">Exercices interactifs</div>
+  </div>
+  <div class="sidebar-scroll">
+    <div class="cat-label">Mécanique</div>
+    <div class="nav-item active" onclick="showSection('meca-cin')">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2v4m0 12v4M4.93 4.93l2.83 2.83m8.48 8.48 2.83 2.83M2 12h4m12 0h4M4.93 19.07l2.83-2.83m8.48-8.48 2.83-2.83"/></svg>
+      Cinématique
+    </div>
+    <div class="nav-item" onclick="showSection('meca-dyn')">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+      Dynamique & Statique
+    </div>
+    <div class="cat-label">Énergie</div>
+    <div class="nav-item" onclick="showSection('energie')">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/></svg>
+      Puissance & Rendement
+    </div>
+    <div class="cat-label">Électricité</div>
+    <div class="nav-item" onclick="showSection('elec')">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M12 2v3m0 14v3M2 12h3m14 0h3m-3.22-7.78-2.12 2.12M7.34 16.66l-2.12 2.12m0-12.96 2.12 2.12m7.1 7.1 2.12 2.12"/></svg>
+      Lois de Kirchhoff
+    </div>
+    <div class="nav-item" onclick="showSection('elec-ac')">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 12h4l3-7 4 14 3-7h6"/></svg>
+      Régime alternatif
+    </div>
+    <div class="cat-label">Automatique</div>
+    <div class="nav-item" onclick="showSection('asservi')">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9M12 3l4 9-4 9m0-18L8 12l4 9"/></svg>
+      Asservissement
+    </div>
+    <div class="cat-label">Numérique</div>
+    <div class="nav-item" onclick="showSection('signal')">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+      Signal & Réseaux
+    </div>
+    <div class="nav-item" onclick="showSection('mesure')">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 3h18M3 12h18M3 21h18M9 3v18M15 3v18"/></svg>
+      Mesures & Erreurs
+    </div>
+  </div>
+  <div class="progress-bar-wrap">
+    <div class="progress-label"><span>Progression</span><span id="score-label">0 / 0</span></div>
+    <div class="progress-track"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+  </div>
+</nav>
+
+<!-- MAIN CONTENT -->
+<main class="main">
+
+<!-- ============ CINÉMATIQUE ============ -->
+<div id="s-meca-cin" class="section active">
+  <div class="page-title">Cinématique</div>
+  <div class="page-desc">Vitesses, accélérations, compositions de mouvement.</div>
+
+  <!-- Ex 1 : vitesse périphérique -->
+  <div class="ex-card">
+    <div class="ex-number">Exercice 1 — Vitesse périphérique v = r·ω</div>
+    <div class="formula-chip"><span class="chip-label">Formule :</span>v = r · ω</div>
+    <div class="scenario-box">Un moteur électrique entraîne une roue de rayon <strong>r = 0,25 m</strong>. La roue tourne à une vitesse angulaire de <strong>ω = 40 rad/s</strong>.</div>
+    <div class="ex-question">Calculer la vitesse linéaire <strong>v</strong> de la jante de la roue.</div>
+    <div class="input-row">
+      <span class="input-label">v =</span>
+      <input type="number" class="ex-input" id="ex1-input" placeholder="..." step="0.1">
+      <span class="unit-label">m/s</span>
+      <button class="check-btn" onclick="checkNum('ex1-input','ex1-fb',10,0.1,'v = r·ω = 0,25 × 40 = <strong>10 m/s</strong>')">Vérifier</button>
+    </div>
+    <button class="hint-btn" onclick="showHint('ex1-fb')">Besoin d'un indice ?</button>
+    <div class="feedback" id="ex1-fb"></div>
+  </div>
+
+  <!-- Ex 2 : conversion tr/min → rad/s -->
+  <div class="ex-card">
+    <div class="ex-number">Exercice 2 — Conversion tr/min → rad/s : ω = 2πn/60</div>
+    <div class="formula-chip"><span class="chip-label">Formule :</span>ω = 2π·n / 60</div>
+    <div class="scenario-box">Un moteur tourne à <strong>n = 1 500 tr/min</strong> (vitesse typique d'un moteur asynchrone 4 pôles sur réseau 50 Hz).</div>
+    <div class="ex-question">Quelle est la vitesse angulaire <strong>ω</strong> en rad/s ? (donner la valeur arrondie à 1 décimale)</div>
+    <div class="input-row">
+      <span class="input-label">ω =</span>
+      <input type="number" class="ex-input" id="ex2-input" placeholder="..." step="0.1">
+      <span class="unit-label">rad/s</span>
+      <button class="check-btn" onclick="checkNum('ex2-input','ex2-fb',157.1,1,'ω = 2π×1500/60 = 2π×25 ≈ <strong>157,1 rad/s</strong>')">Vérifier</button>
+    </div>
+    <div class="feedback" id="ex2-fb"></div>
+  </div>
+
+  <!-- Ex 3 : accélération centripète -->
+  <div class="ex-card">
+    <div class="ex-number">Exercice 3 — Accélération centripète aₙ = v²/r</div>
+    <div class="formula-chip"><span class="chip-label">Formule :</span>aₙ = v² / r</div>
+    <div class="scenario-box">Une voiture prend un virage de rayon <strong>r = 80 m</strong> à une vitesse constante de <strong>v = 20 m/s</strong>.</div>
+    <div class="ex-question">Calculer l'accélération centripète <strong>aₙ</strong>.</div>
+    <div class="input-row">
+      <span class="input-label">aₙ =</span>
+      <input type="number" class="ex-input" id="ex3-input" placeholder="..." step="0.1">
+      <span class="unit-label">m/s²</span>
+      <button class="check-btn" onclick="checkNum('ex3-input','ex3-fb',5,0.2,'aₙ = v²/r = 400/80 = <strong>5 m/s²</strong>')">Vérifier</button>
+    </div>
+    <div class="feedback" id="ex3-fb"></div>
+  </div>
+
+  <!-- Ex 4 : QCM composition de vitesses -->
+  <div class="ex-card">
+    <div class="ex-number">Exercice 4 — Composition des vitesses (QCM)</div>
+    <div class="formula-chip"><span class="chip-label">Formule :</span>V₁/0 = V₁/2 + V₂/0</div>
+    <div class="ex-question">Dans une chaîne ouverte de 3 solides (0, 1, 2), si <strong>V₁/2 = 3 m/s</strong> et <strong>V₂/0 = 5 m/s</strong> (colinéaires, même sens), quelle est la vitesse <strong>V₁/0</strong> ?</div>
+    <div class="choices" id="ex4-choices">
+      <button class="choice-btn" onclick="checkMCQ(this,'ex4-choices','ex4-fb',false)">2 m/s</button>
+      <button class="choice-btn" onclick="checkMCQ(this,'ex4-choices','ex4-fb',false)">1,5 m/s</button>
+      <button class="choice-btn" onclick="checkMCQ(this,'ex4-choices','ex4-fb',true)">8 m/s</button>
+      <button class="choice-btn" onclick="checkMCQ(this,'ex4-choices','ex4-fb',false)">15 m/s</button>
+    </div>
+    <div class="feedback" id="ex4-fb"></div>
+  </div>
+</div>
+
+<!-- ============ DYNAMIQUE & STATIQUE ============ -->
+<div id="s-meca-dyn" class="section">
+  <div class="page-title">Dynamique & Statique</div>
+  <div class="page-desc">PFD, inertie, équilibre, frottement de Coulomb.</div>
+
+  <!-- Ex 5 -->
+  <div class="ex-card">
+    <div class="ex-number">Exercice 5 — PFD translation : ΣF = m·a</div>
+    <div class="formula-chip"><span class="chip-label">Formule :</span>ΣF = m · a</div>
+    <div class="scenario-box">Un chariot de masse <strong>m = 50 kg</strong> est soumis à une force motrice de <strong>F_m = 300 N</strong> et une résistance de frottement <strong>F_r = 50 N</strong>.</div>
+    <div class="ex-question">Calculer l'accélération <strong>a</strong> du chariot.</div>
+    <div class="input-row">
+      <span class="input-label">a =</span>
+      <input type="number" class="ex-input" id="ex5-input" placeholder="..." step="0.1">
+      <span class="unit-label">m/s²</span>
+      <button class="check-btn" onclick="checkNum('ex5-input','ex5-fb',5,0.1,'ΣF = 300-50 = 250 N → a = 250/50 = <strong>5 m/s²</strong>')">Vérifier</button>
+    </div>
+    <div class="feedback" id="ex5-fb"></div>
+  </div>
+
+  <!-- Ex 6 : PFD rotation -->
+  <div class="ex-card">
+    <div class="ex-number">Exercice 6 — PFD rotation : ΣM = J·α</div>
+    <div class="formula-chip"><span class="chip-label">Formule :</span>ΣM = J · α</div>
+    <div class="scenario-box">Un disque de moment d'inertie <strong>J = 0,4 kg·m²</strong> est soumis à un couple moteur de <strong>C_m = 8 N·m</strong> et un couple résistant de <strong>C_r = 2 N·m</strong>.</div>
+    <div class="ex-question">Calculer l'accélération angulaire <strong>α</strong> du disque.</div>
+    <div class="input-row">
+      <span class="input-label">α =</span>
+      <input type="number" class="ex-input" id="ex6-input" placeholder="..." step="0.1">
+      <span class="unit-label">rad/s²</span>
+      <button class="check-btn" onclick="checkNum('ex6-input','ex6-fb',15,0.1,'ΣM = 8-2 = 6 N·m → α = 6/0,4 = <strong>15 rad/s²</strong>')">Vérifier</button>
+    </div>
+    <div class="feedback" id="ex6-fb"></div>
+  </div>
+
+  <!-- Ex 7 : moment inertie disque -->
+  <div class="ex-card">
+    <div class="ex-number">Exercice 7 — Moment d'inertie disque : J = ½·m·R²</div>
+    <div class="formula-chip"><span class="chip-label">Formule :</span>J = ½ · m · R²</div>
+    <div class="scenario-box">Un disque plein de <strong>m = 6 kg</strong> et de rayon <strong>R = 0,2 m</strong>.</div>
+    <div class="ex-question">Calculer son moment d'inertie <strong>J</strong>.</div>
+    <div class="input-row">
+      <span class="input-label">J =</span>
+      <input type="number" class="ex-input" id="ex7-input" placeholder="..." step="0.001">
+      <span class="unit-label">kg·m²</span>
+      <button class="check-btn" onclick="checkNum('ex7-input','ex7-fb',0.12,0.005,'J = ½×6×0,04 = <strong>0,12 kg·m²</strong>')">Vérifier</button>
+    </div>
+    <div class="feedback" id="ex7-fb"></div>
+  </div>
+
+  <!-- Ex 8 : Coulomb QCM -->
+  <div class="ex-card">
+    <div class="ex-number">Exercice 8 — Frottement de Coulomb (QCM)</div>
+    <div class="formula-chip"><span class="chip-label">Formule :</span>T ≤ f · N</div>
+    <div class="ex-question">Une pièce de <strong>m = 10 kg</strong> repose sur un plan horizontal (f = 0,3, g = 10 m/s²). Quelle est la force tangentielle <strong>maximale</strong> avant glissement ?</div>
+    <div class="choices" id="ex8-choices">
+      <button class="choice-btn" onclick="checkMCQ(this,'ex8-choices','ex8-fb',false)">10 N</button>
+      <button class="choice-btn" onclick="checkMCQ(this,'ex8-choices','ex8-fb',true)">30 N</button>
+      <button class="choice-btn" onclick="checkMCQ(this,'ex8-choices','ex8-fb',false)">3 N</button>
+      <button class="choice-btn" onclick="checkMCQ(this,'ex8-choices','ex8-fb',false)">100 N</button>
+    </div>
+    <div class="feedback hint" id="ex8-fb" style="display:block">N = m·g = 10×10 = 100 N → T_max = f·N = 0,3×100 = <strong>30 N</strong></div>
+  </div>
+
+  <!-- Ex 9 : moment d'une force -->
+  <div class="ex-card">
+    <div class="ex-number">Exercice 9 — Moment d'une force : M = F·d</div>
+    <div class="formula-chip"><span class="chip-label">Formule :</span>M = F · d</div>
+    <div class="scenario-box">Une clé de <strong>d = 0,35 m</strong> de longueur applique une force perpendiculaire de <strong>F = 80 N</strong>.</div>
+    <div class="ex-question">Quel couple de serrage <strong>M</strong> est appliqué sur le boulon ?</div>
+    <div class="input-row">
+      <span class="input-label">M =</span>
+      <input type="number" class="ex-input" id="ex9-input" placeholder="..." step="0.1">
+      <span class="unit-label">N·m</span>
+      <button class="check-btn" onclick="checkNum('ex9-input','ex9-fb',28,0.5,'M = 80×0,35 = <strong>28 N·m</strong>')">Vérifier</button>
+    </div>
+    <div class="feedback" id="ex9-fb"></div>
+  </div>
+</div>
+
+<!-- ============ ÉNERGIE ============ -->
+<div id="s-energie" class="section">
+  <div class="page-title">Puissance & Rendement</div>
+  <div class="page-desc">Énergie cinétique, potentielle, rendements en cascade.</div>
+
+  <!-- Ex 10 : Ec translation -->
+  <div class="ex-card">
+    <div class="ex-number">Exercice 10 — Énergie cinétique : E_c = ½·m·v²</div>
+    <div class="formula-chip"><span class="chip-label">Formule :</span>E_c = ½ · m · v²</div>
+    <div class="scenario-box">Une voiture de <strong>m = 1 200 kg</strong> roule à <strong>v = 30 m/s</strong>.</div>
+    <div class="ex-question">Calculer son énergie cinétique <strong>E_c</strong>.</div>
+    <div class="input-row">
+      <span class="input-label">E_c =</span>
+      <input type="number" class="ex-input" id="ex10-input" placeholder="..." step="100">
+      <span class="unit-label">J</span>
+      <button class="check-btn" onclick="checkNum('ex10-input','ex10-fb',540000,1000,'E_c = ½×1200×900 = <strong>540 000 J</strong>')">Vérifier</button>
+    </div>
+    <div class="feedback" id="ex10-fb"></div>
+  </div>
+
+  <!-- Ex 11 : rendement -->
+  <div class="ex-card">
+    <div class="ex-number">Exercice 11 — Rendement : η = P_utile / P_absorbée</div>
+    <div class="formula-chip"><span class="chip-label">Formule :</span>η = P_utile / P_absorbée</div>
+    <div class="scenario-box">Un moteur électrique absorbe <strong>P_abs = 2 000 W</strong> et produit une puissance utile de <strong>P_utile = 1 600 W</strong>.</div>
+    <div class="ex-question">Calculer le rendement <strong>η</strong> (en %).</div>
+    <div class="input-row">
+      <span class="input-label">η =</span>
+      <input type="number" class="ex-input" id="ex11-input" placeholder="..." step="1">
+      <span class="unit-label">%</span>
+      <button class="check-btn" onclick="checkNum('ex11-input','ex11-fb',80,1,'η = 1600/2000 = 0,8 → <strong>80 %</strong>')">Vérifier</button>
+    </div>
+    <div class="feedback" id="ex11-fb"></div>
+  </div>
+
+  <!-- Ex 12 : rendement global -->
+  <div class="ex-card">
+    <div class="ex-number">Exercice 12 — Rendement global : η_tot = η₁·η₂·η₃</div>
+    <div class="formula-chip"><span class="chip-label">Formule :</span>η_tot = η₁ · η₂ · … · ηₙ</div>
+    <div class="scenario-box">Une transmission comprend 3 éléments : courroie (<strong>η₁ = 0,95</strong>), réducteur (<strong>η₂ = 0,90</strong>), accouplement (<strong>η₃ = 0,98</strong>).</div>
+    <div class="ex-question">Calculer le rendement global <strong>η_tot</strong> (en %, arrondi à 1 décimale).</div>
+    <div class="input-row">
+      <span class="input-label">η_tot =</span>
+      <input type="number" class="ex-input" id="ex12-input" placeholder="..." step="0.1">
+      <span class="unit-label">%</span>
+      <button class="check-btn" onclick="checkNum('ex12-input','ex12-fb',83.8,0.5,'η_tot = 0,95×0,90×0,98 = 0,838 → <strong>83,8 %</strong>')">Vérifier</button>
+    </div>
+    <div class="feedback" id="ex12-fb"></div>
+  </div>
+
+  <!-- Ex 13 : puissance rotation -->
+  <div class="ex-card">
+    <div class="ex-number">Exercice 13 — Puissance mécanique en rotation : P = C·ω</div>
+    <div class="formula-chip"><span class="chip-label">Formule :</span>P = C · ω</div>
+    <div class="scenario-box">Un arbre moteur transmet un couple de <strong>C = 120 N·m</strong> à <strong>ω = 50 rad/s</strong>.</div>
+    <div class="ex-question">Calculer la puissance mécanique <strong>P</strong>.</div>
+    <div class="input-row">
+      <span class="input-label">P =</span>
+      <input type="number" class="ex-input" id="ex13-input" placeholder="..." step="100">
+      <span class="unit-label">W</span>
+      <button class="check-btn" onclick="checkNum('ex13-input','ex13-fb',6000,10,'P = 120×50 = <strong>6 000 W</strong>')">Vérifier</button>
+    </div>
+    <div class="feedback" id="ex13-fb"></div>
+  </div>
+
+  <!-- Ex 14 : Ep -->
+  <div class="ex-card">
+    <div class="ex-number">Exercice 14 — Énergie potentielle : E_p = m·g·h</div>
+    <div class="formula-chip"><span class="chip-label">Formule :</span>E_p = m · g · h</div>
+    <div class="scenario-box">Un ascenseur soulève une charge de <strong>m = 400 kg</strong> à une hauteur de <strong>h = 12 m</strong> (g = 9,81 m/s²).</div>
+    <div class="ex-question">Calculer l'énergie potentielle gagnée <strong>E_p</strong> (arrondi à la dizaine).</div>
+    <div class="input-row">
+      <span class="input-label">E_p =</span>
+      <input type="number" class="ex-input" id="ex14-input" placeholder="..." step="10">
+      <span class="unit-label">J</span>
+      <button class="check-btn" onclick="checkNum('ex14-input','ex14-fb',47088,200,'E_p = 400×9,81×12 = <strong>47 088 J</strong>')">Vérifier</button>
+    </div>
+    <div class="feedback" id="ex14-fb"></div>
+  </div>
+</div>
+
+<!-- ============ ÉLECTRICITÉ ============ -->
+<div id="s-elec" class="section">
+  <div class="page-title">Lois de Kirchhoff</div>
+  <div class="page-desc">Loi des nœuds, loi des mailles, résistances.</div>
+
+  <!-- Ex 15 -->
+  <div class="ex-card">
+    <div class="ex-number">Exercice 15 — Loi d'Ohm : U = R·I</div>
+    <div class="formula-chip"><span class="chip-label">Formule :</span>U = R · I</div>
+    <div class="scenario-box">Un résistor de <strong>R = 220 Ω</strong> est traversé par un courant de <strong>I = 0,05 A</strong>.</div>
+    <div class="ex-question">Calculer la tension <strong>U</strong> aux bornes du résistor.</div>
+    <div class="input-row">
+      <span class="input-label">U =</span>
+      <input type="number" class="ex-input" id="ex15-input" placeholder="..." step="0.1">
+      <span class="unit-label">V</span>
+      <button class="check-btn" onclick="checkNum('ex15-input','ex15-fb',11,0.1,'U = 220×0,05 = <strong>11 V</strong>')">Vérifier</button>
+    </div>
+    <div class="feedback" id="ex15-fb"></div>
+  </div>
+
+  <!-- Ex 16 : loi des noeuds -->
+  <div class="ex-card">
+    <div class="ex-number">Exercice 16 — Loi des nœuds : ΣI_entrants = ΣI_sortants</div>
+    <div class="formula-chip"><span class="chip-label">Formule :</span>ΣI_entrants = ΣI_sortants</div>
+    <div class="scenario-box">En un nœud du circuit : <strong>I₁ = 3 A</strong> et <strong>I₂ = 1,5 A</strong> entrent. Un seul courant <strong>I₃</strong> sort.</div>
+    <div class="ex-question">Déterminer <strong>I₃</strong>.</div>
+    <div class="input-row">
+      <span class="input-label">I₃ =</span>
+      <input type="number" class="ex-input" id="ex16-input" placeholder="..." step="0.1">
+      <span class="unit-label">A</span>
+      <button class="check-btn" onclick="checkNum('ex16-input','ex16-fb',4.5,0.1,'I₃ = I₁+I₂ = 3+1,5 = <strong>4,5 A</strong>')">Vérifier</button>
+    </div>
+    <div class="feedback" id="ex16-fb"></div>
+  </div>
+
+  <!-- Ex 17 : résistances série -->
+  <div class="ex-card">
+    <div class="ex-number">Exercice 17 — Résistances en série</div>
+    <div class="formula-chip"><span class="chip-label">Formule :</span>R_eq = R₁ + R₂ + R₃</div>
+    <div class="scenario-box">Trois résistors en série : <strong>R₁ = 100 Ω</strong>, <strong>R₂ = 150 Ω</strong>, <strong>R₃ = 75 Ω</strong>. Tension d'alimentation <strong>U = 13,25 V</strong>.</div>
+    <div class="ex-question">Calculer d'abord R_eq, puis le courant <strong>I</strong> dans le circuit.</div>
+    <div class="input-row">
+      <span class="input-label">R_eq =</span>
+      <input type="number" class="ex-input" id="ex17a-input" placeholder="..." step="1">
+      <span class="unit-label">Ω</span>
+    </div>
+    <div class="input-row">
+      <span class="input-label">I =</span>
+      <input type="number" class="ex-input" id="ex17b-input" placeholder="..." step="0.001">
+      <span class="unit-label">A</span>
+      <button class="check-btn" onclick="checkDouble('ex17a-input','ex17b-input','ex17-fb',325,0.1,0.0407,0.002,'R_eq = 100+150+75 = <strong>325 Ω</strong> → I = 13,25/325 ≈ <strong>0,0407 A</strong>')">Vérifier</button>
+    </div>
+    <div class="feedback" id="ex17-fb"></div>
+  </div>
+
+  <!-- Ex 18 : puissance élec -->
+  <div class="ex-card">
+    <div class="ex-number">Exercice 18 — Puissance dissipée : P = R·I²</div>
+    <div class="formula-chip"><span class="chip-label">Formule :</span>P = R · I² = U · I = U²/R</div>
+    <div class="scenario-box">Un résistor de chauffage <strong>R = 48 Ω</strong> branché sous <strong>U = 240 V</strong>.</div>
+    <div class="ex-question">Calculer la puissance <strong>P</strong> dissipée.</div>
+    <div class="input-row">
+      <span class="input-label">P =</span>
+      <input type="number" class="ex-input" id="ex18-input" placeholder="..." step="10">
+      <span class="unit-label">W</span>
+      <button class="check-btn" onclick="checkNum('ex18-input','ex18-fb',1200,10,'P = U²/R = 240²/48 = 57600/48 = <strong>1 200 W</strong>')">Vérifier</button>
+    </div>
+    <div class="feedback" id="ex18-fb"></div>
+  </div>
+</div>
+
+<!-- ============ RÉGIME ALTERNATIF ============ -->
+<div id="s-elec-ac" class="section">
+  <div class="page-title">Régime alternatif</div>
+  <div class="page-desc">Valeur efficace, pulsation, puissance active.</div>
+
+  <!-- Ex 19 -->
+  <div class="ex-card">
+    <div class="ex-number">Exercice 19 — Valeur efficace : U_eff = U_max / √2</div>
+    <div class="formula-chip"><span class="chip-label">Formule :</span>U_eff = U_max / √2</div>
+    <div class="scenario-box">La tension secteur a une valeur de crête de <strong>U_max = 325 V</strong>.</div>
+    <div class="ex-question">Quelle est la valeur efficace <strong>U_eff</strong> ? (arrondi à 1 décimale)</div>
+    <div class="input-row">
+      <span class="input-label">U_eff =</span>
+      <input type="number" class="ex-input" id="ex19-input" placeholder="..." step="0.1">
+      <span class="unit-label">V</span>
+      <button class="check-btn" onclick="checkNum('ex19-input','ex19-fb',229.8,1,'U_eff = 325/√2 ≈ <strong>229,8 V</strong> ≈ 230 V (valeur nominale du réseau)')">Vérifier</button>
+    </div>
+    <div class="feedback" id="ex19-fb"></div>
+  </div>
+
+  <!-- Ex 20 -->
+  <div class="ex-card">
+    <div class="ex-number">Exercice 20 — Pulsation : ω = 2πf</div>
+    <div class="formula-chip"><span class="chip-label">Formule :</span>ω = 2π · f</div>
+    <div class="scenario-box">Le réseau électrique européen fonctionne à <strong>f = 50 Hz</strong>.</div>
+    <div class="ex-question">Calculer la pulsation <strong>ω</strong> (arrondi à 1 décimale).</div>
+    <div class="input-row">
+      <span class="input-label">ω =</span>
+      <input type="number" class="ex-input" id="ex20-input" placeholder="..." step="0.1">
+      <span class="unit-label">rad/s</span>
+      <button class="check-btn" onclick="checkNum('ex20-input','ex20-fb',314.2,1,'ω = 2π×50 ≈ <strong>314,2 rad/s</strong>')">Vérifier</button>
+    </div>
+    <div class="feedback" id="ex20-fb"></div>
+  </div>
+
+  <!-- Ex 21 : puissance active -->
+  <div class="ex-card">
+    <div class="ex-number">Exercice 21 — Puissance active : P = U_eff · I_eff · cos(φ)</div>
+    <div class="formula-chip"><span class="chip-label">Formule :</span>P = U_eff · I_eff · cos(φ)</div>
+    <div class="scenario-box">Un moteur alimenté en <strong>U_eff = 230 V</strong> absorbe un courant de <strong>I_eff = 10 A</strong>, avec un facteur de puissance <strong>cos(φ) = 0,8</strong>.</div>
+    <div class="ex-question">Calculer la puissance active <strong>P</strong>.</div>
+    <div class="input-row">
+      <span class="input-label">P =</span>
+      <input type="number" class="ex-input" id="ex21-input" placeholder="..." step="10">
+      <span class="unit-label">W</span>
+      <button class="check-btn" onclick="checkNum('ex21-input','ex21-fb',1840,20,'P = 230×10×0,8 = <strong>1 840 W</strong>')">Vérifier</button>
+    </div>
+    <div class="feedback" id="ex21-fb"></div>
+  </div>
+
+  <!-- Ex 22 : impédance condensateur -->
+  <div class="ex-card">
+    <div class="ex-number">Exercice 22 — Impédance condensateur : Z_C = 1/(C·ω)</div>
+    <div class="formula-chip"><span class="chip-label">Formule :</span>Z_C = 1 / (C · ω)</div>
+    <div class="scenario-box">Un condensateur de <strong>C = 100 µF</strong> sur un réseau à <strong>f = 50 Hz</strong> (ω = 314 rad/s).</div>
+    <div class="ex-question">Calculer l'impédance <strong>Z_C</strong> (arrondi à la dizaine).</div>
+    <div class="input-row">
+      <span class="input-label">Z_C =</span>
+      <input type="number" class="ex-input" id="ex22-input" placeholder="..." step="1">
+      <span class="unit-label">Ω</span>
+      <button class="check-btn" onclick="checkNum('ex22-input','ex22-fb',31.8,2,'Z_C = 1/(100×10⁻⁶×314) = 1/0,0314 ≈ <strong>31,8 Ω</strong>')">Vérifier</button>
+    </div>
+    <div class="feedback" id="ex22-fb"></div>
+  </div>
+</div>
+
+<!-- ============ ASSERVISSEMENT ============ -->
+<div id="s-asservi" class="section">
+  <div class="page-title">Asservissement</div>
+  <div class="page-desc">Erreur statique, réponse temporelle, systèmes d'ordre 1.</div>
+
+  <!-- Ex 23 -->
+  <div class="ex-card">
+    <div class="ex-number">Exercice 23 — Erreur statique (QCM)</div>
+    <div class="formula-chip"><span class="chip-label">Formule :</span>ε = w - y</div>
+    <div class="ex-question">Un système asservi a une consigne <strong>w = 100 tr/min</strong>. En régime permanent la sortie mesurée est <strong>y = 92 tr/min</strong>. Quelle est l'erreur statique <strong>ε</strong> ?</div>
+    <div class="choices" id="ex23-choices">
+      <button class="choice-btn" onclick="checkMCQ(this,'ex23-choices','ex23-fb',false)">-8 tr/min</button>
+      <button class="choice-btn" onclick="checkMCQ(this,'ex23-choices','ex23-fb',true)">8 tr/min</button>
+      <button class="choice-btn" onclick="checkMCQ(this,'ex23-choices','ex23-fb',false)">192 tr/min</button>
+      <button class="choice-btn" onclick="checkMCQ(this,'ex23-choices','ex23-fb',false)">0,92</button>
+    </div>
+    <div class="feedback" id="ex23-fb"></div>
+  </div>
+
+  <!-- Ex 24 : correcteur P -->
+  <div class="ex-card">
+    <div class="ex-number">Exercice 24 — Correcteur proportionnel : u = Kp · ε</div>
+    <div class="formula-chip"><span class="chip-label">Formule :</span>u = Kp · ε</div>
+    <div class="scenario-box">Un correcteur proportionnel de gain <strong>Kp = 5</strong> reçoit une erreur de <strong>ε = 4</strong>.</div>
+    <div class="ex-question">Quelle est la commande <strong>u</strong> générée ?</div>
+    <div class="input-row">
+      <span class="input-label">u =</span>
+      <input type="number" class="ex-input" id="ex24-input" placeholder="...">
+      <span class="unit-label"></span>
+      <button class="check-btn" onclick="checkNum('ex24-input','ex24-fb',20,0,'u = Kp×ε = 5×4 = <strong>20</strong>')">Vérifier</button>
+    </div>
+    <div class="feedback" id="ex24-fb"></div>
+  </div>
+
+  <!-- Ex 25 : réponse ordre 1 -->
+  <div class="ex-card">
+    <div class="ex-number">Exercice 25 — Constante de temps τ (ordre 1)</div>
+    <div class="formula-chip"><span class="chip-label">Formule :</span>y(t) = K·E·(1 - e^(-t/τ))</div>
+    <div class="scenario-box">Un système d'ordre 1 de gain <strong>K = 2</strong>, constante de temps <strong>τ = 3 s</strong>, soumis à un échelon <strong>E = 5</strong>.</div>
+    <div class="ex-question">À <strong>t = τ = 3 s</strong>, quelle est la valeur de la sortie <strong>y(τ)</strong> ? (arrondi à 2 décimales — rappel : e⁻¹ ≈ 0,368)</div>
+    <div class="input-row">
+      <span class="input-label">y(τ) =</span>
+      <input type="number" class="ex-input" id="ex25-input" placeholder="..." step="0.01">
+      <span class="unit-label"></span>
+      <button class="check-btn" onclick="checkNum('ex25-input','ex25-fb',6.32,0.1,'y(τ) = K·E·(1-e⁻¹) = 2×5×(1-0,368) = 10×0,632 = <strong>6,32</strong>')">Vérifier</button>
+    </div>
+    <div class="feedback" id="ex25-fb"></div>
+  </div>
+
+  <!-- Ex 26 : FTBF -->
+  <div class="ex-card">
+    <div class="ex-number">Exercice 26 — FTBF retour unitaire (complétion)</div>
+    <div class="formula-chip"><span class="chip-label">Formule :</span>FTBF = FTBO / (1 + FTBO)</div>
+    <div class="ex-question">Compléter : si FTBO = <strong>9</strong>, alors FTBF = 9 / (1 + ___) = ___</div>
+    <div class="input-row">
+      <span class="input-label">Dénominateur :</span>
+      <input type="number" class="blank-input" id="ex26a" placeholder="?">
+      <span style="margin:0 6px;font-family:var(--mono)">→ FTBF =</span>
+      <input type="number" class="blank-input" id="ex26b" placeholder="?" step="0.1">
+      <button class="check-btn" onclick="checkFill(['ex26a','ex26b'],'ex26-fb',[10,0.9],[0,0.02],'Dénominateur = 1+9 = <strong>10</strong> → FTBF = 9/10 = <strong>0,9</strong>')">Vérifier</button>
+    </div>
+    <div class="feedback" id="ex26-fb"></div>
+  </div>
+</div>
+
+<!-- ============ SIGNAL & RÉSEAUX ============ -->
+<div id="s-signal" class="section">
+  <div class="page-title">Signal & Réseaux</div>
+  <div class="page-desc">Débit, Shannon-Nyquist, modulation.</div>
+
+  <!-- Ex 27 -->
+  <div class="ex-card">
+    <div class="ex-number">Exercice 27 — Temps de transmission : t = N_bits / D</div>
+    <div class="formula-chip"><span class="chip-label">Formule :</span>t = N_bits / D</div>
+    <div class="scenario-box">Un fichier de <strong>4 Mo</strong> (4×10⁶ × 8 = 32×10⁶ bits) est transmis via un réseau Wi-Fi à <strong>D = 54 Mbit/s = 54×10⁶ bit/s</strong>.</div>
+    <div class="ex-question">Calculer le temps de transmission <strong>t</strong> (arrondi à 2 décimales).</div>
+    <div class="input-row">
+      <span class="input-label">t =</span>
+      <input type="number" class="ex-input" id="ex27-input" placeholder="..." step="0.01">
+      <span class="unit-label">s</span>
+      <button class="check-btn" onclick="checkNum('ex27-input','ex27-fb',0.59,0.02,'t = 32×10⁶ / 54×10⁶ ≈ <strong>0,59 s</strong>')">Vérifier</button>
+    </div>
+    <div class="feedback" id="ex27-fb"></div>
+  </div>
+
+  <!-- Ex 28 : Nyquist -->
+  <div class="ex-card">
+    <div class="ex-number">Exercice 28 — Théorème de Nyquist : f_e ≥ 2·f_max</div>
+    <div class="formula-chip"><span class="chip-label">Formule :</span>f_e ≥ 2 · f_max</div>
+    <div class="scenario-box">On souhaite numériser un signal audio dont la fréquence maximale est <strong>f_max = 20 kHz</strong>.</div>
+    <div class="ex-question">Quelle est la fréquence d'échantillonnage minimale <strong>f_e</strong> ?</div>
+    <div class="input-row">
+      <span class="input-label">f_e min =</span>
+      <input type="number" class="ex-input" id="ex28-input" placeholder="..." step="1000">
+      <span class="unit-label">Hz</span>
+      <button class="check-btn" onclick="checkNum('ex28-input','ex28-fb',40000,1000,'f_e_min = 2×20 000 = <strong>40 000 Hz = 40 kHz</strong> (le CD utilise 44,1 kHz)')">Vérifier</button>
+    </div>
+    <div class="feedback" id="ex28-fb"></div>
+  </div>
+
+  <!-- Ex 29 : longueur d'onde -->
+  <div class="ex-card">
+    <div class="ex-number">Exercice 29 — Longueur d'onde : λ = c/f</div>
+    <div class="formula-chip"><span class="chip-label">Formule :</span>λ = c / f</div>
+    <div class="scenario-box">Un module LoRa émet à la fréquence <strong>f = 868 MHz = 868×10⁶ Hz</strong> (c = 3×10⁸ m/s).</div>
+    <div class="ex-question">Calculer la longueur d'onde <strong>λ</strong> (arrondi à 2 décimales, en cm).</div>
+    <div class="input-row">
+      <span class="input-label">λ ≈</span>
+      <input type="number" class="ex-input" id="ex29-input" placeholder="..." step="0.01">
+      <span class="unit-label">cm</span>
+      <button class="check-btn" onclick="checkNum('ex29-input','ex29-fb',34.56,1,'λ = 3×10⁸/868×10⁶ ≈ 0,3456 m ≈ <strong>34,56 cm</strong>')">Vérifier</button>
+    </div>
+    <div class="feedback" id="ex29-fb"></div>
+  </div>
+
+  <!-- Ex 30 : QCM modulation -->
+  <div class="ex-card">
+    <div class="ex-number">Exercice 30 — Modulation FSK (QCM)</div>
+    <div class="ex-question">En modulation FSK, comment est codée l'information binaire ?</div>
+    <div class="choices" id="ex30-choices">
+      <button class="choice-btn" onclick="checkMCQ(this,'ex30-choices','ex30-fb',false)">Par variation d'amplitude</button>
+      <button class="choice-btn" onclick="checkMCQ(this,'ex30-choices','ex30-fb',true)">Par variation de fréquence (f₀ = "0", f₁ = "1")</button>
+      <button class="choice-btn" onclick="checkMCQ(this,'ex30-choices','ex30-fb',false)">Par variation de phase</button>
+      <button class="choice-btn" onclick="checkMCQ(this,'ex30-choices','ex30-fb',false)">Par variation de durée d'impulsion</button>
+    </div>
+    <div class="feedback" id="ex30-fb"></div>
+  </div>
+</div>
+
+<!-- ============ MESURES ============ -->
+<div id="s-mesure" class="section">
+  <div class="page-title">Mesures & Erreurs</div>
+  <div class="page-desc">Erreurs absolues, relatives, écart type, incertitudes.</div>
+
+  <!-- Ex 31 -->
+  <div class="ex-card">
+    <div class="ex-number">Exercice 31 — Erreur absolue : Δx = |x_mes - x_ref|</div>
+    <div class="formula-chip"><span class="chip-label">Formule :</span>Δx = |x_mes − x_ref|</div>
+    <div class="scenario-box">La valeur de référence d'une résistance est <strong>x_ref = 100 Ω</strong>. Le multimètre affiche <strong>x_mes = 97,5 Ω</strong>.</div>
+    <div class="ex-question">Calculer l'erreur absolue <strong>Δx</strong>.</div>
+    <div class="input-row">
+      <span class="input-label">Δx =</span>
+      <input type="number" class="ex-input" id="ex31-input" placeholder="..." step="0.1">
+      <span class="unit-label">Ω</span>
+      <button class="check-btn" onclick="checkNum('ex31-input','ex31-fb',2.5,0.05,'Δx = |97,5 - 100| = <strong>2,5 Ω</strong>')">Vérifier</button>
+    </div>
+    <div class="feedback" id="ex31-fb"></div>
+  </div>
+
+  <!-- Ex 32 -->
+  <div class="ex-card">
+    <div class="ex-number">Exercice 32 — Erreur relative : Δx_r = Δx/x_ref × 100%</div>
+    <div class="formula-chip"><span class="chip-label">Formule :</span>Δx_r = (Δx / x_ref) × 100 %</div>
+    <div class="scenario-box">En reprenant l'exercice précédent : <strong>Δx = 2,5 Ω</strong>, <strong>x_ref = 100 Ω</strong>.</div>
+    <div class="ex-question">Calculer l'erreur relative <strong>Δx_r</strong>.</div>
+    <div class="input-row">
+      <span class="input-label">Δx_r =</span>
+      <input type="number" class="ex-input" id="ex32-input" placeholder="..." step="0.1">
+      <span class="unit-label">%</span>
+      <button class="check-btn" onclick="checkNum('ex32-input','ex32-fb',2.5,0.1,'Δx_r = (2,5/100)×100 = <strong>2,5 %</strong>')">Vérifier</button>
+    </div>
+    <div class="feedback" id="ex32-fb"></div>
+  </div>
+
+  <!-- Ex 33 : valeur moyenne -->
+  <div class="ex-card">
+    <div class="ex-number">Exercice 33 — Valeur moyenne : x̄ = (1/n)·Σxᵢ</div>
+    <div class="formula-chip"><span class="chip-label">Formule :</span>x̄ = (1/n) · Σxᵢ</div>
+    <div class="scenario-box">5 mesures d'une tension : <strong>12,1 — 11,9 — 12,0 — 12,2 — 11,8 V</strong>.</div>
+    <div class="ex-question">Calculer la valeur moyenne <strong>x̄</strong>.</div>
+    <div class="input-row">
+      <span class="input-label">x̄ =</span>
+      <input type="number" class="ex-input" id="ex33-input" placeholder="..." step="0.01">
+      <span class="unit-label">V</span>
+      <button class="check-btn" onclick="checkNum('ex33-input','ex33-fb',12,0.01,'x̄ = (12,1+11,9+12,0+12,2+11,8)/5 = 60/5 = <strong>12,0 V</strong>')">Vérifier</button>
+    </div>
+    <div class="feedback" id="ex33-fb"></div>
+  </div>
+
+  <!-- Ex 34 : écart simu/expé -->
+  <div class="ex-card">
+    <div class="ex-number">Exercice 34 — Écart simulation/expérience (QCM)</div>
+    <div class="formula-chip"><span class="chip-label">Formule :</span>ε_r = |y_sim − y_exp| / y_exp × 100</div>
+    <div class="scenario-box">La simulation prédit <strong>y_sim = 47,2 m/s²</strong>. L'expérience mesure <strong>y_exp = 50 m/s²</strong>. Le cahier des charges exige un écart &lt; 10 %.</div>
+    <div class="ex-question">L'écart relatif est-il conforme au cahier des charges ?</div>
+    <div class="choices" id="ex34-choices">
+      <button class="choice-btn" onclick="checkMCQ(this,'ex34-choices','ex34-fb',true)">Oui — ε_r ≈ 5,6 % &lt; 10 %</button>
+      <button class="choice-btn" onclick="checkMCQ(this,'ex34-choices','ex34-fb',false)">Non — ε_r ≈ 15 % &gt; 10 %</button>
+      <button class="choice-btn" onclick="checkMCQ(this,'ex34-choices','ex34-fb',false)">Oui — ε_r = 2,8 %</button>
+      <button class="choice-btn" onclick="checkMCQ(this,'ex34-choices','ex34-fb',false)">Impossible à conclure</button>
+    </div>
+    <div class="feedback hint" id="ex34-fb" style="display:block">ε_r = |47,2 - 50| / 50 × 100 = 2,8/50 × 100 = <strong>5,6 %</strong> → conforme (5,6 % &lt; 10 %)</div>
+  </div>
+</div>
+
+</main>
+</div>
+
+<!-- Score badge -->
+<div class="score-badge">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+  <span id="score-num" class="score-num">0</span>
+  <span style="font-size:12px;color:var(--muted)">réussies</span>
+</div>
+
+<script>
+let totalAnswered = 0;
+let totalCorrect = 0;
+
+function showSection(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('s-' + id).classList.add('active');
+  event.currentTarget.classList.add('active');
+  window.scrollTo && window.scrollTo(0,0);
+  document.querySelector('.main').scrollTop = 0;
+}
+
+function updateScore(correct) {
+  totalAnswered++;
+  if(correct) totalCorrect++;
+  document.getElementById('score-num').textContent = totalCorrect;
+  document.getElementById('score-label').textContent = totalCorrect + ' / ' + totalAnswered;
+  const pct = totalAnswered > 0 ? (totalCorrect / totalAnswered * 100) : 0;
+  document.getElementById('progress-fill').style.width = pct + '%';
+}
+
+function checkNum(inputId, fbId, expected, tolerance, explanation) {
+  const input = document.getElementById(inputId);
+  const fb = document.getElementById(fbId);
+  const val = parseFloat(input.value);
+  if(isNaN(val)) {
+    fb.className = 'feedback hint show';
+    fb.innerHTML = 'Entrez une valeur numérique.';
+    return;
+  }
+  const correct = Math.abs(val - expected) <= tolerance;
+  input.className = 'ex-input ' + (correct ? 'correct' : 'wrong');
+  fb.className = 'feedback show ' + (correct ? 'ok' : 'fail');
+  if(correct) {
+    fb.innerHTML = '✓ Bonne réponse ! ' + explanation;
+  } else {
+    fb.innerHTML = '✗ Pas tout à fait. ' + explanation;
+  }
+  updateScore(correct);
+  input.disabled = true;
+  fb.previousElementSibling && fb.previousElementSibling.tagName === 'BUTTON' && (fb.previousElementSibling.disabled = true);
+}
+
+function checkDouble(aId, bId, fbId, expA, tolA, expB, tolB, explanation) {
+  const a = parseFloat(document.getElementById(aId).value);
+  const b = parseFloat(document.getElementById(bId).value);
+  const fb = document.getElementById(fbId);
+  if(isNaN(a) || isNaN(b)) { fb.className='feedback hint show'; fb.innerHTML='Remplissez les deux champs.'; return; }
+  const ok = Math.abs(a-expA)<=tolA && Math.abs(b-expB)<=tolB;
+  document.getElementById(aId).className = 'ex-input ' + (Math.abs(a-expA)<=tolA?'correct':'wrong');
+  document.getElementById(bId).className = 'ex-input ' + (Math.abs(b-expB)<=tolB?'correct':'wrong');
+  fb.className = 'feedback show ' + (ok?'ok':'fail');
+  fb.innerHTML = (ok?'✓ Parfait ! ':'✗ Vérifiez. ') + explanation;
+  updateScore(ok);
+}
+
+function checkMCQ(btn, choicesId, fbId, isCorrect) {
+  const btns = document.querySelectorAll('#' + choicesId + ' .choice-btn');
+  btns.forEach(b => b.disabled = true);
+  const fb = document.getElementById(fbId);
+  if(isCorrect) {
+    btn.classList.add('correct-ans');
+    fb.className = 'feedback ok show';
+    fb.innerHTML = '✓ Correct !';
+  } else {
+    btn.classList.add('wrong-ans');
+    btns.forEach(b => { if(b !== btn) { try { const evs = b.getAttribute('onclick'); if(evs && evs.includes('true')) b.classList.add('correct-ans'); } catch(e){} } });
+    fb.className = 'feedback fail show';
+    fb.innerHTML = '✗ Ce n\'est pas la bonne réponse. La bonne réponse est surlignée en vert.';
+  }
+  updateScore(isCorrect);
+}
+
+function checkFill(ids, fbId, expected, tolerances, explanation) {
+  let allOk = true;
+  const fb = document.getElementById(fbId);
+  ids.forEach((id, i) => {
+    const el = document.getElementById(id);
+    const val = parseFloat(el.value);
+    const ok = !isNaN(val) && Math.abs(val - expected[i]) <= tolerances[i];
+    el.className = 'blank-input ' + (ok ? 'correct' : 'wrong');
+    if(!ok) allOk = false;
+  });
+  fb.className = 'feedback show ' + (allOk ? 'ok' : 'fail');
+  fb.innerHTML = (allOk ? '✓ Parfait ! ' : '✗ Vérifiez. ') + explanation;
+  updateScore(allOk);
+}
+
+function showHint(fbId) {
+  const fb = document.getElementById(fbId);
+  if(!fb.classList.contains('show')) {
+    fb.className = 'feedback hint show';
+    fb.innerHTML = 'Indice : applique directement la formule en remplaçant chaque lettre par sa valeur numérique.';
+  }
+}
+</script>
+</body>
+</html>

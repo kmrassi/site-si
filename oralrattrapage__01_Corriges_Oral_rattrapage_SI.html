@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Corrigés — Oral de rattrapage BAC SI</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#eef2ed;
+  --paper-line:#c9d3c6;
+  --ink:#16241c;
+  --ink-soft:#43564a;
+  --navy:#1f3a3d;
+  --amber:#c4621a;
+  --amber-soft:#e8a06b;
+  --green:#3c6e52;
+  --card:#ffffff;
+  --rule:#aab9a8;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background:
+    repeating-linear-gradient(0deg, transparent, transparent 27px, var(--paper-line) 27px, var(--paper-line) 28px),
+    repeating-linear-gradient(90deg, transparent, transparent 27px, var(--paper-line) 27px, var(--paper-line) 28px),
+    var(--paper);
+  color:var(--ink);
+  font-family:'Source Serif 4', serif;
+  line-height:1.55;
+  padding:0 0 80px 0;
+}
+.wrap{max-width:880px;margin:0 auto;padding:0 24px;}
+
+header.hero{
+  padding:64px 24px 40px;
+  max-width:880px;
+  margin:0 auto;
+  border-bottom:3px solid var(--ink);
+  position:relative;
+}
+.kicker{
+  font-family:'JetBrains Mono', monospace;
+  font-size:12px;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:var(--amber);
+  margin:0 0 14px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+.kicker::before{content:"§";font-size:16px;}
+h1{
+  font-family:'Space Grotesk', sans-serif;
+  font-weight:700;
+  font-size:clamp(32px,5vw,52px);
+  margin:0 0 14px;
+  letter-spacing:-0.01em;
+  color:var(--navy);
+}
+.subtitle{
+  font-size:17px;
+  color:var(--ink-soft);
+  max-width:600px;
+  margin:0 0 22px;
+}
+.legend{
+  display:flex;
+  gap:22px;
+  flex-wrap:wrap;
+  font-family:'JetBrains Mono', monospace;
+  font-size:12px;
+  color:var(--ink-soft);
+}
+.legend span{display:flex;align-items:center;gap:7px;}
+.dot{width:9px;height:9px;border-radius:50%;display:inline-block;}
+.dot.q{background:var(--navy);}
+.dot.a{background:var(--amber);}
+
+main{max-width:880px;margin:0 auto;padding:0 24px;}
+
+.sujet{
+  margin-top:56px;
+  position:relative;
+}
+.sujet-head{
+  display:flex;
+  align-items:baseline;
+  gap:16px;
+  margin-bottom:6px;
+}
+.sujet-num{
+  font-family:'JetBrains Mono', monospace;
+  font-size:13px;
+  color:var(--amber);
+  border:1px solid var(--amber);
+  padding:3px 9px;
+  border-radius:3px;
+  white-space:nowrap;
+}
+.sujet h2{
+  font-family:'Space Grotesk', sans-serif;
+  font-size:25px;
+  color:var(--navy);
+  margin:0;
+  font-weight:600;
+}
+.sujet-desc{
+  color:var(--ink-soft);
+  font-size:15px;
+  margin:0 0 24px;
+  padding-left:2px;
+  border-left:3px solid var(--rule);
+  padding-left:14px;
+}
+
+.data-strip{
+  font-family:'JetBrains Mono', monospace;
+  font-size:12.5px;
+  color:var(--ink-soft);
+  background:rgba(255,255,255,.5);
+  border:1px solid var(--rule);
+  border-radius:6px;
+  padding:12px 16px;
+  margin-bottom:28px;
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(190px,1fr));
+  gap:6px 18px;
+}
+.data-strip div span.k{color:var(--green);}
+
+.item{
+  background:var(--card);
+  border:1px solid var(--rule);
+  border-radius:10px;
+  margin-bottom:18px;
+  overflow:hidden;
+  box-shadow:0 1px 0 rgba(22,36,28,.04);
+}
+.q-row{
+  display:flex;
+  gap:14px;
+  align-items:flex-start;
+  padding:16px 20px;
+  cursor:pointer;
+  user-select:none;
+}
+.q-row:hover{background:#fafcf9;}
+.q-num{
+  font-family:'JetBrains Mono', monospace;
+  font-weight:700;
+  font-size:13px;
+  color:#fff;
+  background:var(--navy);
+  width:24px;height:24px;
+  border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+  margin-top:1px;
+}
+.q-text{flex:1;font-size:15.5px;color:var(--ink);}
+.chevron{
+  font-family:'JetBrains Mono', monospace;
+  color:var(--amber);
+  font-size:13px;
+  margin-top:3px;
+  transition:transform .2s ease;
+  flex-shrink:0;
+}
+.item.open .chevron{transform:rotate(90deg);}
+.answer{
+  max-height:0;
+  overflow:hidden;
+  transition:max-height .35s ease;
+  background:#fbf8f2;
+  border-top:1px solid transparent;
+}
+.item.open .answer{
+  border-top:1px solid var(--rule);
+  max-height:2000px;
+}
+.answer-inner{
+  padding:18px 20px 22px 58px;
+  font-size:15px;
+  color:#2c3a30;
+}
+.answer-inner p{margin:0 0 10px;}
+.answer-inner p:last-child{margin-bottom:0;}
+.formula{
+  font-family:'JetBrains Mono', monospace;
+  background:#1f3a3d;
+  color:#e8f0e6;
+  padding:10px 14px;
+  border-radius:6px;
+  font-size:13.5px;
+  margin:10px 0;
+  overflow-x:auto;
+}
+.result{
+  font-family:'JetBrains Mono', monospace;
+  font-weight:700;
+  color:var(--amber);
+}
+.flag{
+  display:inline-block;
+  font-family:'JetBrains Mono', monospace;
+  font-size:11.5px;
+  letter-spacing:.04em;
+  text-transform:uppercase;
+  padding:3px 9px;
+  border-radius:4px;
+  margin:8px 0 4px;
+}
+.flag.ko{background:#f6dccb;color:#8a3a0c;}
+.flag.ok{background:#d8e8da;color:#2a5a3a;}
+
+.chart-box{
+  background:#fff;
+  border:1px solid var(--rule);
+  border-radius:10px;
+  padding:20px 22px 14px;
+  margin:0 0 28px;
+}
+.chart-title{
+  font-family:'JetBrains Mono', monospace;
+  font-size:12px;
+  text-transform:uppercase;
+  letter-spacing:.08em;
+  color:var(--ink-soft);
+  margin-bottom:8px;
+}
+svg.chart{width:100%;height:auto;display:block;}
+.chart-caption{
+  font-size:13px;
+  color:var(--ink-soft);
+  margin-top:8px;
+  font-family:'JetBrains Mono', monospace;
+}
+
+.vigilance{
+  margin-top:64px;
+  border:2px solid var(--navy);
+  border-radius:10px;
+  padding:24px 26px;
+  background:#fff;
+}
+.vigilance h2{
+  font-family:'Space Grotesk', sans-serif;
+  color:var(--navy);
+  font-size:20px;
+  margin:0 0 14px;
+}
+.vigilance ul{margin:0;padding-left:20px;}
+.vigilance li{margin-bottom:9px;font-size:15px;}
+
+footer{
+  text-align:center;
+  font-family:'JetBrains Mono', monospace;
+  font-size:11.5px;
+  color:var(--ink-soft);
+  margin-top:50px;
+}
+
+@media (max-width:600px){
+  .answer-inner{padding-left:20px;}
+}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <p class="kicker">Annexe corrigée — Préparation orale</p>
+  <h1>Corrigés des 4 sujets type</h1>
+  <p class="subtitle">Oral de rattrapage — Spécialité Sciences de l'Ingénieur. Clique sur une question pour révéler la réponse détaillée et les calculs.</p>
+  <div class="legend">
+    <span><i class="dot q"></i>Question du jury</span>
+    <span><i class="dot a"></i>Calcul / résultat clé</span>
+  </div>
+</header>
+
+<main>
+
+<!-- SUJET 1 -->
+<section class="sujet">
+  <div class="sujet-head">
+    <span class="sujet-num">SUJET 1</span>
+    <h2>Portail automatique coulissant</h2>
+  </div>
+  <p class="sujet-desc">Portail de 4 m / 250 kg, motorisation 24 V, réducteur 1/50, pignon Ø60 mm. Cahier des charges : ouverture en moins de 15 s.</p>
+
+  <div class="data-strip">
+    <div><span class="k">N_moteur</span> = 3000 tr/min</div>
+    <div><span class="k">Rapport réduction</span> = 1/50</div>
+    <div><span class="k">Ø pignon</span> = 60 mm</div>
+    <div><span class="k">Course</span> = 4 m</div>
+    <div><span class="k">Objectif</span> = t &lt; 15 s</div>
+  </div>
+
+  <div class="chart-box">
+    <div class="chart-title">Graphe vitesse–temps attendu (profil trapézoïdal)</div>
+    <svg class="chart" viewBox="0 0 700 240" xmlns="http://www.w3.org/2000/svg">
+      <line x1="60" y1="190" x2="660" y2="190" stroke="#1f3a3d" stroke-width="2"/>
+      <line x1="60" y1="190" x2="60" y2="30" stroke="#1f3a3d" stroke-width="2"/>
+      <text x="660" y="210" font-family="JetBrains Mono" font-size="12" fill="#43564a" text-anchor="end">t (s)</text>
+      <text x="35" y="35" font-family="JetBrains Mono" font-size="12" fill="#43564a">V (m/s)</text>
+      <polyline points="60,190 200,70 460,70 600,190" fill="none" stroke="#c4621a" stroke-width="3"/>
+      <line x1="200" y1="190" x2="200" y2="200" stroke="#aab9a8" stroke-width="1"/>
+      <line x1="460" y1="190" x2="460" y2="200" stroke="#aab9a8" stroke-width="1"/>
+      <line x1="600" y1="190" x2="600" y2="200" stroke="#aab9a8" stroke-width="1"/>
+      <text x="130" y="207" font-family="JetBrains Mono" font-size="11" fill="#43564a" text-anchor="middle">accel.</text>
+      <text x="330" y="207" font-family="JetBrains Mono" font-size="11" fill="#43564a" text-anchor="middle">vitesse constante</text>
+      <text x="530" y="207" font-family="JetBrains Mono" font-size="11" fill="#43564a" text-anchor="middle">décél.</text>
+      <line x1="55" y1="70" x2="60" y2="70" stroke="#1f3a3d" stroke-width="2"/>
+      <text x="50" y="73" font-family="JetBrains Mono" font-size="11" fill="#3c6e52" text-anchor="end">V≈0,19</text>
+    </svg>
+    <div class="chart-caption">Aire sous la courbe = distance parcourue (4 m)</div>
+  </div>
+
+  <div class="chart-box">
+    <div class="chart-title">Temps d'ouverture réel vs cahier des charges</div>
+    <svg class="chart" viewBox="0 0 700 180" xmlns="http://www.w3.org/2000/svg">
+      <line x1="160" y1="20" x2="160" y2="150" stroke="#aab9a8" stroke-width="1" stroke-dasharray="4 4"/>
+      <text x="160" y="14" font-family="JetBrains Mono" font-size="11" fill="#43564a" text-anchor="middle">objectif 15s</text>
+      <rect x="60" y="55" width="298" height="34" fill="#3c6e52" rx="3"/>
+      <text x="370" y="77" font-family="JetBrains Mono" font-size="13" fill="#16241c">15 s (objectif)</text>
+      <rect x="60" y="105" width="423" height="34" fill="#c4621a" rx="3"/>
+      <text x="495" y="127" font-family="JetBrains Mono" font-size="13" fill="#16241c">≈21,3 s (réel)</text>
+    </svg>
+    <div class="chart-caption">Écart de +6,3 s par rapport au cahier des charges</div>
+  </div>
+
+  <div class="item open">
+    <div class="q-row" onclick="this.parentElement.classList.toggle('open')">
+      <div class="q-num">1</div>
+      <div class="q-text">Présente le besoin et la fonction globale du système.</div>
+      <div class="chevron">▶</div>
+    </div>
+    <div class="answer"><div class="answer-inner">
+      <p>Bête à cornes : le portail rend service à l'utilisateur (propriétaire du véhicule), en agissant sur l'accès au terrain.</p>
+      <p><strong>Fonction globale :</strong> permettre l'accès automatisé et sécurisé d'un véhicule à une propriété, sans intervention manuelle.</p>
+    </div></div>
+  </div>
+
+  <div class="item open">
+    <div class="q-row" onclick="this.parentElement.classList.toggle('open')">
+      <div class="q-num">2</div>
+      <div class="q-text">Trace l'allure du graphe vitesse-temps lors d'une ouverture.</div>
+      <div class="chevron">▶</div>
+    </div>
+    <div class="answer"><div class="answer-inner">
+      <p>Profil trapézoïdal en 3 phases : accélération linéaire, palier à vitesse constante, décélération avant butée (voir graphique ci-dessus). L'aire sous la courbe correspond à la distance totale (4 m).</p>
+    </div></div>
+  </div>
+
+  <div class="item open">
+    <div class="q-row" onclick="this.parentElement.classList.toggle('open')">
+      <div class="q-num">3</div>
+      <div class="q-text">Calcule la vitesse de translation et vérifie le respect des 15 s.</div>
+      <div class="chevron">▶</div>
+    </div>
+    <div class="answer"><div class="answer-inner">
+      <div class="formula">N_sortie = N_moteur / rapport = 3000 / 50 = 60 tr/min
+ω = (2π × 60) / 60 = 6,28 rad/s
+V = ω × R(pignon) = 6,28 × 0,03 = 0,188 m/s
+t = 4 / 0,188 ≈ 21,3 s</div>
+      <p><span class="result">t ≈ 21,3 s</span></p>
+      <span class="flag ko">✗ Cahier des charges non respecté (15 s visés)</span>
+      <p>Pistes : augmenter la vitesse moteur, modifier le rapport de réduction, ou augmenter le diamètre du pignon.</p>
+    </div></div>
+  </div>
+
+  <div class="item open">
+    <div class="q-row" onclick="this.parentElement.classList.toggle('open')">
+      <div class="q-num">4</div>
+      <div class="q-text">Quel capteur pour détecter un obstacle ? Quelle fonction sécuritaire ?</div>
+      <div class="chevron">▶</div>
+    </div>
+    <div class="answer"><div class="answer-inner">
+      <p>Cellule photoélectrique infrarouge ou capteur à ultrasons sur le passage du portail. Fonction sécuritaire : arrêt d'urgence ou inversion du sens dès détection, pour éviter écrasement ou collision.</p>
+    </div></div>
+  </div>
+
+  <div class="item open">
+    <div class="q-row" onclick="this.parentElement.classList.toggle('open')">
+      <div class="q-num">5</div>
+      <div class="q-text">Décris la chaîne d'information du système.</div>
+      <div class="chevron">▶</div>
+    </div>
+    <div class="answer"><div class="answer-inner">
+      <p>Capteur (boucle magnétique / cellule) → <strong>Acquérir</strong> (mesure de présence) → <strong>Traiter</strong> (carte de commande/automate qui décide) → <strong>Communiquer</strong> (ordre transmis à la chaîne d'énergie).</p>
+    </div></div>
+  </div>
+</section>
+
+<!-- SUJET 2 -->
+<section class="sujet">
+  <div class="sujet-head">
+    <span class="sujet-num">SUJET 2</span>
+    <h2>Hydrolienne de canalisation</h2>
+  </div>
+  <p class="sujet-desc">Turbine installée dans une canalisation d'eau potable pour alimenter des capteurs de surveillance du réseau.</p>
+
+  <div class="data-strip">
+    <div><span class="k">Débit Q</span> = 5 L/s</div>
+    <div><span class="k">Rendement</span> = 65 %</div>
+    <div><span class="k">Hauteur h</span> = 0,8 m</div>
+    <div><span class="k">Tension visée</span> = 3,3 V</div>
+  </div>
+
+  <div class="chart-box">
+    <div class="chart-title">Puissance hydraulique disponible vs puissance électrique récupérée</div>
+    <svg class="chart" viewBox="0 0 700 180" xmlns="http://www.w3.org/2000/svg">
+      <line x1="60" y1="150" x2="660" y2="150" stroke="#1f3a3d" stroke-width="2"/>
+      <rect x="120" y="40" width="120" height="110" fill="#1f3a3d" rx="3"/>
+      <text x="180" y="170" font-family="JetBrains Mono" font-size="12" fill="#43564a" text-anchor="middle">P hydraulique</text>
+      <text x="180" y="35" font-family="JetBrains Mono" font-size="13" fill="#16241c" text-anchor="middle">39,2 W</text>
+      <rect x="420" y="78" width="120" height="72" fill="#c4621a" rx="3"/>
+      <text x="480" y="170" font-family="JetBrains Mono" font-size="12" fill="#43564a" text-anchor="middle">P électrique (η 65%)</text>
+      <text x="480" y="73" font-family="JetBrains Mono" font-size="13" fill="#16241c" text-anchor="middle">25,5 W</text>
+    </svg>
+    <div class="chart-caption">P_hydraulique = ρ·g·Q·h → P_élec = η × P_hydraulique</div>
+  </div>
+
+  <div class="item open">
+    <div class="q-row" onclick="this.parentElement.classList.toggle('open')">
+      <div class="q-num">1</div>
+      <div class="q-text">Quelle est la fonction d'usage du système ?</div>
+      <div class="chevron">▶</div>
+    </div>
+    <div class="answer"><div class="answer-inner">
+      <p>Produire de l'électricité de manière autonome à partir de l'énergie hydraulique de la canalisation, pour alimenter des capteurs sans pile ni raccordement externe.</p>
+    </div></div>
+  </div>
+
+  <div class="item open">
+    <div class="q-row" onclick="this.parentElement.classList.toggle('open')">
+      <div class="q-num">2</div>
+      <div class="q-text">Calcule les puissances hydraulique et électrique récupérable.</div>
+      <div class="chevron">▶</div>
+    </div>
+    <div class="answer"><div class="answer-inner">
+      <div class="formula">P_hydraulique = ρ × g × Q × h
+= 1000 × 9,81 × 0,005 × 0,8
+= 39,24 W
+
+P_élec = 0,65 × 39,24 ≈ 25,5 W</div>
+      <p><span class="result">P_élec ≈ 25,5 W</span> disponibles pour alimenter les capteurs et le système de régulation.</p>
+    </div></div>
+  </div>
+
+  <div class="item open">
+    <div class="q-row" onclick="this.parentElement.classList.toggle('open')">
+      <div class="q-num">3</div>
+      <div class="q-text">Pourquoi un dispositif de régulation de tension est-il nécessaire ?</div>
+      <div class="chevron">▶</div>
+    </div>
+    <div class="answer"><div class="answer-inner">
+      <p>Le débit (donc la puissance générée) varie, ce qui rend la tension de sortie instable. Un convertisseur DC-DC (buck ou régulateur à découpage) stabilise la tension à 3,3 V quel que soit le débit. Un stockage tampon (supercondensateur ou petite batterie) peut lisser l'alimentation en cas de débit faible.</p>
+    </div></div>
+  </div>
+
+  <div class="item open">
+    <div class="q-row" onclick="this.parentElement.classList.toggle('open')">
+      <div class="q-num">4</div>
+      <div class="q-text">Quel intérêt environnemental et économique ?</div>
+      <div class="chevron">▶</div>
+    </div>
+    <div class="answer"><div class="answer-inner">
+      <p>Pas de piles à remplacer/jeter, donc moins de déchets et de maintenance, surtout pour des capteurs isolés. Production continue tant qu'il y a du débit, autonomie quasi illimitée. Coût initial plus élevé, mais maintenance réduite sur le long terme.</p>
+    </div></div>
+  </div>
+
+  <div class="item open">
+    <div class="q-row" onclick="this.parentElement.classList.toggle('open')">
+      <div class="q-num">5</div>
+      <div class="q-text">Identifie les grandeurs d'entrée/sortie de la chaîne d'information.</div>
+      <div class="chevron">▶</div>
+    </div>
+    <div class="answer"><div class="answer-inner">
+      <p><strong>Entrée :</strong> grandeur mesurée par les capteurs (pression, débit, qualité de l'eau...). <strong>Sortie :</strong> signal transmis (souvent radio basse consommation) vers la supervision du réseau.</p>
+    </div></div>
+  </div>
+</section>
+
+<!-- SUJET 3 -->
+<section class="sujet">
+  <div class="sujet-head">
+    <span class="sujet-num">SUJET 3</span>
+    <h2>Robot d'assistance à la mobilité</h2>
+  </div>
+  <p class="sujet-desc">Fauteuil motorisé piloté par joystick, deux moteurs indépendants, vitesse max 6 km/h.</p>
+
+  <div class="data-strip">
+    <div><span class="k">Masse</span> = 120 kg</div>
+    <div><span class="k">V max</span> = 6 km/h</div>
+    <div><span class="k">R roue</span> = 0,15 m</div>
+  </div>
+
+  <div class="chart-box">
+    <div class="chart-title">Diagramme d'état-transition simplifié</div>
+    <svg class="chart" viewBox="0 0 700 220" xmlns="http://www.w3.org/2000/svg">
+      <rect x="280" y="20" width="140" height="46" rx="23" fill="#1f3a3d"/>
+      <text x="350" y="48" font-family="JetBrains Mono" font-size="13" fill="#fff" text-anchor="middle">Arrêt</text>
+
+      <rect x="60" y="140" width="160" height="46" rx="23" fill="#3c6e52"/>
+      <text x="140" y="168" font-family="JetBrains Mono" font-size="12" fill="#fff" text-anchor="middle">Marche avant</text>
+
+      <rect x="480" y="140" width="170" height="46" rx="23" fill="#3c6e52"/>
+      <text x="565" y="168" font-family="JetBrains Mono" font-size="12" fill="#fff" text-anchor="middle">Marche arrière</text>
+
+      <line x1="300" y1="66" x2="160" y2="140" stroke="#c4621a" stroke-width="2" marker-end="url(#arrow)"/>
+      <text x="195" y="100" font-family="JetBrains Mono" font-size="10.5" fill="#43564a">joystick avant</text>
+
+      <line x1="160" y1="140" x2="300" y2="66" stroke="#c4621a" stroke-width="2" stroke-dasharray="3 3" marker-end="url(#arrow)"/>
+      <text x="100" y="120" font-family="JetBrains Mono" font-size="10.5" fill="#43564a">relâchement / perte signal</text>
+
+      <line x1="400" y1="66" x2="540" y2="140" stroke="#c4621a" stroke-width="2" marker-end="url(#arrow)"/>
+      <text x="430" y="100" font-family="JetBrains Mono" font-size="10.5" fill="#43564a">joystick arrière</text>
+
+      <line x1="540" y1="140" x2="400" y2="66" stroke="#c4621a" stroke-width="2" stroke-dasharray="3 3" marker-end="url(#arrow)"/>
+      <text x="455" y="120" font-family="JetBrains Mono" font-size="10.5" fill="#43564a">relâchement</text>
+
+      <defs>
+        <marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L6,3 L0,6 Z" fill="#c4621a"/>
+        </marker>
+      </defs>
+    </svg>
+    <div class="chart-caption">Toute transition vers "Arrêt" est aussi déclenchée par la perte du signal joystick (sécurité fail-safe)</div>
+  </div>
+
+  <div class="item open">
+    <div class="q-row" onclick="this.parentElement.classList.toggle('open')">
+      <div class="q-num">1</div>
+      <div class="q-text">Construis le diagramme des cas d'utilisation.</div>
+      <div class="chevron">▶</div>
+    </div>
+    <div class="answer"><div class="answer-inner">
+      <p><strong>Acteurs :</strong> Utilisateur (« Se déplacer », « Piloter via joystick », « Arrêter le système »), Aidant (« Configurer les paramètres », « Effectuer la maintenance »), Système de charge (« Recharger la batterie »). Le système est délimité par une frontière englobant le fauteuil motorisé.</p>
+    </div></div>
+  </div>
+
+  <div class="item open">
+    <div class="q-row" onclick="this.parentElement.classList.toggle('open')">
+      <div class="q-num">2</div>
+      <div class="q-text">Calcule la vitesse de rotation nécessaire des roues motrices.</div>
+      <div class="chevron">▶</div>
+    </div>
+    <div class="answer"><div class="answer-inner">
+      <div class="formula">V max = 6 km/h = 1,667 m/s
+ω = V / R = 1,667 / 0,15 = 11,11 rad/s
+N = (ω × 60) / (2π) ≈ 106 tr/min</div>
+      <p><span class="result">N ≈ 106 tr/min</span></p>
+    </div></div>
+  </div>
+
+  <div class="item open">
+    <div class="q-row" onclick="this.parentElement.classList.toggle('open')">
+      <div class="q-num">3</div>
+      <div class="q-text">Pourquoi deux moteurs indépendants plutôt qu'un seul ?</div>
+      <div class="chevron">▶</div>
+    </div>
+    <div class="answer"><div class="answer-inner">
+      <p>Pilotage différentiel : faire tourner les roues à des vitesses différentes (ou en sens opposé) permet de tourner sur place ou d'effectuer des virages serrés sans système de direction mécanique complexe. Structure simplifiée, meilleure manœuvrabilité en intérieur.</p>
+    </div></div>
+  </div>
+
+  <div class="item open">
+    <div class="q-row" onclick="this.parentElement.classList.toggle('open')">
+      <div class="q-num">4</div>
+      <div class="q-text">Comment le système assure-t-il la sécurité en cas de perte de communication ?</div>
+      <div class="chevron">▶</div>
+    </div>
+    <div class="answer"><div class="answer-inner">
+      <p>Fonction fail-safe : en l'absence de signal valide du joystick (timeout), la commande moteur passe automatiquement à l'arrêt (consigne nulle), avec un freinage progressif si besoin, pour éviter tout mouvement incontrôlé.</p>
+    </div></div>
+  </div>
+
+  <div class="item open">
+    <div class="q-row" onclick="this.parentElement.classList.toggle('open')">
+      <div class="q-num">5</div>
+      <div class="q-text">Propose un diagramme d'état-transition simplifié.</div>
+      <div class="chevron">▶</div>
+    </div>
+    <div class="answer"><div class="answer-inner">
+      <p>Voir le diagramme ci-dessus : états Arrêt / Marche avant / Marche arrière / Virage, avec transitions pilotées par le joystick et un retour systématique à l'Arrêt en cas de relâchement ou de perte de signal.</p>
+    </div></div>
+  </div>
+</section>
+
+<!-- SUJET 4 -->
+<section class="sujet">
+  <div class="sujet-head">
+    <span class="sujet-num">SUJET 4</span>
+    <h2>Catamaran électrique à foils</h2>
+  </div>
+  <p class="sujet-desc">Propulsion électrique, batterie 48V/100Ah, moteur 8 kW, autonomie visée : 2 h à pleine puissance.</p>
+
+  <div class="data-strip">
+    <div><span class="k">Batterie</span> = 48 V / 100 Ah</div>
+    <div><span class="k">Moteur</span> = 8 kW, η 92%</div>
+    <div><span class="k">Autonomie visée</span> = 2 h</div>
+  </div>
+
+  <div class="chart-box">
+    <div class="chart-title">Énergie embarquée vs énergie nécessaire pour 2h à pleine puissance</div>
+    <svg class="chart" viewBox="0 0 700 200" xmlns="http://www.w3.org/2000/svg">
+      <line x1="60" y1="170" x2="660" y2="170" stroke="#1f3a3d" stroke-width="2"/>
+      <rect x="130" y="125" width="130" height="45" fill="#3c6e52" rx="3"/>
+      <text x="195" y="190" font-family="JetBrains Mono" font-size="12" fill="#43564a" text-anchor="middle">Énergie embarquée</text>
+      <text x="195" y="118" font-family="JetBrains Mono" font-size="13" fill="#16241c" text-anchor="middle">4,8 kWh</text>
+      <rect x="440" y="20" width="130" height="150" fill="#c4621a" rx="3"/>
+      <text x="505" y="190" font-family="JetBrains Mono" font-size="12" fill="#43564a" text-anchor="middle">Énergie requise (2h)</text>
+      <text x="505" y="15" font-family="JetBrains Mono" font-size="13" fill="#16241c" text-anchor="middle">16 kWh</text>
+    </svg>
+    <div class="chart-caption">Écart majeur : autonomie réelle ≈ 33 min à pleine puissance, et non 2h</div>
+  </div>
+
+  <div class="item open">
+    <div class="q-row" onclick="this.parentElement.classList.toggle('open')">
+      <div class="q-num">1</div>
+      <div class="q-text">Quelle est la fonction des foils ?</div>
+      <div class="chevron">▶</div>
+    </div>
+    <div class="answer"><div class="answer-inner">
+      <p>Les foils sont des ailes immergées qui génèrent une portance hydrodynamique à partir d'une certaine vitesse, soulevant la coque hors de l'eau. Cela réduit fortement la traînée, donc l'énergie nécessaire pour maintenir la vitesse — principe analogue à la portance d'une aile d'avion, dans l'eau.</p>
+    </div></div>
+  </div>
+
+  <div class="item open">
+    <div class="q-row" onclick="this.parentElement.classList.toggle('open')">
+      <div class="q-num">2</div>
+      <div class="q-text">Calcule l'énergie embarquée et vérifie l'autonomie annoncée.</div>
+      <div class="chevron">▶</div>
+    </div>
+    <div class="answer"><div class="answer-inner">
+      <div class="formula">E_embarquée = U × Capacité = 48 × 100 = 4800 Wh = 4,8 kWh
+E_requise (2h à 8kW) = 8 × 2 = 16 kWh
+Énergie utile (η 92%) ≈ 4,8 × 0,92 ≈ 4,4 kWh
+Autonomie réelle = E_utile / P = 4,4 / 8 ≈ 0,55 h ≈ 33 min</div>
+      <span class="flag ko">✗ Autonomie de 2h non cohérente avec l'énergie embarquée</span>
+      <p><span class="result">Autonomie réelle ≈ 33 min</span> à pleine puissance, loin des 2h annoncées.</p>
+    </div></div>
+  </div>
+
+  <div class="item open">
+    <div class="q-row" onclick="this.parentElement.classList.toggle('open')">
+      <div class="q-num">3</div>
+      <div class="q-text">Justifie le choix d'un moteur électrique plutôt que thermique.</div>
+      <div class="chevron">▶</div>
+    </div>
+    <div class="answer"><div class="answer-inner">
+      <p><strong>Avantages :</strong> pas d'émissions sur l'eau (zones sensibles), entretien réduit, silence de fonctionnement. <strong>Contraintes :</strong> autonomie limitée par la batterie, temps de recharge, masse embarquée pénalisant les performances.</p>
+    </div></div>
+  </div>
+
+  <div class="item open">
+    <div class="q-row" onclick="this.parentElement.classList.toggle('open')">
+      <div class="q-num">4</div>
+      <div class="q-text">Décris la chaîne d'énergie complète.</div>
+      <div class="chevron">▶</div>
+    </div>
+    <div class="answer"><div class="answer-inner">
+      <p><strong>Alimenter</strong> (batterie 48V) → <strong>Distribuer</strong> (variateur/contacteur) → <strong>Convertir</strong> (moteur électrique → énergie mécanique) → <strong>Transmettre</strong> (arbre/hélice) → <strong>Agir</strong> (propulsion + sustentation par les foils).</p>
+    </div></div>
+  </div>
+
+  <div class="item open">
+    <div class="q-row" onclick="this.parentElement.classList.toggle('open')">
+      <div class="q-num">5</div>
+      <div class="q-text">Quel impact a la masse sur l'autonomie ? Quelles solutions ?</div>
+      <div class="chevron">▶</div>
+    </div>
+    <div class="answer"><div class="answer-inner">
+      <p>Une masse plus élevée augmente la puissance nécessaire pour atteindre la vitesse de décollage sur les foils, donc consomme plus d'énergie et réduit l'autonomie. Solutions : matériaux composites légers, optimisation du compromis taille batterie / masse, réduction des équipements embarqués.</p>
+    </div></div>
+  </div>
+</section>
+
+<div class="vigilance">
+  <h2>Points de vigilance pour le jury</h2>
+  <ul>
+    <li>Toujours <strong>vérifier les unités</strong> avant de calculer (km/h → m/s, tr/min → rad/s, etc.).</li>
+    <li>Quand un résultat ne respecte pas le cahier des charges, <strong>le dire clairement</strong> et proposer une piste d'amélioration : c'est souvent plus valorisé que le calcul juste.</li>
+    <li>Pour les diagrammes (cas d'utilisation, état-transition, FAST), <strong>nommer correctement les éléments</strong> : le jury évalue la rigueur du vocabulaire autant que la structure.</li>
+  </ul>
+</div>
+
+</main>
+
+<footer>Préparation oral de rattrapage — Spécialité Sciences de l'Ingénieur</footer>
+
+</body>
+</html>

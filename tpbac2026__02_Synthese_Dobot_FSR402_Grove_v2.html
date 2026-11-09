@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Synthèse – Bras Robot DOBOT & FSR 402 + Grove Shield</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg:#0d0f14; --surface:#13161e; --card:#181c27; --border:#232840;
+      --accent:#e8512a; --accent2:#f0a500; --accent3:#3ecfcf;
+      --text:#e8eaf0; --muted:#7a7f96; --code-bg:#0a0c10; --code-border:#2a3050;
+      --green:#4ade80; --purple:#c084fc; --radius:12px;
+    }
+    *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+    html { scroll-behavior:smooth; }
+    body { background:var(--bg); color:var(--text); font-family:'Syne',sans-serif; font-size:15px; line-height:1.7; min-height:100vh; }
+    body::before {
+      content:''; position:fixed; inset:0;
+      background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+      pointer-events:none; z-index:0; opacity:.6;
+    }
+
+    /* NAV */
+    nav { position:sticky; top:0; z-index:100; background:rgba(13,15,20,.92); backdrop-filter:blur(12px); border-bottom:1px solid var(--border); padding:0 40px; display:flex; align-items:center; overflow-x:auto; }
+    nav a { display:inline-flex; align-items:center; gap:5px; padding:13px 14px; font-family:'DM Mono',monospace; font-size:.7rem; letter-spacing:.5px; color:var(--muted); text-decoration:none; border-bottom:2px solid transparent; white-space:nowrap; transition:color .2s,border-color .2s; }
+    nav a:hover { color:var(--text); border-color:var(--accent); }
+    nav a .n { color:var(--accent); }
+
+    /* HEADER */
+    header { position:relative; overflow:hidden; padding:80px 60px 60px; border-bottom:1px solid var(--border); background:linear-gradient(135deg,#0d0f14 0%,#141828 60%,#0d0f14 100%); }
+    header::after { content:''; position:absolute; top:-80px; right:-80px; width:420px; height:420px; background:radial-gradient(circle,rgba(232,81,42,.18) 0%,transparent 70%); pointer-events:none; }
+    .header-tag { display:inline-block; font-family:'DM Mono',monospace; font-size:11px; letter-spacing:2px; text-transform:uppercase; color:var(--accent); border:1px solid var(--accent); padding:4px 12px; border-radius:40px; margin-bottom:24px; }
+    header h1 { font-size:clamp(2rem,5vw,3.4rem); font-weight:800; line-height:1.1; letter-spacing:-1px; }
+    header h1 span { color:var(--accent); }
+    .header-sub { font-family:'Instrument Serif',serif; font-style:italic; color:var(--muted); font-size:1.1rem; margin-top:14px; }
+    .header-badges { display:flex; flex-wrap:wrap; gap:10px; margin-top:28px; }
+    .badge { background:var(--surface); border:1px solid var(--border); border-radius:6px; padding:6px 14px; font-family:'DM Mono',monospace; font-size:12px; color:var(--accent3); }
+    .badge.grove { color:var(--green); border-color:rgba(74,222,128,.3); background:rgba(74,222,128,.07); }
+    .badge.calib { color:var(--accent2); border-color:rgba(240,165,0,.3); background:rgba(240,165,0,.07); }
+
+    /* LAYOUT */
+    .wrapper { max-width:1100px; margin:0 auto; padding:0 40px 80px; }
+
+    /* SECTION */
+    .section { margin-top:64px; }
+    .section-label { display:flex; align-items:center; gap:12px; margin-bottom:28px; }
+    .section-num { font-family:'DM Mono',monospace; font-size:11px; color:var(--accent); background:rgba(232,81,42,.1); border:1px solid rgba(232,81,42,.3); border-radius:4px; padding:3px 8px; }
+    .section-title { font-size:1.4rem; font-weight:700; letter-spacing:-.3px; }
+    hr.section-rule { border:none; border-top:1px solid var(--border); margin-bottom:28px; }
+
+    /* GRIDS */
+    .grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+    .grid-3 { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
+
+    /* CARDS */
+    .card { background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:24px; transition:border-color .25s,transform .25s; }
+    .card:hover { border-color:var(--accent); transform:translateY(-3px); }
+    .card-icon { width:40px; height:40px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:18px; margin-bottom:14px; }
+    .card-icon.orange { background:rgba(232,81,42,.15); }
+    .card-icon.teal   { background:rgba(62,207,207,.12); }
+    .card-icon.yellow { background:rgba(240,165,0,.12); }
+    .card-icon.green  { background:rgba(74,222,128,.1); }
+    .card-icon.purple { background:rgba(192,132,252,.1); }
+    .card h3 { font-size:.95rem; font-weight:700; margin-bottom:6px; }
+    .card p,.card li { color:var(--muted); font-size:.87rem; }
+    .card ul { list-style:none; display:flex; flex-direction:column; gap:5px; }
+    .card ul li::before { content:'→ '; color:var(--accent3); }
+
+    /* TABLES */
+    .spec-table { width:100%; border-collapse:collapse; font-size:.88rem; }
+    .spec-table thead tr { background:var(--surface); border-bottom:2px solid var(--accent); }
+    .spec-table th { text-align:left; padding:12px 16px; font-family:'DM Mono',monospace; font-size:.78rem; letter-spacing:1px; text-transform:uppercase; color:var(--accent); }
+    .spec-table tbody tr { border-bottom:1px solid var(--border); transition:background .15s; }
+    .spec-table tbody tr:hover { background:rgba(255,255,255,.03); }
+    .spec-table td { padding:11px 16px; color:var(--muted); }
+    .spec-table td:first-child { color:var(--text); font-weight:600; }
+    .val { font-family:'DM Mono',monospace; color:var(--accent3); }
+    .val.green { color:var(--green); }
+    .val.orange { color:var(--accent); }
+    .val.yellow { color:var(--accent2); }
+
+    /* PIN TABLE */
+    .pin-table { width:100%; border-collapse:collapse; font-size:.85rem; }
+    .pin-table thead tr { background:rgba(74,222,128,.08); border-bottom:2px solid rgba(74,222,128,.3); }
+    .pin-table th { text-align:left; padding:11px 16px; font-family:'DM Mono',monospace; font-size:.75rem; letter-spacing:1px; text-transform:uppercase; color:var(--green); }
+    .pin-table tbody tr { border-bottom:1px solid var(--border); transition:background .15s; }
+    .pin-table tbody tr:hover { background:rgba(74,222,128,.04); }
+    .pin-table td { padding:10px 16px; }
+    .pin-table td:first-child { font-family:'DM Mono',monospace; font-weight:700; }
+    .pin-vcc{color:#f87171;} .pin-gnd{color:#60a5fa;} .pin-sig{color:var(--accent3);} .pin-nc{color:var(--muted);} .pin-sda{color:var(--purple);} .pin-scl{color:var(--accent2);}
+
+    /* MASSA TABLE */
+    .mass-table { width:100%; border-collapse:collapse; font-size:.87rem; }
+    .mass-table thead tr { background:rgba(240,165,0,.08); border-bottom:2px solid rgba(240,165,0,.3); }
+    .mass-table th { text-align:left; padding:11px 16px; font-family:'DM Mono',monospace; font-size:.75rem; letter-spacing:1px; text-transform:uppercase; color:var(--accent2); }
+    .mass-table tbody tr { border-bottom:1px solid var(--border); transition:background .15s; }
+    .mass-table tbody tr:hover { background:rgba(240,165,0,.04); }
+    .mass-table td { padding:10px 16px; color:var(--muted); }
+    .mass-table td:first-child { color:var(--text); font-weight:600; }
+    .mass-table .recommended { color:var(--green); font-family:'DM Mono',monospace; font-size:.8rem; }
+
+    /* WIRING */
+    .wiring-box { background:var(--code-bg); border:1px solid var(--code-border); border-radius:var(--radius); padding:28px 32px; font-family:'DM Mono',monospace; font-size:.82rem; line-height:2.1; overflow-x:auto; }
+    .w-5v{color:#f87171;} .w-gnd{color:#60a5fa;} .w-pin{color:var(--accent3);} .w-comp{color:var(--accent2);} .w-node{color:var(--purple);} .w-grove{color:var(--green);} .w-comment{color:#4b5563;font-style:italic;}
+
+    /* FORMULA */
+    .formula-box { background:linear-gradient(135deg,rgba(62,207,207,.07),rgba(232,81,42,.07)); border:1px solid var(--border); border-left:3px solid var(--accent3); border-radius:var(--radius); padding:24px 28px; margin:20px 0; }
+    .formula-box .formula { font-family:'DM Mono',monospace; font-size:1.05rem; color:var(--accent3); display:block; margin:10px 0; }
+    .formula-box p { color:var(--muted); font-size:.87rem; }
+    .formula-box strong { color:var(--text); }
+
+    /* CALC BOX */
+    .calc-box { background:rgba(240,165,0,.06); border:1px solid rgba(240,165,0,.25); border-left:3px solid var(--accent2); border-radius:var(--radius); padding:22px 26px; margin:16px 0; font-family:'DM Mono',monospace; font-size:.83rem; line-height:2; }
+    .calc-box .ctitle { color:var(--accent2); font-weight:700; font-size:.85rem; display:block; margin-bottom:8px; }
+    .calc-box .cline { color:var(--muted); display:block; }
+    .calc-box .cresult { color:var(--green); font-weight:700; display:block; margin-top:4px; }
+
+    /* CODE */
+    .code-wrap { background:var(--code-bg); border:1px solid var(--code-border); border-radius:var(--radius); overflow:hidden; }
+    .code-header { display:flex; align-items:center; justify-content:space-between; background:#111418; padding:10px 20px; border-bottom:1px solid var(--code-border); }
+    .code-header span { font-family:'DM Mono',monospace; font-size:.75rem; color:var(--muted); }
+    .code-dots { display:flex; gap:6px; }
+    .code-dots i { width:10px; height:10px; border-radius:50%; display:block; }
+    .dot-r{background:#f87171;} .dot-y{background:#facc15;} .dot-g{background:#4ade80;}
+    pre { padding:24px 28px; overflow-x:auto; font-family:'DM Mono',monospace; font-size:.8rem; line-height:1.8; color:#c9d1d9; }
+    .kw{color:#ff7b72;} .typ{color:#ffa657;} .cmt{color:#4b5563;font-style:italic;} .str{color:#a5d6ff;} .num{color:#79c0ff;} .fn{color:#d2a8ff;} .var{color:#e8eaf0;} .op{color:var(--accent3);}
+
+    /* DIFF TABLE */
+    .diff-table { width:100%; border-collapse:collapse; font-size:.87rem; }
+    .diff-table th { background:var(--surface); border-bottom:2px solid var(--border); padding:12px 16px; text-align:left; font-size:.78rem; letter-spacing:1px; text-transform:uppercase; color:var(--muted); }
+    .diff-table td { padding:11px 16px; border-bottom:1px solid var(--border); }
+    .diff-table td:first-child { color:var(--text); font-weight:600; font-size:.85rem; }
+    .old { color:#f87171; font-family:'DM Mono',monospace; font-size:.8rem; }
+    .new-val { color:var(--green); font-family:'DM Mono',monospace; font-size:.8rem; }
+
+    /* CALLOUT */
+    .callout { display:flex; gap:16px; border-radius:var(--radius); padding:18px 22px; margin:20px 0; }
+    .callout.warn  { background:rgba(240,165,0,.08);  border:1px solid rgba(240,165,0,.25); }
+    .callout.info  { background:rgba(62,207,207,.08); border:1px solid rgba(62,207,207,.2); }
+    .callout.ok    { background:rgba(74,222,128,.06); border:1px solid rgba(74,222,128,.2); }
+    .callout.grove { background:rgba(74,222,128,.06); border:1px solid rgba(74,222,128,.3); }
+    .callout.calib { background:rgba(240,165,0,.06); border:1px solid rgba(240,165,0,.3); }
+    .callout-icon  { font-size:1.2rem; flex-shrink:0; margin-top:2px; }
+    .callout p     { font-size:.87rem; color:var(--muted); }
+    .callout strong { color:var(--text); display:block; margin-bottom:4px; }
+
+    /* STEPS */
+    .steps { display:flex; flex-direction:column; }
+    .step  { display:flex; gap:20px; padding:20px 0; border-bottom:1px solid var(--border); }
+    .step:last-child { border-bottom:none; }
+    .step-num { width:36px; height:36px; flex-shrink:0; background:var(--accent); border-radius:50%; display:flex; align-items:center; justify-content:center; font-family:'DM Mono',monospace; font-size:.8rem; font-weight:700; color:#fff; }
+    .step-num.calib { background:var(--accent2); }
+    .step-content h4 { font-size:.95rem; font-weight:700; margin-bottom:5px; }
+    .step-content p  { font-size:.87rem; color:var(--muted); }
+    .step-content code { background:var(--code-bg); border:1px solid var(--code-border); border-radius:4px; padding:1px 7px; font-family:'DM Mono',monospace; font-size:.8rem; color:var(--accent3); }
+
+    /* OPTION BOXES */
+    .option-box { border:1px solid var(--border); border-radius:var(--radius); padding:20px 24px; }
+    .option-box.opt-a { border-color:rgba(62,207,207,.3); background:rgba(62,207,207,.04); }
+    .option-box.opt-b { border-color:rgba(74,222,128,.3); background:rgba(74,222,128,.04); }
+    .option-label { font-family:'DM Mono',monospace; font-size:.75rem; letter-spacing:1.5px; text-transform:uppercase; margin-bottom:10px; font-weight:700; }
+    .opt-a .option-label { color:var(--accent3); }
+    .opt-b .option-label { color:var(--green); }
+    .option-box h4 { font-size:.95rem; font-weight:700; margin-bottom:8px; }
+    .option-box p  { font-size:.87rem; color:var(--muted); }
+
+    /* GROVE CONNECTOR */
+    .grove-connector-wrap { display:grid; grid-template-columns:auto 1fr; gap:28px; align-items:start; }
+    .grove-visual { background:var(--code-bg); border:1px solid rgba(74,222,128,.3); border-radius:var(--radius); padding:24px 20px; font-family:'DM Mono',monospace; font-size:.78rem; line-height:1; white-space:pre; color:var(--muted); flex-shrink:0; }
+    .gv-title { color:var(--green); font-weight:700; display:block; margin-bottom:12px; text-align:center; }
+
+    /* MONITOR OUTPUT */
+    .monitor-box { background:#060810; border:1px solid #1a2030; border-radius:var(--radius); overflow:hidden; }
+    .monitor-header { background:#0e1018; padding:10px 18px; border-bottom:1px solid #1a2030; display:flex; align-items:center; gap:8px; }
+    .monitor-header span { font-family:'DM Mono',monospace; font-size:.72rem; color:#3a4060; }
+    .monitor-dot { width:8px; height:8px; border-radius:50%; background:#1a3a1a; }
+    .monitor-content { padding:18px 22px; font-family:'DM Mono',monospace; font-size:.78rem; line-height:2; }
+    .m-sep  { color:#1a2530; }
+    .m-head { color:#2a5040; }
+    .m-key  { color:var(--accent3); }
+    .m-val  { color:var(--accent2); }
+    .m-force{ color:var(--green); font-weight:700; }
+    .m-k    { color:var(--purple); }
+    .m-warn { color:var(--accent); }
+    .m-ok   { color:var(--green); }
+    .m-info { color:#3a5060; }
+
+    /* FOOTER */
+    footer { border-top:1px solid var(--border); padding:30px 60px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; }
+    footer p { font-family:'DM Mono',monospace; font-size:.75rem; color:var(--muted); }
+    .ft-badge { background:rgba(232,81,42,.1); border:1px solid rgba(232,81,42,.3); color:var(--accent); padding:4px 12px; border-radius:40px; font-size:.75rem; font-family:'DM Mono',monospace; }
+
+    @keyframes fadeUp { from{opacity:0;transform:translateY(18px)} to{opacity:1;transform:translateY(0)} }
+    @media(max-width:800px){
+      header{padding:48px 24px 40px;} .wrapper{padding:0 20px 60px;}
+      .grid-2,.grid-3{grid-template-columns:1fr;} .grove-connector-wrap{grid-template-columns:1fr;} footer{padding:24px;} nav{padding:0 16px;}
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#presentation"><span class="n">01</span> Présentation</a>
+  <a href="#materiel"><span class="n">02</span> Matériel</a>
+  <a href="#fsr402"><span class="n">03</span> FSR 402</a>
+  <a href="#grove"><span class="n">04</span> Grove Shield</a>
+  <a href="#cablage"><span class="n">05</span> Câblage</a>
+  <a href="#code"><span class="n">06</span> Code mesure</a>
+  <a href="#etalonnage"><span class="n">07</span> Étalonnage</a>
+  <a href="#code-calib"><span class="n">08</span> Code étalonnage</a>
+  <a href="#modifs"><span class="n">09</span> Modifications</a>
+  <a href="#vigilance"><span class="n">10</span> Vigilance</a>
+  <a href="#chaine"><span class="n">11</span> Chaîne de mesure</a>
+</nav>
+
+<!-- HEADER -->
+<header>
+  <div class="header-tag">Système Pluritechnologique</div>
+  <h1>Bras Robot <span>DOBOT</span><br/>Force de Préhension</h1>
+  <p class="header-sub">Protocole expérimental — FSR® 402 · Arduino + Grove Base Shield · Étalonnage pratique</p>
+  <div class="header-badges">
+    <span class="badge">FSR® 402 — Interlink Electronics</span>
+    <span class="badge">Arduino UNO</span>
+    <span class="badge grove">✦ Grove Base Shield 103030000</span>
+    <span class="badge">LCD 16×2 I²C</span>
+    <span class="badge calib">✦ Programme d'étalonnage</span>
+  </div>
+</header>
+
+<div class="wrapper">
+
+  <!-- 01 PRÉSENTATION -->
+  <div class="section" id="presentation">
+    <div class="section-label"><span class="section-num">01</span><span class="section-title">Présentation du système</span></div>
+    <hr class="section-rule"/>
+    <div class="grid-3">
+      <div class="card"><div class="card-icon orange">🤖</div><h3>Bras DOBOT</h3><ul><li>Robot 4 axes</li><li>Pince à deux mors symétriques</li><li>Fermeture motorisée</li><li>Usage pédagogique / industriel</li></ul></div>
+      <div class="card"><div class="card-icon teal">📏</div><h3>Mesure de force</h3><ul><li>FSR 402 sur un mors</li><li>Pont diviseur + Grove Shield</li><li>Lecture analogique Arduino A0</li><li>Conversion R → Force (N)</li></ul></div>
+      <div class="card"><div class="card-icon yellow">📺</div><h3>Interface utilisateur</h3><ul><li>LCD 16×2 I²C sur port Grove I2C</li><li>Affichage temps réel en Newton</li><li>Moniteur série pour l'étalonnage</li><li>Rafraîchissement toutes 200 ms</li></ul></div>
+    </div>
+  </div>
+
+  <!-- 02 MATÉRIEL -->
+  <div class="section" id="materiel">
+    <div class="section-label"><span class="section-num">02</span><span class="section-title">Matériel nécessaire</span></div>
+    <hr class="section-rule"/>
+    <table class="spec-table">
+      <thead><tr><th>Composant</th><th>Référence</th><th>Connexion Grove</th><th>Remarque</th></tr></thead>
+      <tbody>
+        <tr><td>Bras de robot</td><td><span class="val">DOBOT Magician</span></td><td>—</td><td>Pince à deux mors symétriques</td></tr>
+        <tr><td>Microcontrôleur</td><td><span class="val">Arduino UNO</span></td><td>—</td><td>ADC 10 bits, alimentation 5 V</td></tr>
+        <tr><td>Shield de connexion</td><td><span class="val green">Grove Base Shield 103030000</span></td><td><span class="val green">Support de tous les ports</span></td><td>Se clippe directement sur l'UNO</td></tr>
+        <tr><td>Capteur de force</td><td><span class="val">FSR® 402 — Interlink</span></td><td><span class="val orange">Port A0 (câble Grove adapté)</span></td><td>Ø 14,68 mm · 0,2 – 20 N</td></tr>
+        <tr><td>Résistance de mesure</td><td><span class="val">10 kΩ</span></td><td><span class="val orange">Entre SIG et GND du câble Grove</span></td><td>À souder sur le câble Grove</td></tr>
+        <tr><td>Câble Grove 4 fils</td><td><span class="val green">Câble Grove universel</span></td><td><span class="val green">Connecte FSR + R_M au port A0</span></td><td>Câble femelle coupé côté FSR</td></tr>
+        <tr><td>Afficheur LCD</td><td><span class="val">LCD16X2I2C (rgb_lcd)</span></td><td><span class="val green">Port I2C du Grove Shield</span></td><td>Branchement direct plug-and-play</td></tr>
+        <tr><td>Masses étalons</td><td><span class="val yellow">100 g, 200 g, 500 g</span></td><td>—</td><td>Masses scolaires certifiées pour étalonnage</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 03 FSR 402 -->
+  <div class="section" id="fsr402">
+    <div class="section-label"><span class="section-num">03</span><span class="section-title">Capteur FSR® 402 — Caractéristiques clés</span></div>
+    <hr class="section-rule"/>
+    <div class="grid-2" style="margin-bottom:20px;">
+      <div class="card"><div class="card-icon teal">📐</div><h3>Données mécaniques</h3><ul><li>Zone active : <strong style="color:var(--accent3)">Ø 14,68 mm</strong></li><li>Épaisseur nominale : <strong style="color:var(--accent3)">0,46 mm</strong></li><li>Course de commutation : 0,15 mm</li><li>Structure multicouche PTF</li></ul></div>
+      <div class="card"><div class="card-icon orange">⚡</div><h3>Performances électriques</h3><ul><li>Force de déclenchement : <strong style="color:var(--accent)">≥ 0,2 N</strong></li><li>Plage de sensibilité : <strong style="color:var(--accent)">0,2 – 20 N</strong></li><li>Résistance au repos : <strong style="color:var(--accent3)">> 10 MΩ</strong></li><li>Temps de réponse : <strong style="color:var(--accent3)">&lt; 3 µs</strong></li></ul></div>
+    </div>
+    <table class="spec-table">
+      <thead><tr><th>Paramètre</th><th>Valeur</th><th>Impact sur le protocole</th></tr></thead>
+      <tbody>
+        <tr><td>Répétabilité (même capteur)</td><td><span class="val">± 2 %</span></td><td>Mesures reproductibles</td></tr>
+        <tr><td>Répétabilité (lot à lot)</td><td><span class="val">± 6 %</span></td><td>Calibration individuelle recommandée</td></tr>
+        <tr><td>Hystérésis</td><td><span class="val">+10 % moy.</span></td><td>Légère différence montée/descente</td></tr>
+        <tr><td>Dérive long terme (35 j, 1 kg)</td><td><span class="val">&lt; 5 % log(t)</span></td><td>Stable en conditions normales</td></tr>
+        <tr><td>Durée de vie</td><td><span class="val">10 millions d'actuations</span></td><td>Très robuste pour usage intensif</td></tr>
+        <tr><td>EMI / ESD</td><td><span class="val">Aucune / Non sensible</span></td><td>Pas de protection externe requise</td></tr>
+        <tr><td>Conformité</td><td><span class="val">RoHS · UL 94 V-1</span></td><td>Compatible environnement scolaire</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 04 GROVE SHIELD -->
+  <div class="section" id="grove">
+    <div class="section-label"><span class="section-num">04</span><span class="section-title">Grove Base Shield 103030000 — Ports utilisés</span></div>
+    <hr class="section-rule"/>
+    <div class="grove-connector-wrap">
+      <div class="grove-visual">
+<span class="gv-title">Port A0 — FSR 402</span><span style="color:var(--green)">┌─────────────────────┐
+│  Grove 4-pin A0     │
+└──┬───┬───┬───┬──────┘</span>
+   <span style="color:#f87171">█</span>   <span style="color:#60a5fa">█</span>   <span style="color:var(--accent3)">█</span>   <span style="color:var(--muted)">█</span>
+  <span style="color:#f87171">VCC</span> <span style="color:#60a5fa">GND</span> <span style="color:var(--accent3)">SIG</span>  <span style="color:var(--muted)">NC</span>
+  <span style="color:#f87171">5V</span>  <span style="color:#60a5fa">0V</span>  <span style="color:var(--accent3)">A0</span>
+
+<span class="gv-title" style="margin-top:14px">Port I2C — LCD</span><span style="color:var(--green)">┌─────────────────────┐
+│  Grove I2C socket   │
+└──┬───┬───┬───┬──────┘</span>
+   <span style="color:#f87171">█</span>   <span style="color:#60a5fa">█</span>   <span style="color:var(--purple)">█</span>   <span style="color:var(--accent2)">█</span>
+  <span style="color:#f87171">VCC</span> <span style="color:#60a5fa">GND</span> <span style="color:var(--purple)">SDA</span> <span style="color:var(--accent2)">SCL</span>
+  <span style="color:#f87171">5V</span>  <span style="color:#60a5fa">0V</span>  <span style="color:var(--purple)">A4</span>  <span style="color:var(--accent2)">A5</span>
+      </div>
+      <div>
+        <table class="pin-table">
+          <thead><tr><th>Broche</th><th>Couleur câble</th><th>Signal</th><th>Connecté à</th><th>Rôle</th></tr></thead>
+          <tbody>
+            <tr><td class="pin-vcc">Pin 1 — VCC</td><td><span style="color:#f87171">■</span> Rouge</td><td class="pin-vcc">5 V</td><td>Borne + du FSR 402</td><td>Alimentation pont diviseur</td></tr>
+            <tr><td class="pin-gnd">Pin 2 — GND</td><td><span style="color:#60a5fa">■</span> Noir</td><td class="pin-gnd">0 V</td><td>Borne − de R_M (10 kΩ)</td><td>Référence commune</td></tr>
+            <tr><td class="pin-sig">Pin 3 — SIG</td><td><span style="color:var(--accent3)">■</span> Blanc</td><td class="pin-sig">A0</td><td>Nœud FSR / R_M</td><td>Lecture tension V_OUT</td></tr>
+            <tr><td class="pin-nc">Pin 4 — NC</td><td><span style="color:var(--muted)">■</span> Jaune</td><td class="pin-nc">Non connecté</td><td>—</td><td>Non utilisé</td></tr>
+          </tbody>
+        </table>
+        <div style="margin-top:16px;">
+          <table class="pin-table">
+            <thead><tr><th>Broche I2C</th><th>Couleur câble</th><th>Arduino</th><th>Connecté à (LCD)</th></tr></thead>
+            <tbody>
+              <tr><td class="pin-vcc">Pin 1 — VCC</td><td><span style="color:#f87171">■</span> Rouge</td><td class="pin-vcc">5 V</td><td>VCC LCD</td></tr>
+              <tr><td class="pin-gnd">Pin 2 — GND</td><td><span style="color:#60a5fa">■</span> Noir</td><td class="pin-gnd">0 V</td><td>GND LCD</td></tr>
+              <tr><td class="pin-sda">Pin 3 — SDA</td><td><span style="color:var(--purple)">■</span> Blanc</td><td class="pin-sda">A4 (SDA)</td><td>SDA LCD</td></tr>
+              <tr><td class="pin-scl">Pin 4 — SCL</td><td><span style="color:var(--accent2)">■</span> Jaune</td><td class="pin-scl">A5 (SCL)</td><td>SCL LCD</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 05 CÂBLAGE -->
+  <div class="section" id="cablage">
+    <div class="section-label"><span class="section-num">05</span><span class="section-title">Schéma de câblage complet — Avec Grove Shield</span></div>
+    <hr class="section-rule"/>
+    <div class="formula-box">
+      <p>Le FSR 402 est intégré dans un <strong>pont diviseur de tension</strong> :</p>
+      <span class="formula">V_OUT = ( R_M × V+ ) / ( R_M + R_FSR )</span>
+      <p>La résistance <strong>R_M = 10 kΩ</strong> n'est pas intégrée au Grove Shield — elle doit être câblée <strong>en externe</strong> entre SIG et GND du câble Grove.</p>
+    </div>
+    <div class="wiring-box">
+<span class="w-grove">┌──────────────────────────────────────────────────────────┐
+│              GROVE BASE SHIELD (sur Arduino UNO)         │
+│  Port A0          Port I2C (LCD)                         │
+│  [VCC|GND|SIG|NC] [VCC|GND|SDA|SCL]                     │
+└────┬────┬────┬─────────────────────────────────────────-─┘</span>
+     │    │    │
+     │    │    └──── <span class="w-pin">A0 Arduino</span> ← point de mesure V_OUT
+     │    │                  │
+     │    │          <span class="w-comp">[ 10 kΩ R_M ]</span>  <span class="w-comment">← externe, soudée sur câble Grove</span>
+     │    │                  │
+     │    └──────────────────┘
+     │              <span class="w-gnd">GND commun</span>
+     │
+     └──── <span class="w-5v">5V</span> ──── <span class="w-comp">[ FSR 402 ]</span> <span class="w-comment">← collé sur le mors</span>
+                           │
+                    <span class="w-pin">SIG (A0)</span> ── <span class="w-comp">[ 10 kΩ ]</span> ── <span class="w-gnd">GND</span>
+
+<span class="w-comment">─────────────────── LCD I²C ───────────────────────────────</span>
+<span class="w-grove">Port I2C Grove</span> ──── câble Grove 4 fils ──── <span class="w-comp">LCD rgb_lcd Grove</span>
+  <span class="w-5v">VCC</span> · <span class="w-gnd">GND</span> · <span class="w-node">SDA</span> · <span class="w-node">SCL</span>  <span class="w-comment">← plug-and-play, aucun câblage manuel</span>
+    </div>
+    <div class="callout warn" style="margin-top:16px;">
+      <span class="callout-icon">🔧</span>
+      <div>
+        <strong>Solution pratique — intégrer R_M sur le câble Grove</strong>
+        <p>Couper un câble Grove femelle côté FSR. Souder la résistance 10 kΩ entre le fil <span style="color:var(--accent3)">SIG (blanc)</span> et le fil <span style="color:#60a5fa">GND (noir)</span>. Connecter ensuite le FSR 402 entre <span style="color:#f87171">VCC (rouge)</span> et <span style="color:var(--accent3)">SIG (blanc)</span>. Protéger avec de la gaine thermorétractable.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 06 CODE MESURE -->
+  <div class="section" id="code">
+    <div class="section-label"><span class="section-num">06</span><span class="section-title">Code Arduino — Mesure en temps réel</span></div>
+    <hr class="section-rule"/>
+    <div class="code-wrap">
+      <div class="code-header">
+        <div class="code-dots"><i class="dot-r"></i><i class="dot-y"></i><i class="dot-g"></i></div>
+        <span>sketch_fsr402_grove.ino</span>
+        <span>Programme de mesure — à téléverser après étalonnage</span>
+      </div>
+      <pre><span class="cmt">// ═══════════════════════════════════════════════════════════════
+// Bras Robot DOBOT — Mesure de force de préhension
+// Capteur  : FSR® 402   |   Shield : Grove Base Shield 103030000
+// FSR402 + R_M (10kΩ)  → Port analogique A0 du Grove Shield
+// LCD rgb_lcd            → Port I2C du Grove Shield (plug-and-play)
+// ⚠ Mettre à jour K_CALIB après avoir lancé le programme d'étalonnage
+// ═══════════════════════════════════════════════════════════════</span>
+
+<span class="kw">#include</span> <span class="str">&lt;Wire.h&gt;</span>
+<span class="kw">#include</span> <span class="str">"rgb_lcd.h"</span>
+
+<span class="typ">rgb_lcd</span> <span class="var">lcd</span>;
+
+<span class="cmt">// ── Constantes ──────────────────────────────────────────────────</span>
+<span class="kw">const</span> <span class="typ">int</span>   <span class="var">sensorPin</span> <span class="op">=</span> <span class="var">A0</span>;
+<span class="kw">const</span> <span class="typ">float</span> <span class="var">VCC</span>       <span class="op">=</span> <span class="num">5.0</span>;
+<span class="kw">const</span> <span class="typ">float</span> <span class="var">RM</span>        <span class="op">=</span> <span class="num">10000.0</span>; <span class="cmt">// Résistance de mesure externe (10 kΩ)</span>
+
+<span class="cmt">// ⚙ Constante de calibration — mettre à jour après étalonnage</span>
+<span class="cmt">// Valeur par défaut basée sur courbe datasheet FSR 402</span>
+<span class="kw">const</span> <span class="typ">float</span> <span class="var">K_CALIB</span>  <span class="op">=</span> <span class="num">4e-5</span>;   <span class="cmt">// ← remplacer par valeur calculée</span>
+
+<span class="kw">const</span> <span class="typ">int</span>   <span class="var">colorR</span> <span class="op">=</span> <span class="num">0</span>, <span class="var">colorG</span> <span class="op">=</span> <span class="num">0</span>, <span class="var">colorB</span> <span class="op">=</span> <span class="num">0</span>;
+
+<span class="cmt">// ── Variables ────────────────────────────────────────────────────</span>
+<span class="typ">int</span>   <span class="var">rawValue</span> <span class="op">=</span> <span class="num">0</span>;
+<span class="typ">float</span> <span class="var">vOut</span>     <span class="op">=</span> <span class="num">0.0</span>;
+<span class="typ">float</span> <span class="var">rFSR</span>     <span class="op">=</span> <span class="num">0.0</span>;
+<span class="typ">float</span> <span class="var">force</span>    <span class="op">=</span> <span class="num">0.0</span>;
+
+<span class="typ">void</span> <span class="fn">setup</span>() {
+  <span class="var">Serial</span>.<span class="fn">begin</span>(<span class="num">9600</span>);
+  <span class="var">lcd</span>.<span class="fn">begin</span>(<span class="num">16</span>, <span class="num">2</span>);
+  <span class="var">lcd</span>.<span class="fn">setRGB</span>(<span class="var">colorR</span>, <span class="var">colorG</span>, <span class="var">colorB</span>);
+  <span class="var">lcd</span>.<span class="fn">print</span>(<span class="str">"Force (N) :"</span>);
+  <span class="fn">delay</span>(<span class="num">1000</span>);
+}
+
+<span class="typ">void</span> <span class="fn">loop</span>() {
+  <span class="var">rawValue</span> <span class="op">=</span> <span class="fn">analogRead</span>(<span class="var">sensorPin</span>);
+  <span class="var">vOut</span>     <span class="op">=</span> <span class="var">rawValue</span> <span class="op">*</span> (<span class="var">VCC</span> <span class="op">/</span> <span class="num">1023.0</span>);
+
+  <span class="kw">if</span> (<span class="var">vOut</span> <span class="op">></span> <span class="num">0.01</span>) {
+    <span class="var">rFSR</span>  <span class="op">=</span> <span class="var">RM</span> <span class="op">*</span> ((<span class="var">VCC</span> <span class="op">/</span> <span class="var">vOut</span>) <span class="op">-</span> <span class="num">1.0</span>);
+    <span class="var">force</span> <span class="op">=</span> <span class="fn">constrain</span>(<span class="num">1.0</span> <span class="op">/</span> (<span class="var">rFSR</span> <span class="op">*</span> <span class="var">K_CALIB</span>), <span class="num">0.0</span>, <span class="num">20.0</span>);
+  } <span class="kw">else</span> {
+    <span class="var">force</span> <span class="op">=</span> <span class="num">0.0</span>;
+  }
+
+  <span class="var">lcd</span>.<span class="fn">setCursor</span>(<span class="num">0</span>, <span class="num">1</span>);
+  <span class="var">lcd</span>.<span class="fn">print</span>(<span class="str">"                "</span>);
+  <span class="var">lcd</span>.<span class="fn">setCursor</span>(<span class="num">0</span>, <span class="num">1</span>);
+  <span class="var">lcd</span>.<span class="fn">print</span>(<span class="var">force</span>, <span class="num">2</span>); <span class="var">lcd</span>.<span class="fn">print</span>(<span class="str">" N"</span>);
+
+  <span class="var">Serial</span>.<span class="fn">print</span>(<span class="str">"ADC="</span>);   <span class="var">Serial</span>.<span class="fn">print</span>(<span class="var">rawValue</span>);
+  <span class="var">Serial</span>.<span class="fn">print</span>(<span class="str">" Vout="</span>); <span class="var">Serial</span>.<span class="fn">print</span>(<span class="var">vOut</span>, <span class="num">3</span>);
+  <span class="var">Serial</span>.<span class="fn">print</span>(<span class="str">" Rfsr="</span>); <span class="var">Serial</span>.<span class="fn">print</span>(<span class="var">rFSR</span>, <span class="num">0</span>);
+  <span class="var">Serial</span>.<span class="fn">print</span>(<span class="str">" F="</span>);    <span class="var">Serial</span>.<span class="fn">print</span>(<span class="var">force</span>, <span class="num">2</span>);
+  <span class="var">Serial</span>.<span class="fn">println</span>(<span class="str">" N"</span>);
+  <span class="fn">delay</span>(<span class="num">200</span>);
+}</pre>
+    </div>
+  </div>
+
+  <!-- 07 ÉTALONNAGE -->
+  <div class="section" id="etalonnage">
+    <div class="section-label"><span class="section-num">07</span><span class="section-title">Étalonnage pratique — Principe et protocole</span></div>
+    <hr class="section-rule"/>
+
+    <div class="callout calib">
+      <span class="callout-icon">⚖️</span>
+      <div>
+        <strong>Pourquoi étalonner ?</strong>
+        <p>Le FSR 402 mesure une <strong>résistance</strong>, pas directement une force. La constante K_CALIB fait le lien entre les deux. La valeur par défaut <code style="background:var(--code-bg);border:1px solid var(--code-border);padding:1px 6px;border-radius:4px;font-family:'DM Mono',monospace;color:var(--accent3)">4e-5</code> est issue de la courbe typique de la datasheet. Chaque montage (géométrie des mors, colle, surface de contact) modifie légèrement cette valeur — l'étalonnage permet de la corriger précisément.</p>
+      </div>
+    </div>
+
+    <h3 style="font-size:1rem;font-weight:700;margin:28px 0 16px;color:var(--accent2);">— Masse étalon : comment choisir ?</h3>
+
+    <p style="color:var(--muted);font-size:.88rem;margin-bottom:16px;">Une masse étalon est un objet dont on connaît le poids exact. Posée ou serrée sur le capteur, elle exerce une force connue <strong style="color:var(--text)">F = m × g</strong> (avec g = 9,81 m/s²), ce qui permet de calculer K_CALIB.</p>
+
+    <table class="mass-table">
+      <thead><tr><th>Objet</th><th>Masse approx.</th><th>Force (N)</th><th>Recommandé ?</th></tr></thead>
+      <tbody>
+        <tr><td>Pièce de 2 €</td><td>8,5 g</td><td>0,083 N</td><td><span style="color:var(--muted)">Trop faible — imprécis</span></td></tr>
+        <tr><td>Pile AA</td><td>23 g</td><td>0,226 N</td><td><span style="color:var(--muted)">Acceptable, masse variable</span></td></tr>
+        <tr><td>4 piles AA</td><td>~92 g</td><td>~0,902 N</td><td><span style="color:var(--accent2)">Correct</span></td></tr>
+        <tr><td><strong>Masse scolaire 100 g</strong></td><td>100 g</td><td><strong>0,981 N</strong></td><td><span class="recommended">✓ Idéal</span></td></tr>
+        <tr><td><strong>Masse scolaire 200 g</strong></td><td>200 g</td><td><strong>1,962 N</strong></td><td><span class="recommended">✓ Idéal</span></td></tr>
+        <tr><td><strong>Masse scolaire 500 g</strong></td><td>500 g</td><td><strong>4,905 N</strong></td><td><span class="recommended">✓ Idéal</span></td></tr>
+        <tr><td>Smartphone moyen</td><td>~180 g</td><td>~1,77 N</td><td><span style="color:var(--muted)">Masse variable selon modèle</span></td></tr>
+      </tbody>
+    </table>
+
+    <div class="callout warn" style="margin-top:16px;">
+      <span class="callout-icon">⚠️</span>
+      <div>
+        <strong>Ne jamais appuyer avec le doigt</strong>
+        <p>La pression d'un doigt est trop variable et non reproductible. Utiliser exclusivement des <strong>masses scolaires en laiton</strong> certifiées (celles du laboratoire de physique-chimie) pour garantir une calibration fiable.</p>
+      </div>
+    </div>
+
+    <h3 style="font-size:1rem;font-weight:700;margin:32px 0 16px;color:var(--accent2);">— Deux approches d'application de la masse</h3>
+
+    <div class="grid-2" style="margin-bottom:24px;">
+      <div class="option-box opt-a">
+        <div class="option-label">Option A — Sur le mors</div>
+        <h4>Masse serrée par la pince</h4>
+        <p>Placer un objet de masse connue entre les deux mors, puis commander le DOBOT pour fermer la pince jusqu'à maintenir l'objet. La force exercée sur le FSR correspond approximativement au poids de l'objet.</p>
+        <p style="margin-top:8px;font-size:.82rem;color:var(--accent);">⚠ La pince serre — elle n'appuie pas verticalement. C'est un étalonnage <em>relatif</em> lié au montage réel.</p>
+      </div>
+      <div class="option-box opt-b">
+        <div class="option-label">Option B — Appui direct (plus rigoureux)</div>
+        <h4>Masse posée à plat sur le capteur</h4>
+        <p>Retirer temporairement le FSR du mors. Le poser à plat sur une surface plane et rigide. Déposer directement la masse étalon de 100 g dessus. La force est purement verticale et bien définie.</p>
+        <p style="margin-top:8px;font-size:.82rem;color:var(--green);">✓ Plus rigoureux. Recommandé pour une première calibration précise avant de recoller le capteur.</p>
+      </div>
+    </div>
+
+    <h3 style="font-size:1rem;font-weight:700;margin:32px 0 16px;color:var(--accent2);">— Calcul de la constante K_CALIB</h3>
+
+    <p style="color:var(--muted);font-size:.88rem;margin-bottom:16px;">Le programme d'étalonnage (section 08) affiche directement la valeur R_FSR dans le moniteur série. Il suffit alors d'appliquer la formule suivante :</p>
+
+    <div class="formula-box">
+      <p>Formule de calcul de la constante d'étalonnage :</p>
+      <span class="formula">K_CALIB = 1.0 / ( R_FSR_mesuré × F_réelle )</span>
+      <p>Où <strong>R_FSR_mesuré</strong> est lu dans le moniteur série (en Ω) et <strong>F_réelle</strong> est la force connue de la masse étalon en Newton.</p>
+    </div>
+
+    <div class="calc-box">
+      <span class="ctitle">Exemple numérique — masse de 100 g (F = 0,981 N)</span>
+      <span class="cline">Moniteur série affiche  →  Rfsr = 25487 Ohm</span>
+      <span class="cline">K_CALIB = 1.0 / (25487 × 0.981)</span>
+      <span class="cline">K_CALIB = 1.0 / 25003</span>
+      <span class="cresult">K_CALIB ≈ 4.00e-5  →  remplacer dans le code de mesure</span>
+    </div>
+
+    <div class="calc-box" style="margin-top:12px;">
+      <span class="ctitle">Exemple numérique — masse de 200 g (F = 1,962 N)</span>
+      <span class="cline">Moniteur série affiche  →  Rfsr = 11200 Ohm</span>
+      <span class="cline">K_CALIB = 1.0 / (11200 × 1.962)</span>
+      <span class="cline">K_CALIB = 1.0 / 21974</span>
+      <span class="cresult">K_CALIB ≈ 4.55e-5  →  remplacer dans le code de mesure</span>
+    </div>
+
+    <div class="callout info" style="margin-top:16px;">
+      <span class="callout-icon">💡</span>
+      <div>
+        <strong>Conseil — Moyenne sur plusieurs masses</strong>
+        <p>Pour plus de précision, réaliser l'étalonnage avec 3 masses différentes (100 g, 200 g, 500 g), calculer K_CALIB pour chacune, puis utiliser la <strong>moyenne des trois valeurs</strong>. Cela compense les légères non-linéarités du FSR 402.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 08 CODE ÉTALONNAGE -->
+  <div class="section" id="code-calib">
+    <div class="section-label"><span class="section-num">08</span><span class="section-title">Programme d'étalonnage Arduino — Test sur moniteur série</span></div>
+    <hr class="section-rule"/>
+
+    <div class="callout calib" style="margin-bottom:24px;">
+      <span class="callout-icon">🔬</span>
+      <div>
+        <strong>Mode d'emploi du programme d'étalonnage</strong>
+        <p>Ce programme est distinct du programme de mesure. Il est conçu pour être utilisé <strong>une seule fois</strong> (ou à chaque remplacement du capteur) pour déterminer la valeur de K_CALIB. Il affiche toutes les grandeurs intermédiaires dans le moniteur série et guide l'utilisateur étape par étape.</p>
+      </div>
+    </div>
+
+    <div class="code-wrap">
+      <div class="code-header">
+        <div class="code-dots"><i class="dot-r"></i><i class="dot-y"></i><i class="dot-g"></i></div>
+        <span>etalonnage_fsr402.ino</span>
+        <span>Programme d'étalonnage — moniteur série à 9600 bauds</span>
+      </div>
+      <pre><span class="cmt">// ═══════════════════════════════════════════════════════════════
+// PROGRAMME D'ÉTALONNAGE — FSR® 402 + Grove Base Shield
+// ───────────────────────────────────────────────────────────────
+// MODE D'EMPLOI :
+//   1. Téléverser ce programme sur l'Arduino
+//   2. Ouvrir le moniteur série (9600 bauds)
+//   3. Suivre les instructions affichées
+//   4. Poser la masse étalon sur le capteur quand demandé
+//   5. Noter la valeur K_CALIB affichée
+//   6. Reporter K_CALIB dans le programme de mesure principal
+// ═══════════════════════════════════════════════════════════════</span>
+
+<span class="kw">#include</span> <span class="str">&lt;Wire.h&gt;</span>
+<span class="kw">#include</span> <span class="str">"rgb_lcd.h"</span>
+
+<span class="cmt">// ── Configuration ───────────────────────────────────────────────</span>
+<span class="kw">const</span> <span class="typ">int</span>   <span class="var">SENSOR_PIN</span>   <span class="op">=</span> <span class="var">A0</span>;
+<span class="kw">const</span> <span class="typ">float</span> <span class="var">VCC</span>          <span class="op">=</span> <span class="num">5.0</span>;
+<span class="kw">const</span> <span class="typ">float</span> <span class="var">RM</span>           <span class="op">=</span> <span class="num">10000.0</span>;    <span class="cmt">// Résistance de mesure (10 kΩ)</span>
+<span class="kw">const</span> <span class="typ">int</span>   <span class="var">NB_MASSES</span>    <span class="op">=</span> <span class="num">3</span>;          <span class="cmt">// Nombre de masses étalons utilisées</span>
+<span class="kw">const</span> <span class="typ">int</span>   <span class="var">NB_MESURES</span>   <span class="op">=</span> <span class="num">20</span>;         <span class="cmt">// Mesures moyennées par étalon</span>
+<span class="kw">const</span> <span class="typ">int</span>   <span class="var">DELAI_MS</span>     <span class="op">=</span> <span class="num">100</span>;        <span class="cmt">// Délai entre deux mesures (ms)</span>
+<span class="kw">const</span> <span class="typ">int</span>   <span class="var">ATTENTE_SEC</span>  <span class="op">=</span> <span class="num">5</span>;          <span class="cmt">// Temps de stabilisation (secondes)</span>
+
+<span class="cmt">// ── Masses étalons (en grammes) — modifier selon disponibilités</span>
+<span class="typ">float</span> <span class="var">masses_g</span>[<span class="var">NB_MASSES</span>] <span class="op">=</span> {<span class="num">100.0</span>, <span class="num">200.0</span>, <span class="num">500.0</span>}; <span class="cmt">// grammes</span>
+
+<span class="cmt">// ── Variables globales ──────────────────────────────────────────</span>
+<span class="typ">float</span> <span class="var">k_valeurs</span>[<span class="var">NB_MASSES</span>]; <span class="cmt">// Valeurs K calculées pour chaque masse</span>
+<span class="typ">float</span> <span class="var">r_valeurs</span>[<span class="var">NB_MASSES</span>]; <span class="cmt">// Résistances mesurées pour chaque masse</span>
+<span class="typ">rgb_lcd</span> <span class="var">lcd</span>;
+
+<span class="cmt">// ── Fonctions utilitaires ───────────────────────────────────────</span>
+
+<span class="cmt">// Lit N fois le capteur et retourne la moyenne</span>
+<span class="typ">float</span> <span class="fn">lire_adc_moyenne</span>(<span class="typ">int</span> <span class="var">n</span>) {
+  <span class="typ">long</span> <span class="var">somme</span> <span class="op">=</span> <span class="num">0</span>;
+  <span class="kw">for</span> (<span class="typ">int</span> <span class="var">i</span> <span class="op">=</span> <span class="num">0</span>; <span class="var">i</span> <span class="op">&lt;</span> <span class="var">n</span>; <span class="var">i</span><span class="op">++</span>) {
+    <span class="var">somme</span> <span class="op">+=</span> <span class="fn">analogRead</span>(<span class="var">SENSOR_PIN</span>);
+    <span class="fn">delay</span>(<span class="var">DELAI_MS</span>);
+  }
+  <span class="kw">return</span> (<span class="typ">float</span>)<span class="var">somme</span> <span class="op">/</span> <span class="var">n</span>;
+}
+
+<span class="cmt">// Convertit ADC moyen → résistance FSR (Ω)</span>
+<span class="typ">float</span> <span class="fn">adc_vers_rfsr</span>(<span class="typ">float</span> <span class="var">adc_moy</span>) {
+  <span class="typ">float</span> <span class="var">vout</span> <span class="op">=</span> <span class="var">adc_moy</span> <span class="op">*</span> (<span class="var">VCC</span> <span class="op">/</span> <span class="num">1023.0</span>);
+  <span class="kw">if</span> (<span class="var">vout</span> <span class="op">&lt;</span> <span class="num">0.01</span>) <span class="kw">return</span> <span class="num">-1</span>; <span class="cmt">// Capteur non actionné</span>
+  <span class="kw">return</span> <span class="var">RM</span> <span class="op">*</span> ((<span class="var">VCC</span> <span class="op">/</span> <span class="var">vout</span>) <span class="op">-</span> <span class="num">1.0</span>);
+}
+
+<span class="cmt">// Affiche une ligne de séparation dans le moniteur série</span>
+<span class="typ">void</span> <span class="fn">separateur</span>() {
+  <span class="var">Serial</span>.<span class="fn">println</span>(<span class="str">"──────────────────────────────────────────"</span>);
+}
+
+<span class="cmt">// Affiche une LED clignotante sur LCD pendant l'attente</span>
+<span class="typ">void</span> <span class="fn">attendre_stabilisation</span>() {
+  <span class="kw">for</span> (<span class="typ">int</span> <span class="var">s</span> <span class="op">=</span> <span class="var">ATTENTE_SEC</span>; <span class="var">s</span> <span class="op">></span> <span class="num">0</span>; <span class="var">s</span><span class="op">--</span>) {
+    <span class="var">Serial</span>.<span class="fn">print</span>(<span class="str">"  Stabilisation : "</span>); <span class="var">Serial</span>.<span class="fn">print</span>(<span class="var">s</span>); <span class="var">Serial</span>.<span class="fn">println</span>(<span class="str">"s..."</span>);
+    <span class="var">lcd</span>.<span class="fn">setCursor</span>(<span class="num">0</span>, <span class="num">1</span>); <span class="var">lcd</span>.<span class="fn">print</span>(<span class="str">"Attente : "</span>); <span class="var">lcd</span>.<span class="fn">print</span>(<span class="var">s</span>); <span class="var">lcd</span>.<span class="fn">print</span>(<span class="str">"s  "</span>);
+    <span class="fn">delay</span>(<span class="num">1000</span>);
+  }
+}
+
+<span class="cmt">// ── Setup ────────────────────────────────────────────────────────</span>
+<span class="typ">void</span> <span class="fn">setup</span>() {
+  <span class="var">Serial</span>.<span class="fn">begin</span>(<span class="num">9600</span>);
+  <span class="var">lcd</span>.<span class="fn">begin</span>(<span class="num">16</span>, <span class="num">2</span>);
+  <span class="var">lcd</span>.<span class="fn">setRGB</span>(<span class="num">0</span>, <span class="num">0</span>, <span class="num">0</span>);
+
+  <span class="fn">delay</span>(<span class="num">500</span>);
+  <span class="fn">separateur</span>();
+  <span class="var">Serial</span>.<span class="fn">println</span>(<span class="str">"   ÉTALONNAGE FSR 402 — Bras Robot DOBOT"</span>);
+  <span class="var">Serial</span>.<span class="fn">println</span>(<span class="str">"   Grove Base Shield 103030000 — Port A0"</span>);
+  <span class="fn">separateur</span>();
+  <span class="var">Serial</span>.<span class="fn">println</span>();
+  <span class="var">Serial</span>.<span class="fn">println</span>(<span class="str">"CONFIGURATION :"</span>);
+  <span class="var">Serial</span>.<span class="fn">print</span>  (<span class="str">"  Resistance de mesure R_M = "</span>); <span class="var">Serial</span>.<span class="fn">print</span>(<span class="var">RM</span>, <span class="num">0</span>); <span class="var">Serial</span>.<span class="fn">println</span>(<span class="str">" Ohm"</span>);
+  <span class="var">Serial</span>.<span class="fn">print</span>  (<span class="str">"  Alimentation VCC         = "</span>); <span class="var">Serial</span>.<span class="fn">print</span>(<span class="var">VCC</span>); <span class="var">Serial</span>.<span class="fn">println</span>(<span class="str">" V"</span>);
+  <span class="var">Serial</span>.<span class="fn">print</span>  (<span class="str">"  Mesures par etalon       = "</span>); <span class="var">Serial</span>.<span class="fn">println</span>(<span class="var">NB_MESURES</span>);
+  <span class="var">Serial</span>.<span class="fn">print</span>  (<span class="str">"  Masses utilisees (g)     = "</span>);
+  <span class="kw">for</span> (<span class="typ">int</span> <span class="var">i</span> <span class="op">=</span> <span class="num">0</span>; <span class="var">i</span> <span class="op">&lt;</span> <span class="var">NB_MASSES</span>; <span class="var">i</span><span class="op">++</span>) {
+    <span class="var">Serial</span>.<span class="fn">print</span>(<span class="var">masses_g</span>[<span class="var">i</span>], <span class="num">0</span>);
+    <span class="kw">if</span> (<span class="var">i</span> <span class="op">&lt;</span> <span class="var">NB_MASSES</span> <span class="op">-</span> <span class="num">1</span>) <span class="var">Serial</span>.<span class="fn">print</span>(<span class="str">", "</span>);
+  }
+  <span class="var">Serial</span>.<span class="fn">println</span>();
+  <span class="fn">separateur</span>();
+
+  <span class="cmt">// Vérification capteur au repos</span>
+  <span class="var">Serial</span>.<span class="fn">println</span>();
+  <span class="var">Serial</span>.<span class="fn">println</span>(<span class="str">"ETAPE 0 — Vérification capteur au repos"</span>);
+  <span class="var">Serial</span>.<span class="fn">println</span>(<span class="str">"  Ne pas appuyer sur le capteur..."</span>);
+  <span class="fn">delay</span>(<span class="num">2000</span>);
+
+  <span class="typ">float</span> <span class="var">adc_repos</span> <span class="op">=</span> <span class="fn">lire_adc_moyenne</span>(<span class="num">5</span>);
+  <span class="typ">float</span> <span class="var">v_repos</span>   <span class="op">=</span> <span class="var">adc_repos</span> <span class="op">*</span> (<span class="var">VCC</span> <span class="op">/</span> <span class="num">1023.0</span>);
+
+  <span class="var">Serial</span>.<span class="fn">print</span>(<span class="str">"  ADC repos = "</span>); <span class="var">Serial</span>.<span class="fn">print</span>(<span class="var">adc_repos</span>, <span class="num">1</span>);
+  <span class="var">Serial</span>.<span class="fn">print</span>(<span class="str">" | Vout = "</span>); <span class="var">Serial</span>.<span class="fn">print</span>(<span class="var">v_repos</span>, <span class="num">3</span>); <span class="var">Serial</span>.<span class="fn">println</span>(<span class="str">" V"</span>);
+
+  <span class="kw">if</span> (<span class="var">v_repos</span> <span class="op">&lt;</span> <span class="num">0.05</span>) {
+    <span class="var">Serial</span>.<span class="fn">println</span>(<span class="str">"  [OK] Capteur au repos : resistance > 10 MOhm"</span>);
+  } <span class="kw">else</span> {
+    <span class="var">Serial</span>.<span class="fn">println</span>(<span class="str">"  [!] Attention : tension repos elevee — verifier cablage"</span>);
+  }
+
+  <span class="cmt">// Boucle sur chaque masse étalon</span>
+  <span class="kw">for</span> (<span class="typ">int</span> <span class="var">i</span> <span class="op">=</span> <span class="num">0</span>; <span class="var">i</span> <span class="op">&lt;</span> <span class="var">NB_MASSES</span>; <span class="var">i</span><span class="op">++</span>) {
+    <span class="fn">separateur</span>();
+    <span class="typ">float</span> <span class="var">masse_kg</span> <span class="op">=</span> <span class="var">masses_g</span>[<span class="var">i</span>] <span class="op">/</span> <span class="num">1000.0</span>;
+    <span class="typ">float</span> <span class="var">force_n</span>  <span class="op">=</span> <span class="var">masse_kg</span> <span class="op">*</span> <span class="num">9.81</span>;
+
+    <span class="var">Serial</span>.<span class="fn">println</span>();
+    <span class="var">Serial</span>.<span class="fn">print</span>(<span class="str">"ETAPE "</span>); <span class="var">Serial</span>.<span class="fn">print</span>(<span class="var">i</span> <span class="op">+</span> <span class="num">1</span>);
+    <span class="var">Serial</span>.<span class="fn">print</span>(<span class="str">" — Masse : "</span>); <span class="var">Serial</span>.<span class="fn">print</span>(<span class="var">masses_g</span>[<span class="var">i</span>], <span class="num">0</span>);
+    <span class="var">Serial</span>.<span class="fn">print</span>(<span class="str">" g  |  Force : "</span>); <span class="var">Serial</span>.<span class="fn">print</span>(<span class="var">force_n</span>, <span class="num">3</span>); <span class="var">Serial</span>.<span class="fn">println</span>(<span class="str">" N"</span>);
+    <span class="var">Serial</span>.<span class="fn">println</span>(<span class="str">"  >>> Poser la masse sur le capteur maintenant"</span>);
+    <span class="var">lcd</span>.<span class="fn">clear</span>();
+    <span class="var">lcd</span>.<span class="fn">print</span>(<span class="str">"Poser "</span>); <span class="var">lcd</span>.<span class="fn">print</span>(<span class="var">masses_g</span>[<span class="var">i</span>], <span class="num">0</span>); <span class="var">lcd</span>.<span class="fn">print</span>(<span class="str">"g"</span>);
+
+    <span class="fn">attendre_stabilisation</span>();
+
+    <span class="cmt">// Acquisition moyennée</span>
+    <span class="var">Serial</span>.<span class="fn">print</span>(<span class="str">"  Acquisition de "</span>); <span class="var">Serial</span>.<span class="fn">print</span>(<span class="var">NB_MESURES</span>); <span class="var">Serial</span>.<span class="fn">println</span>(<span class="str">" mesures..."</span>);
+    <span class="var">lcd</span>.<span class="fn">setCursor</span>(<span class="num">0</span>, <span class="num">1</span>); <span class="var">lcd</span>.<span class="fn">print</span>(<span class="str">"Mesure en cours "</span>);
+
+    <span class="typ">float</span> <span class="var">adc_moy</span> <span class="op">=</span> <span class="fn">lire_adc_moyenne</span>(<span class="var">NB_MESURES</span>);
+    <span class="typ">float</span> <span class="var">vout</span>    <span class="op">=</span> <span class="var">adc_moy</span> <span class="op">*</span> (<span class="var">VCC</span> <span class="op">/</span> <span class="num">1023.0</span>);
+    <span class="typ">float</span> <span class="var">rfsr</span>    <span class="op">=</span> <span class="fn">adc_vers_rfsr</span>(<span class="var">adc_moy</span>);
+    <span class="typ">float</span> <span class="var">k</span>       <span class="op">=</span> (<span class="var">rfsr</span> <span class="op">></span> <span class="num">0</span>) ? (<span class="num">1.0</span> <span class="op">/</span> (<span class="var">rfsr</span> <span class="op">*</span> <span class="var">force_n</span>)) : <span class="num">0</span>;
+
+    <span class="var">r_valeurs</span>[<span class="var">i</span>] <span class="op">=</span> <span class="var">rfsr</span>;
+    <span class="var">k_valeurs</span>[<span class="var">i</span>] <span class="op">=</span> <span class="var">k</span>;
+
+    <span class="cmt">// Affichage résultats</span>
+    <span class="var">Serial</span>.<span class="fn">println</span>(<span class="str">"  ┌─ RÉSULTATS ──────────────────────────┐"</span>);
+    <span class="var">Serial</span>.<span class="fn">print</span>  (<span class="str">"  │ ADC moyen  = "</span>); <span class="var">Serial</span>.<span class="fn">print</span>(<span class="var">adc_moy</span>, <span class="num">1</span>); <span class="var">Serial</span>.<span class="fn">println</span>(<span class="str">"</span>
+<span class="str">  │ Vout       = "</span>); <span class="var">Serial</span>.<span class="fn">print</span>(<span class="var">vout</span>, <span class="num">4</span>); <span class="var">Serial</span>.<span class="fn">println</span>(<span class="str">" V"</span>);
+    <span class="var">Serial</span>.<span class="fn">print</span>  (<span class="str">"  │ R_FSR      = "</span>); <span class="var">Serial</span>.<span class="fn">print</span>(<span class="var">rfsr</span>, <span class="num">0</span>); <span class="var">Serial</span>.<span class="fn">println</span>(<span class="str">" Ohm"</span>);
+    <span class="var">Serial</span>.<span class="fn">print</span>  (<span class="str">"  │ Force ref  = "</span>); <span class="var">Serial</span>.<span class="fn">print</span>(<span class="var">force_n</span>, <span class="num">3</span>); <span class="var">Serial</span>.<span class="fn">println</span>(<span class="str">" N"</span>);
+    <span class="var">Serial</span>.<span class="fn">print</span>  (<span class="str">"  │ K_CALIB    = "</span>); <span class="var">Serial</span>.<span class="fn">print</span>(<span class="var">k</span>, <span class="num">6</span>); <span class="var">Serial</span>.<span class="fn">println</span>(<span class="str">"  ←"</span>);
+    <span class="var">Serial</span>.<span class="fn">println</span>(<span class="str">"  └──────────────────────────────────────┘"</span>);
+
+    <span class="var">lcd</span>.<span class="fn">clear</span>(); <span class="var">lcd</span>.<span class="fn">print</span>(<span class="str">"K="</span>); <span class="var">lcd</span>.<span class="fn">print</span>(<span class="var">k</span>, <span class="num">5</span>);
+    <span class="var">lcd</span>.<span class="fn">setCursor</span>(<span class="num">0</span>,<span class="num">1</span>); <span class="var">lcd</span>.<span class="fn">print</span>(<span class="str">"R="</span>); <span class="var">lcd</span>.<span class="fn">print</span>(<span class="var">rfsr</span>, <span class="num">0</span>); <span class="var">lcd</span>.<span class="fn">print</span>(<span class="str">" Ohm  "</span>);
+
+    <span class="var">Serial</span>.<span class="fn">println</span>(<span class="str">"  >>> Retirer la masse du capteur"</span>);
+    <span class="fn">delay</span>(<span class="num">3000</span>);
+  }
+
+  <span class="cmt">// Synthèse finale</span>
+  <span class="fn">separateur</span>();
+  <span class="var">Serial</span>.<span class="fn">println</span>();
+  <span class="var">Serial</span>.<span class="fn">println</span>(<span class="str">"SYNTHÈSE DES RÉSULTATS D'ÉTALONNAGE"</span>);
+  <span class="var">Serial</span>.<span class="fn">println</span>();
+  <span class="var">Serial</span>.<span class="fn">println</span>(<span class="str">"  Masse(g) | R_FSR(Ohm) | F(N)  | K_CALIB"</span>);
+  <span class="var">Serial</span>.<span class="fn">println</span>(<span class="str">"  ─────────|────────────|───────|─────────────"</span>);
+
+  <span class="typ">float</span> <span class="var">k_somme</span> <span class="op">=</span> <span class="num">0</span>;
+  <span class="kw">for</span> (<span class="typ">int</span> <span class="var">i</span> <span class="op">=</span> <span class="num">0</span>; <span class="var">i</span> <span class="op">&lt;</span> <span class="var">NB_MASSES</span>; <span class="var">i</span><span class="op">++</span>) {
+    <span class="typ">float</span> <span class="var">f</span> <span class="op">=</span> (<span class="var">masses_g</span>[<span class="var">i</span>] <span class="op">/</span> <span class="num">1000.0</span>) <span class="op">*</span> <span class="num">9.81</span>;
+    <span class="var">Serial</span>.<span class="fn">print</span>(<span class="str">"  "</span>); <span class="var">Serial</span>.<span class="fn">print</span>(<span class="var">masses_g</span>[<span class="var">i</span>], <span class="num">0</span>);
+    <span class="var">Serial</span>.<span class="fn">print</span>(<span class="str">"g    | "</span>); <span class="var">Serial</span>.<span class="fn">print</span>(<span class="var">r_valeurs</span>[<span class="var">i</span>], <span class="num">0</span>);
+    <span class="var">Serial</span>.<span class="fn">print</span>(<span class="str">"  | "</span>); <span class="var">Serial</span>.<span class="fn">print</span>(<span class="var">f</span>, <span class="num">3</span>);
+    <span class="var">Serial</span>.<span class="fn">print</span>(<span class="str">" | "</span>); <span class="var">Serial</span>.<span class="fn">println</span>(<span class="var">k_valeurs</span>[<span class="var">i</span>], <span class="num">6</span>);
+    <span class="var">k_somme</span> <span class="op">+=</span> <span class="var">k_valeurs</span>[<span class="var">i</span>];
+  }
+
+  <span class="typ">float</span> <span class="var">k_moyenne</span> <span class="op">=</span> <span class="var">k_somme</span> <span class="op">/</span> <span class="var">NB_MASSES</span>;
+
+  <span class="var">Serial</span>.<span class="fn">println</span>();
+  <span class="fn">separateur</span>();
+  <span class="var">Serial</span>.<span class="fn">println</span>(<span class="str">"  ★ CONSTANTE À REPORTER DANS LE CODE ★"</span>);
+  <span class="var">Serial</span>.<span class="fn">println</span>();
+  <span class="var">Serial</span>.<span class="fn">print</span>(<span class="str">"  const float K_CALIB = "</span>);
+  <span class="var">Serial</span>.<span class="fn">print</span>(<span class="var">k_moyenne</span>, <span class="num">6</span>);
+  <span class="var">Serial</span>.<span class="fn">println</span>(<span class="str">";"</span>);
+  <span class="fn">separateur</span>();
+  <span class="var">Serial</span>.<span class="fn">println</span>(<span class="str">"  Étalonnage terminé. Reporter K_CALIB"</span>);
+  <span class="var">Serial</span>.<span class="fn">println</span>(<span class="str">"  dans sketch_fsr402_grove.ino et"</span>);
+  <span class="var">Serial</span>.<span class="fn">println</span>(<span class="str">"  téléverser le programme de mesure."</span>);
+  <span class="fn">separateur</span>();
+
+  <span class="var">lcd</span>.<span class="fn">clear</span>(); <span class="var">lcd</span>.<span class="fn">print</span>(<span class="str">"K_MOY="</span>); <span class="var">lcd</span>.<span class="fn">print</span>(<span class="var">k_moyenne</span>, <span class="num">5</span>);
+  <span class="var">lcd</span>.<span class="fn">setCursor</span>(<span class="num">0</span>,<span class="num">1</span>); <span class="var">lcd</span>.<span class="fn">print</span>(<span class="str">"Etalonn. OK !"</span>);
+}
+
+<span class="cmt">// Loop vide — étalonnage effectué une seule fois dans setup()</span>
+<span class="typ">void</span> <span class="fn">loop</span>() {}</pre>
+    </div>
+
+    <!-- Exemple de sortie moniteur série -->
+    <h3 style="font-size:1rem;font-weight:700;margin:32px 0 14px;color:var(--accent2);">— Exemple de sortie moniteur série</h3>
+    <div class="monitor-box">
+      <div class="monitor-header">
+        <div class="monitor-dot"></div>
+        <span>Moniteur série Arduino — 9600 bauds</span>
+      </div>
+      <div class="monitor-content">
+        <span class="m-sep">──────────────────────────────────────────</span><br>
+        <span class="m-head">   ÉTALONNAGE FSR 402 — Bras Robot DOBOT</span><br>
+        <span class="m-head">   Grove Base Shield 103030000 — Port A0</span><br>
+        <span class="m-sep">──────────────────────────────────────────</span><br>
+        <br>
+        <span class="m-info">CONFIGURATION :</span><br>
+        <span class="m-info">  Resistance de mesure R_M = </span><span class="m-val">10000</span> <span class="m-info">Ohm</span><br>
+        <span class="m-info">  Alimentation VCC         = </span><span class="m-val">5.00</span> <span class="m-info">V</span><br>
+        <span class="m-info">  Mesures par etalon       = </span><span class="m-val">20</span><br>
+        <span class="m-info">  Masses utilisees (g)     = </span><span class="m-val">100, 200, 500</span><br>
+        <span class="m-sep">──────────────────────────────────────────</span><br>
+        <br>
+        <span class="m-info">ETAPE 0 — Vérification capteur au repos</span><br>
+        <span class="m-info">  Ne pas appuyer sur le capteur...</span><br>
+        <span class="m-info">  ADC repos = </span><span class="m-val">1.2</span><span class="m-info"> | Vout = </span><span class="m-val">0.006</span> <span class="m-info">V</span><br>
+        <span class="m-ok">  [OK] Capteur au repos : resistance > 10 MOhm</span><br>
+        <span class="m-sep">──────────────────────────────────────────</span><br>
+        <br>
+        <span class="m-head">ETAPE 1 — Masse : 100 g  |  Force : 0.981 N</span><br>
+        <span class="m-warn">  >>> Poser la masse sur le capteur maintenant</span><br>
+        <span class="m-info">  Stabilisation : 5s...</span><br>
+        <span class="m-info">  Stabilisation : 4s...</span><br>
+        <span class="m-info">  Stabilisation : 3s... 2s... 1s...</span><br>
+        <span class="m-info">  Acquisition de 20 mesures...</span><br>
+        <span class="m-info">  ┌─ RÉSULTATS ──────────────────────────┐</span><br>
+        <span class="m-info">  │ ADC moyen  = </span><span class="m-val">487.3</span><br>
+        <span class="m-info">  │ Vout       = </span><span class="m-val">2.3784</span> <span class="m-info">V</span><br>
+        <span class="m-key">  │ R_FSR      = </span><span class="m-val">25487</span> <span class="m-key">Ohm</span><br>
+        <span class="m-info">  │ Force ref  = </span><span class="m-val">0.981</span> <span class="m-info">N</span><br>
+        <span class="m-force">  │ K_CALIB    = 0.000040  ←</span><br>
+        <span class="m-info">  └──────────────────────────────────────┘</span><br>
+        <span class="m-warn">  >>> Retirer la masse du capteur</span><br>
+        <span class="m-sep">──────────────────────────────────────────</span><br>
+        <br>
+        <span class="m-head">ETAPE 2 — Masse : 200 g  |  Force : 1.962 N</span><br>
+        <span class="m-info">  ... (même déroulé) ...</span><br>
+        <span class="m-force">  │ K_CALIB    = 0.000041  ←</span><br>
+        <span class="m-sep">──────────────────────────────────────────</span><br>
+        <br>
+        <span class="m-head">ETAPE 3 — Masse : 500 g  |  Force : 4.905 N</span><br>
+        <span class="m-info">  ... (même déroulé) ...</span><br>
+        <span class="m-force">  │ K_CALIB    = 0.000039  ←</span><br>
+        <span class="m-sep">──────────────────────────────────────────</span><br>
+        <br>
+        <span class="m-info">SYNTHÈSE DES RÉSULTATS D'ÉTALONNAGE</span><br>
+        <br>
+        <span class="m-info">  Masse(g) | R_FSR(Ohm) | F(N)  | K_CALIB</span><br>
+        <span class="m-info">  100g    | 25487      | 0.981 | </span><span class="m-val">0.000040</span><br>
+        <span class="m-info">  200g    | 11200      | 1.962 | </span><span class="m-val">0.000041</span><br>
+        <span class="m-info">  500g    | 4180       | 4.905 | </span><span class="m-val">0.000039</span><br>
+        <br>
+        <span class="m-sep">──────────────────────────────────────────</span><br>
+        <span class="m-ok">  ★ CONSTANTE À REPORTER DANS LE CODE ★</span><br>
+        <br>
+        <span class="m-force">  const float K_CALIB = 0.000040;</span><br>
+        <span class="m-sep">──────────────────────────────────────────</span><br>
+        <span class="m-ok">  Étalonnage terminé. Reporter K_CALIB</span><br>
+        <span class="m-ok">  dans sketch_fsr402_grove.ino et</span><br>
+        <span class="m-ok">  téléverser le programme de mesure.</span><br>
+        <span class="m-sep">──────────────────────────────────────────</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 09 MODIFICATIONS -->
+  <div class="section" id="modifs">
+    <div class="section-label"><span class="section-num">09</span><span class="section-title">Modifications apportées au code original</span></div>
+    <hr class="section-rule"/>
+    <table class="diff-table">
+      <thead><tr><th>Élément</th><th>Code original (Grove capteur)</th><th>Code modifié (FSR 402 + Grove Shield)</th><th>Raison</th></tr></thead>
+      <tbody>
+        <tr><td>Conversion force</td><td><span class="old">0.005 * exp(0.013 * value)</span></td><td><span class="new-val">Calcul physique V → R → F</span></td><td>Loi empirique Grove invalide pour FSR 402</td></tr>
+        <tr><td>Constante K_CALIB</td><td><span class="old">Codée en dur (empirique)</span></td><td><span class="new-val">Paramétrée + programme d'étalonnage</span></td><td>Permet la calibration précise sur chaque montage</td></tr>
+        <tr><td>Broche capteur</td><td><span class="old">A0 (câblage direct)</span></td><td><span class="new-val">A0 via port Grove Shield</span></td><td>Même broche, connecteur standardisé</td></tr>
+        <tr><td>LCD I²C</td><td><span class="old">Câblage SDA/SCL manuel</span></td><td><span class="new-val">Port I2C Grove (plug-and-play)</span></td><td>Shield gère le câblage I²C automatiquement</td></tr>
+        <tr><td>Protection /0</td><td><span class="old">Absente</span></td><td><span class="new-val">if (vOut > 0.01)</span></td><td>Évite crash si FSR non appuyé</td></tr>
+        <tr><td>Effacement LCD</td><td><span class="old">Absent (artefacts)</span></td><td><span class="new-val">lcd.print("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;")</span></td><td>Supprime les caractères résiduels</td></tr>
+        <tr><td>Limitation plage</td><td><span class="old">Absente</span></td><td><span class="new-val">constrain(0.0, 20.0)</span></td><td>Respecte les limites du FSR 402</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 10 VIGILANCE -->
+  <div class="section" id="vigilance">
+    <div class="section-label"><span class="section-num">10</span><span class="section-title">Points de vigilance</span></div>
+    <hr class="section-rule"/>
+    <div class="grid-2">
+      <div class="callout warn"><span class="callout-icon">⚠️</span><div><strong>Résistance R_M obligatoire</strong><p>Le Grove Base Shield n'intègre pas la résistance 10 kΩ. Elle doit être ajoutée manuellement entre SIG et GND du câble Grove. Sans elle, la mesure est impossible.</p></div></div>
+      <div class="callout warn"><span class="callout-icon">⚠️</span><div><strong>Ordre des programmes</strong><p>Toujours lancer le <strong>programme d'étalonnage</strong> en premier, noter K_CALIB, puis le reporter dans le code de mesure avant de le téléverser.</p></div></div>
+      <div class="callout ok"><span class="callout-icon">✅</span><div><strong>LCD — aucun conflit I²C</strong><p>Le LCD rgb_lcd utilise l'adresse I²C 0x62. Aucun conflit si le port I2C reste exclusif au LCD sur le Grove Shield.</p></div></div>
+      <div class="callout ok"><span class="callout-icon">✅</span><div><strong>Robustesse FSR 402</strong><p>Testé à <strong>10 millions d'actuations</strong> à 1 kg / 4 Hz. Adapté à un usage pédagogique intensif sans dégradation prématurée.</p></div></div>
+    </div>
+  </div>
+
+  <!-- 11 CHAÎNE DE MESURE -->
+  <div class="section" id="chaine">
+    <div class="section-label"><span class="section-num">11</span><span class="section-title">Chaîne de mesure complète</span></div>
+    <hr class="section-rule"/>
+    <div class="wiring-box" style="line-height:2.4;">
+<span class="w-comp">[ Pince DOBOT ]</span>
+     │  ← Force mécanique sur les mors
+     ▼
+<span class="w-comp">[ FSR 402 ]</span>  ── collé sur le mors · zone active Ø14,68 mm
+     │  ← R_FSR varie (↓ quand force ↑)
+     ▼
+<span class="w-comp">[ Pont diviseur : FSR + 10 kΩ ]</span>  ── intégré sur câble Grove A0
+     │  ← V_OUT = f(Force)  (0 – 5 V)
+     ▼
+<span class="w-grove">[ Grove Base Shield — Port A0 ]</span>
+     │  ← Reroute vers broche A0 Arduino
+     ▼
+<span class="w-pin">[ Arduino UNO — ADC A0 ]</span>  ── 10 bits (0 → 1023)
+     │
+     ├─► <span class="w-comment">[Programme étalonnage] → calcul K_CALIB → reporter dans code mesure</span>
+     │
+     └─► <span class="w-node">[ Calcul : ADC → V_OUT → R_FSR → Force (N) ]</span>
+              │
+              ├──► <span class="w-grove">[ Grove Shield Port I2C ]</span> ── <span class="w-comp">[ LCD 16×2 ]</span>  "X.XX N"
+              └──► <span class="w-comp">[ Moniteur Série USB ]</span>  ── Débogage · Vérification
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  <p>Système Pluritechnologique · Bras de Robot DOBOT · FSR® 402 + Grove Base Shield</p>
+  <p>Interlink Electronics FSR® 400 Series — Datasheet PDS-10004-C</p>
+  <span class="ft-badge">Arduino · Grove · I²C · Étalonnage</span>
+</footer>
+</body>
+</html>

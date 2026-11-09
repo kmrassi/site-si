@@ -1,0 +1,857 @@
+html_content = """<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bac SI - Révisions Interactives (Sciences de l'Ingénieur)</title>
+    <style>
+        :root {
+            --bg-color: #f4f6f9;
+            --container-bg: #ffffff;
+            --primary-color: #2c3e50;
+            --accent-color: #3498db;
+            --accent-success: #2ecc71;
+            --accent-error: #e74c3c;
+            --text-color: #333333;
+            --text-muted: #7f8c8d;
+            --border-color: #e2e8f0;
+            --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --transition-speed: 0.3s;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #1a202c;
+            --container-bg: #2d3748;
+            --primary-color: #edf2f7;
+            --accent-color: #4299e1;
+            --text-color: #e2e8f0;
+            --text-muted: #a0aec0;
+            --border-color: #4a5568;
+            --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: background-color var(--transition-speed), color var(--transition-speed);
+            line-height: 1.6;
+            padding-bottom: 60px;
+        }
+
+        header {
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+            position: relative;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+        }
+
+        header h1 {
+            font-size: 24pt;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        header p {
+            font-size: 12pt;
+            opacity: 0.9;
+        }
+
+        .theme-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background var(--transition-speed);
+        }
+
+        .theme-toggle:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .dashboard {
+            max-width: 1100px;
+            margin: 25px auto;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+        }
+
+        .stat-card {
+            background-color: var(--container-bg);
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: var(--card-shadow);
+            text-align: center;
+            border-left: 5px solid var(--accent-color);
+            transition: transform var(--transition-speed);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .stat-card h3 {
+            font-size: 10pt;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 5px;
+        }
+
+        .stat-card .value {
+            font-size: 20pt;
+            font-weight: bold;
+            color: var(--accent-color);
+        }
+
+        .main-container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 25px;
+        }
+
+        @media (max-width: 768px) {
+            .main-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .nav-sidebar {
+            background-color: var(--container-bg);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: var(--card-shadow);
+            height: fit-content;
+        }
+
+        .nav-sidebar h2 {
+            font-size: 13pt;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .nav-btn {
+            display: block;
+            width: 100%;
+            padding: 12px 15px;
+            margin-bottom: 8px;
+            background: none;
+            border: none;
+            text-align: left;
+            color: var(--text-color);
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 10.5pt;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .nav-btn:hover {
+            background-color: var(--bg-color);
+            padding-left: 20px;
+        }
+
+        .nav-btn.active {
+            background-color: var(--accent-color);
+            color: white;
+            font-weight: 600;
+        }
+
+        .exercise-section {
+            display: none;
+            background-color: var(--container-bg);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: var(--card-shadow);
+            animation: fadeIn 0.4s ease-in-out;
+        }
+
+        .exercise-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .ex-title {
+            font-size: 16pt;
+            color: var(--accent-color);
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .ex-context {
+            background-color: var(--bg-color);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            font-size: 11pt;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .question-card {
+            background-color: var(--container-bg);
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            transition: box-shadow var(--transition-speed);
+        }
+
+        .question-card:hover {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .q-number {
+            font-weight: bold;
+            color: var(--accent-color);
+            margin-bottom: 8px;
+            font-size: 11pt;
+        }
+
+        .q-text {
+            font-weight: 600;
+            margin-bottom: 15px;
+            font-size: 11pt;
+        }
+
+        .math {
+            font-family: 'Times New Roman', Times, serif;
+            font-style: italic;
+            font-weight: bold;
+            color: #c0392b;
+            padding: 0 2px;
+        }
+
+        /* QCM Options */
+        .options-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .option-label {
+            display: block;
+            padding: 12px 15px;
+            background-color: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 10.5pt;
+        }
+
+        .option-label:hover {
+            background-color: var(--border-color);
+        }
+
+        .option-label input {
+            margin-right: 10px;
+        }
+
+        /* Input Numerical Questions */
+        .input-container {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .numeric-input {
+            padding: 10px 15px;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-size: 11pt;
+            width: 150px;
+            font-weight: 600;
+        }
+
+        .numeric-input:focus {
+            outline: none;
+            border-color: var(--accent-color);
+        }
+
+        .unit {
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        /* Actions buttons */
+        .btn-check {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 10pt;
+            transition: background 0.2s;
+        }
+
+        .btn-check:hover {
+            background-color: #2980b9;
+        }
+
+        .feedback {
+            margin-top: 12px;
+            padding: 10px 15px;
+            border-radius: 6px;
+            font-weight: 600;
+            display: none;
+            font-size: 10.5pt;
+        }
+
+        .feedback.success {
+            display: block;
+            background-color: rgba(46, 204, 113, 0.15);
+            color: #27ae60;
+            border-left: 4px solid var(--accent-success);
+        }
+
+        .feedback.error {
+            display: block;
+            background-color: rgba(231, 76, 60, 0.15);
+            color: #c0392b;
+            border-left: 4px solid var(--accent-error);
+        }
+
+        .correction-box {
+            margin-top: 15px;
+            padding: 15px;
+            background-color: #fcf8e3;
+            border-left: 4px solid #f0ad4e;
+            color: #333;
+            border-radius: 4px;
+            display: none;
+            font-size: 10.5pt;
+        }
+
+        [data-theme="dark"] .correction-box {
+            background-color: #3a3f44;
+            color: #f5f5f5;
+            border-left: 4px solid #f0ad4e;
+        }
+
+        .btn-corrige {
+            background: none;
+            border: 1px solid var(--text-muted);
+            color: var(--text-muted);
+            padding: 8px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 9.5pt;
+            font-weight: 500;
+            margin-left: 10px;
+            transition: all 0.2s;
+        }
+
+        .btn-corrige:hover {
+            border-color: var(--text-color);
+            color: var(--text-color);
+        }
+
+        /* Interactive Diagram Select */
+        .diagram-container {
+            background-color: #f8fafc;
+            border: 2px dashed var(--border-color);
+            padding: 20px;
+            border-radius: 8px;
+            margin: 15px 0;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+        }
+
+        [data-theme="dark"] .diagram-container {
+            background-color: #232d3d;
+        }
+
+        .diagram-block {
+            background: linear-gradient(135deg, var(--container-bg), var(--bg-color));
+            border: 2px solid var(--accent-color);
+            padding: 15px;
+            border-radius: 6px;
+            text-align: center;
+            min-width: 140px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .diagram-arrow {
+            font-size: 18pt;
+            color: var(--accent-color);
+            font-weight: bold;
+        }
+
+        .diagram-select {
+            padding: 6px 10px;
+            border-radius: 4px;
+            border: 1px solid var(--border-color);
+            background-color: var(--container-bg);
+            color: var(--text-color);
+            font-weight: bold;
+            margin-top: 8px;
+            width: 100%;
+        }
+
+        .consigne-info {
+            font-size: 9.5pt;
+            color: var(--text-muted);
+            font-style: italic;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <button class="theme-toggle" onclick="toggleTheme()">Mode Sombre</button>
+        <h1>Sciences de l'Ingénieur : Entraînement Interactif Bac</h1>
+        <p>Entraînez-vous de manière interactive avec de réels exercices issus des sujets officiels du Bac SI</p>
+    </header>
+
+    <div class="dashboard">
+        <div class="stat-card">
+            <h3>Score Global</h3>
+            <div class="value" id="global-score">0 / 8</div>
+        </div>
+        <div class="stat-card" style="border-left-color: #3498db;">
+            <h3>Exercices Terminés</h3>
+            <div class="value" id="completed-count">0 / 4</div>
+        </div>
+        <div class="stat-card" style="border-left-color: #2ecc71;">
+            <h3>Précision</h3>
+            <div class="value" id="precision-rate">0%</div>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <div class="nav-sidebar">
+            <h2>Sujets d'étude</h2>
+            <button class="nav-btn active" onclick="showExercise('ex1', this)">1. ÉcoDark (Bac 2021)</button>
+            <button class="nav-btn" onclick="showExercise('ex2', this)">2. Containwatt (Bac 2023)</button>
+            <button class="nav-btn" onclick="showExercise('ex3', this)">3. Hydrolienne (Bac 2025)</button>
+            <button class="nav-btn" onclick="showExercise('ex4', this)">4. Vitirover & Blocs (Bac 2025)</button>
+        </div>
+
+        <div id="ex1" class="exercise-section active">
+            <h2 class="ex-title">Exercice 1 : Prototype Éco-Marathon « ÉcoDark »</h2>
+            <div class="ex-context">
+                <strong>Contexte :</strong> L'objectif du prototype de véhicule électrique « ÉcoDark » est de minimiser la consommation énergétique en course. On étudie ici le comportement dynamique lors de sa phase de régulation de vitesse à <span class="math">V_v = 22 km/h</span>.
+                <br><br>
+                <strong>Données :</strong> <span class="math">\rho_{air} = 1,292 kg/m^3</span>, Surface frontale <span class="math">S = 0,25 m^2</span>, Coefficient de traînée <span class="math">C_X = 0,4</span>, Masse totale <span class="math">m = 120 kg</span>, Rendement global de la transmission <span class="math">\eta_{gt} = 0,95</span>.
+            </div>
+
+            <div class="question-card" id="q1_1_card">
+                <div class="q-number">Question 1.1 (Effort aérodynamique)</div>
+                <div class="q-text">
+                    Calculer l'effort de traînée aérodynamique <span class="math">F_A</span> s'exercant sur le véhicule à la vitesse nominale de <span class="math">22 km/h</span>.
+                    <div class="consigne-info">Formule : <span class="math">F_A = \frac{1}{2} \times \rho_{air} \times S \times C_X \times V_v^2</span> (Attention aux unités de vitesse !).</div>
+                </div>
+                <div class="input-container">
+                    <input type="number" id="q1_1_input" class="numeric-input" placeholder="Ex: 2.41" step="0.01">
+                    <span class="unit">Newtons (N)</span>
+                </div>
+                <button class="btn-check" onclick="checkNumeric('q1_1', 2.41, 0.1)">Vérifier</button>
+                <button class="btn-corrige" onclick="toggleCorrection('corr1_1')">Voir le corrigé</button>
+                <div id="q1_1_feed" class="feedback"></div>
+                <div id="corr1_1" class="correction-box">
+                    <strong>Éléments de correction :</strong><br>
+                    Il faut d'abord convertir la vitesse en mètres par seconde : <span class="math">V_v = \frac{22}{3,6} \approx 6,11 m/s</span>.<br>
+                    Application numérique : <span class="math">F_A = \frac{1}{2} \times 1,292 \times 0,25 \times 0,4 \times (6,11)^2 = 2,41 N</span>.
+                </div>
+            </div>
+
+            <div class="question-card" id="q1_2_card">
+                <div class="q-number">Question 1.2 (Puissance motrice)</div>
+                <div class="q-text">
+                    La résistance totale à l'avancement vaut pour la suite <span class="math">T_C = 35 N</span>. Déterminer la puissance mécanique <span class="math">P_m</span> nécessaire en sortie du moteur pour maintenir cette allure de <span class="math">22 km/h</span>.
+                    <div class="consigne-info">Formule : <span class="math">P_m = \frac{T_C \times V_v}{\eta_{gt}}</span></div>
+                </div>
+                <div class="input-container">
+                    <input type="number" id="q1_2_input" class="numeric-input" placeholder="Ex: 225.1" step="0.1">
+                    <span class="unit">Watts (W)</span>
+                </div>
+                <button class="btn-check" onclick="checkNumeric('q1_2', 225.14, 1.0)">Vérifier</button>
+                <button class="btn-corrige" onclick="toggleCorrection('corr1_2')">Voir le corrigé</button>
+                <div id="q1_2_feed" class="feedback"></div>
+                <div id="corr1_2" class="correction-box">
+                    <strong>Éléments de correction :</strong><br>
+                    En appliquant la relation de puissance de translation divisée par le rendement :<br>
+                    <span class="math">P_m = \frac{35 \times \frac{22}{3,6}}{0,95} = 225,14 W</span>.
+                </div>
+            </div>
+        </div>
+
+        <div id="ex2" class="exercise-section">
+            <h2 class="ex-title">Exercice 2 : Station Autonome de Traitement d'Eau Containwatt</h2>
+            <div class="ex-context">
+                <strong>Contexte :</strong> La station mobile SAMTE purifie l'eau pour une population isolée. On cherche à dimensionner énergétiquement les panneaux solaires photovoltaïques et le parc de batteries de stockage nécessaires.
+                <br><br>
+                <strong>Données :</strong> Consommation de production : 1220 Wh pour 1000 litres traités. La station doit distribuer 50 litres par jour et par habitant, pour un village de 250 habitants.
+            </div>
+
+            <div class="question-card" id="q2_1_card">
+                <div class="q-number">Question 2.1 (Énergie requise par jour)</div>
+                <div class="q-text">
+                    Déterminer la quantité d'énergie électrique quotidienne <span class="math">E_{station}</span> (en Wh/jour) requise pour assurer le traitement d'eau complet.
+                </div>
+                <div class="input-container">
+                    <input type="number" id="q2_1_input" class="numeric-input" placeholder="Ex: 15250">
+                    <span class="unit">Wh / jour</span>
+                </div>
+                <button class="btn-check" onclick="checkNumeric('q2_1', 15250, 10)">Vérifier</button>
+                <button class="btn-corrige" onclick="toggleCorrection('corr2_1')">Voir le corrigé</button>
+                <div id="q2_1_feed" class="feedback"></div>
+                <div id="corr2_1" class="correction-box">
+                    <strong>Éléments de correction :</strong><br>
+                    Volume total d'eau à traiter par jour : <span class="math">Volume = 50 \text{ L/hab} \times 250 \text{ hab} = 12500 \text{ Litres/jour}</span>.<br>
+                    Énergie requise : <span class="math">E_{station} = \frac{12500}{1000} \times 1220 = 15250 Wh/\text{jour}</span>.
+                </div>
+            </div>
+
+            <div class="question-card" id="q2_2_card">
+                <div class="q-number">Question 2.2 (Stockage batterie - QCM)</div>
+                <div class="q-text">
+                    Le cahier des charges impose une autonomie de <strong>2 jours complets</strong> sans ensoleillement. Chaque batterie commerciale retenue stocke une énergie utile réelle de <span class="math">E_{batt} = 9600 Wh</span>. Combien de batteries doit-on prévoir au minimum ?
+                </div>
+                <div class="options-container">
+                    <label class="option-label"><input type="radio" name="q2_2" value="2"> 2 batteries</label>
+                    <label class="option-label"><input type="radio" name="q2_2" value="3"> 3 batteries</label>
+                    <label class="option-label"><input type="radio" name="q2_2" value="4"> 4 batteries (Choix optimal de sécurité)</label>
+                    <label class="option-label"><input type="radio" name="q2_2" value="6"> 6 batteries</label>
+                </div>
+                <button class="btn-check" onclick="checkQCM('q2_2', '4')">Vérifier</button>
+                <button class="btn-corrige" onclick="toggleCorrection('corr2_2')">Voir le corrigé</button>
+                <div id="q2_2_feed" class="feedback"></div>
+                <div id="corr2_2" class="correction-box">
+                    <strong>Éléments de correction :</strong><br>
+                    Énergie totale à stocker pour 2 jours : <span class="math">E_{stockage} = 15250 \times 2 = 30500 Wh</span>.<br>
+                    Nombre de batteries théorique : <span class="math">N = \frac{30500}{9600} \approx 3,17</span>.<br>
+                    Par excès, il faut obligatoirement retenir <strong>4 batteries</strong>.
+                </div>
+            </div>
+        </div>
+
+        <div id="ex3" class="exercise-section">
+            <h2 class="ex-title">Exercice 3 : Optimisation d'une Hydrolienne (Régulation de Vitesse)</h2>
+            <div class="ex-context">
+                <strong>Contexte :</strong> Pour maximiser l'efficacité de production électrique d'une hydrolienne, on pilote un frein sur l'arbre de la turbine pour ajuster la vitesse de rotation en fonction de la vitesse du courant fluide. 
+                <br>
+                La performance dépend du paramètre de vitesse spécifique <span class="math">\lambda = \frac{R \cdot \omega}{V_0}</span>.
+            </div>
+
+            <div class="question-card" id="q3_1_card">
+                <div class="q-number">Question 3.1 (Lecture Graphique & Analyse)</div>
+                <div class="q-text">
+                    D'après les relevés expérimentaux de l'hydrolienne, l'efficacité maximale du système (proche de 52%) est atteinte pour une valeur idéale précise de vitesse spécifique <span class="math">\lambda</span>. Quelle est cette valeur optimale ?
+                </div>
+                <div class="options-container">
+                    <label class="option-label"><input type="radio" name="q3_1" value="1.5"> &lambda; = 1,5</label>
+                    <label class="option-label"><input type="radio" name="q3_1" value="2.5"> &lambda; = 2,5</label>
+                    <label class="option-label"><input type="radio" name="q3_1" value="4"> &lambda; = 4,0 (Sommet de la courbe d'efficacité)</label>
+                    <label class="option-label"><input type="radio" name="q3_1" value="7"> &lambda; = 7,0</label>
+                </div>
+                <button class="btn-check" onclick="checkQCM('q3_1', '4')">Vérifier</button>
+                <button class="btn-corrige" onclick="toggleCorrection('corr3_1')">Voir le corrigé</button>
+                <div id="q3_1_feed" class="feedback"></div>
+                <div id="corr3_1" class="correction-box">
+                    <strong>Éléments de correction :</strong><br>
+                    La courbe d'efficacité de l'hydrolienne en fonction de <span class="math">\lambda</span> présente un pic très net à la valeur de <strong>&lambda; = 4</strong>, où l'efficacité de conversion atteint son maximum de 52%. C'est la valeur de consigne visée par l'asservissement.
+                </div>
+            </div>
+
+            <div class="question-card" id="q3_2_card">
+                <div class="q-number">Question 3.2 (Automatique - Régime permanent)</div>
+                <div class="q-text">
+                    Dans une étude sans correcteur, la réponse temporelle du système à un échelon de consigne de vitesse de <span class="math">10 rad/s</span> se stabilise à une vitesse réelle mesurée de <span class="math">8,8 rad/s</span>. 
+                    <br>
+                    Calculer l'<strong>erreur statique</strong> de ce système non corrigé.
+                </div>
+                <div class="input-container">
+                    <input type="number" id="q3_2_input" class="numeric-input" placeholder="Ex: 12" step="0.1">
+                    <span class="unit">%</span>
+                </div>
+                <button class="btn-check" onclick="checkNumeric('q3_2', 12, 0.5)">Vérifier</button>
+                <button class="btn-corrige" onclick="toggleCorrection('corr3_2')">Voir le corrigé</button>
+                <div id="q3_2_feed" class="feedback"></div>
+                <div id="corr3_2" class="correction-box">
+                    <strong>Éléments de correction :</strong><br>
+                    L'écart brut en régime permanent est de <span class="math">\varepsilon = 10 - 8,8 = 1,2 rad/s</span>.<br>
+                    Exprimée par rapport à la consigne demandée (<span class="math">10 rad/s</span>), l'erreur statique relative vaut :<br>
+                    <span class="math">\text{Erreur} = \frac{1,2}{10} \times 100 = 12 \%</span>. L'ajout d'un correcteur Proportionnel-Intégral (PI) sera requis pour annuler cette erreur.
+                </div>
+            </div>
+        </div>
+
+        <div id="ex4" class="exercise-section">
+            <h2 class="ex-title">Exercice 4 : Architecture des Systèmes Actués (Chaîne d'énergie)</h2>
+            <div class="ex-context">
+                <strong>Contexte :</strong> L'analyse fonctionnelle structurelle est la base de l'évaluation d'un robot ou véhicule de transport (comme le chariot de nettoyage urbain Tri'Ode ou le robot agricole Vitirover). Vous devez valider l'agencement des blocs de la chaîne de puissance.
+            </div>
+
+            <div class="question-card" id="q4_1_card">
+                <div class="q-number">Question 4.1 (Complétion interactive de la Chaîne d'énergie)</div>
+                <div class="q-text">
+                    Associez chaque fonction de l'ingénieur au composant matériel correspondant pour la chaîne cinématique d'une roue de robot motorisé :
+                </div>
+                
+                <div class="diagram-container">
+                    <div class="diagram-block">
+                        <strong>Batterie</strong>
+                        <select id="diag_1" class="diagram-select">
+                            <option value="">-- Choisir la fonction --</option>
+                            <option value="alimenter">ALIMENTER</option>
+                            <option value="distribuer">DISTRIBUER</option>
+                            <option value="convertir">CONVERTIR</option>
+                            <option value="transmettre">TRANSMETTRE</option>
+                        </select>
+                    </div>
+                    <div class="diagram-arrow">&rarr;</div>
+                    <div class="diagram-block">
+                        <strong>Variateur / Hacheur</strong>
+                        <select id="diag_2" class="diagram-select">
+                            <option value="">-- Choisir la fonction --</option>
+                            <option value="alimenter">ALIMENTER</option>
+                            <option value="distribuer">DISTRIBUER</option>
+                            <option value="convertir">CONVERTIR</option>
+                            <option value="transmettre">TRANSMETTRE</option>
+                        </select>
+                    </div>
+                    <div class="diagram-arrow">&rarr;</div>
+                    <div class="diagram-block">
+                        <strong>Moteur synchrone / CC</strong>
+                        <select id="diag_3" class="diagram-select">
+                            <option value="">-- Choisir la fonction --</option>
+                            <option value="alimenter">ALIMENTER</option>
+                            <option value="distribuer">DISTRIBUER</option>
+                            <option value="convertir">CONVERTIR</option>
+                            <option value="transmettre">TRANSMETTRE</option>
+                        </select>
+                    </div>
+                    <div class="diagram-arrow">&rarr;</div>
+                    <div class="diagram-block">
+                        <strong>Réducteur à engrenages</strong>
+                        <select id="diag_4" class="diagram-select">
+                            <option value="">-- Choisir la fonction --</option>
+                            <option value="alimenter">ALIMENTER</option>
+                            <option value="distribuer">DISTRIBUER</option>
+                            <option value="convertir">CONVERTIR</option>
+                            <option value="transmettre">TRANSMETTRE</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button class="btn-check" onclick="checkDiagram()">Vérifier le diagramme</button>
+                <button class="btn-corrige" onclick="toggleCorrection('corr4_1')">Voir le corrigé</button>
+                <div id="q4_1_feed" class="feedback"></div>
+                <div id="corr4_1" class="correction-box">
+                    <strong>Éléments de correction :</strong><br>
+                    L'agencement immuable d'une chaîne de puissance est :<br>
+                    1. <strong>Batterie</strong> &rarr; Fonction <strong>ALIMENTER</strong> (fournit l'énergie continue).<br>
+                    2. <strong>Variateur</strong> &rarr; Fonction <strong>DISTRIBUER</strong> (module la puissance via MLI).<br>
+                    3. <strong>Moteur</strong> &rarr; Fonction <strong>CONVERTIR</strong> (transforme l'énergie électrique en puissance mécanique de rotation).<br>
+                    4. <strong>Réducteur</strong> &rarr; Fonction <strong>TRANSMETTRE</strong> (adapte le couple et la vitesse angulaire transmise aux roues).
+                </div>
+            </div>
+
+            <div class="question-card" id="q4_2_card">
+                <div class="q-number">Question 4.2 (Calcul de couple mécanique)</div>
+                <div class="q-text">
+                    Un robot de masse <span class="math">M = 200 kg</span> démarre sur une pente. Le modèle montre qu'au niveau d'un actionneur, le couple résistant vaut <span class="math">C_r = M \times g \times r_{bras}</span>. 
+                    <br> Avec <span class="math">g = 9,81 m/s^2</span> et un bras de levier de <span class="math">r_{bras} = 0,02 m</span>, calculez la valeur exacte de ce couple résistant.
+                </div>
+                <div class="input-container">
+                    <input type="number" id="q4_2_input" class="numeric-input" placeholder="Ex: 39.24" step="0.01">
+                    <span class="unit">N · m</span>
+                </div>
+                <button class="btn-check" onclick="checkNumeric('q4_2', 39.24, 0.1)">Vérifier</button>
+                <button class="btn-corrige" onclick="toggleCorrection('corr4_2')">Voir le corrigé</button>
+                <div id="q4_2_feed" class="feedback"></div>
+                <div id="corr4_2" class="correction-box">
+                    <strong>Éléments de correction :</strong><br>
+                    Application numérique directe : <span class="math">C_r = 200 \times 9,81 \times 0,02 = 39,24 N \cdot m</span>.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Suivi des scores des questions
+        const scores = {
+            q1_1: { done: false, correct: false },
+            q1_2: { done: false, correct: false },
+            q2_1: { done: false, correct: false },
+            q2_2: { done: false, correct: false },
+            q3_1: { done: false, correct: false },
+            q3_2: { done: false, correct: false },
+            q4_1: { done: false, correct: false },
+            q4_2: { done: false, correct: false }
+        };
+
+        function showExercise(id, btn) {
+            document.querySelectorAll('.exercise-section').forEach(sec => sec.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            btn.classList.add('active');
+        }
+
+        function toggleTheme() {
+            const body = document.body;
+            const btn = document.querySelector('.theme-toggle');
+            if (body.getAttribute('data-theme') === 'dark') {
+                body.removeAttribute('data-theme');
+                btn.textContent = 'Mode Sombre';
+            } else {
+                body.setAttribute('data-theme', 'dark');
+                btn.textContent = 'Mode Clair';
+            }
+        }
+
+        function toggleCorrection(id) {
+            const box = document.getElementById(id);
+            if (box.style.display === 'block') {
+                box.style.display = 'none';
+            } else {
+                box.style.display = 'block';
+            }
+        }
+
+        function checkNumeric(qId, expected, tolerance) {
+            const input = document.getElementById(qId + '_input');
+            const feed = document.getElementById(qId + '_feed');
+            const val = parseFloat(input.value);
+
+            if (isNaN(val)) {
+                feed.textContent = "Veuillez entrer une valeur numérique valide.";
+                feed.className = "feedback error";
+                return;
+            }
+
+            if (Math.abs(val - expected) <= tolerance) {
+                feed.textContent = "Exact ! Bonne réponse. Bon calcul de dimensionnement.";
+                feed.className = "feedback success";
+                scores[qId].correct = true;
+            } else {
+                feed.textContent = "Incorrect. Relisez les données et vérifiez vos conversions d'unités.";
+                feed.className = "feedback error";
+                scores[qId].correct = false;
+            }
+            scores[qId].done = true;
+            updateDashboard();
+        }
+
+        function checkQCM(qId, correctVal) {
+            const selected = document.querySelector(`input[name="${qId}"]:checked`);
+            const feed = document.getElementById(qId + '_feed');
+
+            if (!selected) {
+                feed.textContent = "Veuillez sélectionner une option.";
+                feed.className = "feedback error";
+                return;
+            }
+
+            if (selected.value === correctVal) {
+                feed.textContent = "Bonne réponse ! Excellente analyse du cahier des charges.";
+                feed.className = "feedback success";
+                scores[qId].correct = true;
+            } else {
+                feed.textContent = "Mauvais choix. Regardez la correction pour comprendre l'exigence.";
+                feed.className = "feedback error";
+                scores[qId].correct = false;
+            }
+            scores[qId].done = true;
+            updateDashboard();
+        }
+
+        function checkDiagram() {
+            const d1 = document.getElementById('diag_1').value;
+            const d2 = document.getElementById('diag_2').value;
+            const d3 = document.getElementById('diag_3').value;
+            const d4 = document.getElementById('diag_4').value;
+            const feed = document.getElementById('q4_1_feed');
+
+            if (!d1 || !d2 || !d3 || !d4) {
+                feed.textContent = "Veuillez compléter tous les blocs du diagramme.";
+                feed.className = "feedback error";
+                return;
+            }
+
+            if (d1 === 'alimenter' && d2 === 'distribuer' && d3 === 'convertir' && d4 === 'transmettre') {
+                feed.textContent = "Parfait ! La chaîne d'énergie est entièrement correcte.";
+                feed.className = "feedback success";
+                scores.q4_1.correct = true;
+            } else {
+                feed.textContent = "Il y a des erreurs dans l'ordre des fonctions de la chaîne de puissance.";
+                feed.className = "feedback error";
+                scores.q4_1.correct = false;
+            }
+            scores.q4_1.done = true;
+            updateDashboard();
+        }
+
+        function updateDashboard() {
+            let totalQuestions = Object.keys(scores).length;
+            let correctCount = 0;
+            let doneCount = 0;
+
+            // On compte par paquet de questions par exercice pour les exercices finis
+            // Ex1: q1_1, q1_2 | Ex2: q2_1, q2_2 | Ex3: q3_1, q3_2 | Ex4: q4_1, q4_2
+            let ex1_done = scores.q1_1.done && scores.q1_2.done;
+            let ex2_done = scores.q2_1.done && scores.q2_2.done;
+            let ex3_done = scores.q3_1.done && scores.q3_2.done;
+            let ex4_done = scores.q4_1.done && scores.q4_2.done;
+
+            let completedExercises = 0;
+            if (ex1_done) completedExercises++;
+            if (ex2_done) completedExercises++;
+            if (ex3_done) completedExercises++;
+            if (ex4_done) completedExercises++;
+
+            for (let q in scores) {
+                if (scores[q].correct) correctCount++;
+                if (scores[q].done) doneCount++;
+            }
+
+            document.getElementById('global-score').textContent = `${correctCount} / ${totalQuestions}`;
+            document.getElementById('completed-count').textContent = `${completedExercises} / 4`;
+            
+            let precision = doneCount > 0 ? Math.round((correctCount / doneCount) * 100) : 0;
+            document.getElementById('precision-rate').textContent = `${precision}%`;
+        }
+    </script>
+
+</body>
+</html>
+"""
+
+with open("exercices_interactifs_bac_si.html", "w", encoding="utf-8") as f:
+    f.write(html_content)
+
+print("HTML file successfully generated.")

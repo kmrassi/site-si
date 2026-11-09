@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exercices Interactifs - Bac Sciences de l'Ingénieur</title>
+    <style>
+        :root {
+            --bg-color: #f4f6f9;
+            --card-bg: #ffffff;
+            --primary-color: #2b6cb0;
+            --primary-hover: #1a4373;
+            --text-main: #2d3748;
+            --text-muted: #718096;
+            --success-color: #38a169;
+            --success-light: #f0fff4;
+            --error-color: #e53e3e;
+            --error-light: #fff5f5;
+            --border-color: #e2e8f0;
+            --badge-mec: #e2e8f0;
+            --badge-ene: #feebc8;
+            --badge-num: #e0f2fe;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background: linear-gradient(135deg, #1e3a8a, #3b82f6);
+            color: white;
+            padding: 2.5rem 1rem;
+            text-align: center;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 2.2rem;
+            font-weight: 700;
+        }
+
+        header p {
+            margin: 0.5rem 0 0 0;
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+            box-sizing: border-box;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border-color);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            transition: transform 0.2s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-bottom: 1rem;
+        }
+
+        .badge-mecanique { background-color: #edf2f7; color: #4a5568; }
+        .badge-energie { background-color: var(--badge-ene); color: #c05621; }
+        .badge-numerique { background-color: var(--badge-num); color: #0369a1; }
+
+        .card h2 {
+            margin-top: 0;
+            font-size: 1.4rem;
+            color: #1a202c;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 0.5rem;
+        }
+
+        .context {
+            background-color: #f7fafc;
+            border-left: 4px solid var(--primary-color);
+            padding: 1rem;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 1.5rem;
+            font-size: 0.95rem;
+        }
+
+        .data-list {
+            margin: 1rem 0;
+            padding-left: 1.2rem;
+        }
+
+        .data-list li {
+            margin-bottom: 0.25rem;
+        }
+
+        .question {
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #2d3748;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+            max-width: 400px;
+            margin-top: 0.5rem;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 0.6rem 1rem;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        input[type="text"]:focus {
+            border-color: var(--primary-color);
+        }
+
+        .unit {
+            font-weight: 600;
+            color: var(--text-muted);
+            min-width: 40px;
+        }
+
+        .qcm-options {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .qcm-option {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s, border-color 0.2s;
+        }
+
+        .qcm-option:hover {
+            background-color: #f7fafc;
+            border-color: #cbd5e0;
+        }
+
+        .qcm-option input {
+            margin-right: 1rem;
+            transform: scale(1.2);
+        }
+
+        button.btn-validate {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.6rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            margin-top: 1rem;
+        }
+
+        button.btn-validate:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .feedback {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            border-radius: 8px;
+            display: none;
+            font-weight: 500;
+        }
+
+        .feedback.success {
+            display: block;
+            background-color: var(--success-light);
+            color: var(--success-color);
+            border: 1px solid #c6f6d5;
+        }
+
+        .feedback.error {
+            display: block;
+            background-color: var(--error-light);
+            color: var(--error-color);
+            border: 1px solid #fed7d7;
+        }
+
+        .correction {
+            margin-top: 1rem;
+            background-color: #f8fafc;
+            border-top: 2px dashed var(--border-color);
+            padding-top: 1rem;
+            display: none;
+            color: #4a5568;
+            font-size: 0.95rem;
+        }
+
+        .correction h3 {
+            margin-top: 0;
+            font-size: 1.1rem;
+            color: var(--primary-color);
+        }
+
+        .formula {
+            font-family: 'Courier New', Courier, monospace;
+            background-color: #edf2f7;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-weight: bold;
+            color: #2d3748;
+        }
+
+        footer {
+            text-align: center;
+            padding: 2rem 1rem;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            border-top: 1px solid var(--border-color);
+            margin-top: 4rem;
+            background-color: white;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Sciences de l'Ingénieur - Entraînement interactif</h1>
+        <p>Révisions thématiques basées sur les annales et corrigés officiels du Baccalauréat</p>
+    </header>
+
+    <div class="container">
+
+        <div class="card" id="exo1">
+            <span class="badge badge-mecanique">Mécanique / Fluides</span>
+            <h2>Exercice 1 : Résistance aérodynamique du prototype ÉcoDark</h2>
+            <div class="context">
+                <strong>Contexte :</strong> Lors des phases de simulation dynamique du véhicule à haute efficacité énergétique <em>ÉcoDark</em>, il est crucial d'évaluer l'impact des efforts extérieurs agissant sur la structure afin d'optimiser la consommation électrique. On étudie ici la force de traînée provoquée par l'air lorsque le prototype se déplace en ligne droite sur un plan horizontal.
+                <br><br>
+                <strong>Données constructeurs et environnementales :</strong>
+                <ul class="data-list">
+                    <li>Vitesse stabilisée du véhicule : <span class="formula">V_v = 22 km/h</span></li>
+                    <li>Masse volumique de l'air : <span class="formula">&rho;_air = 1,292 kg/m³</span></li>
+                    <li>Surface frontale projetée du prototype : <span class="formula">S = 0,25 m²</span></li>
+                    <li>Coefficient de traînée aérodynamique : <span class="formula">C_X = 0,4</span></li>
+                </ul>
+            </div>
+            <div class="question">
+                Question : Déterminer l'intensité de la force de résistance de l'air F_A s'exerçant sur le véhicule. 
+                <br><small style="color: var(--text-muted); font-weight: normal;">(Arrondir la réponse à 2 décimales, utiliser le point comme séparateur décimal)</small>
+            </div>
+            <div class="input-group">
+                <input type="text" id="input-exo1" placeholder="Ex: 12.34">
+                <span class="unit">N</span>
+            </div>
+            <button class="btn-validate" onclick="checkExo1()">Vérifier la réponse</button>
+            <div class="feedback" id="feedback-exo1"></div>
+            <div class="correction" id="correction-exo1">
+                <h3>Correction pas à pas :</h3>
+                <p>1. <strong>Conversion de la vitesse :</strong> La vitesse doit impérativement être convertie dans le système international (m/s) :
+                <br><span class="formula">V = 22 / 3,6 &approx; 6,111 m/s</span></p>
+                <p>2. <strong>Application de la formule physique :</strong> L'expression de l'effort aérodynamique est :
+                <br><span class="formula">F_A = &frac12; &times; &rho;_air &times; S &times; C_X &times; V&sup2;</span></p>
+                <p>3. <strong>Application numérique :</strong>
+                <br><span class="formula">F_A = 0,5 &times; 1,292 &times; 0,25 &times; 0,4 &times; (6,111)&sup2;</span>
+                <br><span class="formula">F_A &approx; 0,0646 &times; 37,346 &approx; 2,41 N</span></p>
+            </div>
+        </div>
+
+        <div class="card" id="exo2">
+            <span class="badge badge-energie">Énergie / Puissance</span>
+            <h2>Exercice 2 : Dimensionnement du moteur électrique ÉcoDark</h2>
+            <div class="context">
+                <strong>Contexte :</strong> L'étude de la dynamique globale sur le plat montre qu'un effort global de traction constant de <span class="formula">T_C = 35 N</span> est requis pour maintenir la même vitesse de <span class="formula">22 km/h</span>. Pour dimensionner correctement la motorisation, il faut déterminer la puissance mécanique utile que doit délivrer l'arbre moteur.
+                <br><br>
+                <strong>Données supplémentaires :</strong>
+                <ul class="data-list">
+                    <li>Rendement du réducteur / transmission mécanique : <span class="formula">&eta;_gt = 0,95</span> (soit 95%)</li>
+                </ul>
+            </div>
+            <div class="question">
+                Question : Calculer la puissance mécanique utile P_m en sortie de l'arbre moteur requise pour assurer ce déplacement.
+                <br><small style="color: var(--text-muted); font-weight: normal;">(Arrondir à deux décimales)</small>
+            </div>
+            <div class="input-group">
+                <input type="text" id="input-exo2" placeholder="Ex: 150.50">
+                <span class="unit">W</span>
+            </div>
+            <button class="btn-validate" onclick="checkExo2()">Vérifier la réponse</button>
+            <div class="feedback" id="feedback-exo2"></div>
+            <div class="correction" id="correction-exo2">
+                <h3>Correction pas à pas :</h3>
+                <p>1. <strong>Formule de la puissance utile :</strong> La puissance mécanique nécessaire au niveau des roues est donnée par le produit de l'effort et de la vitesse linéaire : <span class="formula">P_roues = T_C &times; V_v</span>.</p>
+                <p>2. <strong>Prise en compte du rendement :</strong> En raison des pertes mécaniques du réducteur, la puissance en sortie du moteur doit être supérieure :
+                <br><span class="formula">P_m = P_roues / &eta;_gt = (T_C &times; V_v) / &eta;_gt</span></p>
+                <p>3. <strong>Calcul numérique :</strong> En réutilisant la vitesse convertie <span class="formula">V_v = 22 / 3,6 &approx; 6,111 m/s</span> :
+                <br><span class="formula">P_m = (35 &times; 6,1111) / 0,95 &approx; 213,889 / 0,95 &approx; 225,14 W</span></p>
+            </div>
+        </div>
+
+        <div class="card" id="exo3">
+            <span class="badge badge-energie">Mécanique & Énergie</span>
+            <h2>Exercice 3 : Couple résistant et Puissance Consommée (Bac 2025)</h2>
+            <div class="context">
+                <strong>Contexte :</strong> On étudie le comportement d'un chariot motorisé transportant une charge lourde en phase d'exploitation nominale. Les relevés de simulation fournissent les paramètres cinématiques et d'efforts à la roue.
+            </div>
+            
+            <div class="question" style="margin-bottom: 0.5rem;">
+                Question 3.1 : Déterminer le couple résistant C_r appliqué au niveau de l'axe de la roue sachant que la charge totale équivalente en mouvement est de <span class="formula">m = 200 kg</span>, l'accélération de la pesanteur vaut <span class="formula">g = 9,81 m/s²</span> et le bras de levier équivalent au rayon de contact est de <span class="formula">0,02 m</span>.
+            </div>
+            <div class="qcm-options" id="qcm-exo3-1">
+                <label class="qcm-option"><input type="radio" name="q31" value="A"> A) 19,62 N&middot;m</label>
+                <label class="qcm-option"><input type="radio" name="q31" value="B"> B) 39,24 N&middot;m (Correct)</label>
+                <label class="qcm-option"><input type="radio" name="q31" value="C"> C) 78,48 N&middot;m</label>
+            </div>
+
+            <div class="question" style="margin-bottom: 0.5rem;">
+                Question 3.2 : Lors d'un régime permanent, la puissance mécanique utile maximale mesurée en sortie d'arbre moteur s'élève à <span class="formula">P_max = 60 W</span>. Le fabricant indique un rendement global du bloc moteur de <span class="formula">&eta; = 0,9</span>. Quelle est la puissance électrique maximale consommée ?
+            </div>
+            <div class="qcm-options" id="qcm-exo3-2">
+                <label class="qcm-option"><input type="radio" name="q32" value="A"> A) 54,00 W</label>
+                <label class="qcm-option"><input type="radio" name="q32" value="B"> B) 60,00 W</label>
+                <label class="qcm-option"><input type="radio" name="q32" value="C"> C) 66,67 W (Correct)</label>
+            </div>
+
+            <button class="btn-validate" onclick="checkExo3()">Vérifier le QCM</button>
+            <div class="feedback" id="feedback-exo3"></div>
+            <div class="correction" id="correction-exo3">
+                <h3>Correction pas à pas :</h3>
+                <p><strong>Pour la question 3.1 :</strong> Le couple résistant se calcule directement via la relation fondamentale : 
+                <br><span class="formula">C_r = m &times; g &times; bras_de_levier = 200 &times; 9,81 &times; 0,02 = 39,24 N·m</span> (Réponse B).</p>
+                <p><strong>Pour la question 3.2 :</strong> Par définition, le rendement associe puissance absorbée (consommée) et puissance utile : <span class="formula">&eta; = P_utile / P_consommée</span>. 
+                <br>D'où : <span class="formula">P_consommée = P_max / &eta; = 60 / 0,9 &approx; 66,67 W</span> (Réponse C).</p>
+            </div>
+        </div>
+
+        <div class="card" id="exo4">
+            <span class="badge badge-numerique">Information / Numérique</span>
+            <h2>Exercice 4 : Réseaux et communications de capteurs</h2>
+            <div class="context">
+                <strong>Contexte :</strong> L'architecture électronique interne d'un automatisme moderne comporte un microprocesseur central connecté à plusieurs périphériques d'acquisition d'informations (capteurs thermiques, capteurs de fin de course) via un bus série synchrone basé sur un adressage sur 7 bits.
+            </div>
+            
+            <div class="question">
+                Question 4.1 : Combien d'adresses d'esclaves différentes (périphériques) peut-on théoriquement coder au maximum sur ce bus de communication ?
+            </div>
+            <div class="input-group" style="margin-bottom: 1.5rem;">
+                <input type="text" id="input-exo4-1" placeholder="Ex: 64">
+                <span class="unit">adresses</span>
+            </div>
+
+            <div class="question">
+                Question 4.2 : L'un des capteurs thermiques envoie son identifiant sur le bus réseau sous forme d'un mot binaire brut : <span class="formula">1001000</span>. Convertissez cette adresse binaire en base 16 (Hexadécimal).
+            </div>
+            <div class="input-group">
+                <input type="text" id="input-exo4-2" placeholder="Ex: 2E ou 48">
+                <span class="unit"><sub>(16)</sub></span>
+            </div>
+
+            <button class="btn-validate" onclick="checkExo4()">Vérifier les réponses</button>
+            <div class="feedback" id="feedback-exo4"></div>
+            <div class="correction" id="correction-exo4">
+                <h3>Correction pas à pas :</h3>
+                <p><strong>Pour la question 4.1 :</strong> Le nombre total de combinaisons possibles sur un codage de <span class="formula">n</span> bits répond à la loi binaire générale <span class="formula">N = 2ⁿ</span>. 
+                <br>Ici, pour 7 bits : <span class="formula">N = 2⁷ = 128 possibilities</span>.</p>
+                <p><strong>Pour la question 4.2 :</strong> Découpons le nombre
