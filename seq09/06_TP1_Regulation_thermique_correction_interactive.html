@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="fr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TP Régulation thermique</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>:root{--bg:#eceff3;--card:#fff;--ink:#18212f;--ink2:#3a4658;--muted:#687487;--line:#d8dee7;--acc:#e8590c;--acc2:#ffe8d9;--ok:#1e9e5a;--ok2:#dcf5e7;--ko:#d6334a;--ko2:#fde2e6;--hint:#c48a00;--hint2:#fff4cc;--blue:#2563eb;--blue2:#e0eaff;--r:14px}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"IBM Plex Sans",Inter,system-ui,-apple-system,"Segoe UI",sans-serif;background:var(--bg);color:var(--ink);line-height:1.55;font-size:16px}
+button{font:inherit;cursor:pointer}
+.wrap{max-width:1120px;margin:0 auto;padding:0 18px}
+/* header */
+header.top{background:var(--ink);color:#fff;position:sticky;top:0;z-index:20;box-shadow:0 4px 18px rgba(0,0,0,.18)}
+.hbar{display:flex;align-items:center;gap:14px;padding:10px 0;flex-wrap:wrap}
+.hlogo{width:38px;height:38px;border-radius:10px;background:var(--acc);display:grid;place-items:center;font-size:1.2rem;flex:none}
+.htitle b{display:block;font-size:1.02rem}
+.htitle span{font-size:.8rem;color:#aab4c3}
+.hsp{flex:1}
+.switch{display:flex;align-items:center;gap:8px;font-size:.85rem;color:#cfd6e0;cursor:pointer;user-select:none;background:rgba(255,255,255,.07);padding:6px 10px;border-radius:99px}
+.switch i{width:36px;height:20px;border-radius:99px;background:#4b5568;position:relative;transition:.25s}
+.switch i::after{content:"";position:absolute;left:3px;top:3px;width:14px;height:14px;border-radius:50%;background:#fff;transition:.25s}
+body.prof .switch i{background:var(--acc)}body.prof .switch i::after{left:19px}
+.steps{display:flex;gap:4px;overflow-x:auto;padding-bottom:8px;scrollbar-width:thin}
+.steps a{flex:none;text-decoration:none;color:#cfd6e0;font-size:.84rem;font-weight:600;padding:6px 12px;border-radius:99px;background:rgba(255,255,255,.07);transition:.2s;white-space:nowrap}
+.steps a:hover{background:rgba(255,255,255,.16)}
+.steps a.on{background:var(--acc);color:#fff}
+/* hero */
+.hero{padding:28px 0 8px}
+.kick{font-size:.76rem;letter-spacing:1.3px;text-transform:uppercase;color:var(--acc);font-weight:700}
+h1{font-size:2rem;line-height:1.15;margin:4px 0 8px}
+.prob{background:var(--card);border:1px solid var(--line);border-left:6px solid var(--acc);border-radius:12px;padding:14px 16px;margin:12px 0}
+/* sections */
+section.act{padding:18px 0 6px;scroll-margin-top:110px}
+.acthead{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.actnum{width:44px;height:44px;border-radius:12px;background:var(--ink);color:#fff;display:grid;place-items:center;font-weight:800;font-size:1.1rem;flex:none}
+.acthead h2{font-size:1.35rem;line-height:1.2}
+.acthead small{display:block;color:var(--muted);font-weight:500;font-size:.85rem}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:18px;box-shadow:0 1px 2px rgba(24,33,47,.04),0 8px 22px rgba(24,33,47,.05);margin-bottom:16px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.g64{display:grid;grid-template-columns:1.55fr 1fr;gap:16px}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+@media(max-width:880px){.g2,.g64,.g3{grid-template-columns:1fr}h1{font-size:1.6rem}}
+h3{font-size:1.05rem;margin-bottom:6px}
+.phase{display:inline-flex;align-items:center;gap:6px;font-size:.74rem;font-weight:800;letter-spacing:.8px;text-transform:uppercase;padding:3px 10px;border-radius:99px;margin-bottom:8px}
+.ph-exp{background:#e7f6ec;color:#1e7a46}.ph-sim{background:#e6eefe;color:#2453c4}.ph-ana{background:#f3e8ff;color:#7a3bc6}.ph-mod{background:#fff0e0;color:#b4570a}
+.small{font-size:.87rem;color:var(--muted)}
+.m{font-family:"Cambria Math","Times New Roman",serif;font-style:italic;font-size:1.06em}
+.eq{font-family:"Cambria Math","Times New Roman",serif;font-size:1.12rem;text-align:center;padding:9px 12px;background:#f7f9fc;border-radius:10px;margin:8px 0;border:1px dashed var(--line);overflow-x:auto}
+.eq.box{border:2px solid var(--ok);background:#f2fbf6}
+.frac{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;margin:0 3px}
+.frac>span:last-child{border-top:1.5px solid currentColor}
+ul.dots{list-style:none}
+ul.dots li{padding:4px 0 4px 22px;position:relative}
+ul.dots li::before{content:"";position:absolute;left:5px;top:12px;width:8px;height:8px;border-radius:50%;background:var(--acc)}
+/* question */
+.q{border-top:1px dashed var(--line);padding-top:12px;margin-top:12px}
+.q:first-of-type{border-top:0;margin-top:0;padding-top:0}
+.qh{display:flex;gap:10px;align-items:flex-start}
+.qn{flex:none;background:var(--acc);color:#fff;font-weight:800;font-size:.82rem;padding:3px 9px;border-radius:8px;margin-top:2px}
+.qt{flex:1}
+.qt p{margin-bottom:4px}
+.qb{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.btn{border:0;background:var(--ink);color:#fff;border-radius:10px;padding:7px 14px;font-weight:600;font-size:.9rem;transition:.2s}
+.btn:hover{filter:brightness(1.2)}
+.btn.acc{background:var(--acc)}
+.btn.ghost{background:#fff;color:var(--ink);border:1.5px solid var(--line)}
+.btn.ghost:hover{border-color:var(--ink)}
+.btn.hintb{background:var(--hint2);color:#7a5600}
+.cor,.hint{display:none;margin-top:10px;border-radius:12px;padding:12px 14px}
+.cor{background:var(--ok2);border-left:5px solid var(--ok)}
+.hint{background:var(--hint2);border-left:5px solid var(--hint)}
+.cor.on,.hint.on,body.prof .cor{display:block;animation:fade .35s}
+.cor>.lab,.hint>.lab{display:block;font-size:.74rem;font-weight:800;letter-spacing:.8px;text-transform:uppercase;margin-bottom:4px}
+.cor>.lab{color:var(--ok)}.hint>.lab{color:#8a6200}
+.warnbox{background:var(--ko2);border-left:5px solid var(--ko);border-radius:10px;padding:10px 12px;margin-top:8px;font-size:.92rem}
+.warnbox b{color:var(--ko)}
+.notebox{background:var(--blue2);border-left:5px solid var(--blue);border-radius:10px;padding:10px 12px;margin-top:8px;font-size:.92rem}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+/* scope (façon Simulink) */
+.scope{border-radius:10px;overflow:hidden;border:1px solid #2a2f37;background:#111;box-shadow:0 8px 20px rgba(0,0,0,.18)}
+.scope .tb{display:flex;align-items:center;gap:10px;background:linear-gradient(#f4f5f7,#dfe2e7);color:#222;padding:5px 10px;font-size:.8rem;border-bottom:1px solid #b9bec7}
+.scope .tb b{font-weight:700}
+.scope .tb .menu{color:#555;display:flex;gap:10px}
+.scope .tb .sp{flex:1}
+.run{border:1px solid #9aa3af;background:#fff;border-radius:6px;padding:3px 10px;font-size:.8rem;font-weight:700;color:#1e7a46;display:flex;align-items:center;gap:5px}
+.run:hover{background:#eaf7ef}
+.run.stop{color:#c22}
+.scope canvas{display:block;width:100%;height:300px;background:#000}
+.scope .st{display:flex;justify-content:space-between;background:#e9ebef;color:#333;font-size:.74rem;padding:3px 10px;border-top:1px solid #b9bec7;font-family:Consolas,monospace}
+.slegend{display:flex;gap:14px;flex-wrap:wrap;font-size:.82rem;color:var(--muted);margin-top:6px}
+.slegend i{display:inline-block;width:18px;height:3px;border-radius:2px;vertical-align:middle;margin-right:5px}
+.readout{font-family:Consolas,monospace;font-size:.85rem;color:var(--ink2);margin-top:4px;min-height:1.3em}
+canvas.lite{width:100%;height:230px;display:block}
+/* controls */
+.ctrl{margin:8px 0}
+.ctrl label{display:block;font-weight:600;font-size:.9rem}
+.ctrl label span{float:right;font-family:Consolas,monospace;color:var(--acc)}
+input[type=range]{width:100%;accent-color:var(--acc)}
+.chips{display:flex;flex-wrap:wrap;gap:7px;margin:8px 0}
+.chip{border:1.5px solid var(--line);background:#fff;border-radius:99px;padding:5px 12px;font-size:.86rem;font-weight:600;color:var(--ink);transition:.2s}
+.chip:hover{border-color:var(--ink)}
+.chip.on,.chip.sel{background:var(--ink);border-color:var(--ink);color:#fff}
+.chip.used{opacity:.3;pointer-events:none;text-decoration:line-through}
+.seg{display:inline-flex;background:#e3e8ef;border-radius:11px;padding:3px;gap:3px;flex-wrap:wrap}
+.seg button{border:0;background:none;padding:6px 12px;border-radius:8px;font-weight:600;font-size:.88rem;color:var(--ink2)}
+.seg button.on{background:#fff;color:var(--ink);box-shadow:0 2px 6px rgba(0,0,0,.1)}
+.res{display:grid;grid-template-columns:auto 1fr;gap:5px 14px;font-size:.92rem;margin-top:8px}
+.res b{font-family:Consolas,monospace;text-align:right}
+.tag{display:inline-block;padding:2px 9px;border-radius:99px;font-size:.78rem;font-weight:700}
+.tag.ok{background:var(--ok2);color:var(--ok)}.tag.ko{background:var(--ko2);color:var(--ko)}
+.inp{display:flex;align-items:center;gap:8px;margin:6px 0;flex-wrap:wrap}
+.inp input,.inp select{width:110px;padding:6px 9px;border:1.5px solid var(--line);border-radius:8px;font:inherit;background:#fff}
+.inp label{min-width:150px;font-size:.9rem;font-weight:600}
+table.tb{width:100%;border-collapse:collapse;font-size:.9rem}
+table.tb th,table.tb td{border-bottom:1px solid var(--line);padding:8px;text-align:left;vertical-align:top}
+table.tb th{background:#f3f6fa}
+/* diagrams */
+.dg svg{width:100%;display:block}
+.dg .blk{cursor:pointer}
+.dg .blk rect,.dg .blk circle,.dg .blk polygon{transition:.2s}
+.dg .blk:hover rect,.dg .blk:hover circle{filter:brightness(.93)}
+.dg .blk.sel rect{stroke:var(--acc)!important;stroke-width:3!important}
+.dg .blk.found rect{stroke:var(--ok)!important;stroke-width:3!important}
+.dg .tagl{font-size:12px;font-weight:700;fill:var(--ok);pointer-events:none}
+.dg text{font-family:"IBM Plex Sans",Inter,system-ui,sans-serif}
+.dg .slot rect{fill:#faf8f2;stroke:#b8ad93;stroke-dasharray:5 4;cursor:pointer}
+.dg .slot:hover rect{fill:var(--hint2)}
+.dg .slot.good rect{fill:var(--ok2);stroke:var(--ok);stroke-dasharray:none}
+.dg .slot text{font-size:12.5px;text-anchor:middle;dominant-baseline:middle;pointer-events:none;fill:var(--ink)}
+.dg .slot.shake{animation:shake .4s}
+@keyframes shake{0%,100%{transform:none}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+.panel{background:#f7f9fc;border:1px solid var(--line);border-radius:12px;padding:12px 14px;min-height:84px}
+.panel h3{margin-bottom:2px}
+.panel .path{font-family:Consolas,monospace;font-size:.8rem;color:var(--muted)}
+/* dialog façon Simulink */
+.dlg{border:1px solid #9aa3af;border-radius:8px;overflow:hidden;background:#f6f7f9;font-size:.86rem;max-width:420px}
+.dlg .dt{background:linear-gradient(#fdfdfd,#e3e6ea);padding:5px 10px;font-weight:700;border-bottom:1px solid #b9bec7}
+.dlg .db{padding:10px}
+.dlg .db p{color:#444;margin-bottom:8px}
+.dlg .row{display:flex;flex-direction:column;margin:6px 0}
+.dlg .row label{font-weight:600;font-size:.82rem}
+.dlg .row input{font-family:Consolas,monospace;padding:4px 8px;border:1px solid #9aa3af;border-radius:4px;background:#fff}
+.dlg .df{display:flex;gap:6px;justify-content:flex-end;padding:6px 10px;border-top:1px solid #d3d7dd}
+.dlg .df button{border:1px solid #9aa3af;background:#fff;border-radius:4px;padding:3px 12px;font-size:.82rem}
+footer{text-align:center;color:var(--muted);font-size:.82rem;padding:20px 0 30px}
+
+:root{--acc:#e8590c;--acc2:#ffe8d9}</style></head><body>
+<header class="top">
+ <div class="wrap">
+  <div class="hbar">
+   <div class="hlogo">🌡️</div>
+   <div class="htitle"><b>TP · Régulation thermique d'une maison</b><span>Tle SI · Séquence 11 · Modélisation multiphysique</span></div>
+   <div class="hsp"></div>
+   <div class="switch" id="profsw"><i></i>Afficher toutes les corrections</div>
+  </div>
+  <nav class="steps">
+   <a href="#intro">Contexte · Q1</a><a href="#m1">Modèle 1 · Q2–Q5</a><a href="#m2">Modèle 2 · Q6–Q8</a><a href="#m3">Modèle 3 · Q9–Q11</a><a href="#bilan">Bilan</a>
+  </nav>
+ </div>
+</header>
+
+<main class="wrap">
+ <div class="hero">
+  <div class="kick">Activité pratique · Matlab / Simulink – Simscape</div>
+  <h1>Régulation de la température intérieure d'une maison</h1>
+  <div class="prob">On veut maintenir une maison à <b>20 °C</b>. La température extérieure passe de <b>25 °C le jour à 5 °C la nuit</b> et l'isolation n'est pas parfaite. On construit le modèle en <b>trois versions</b>, de la plus simple à la plus réaliste, et on valide chacune par simulation.<br><span class="small">Chaque modèle possède ici un <b>simulateur intégré</b> (bouton ▶ Run) qui reproduit le modèle Simulink, pour comparer avec tes propres courbes.</span></div>
+ </div>
+
+ <!-- ================= CONTEXTE ================= -->
+ <section class="act" id="intro">
+  <div class="acthead"><div class="actnum">0</div><h2>Contexte et schéma fonctionnel<small>Commande « tout ou rien » (TOR)</small></h2></div>
+  <div>
+   <div class="card">
+    <span class="phase ph-ana">Observer</span>
+    <div class="g2" style="align-items:center"><svg viewBox="0 0 420 290" style="width:100%" font-family="IBM Plex Sans,Inter,sans-serif">
+     <rect x="0" y="0" width="420" height="290" rx="12" fill="#eaf3ff"/>
+     <rect x="0" y="252" width="420" height="38" fill="#b6d7a8"/>
+     <polygon points="70,120 210,40 350,120" fill="#c2410c"/>
+     <rect x="88" y="118" width="244" height="134" fill="#fff7ed" stroke="#18212f" stroke-width="2.5"/>
+     <rect x="80" y="118" width="10" height="134" fill="#fcd34d"/><rect x="330" y="118" width="10" height="134" fill="#fcd34d"/>
+     <text x="40" y="200" font-size="11" fill="#b45309" transform="rotate(-90 40 200)">isolant = conducteur thermique</text>
+     <g id="hrad"><rect x="110" y="200" width="70" height="40" rx="4" fill="#ef4444" stroke="#18212f"/><text x="145" y="224" text-anchor="middle" font-size="11" fill="#fff" font-weight="700">radiateur</text></g>
+     <g fill="none" stroke="#f97316" stroke-width="2.5" stroke-linecap="round"><path d="M125 192q5-7 0-14t0-14"/><path d="M145 192q5-7 0-14t0-14"/><path d="M165 192q5-7 0-14t0-14"/>
+      <animateTransform attributeName="transform" type="translate" values="0,0;0,-4;0,0" dur="1.6s" repeatCount="indefinite"/></g>
+     <circle cx="290" cy="170" r="12" fill="#fff" stroke="#2563eb" stroke-width="2"/><text x="290" y="174" text-anchor="middle" font-size="11" font-weight="700" fill="#2563eb">θ</text>
+     <text x="290" y="200" text-anchor="middle" font-size="11" fill="#2563eb">sonde</text>
+     <text x="210" y="150" text-anchor="middle" font-size="12" fill="#18212f">pièce = capacité thermique</text>
+     <g fill="none" stroke="#2563eb" stroke-width="2" stroke-dasharray="4 4"><path d="M345 160h50"><animate attributeName="stroke-dashoffset" from="16" to="0" dur=".8s" repeatCount="indefinite"/></path><path d="M345 210h50"><animate attributeName="stroke-dashoffset" from="16" to="0" dur=".8s" repeatCount="indefinite"/></path></g>
+     <text x="370" y="150" text-anchor="middle" font-size="11" fill="#2563eb">pertes</text>
+     <g><circle cx="370" cy="50" r="18" fill="#fbbf24"><animate attributeName="fill" values="#fbbf24;#1e3a8a;#fbbf24" dur="6s" repeatCount="indefinite"/></circle>
+     <text x="370" y="88" text-anchor="middle" font-size="12" font-weight="700" fill="#18212f">T<tspan font-size="9" dy="3">ext</tspan><tspan dy="-3"> : 5 → 25 °C</tspan></text></g>
+    </svg>
+    <ul class="dots" style="margin-top:8px">
+     <li>Intérieur de la maison → <b>capacité thermique</b> (inertie) qui absorbe ou restitue la chaleur.</li>
+     <li>Isolant → <b>conducteur thermique</b> entre intérieur et extérieur (échanges de chaleur).</li>
+     <li>Radiateur → <b>résistance chauffante</b>.</li>
+     <li>Commande TOR : le radiateur s'allume quand la température mesurée passe <b>3 °C sous la consigne</b>.</li>
+    </ul></div>
+   </div>
+  </div>
+  <div class="card">
+    <div class="q">
+     <div class="qh"><span class="qn">Q1</span><div class="qt"><p>Compléter le schéma-bloc fonctionnel de l'asservissement TOR. Clique sur une étiquette, puis sur la case.</p></div></div>
+     <div class="dg"><svg id="q1svg" viewBox="0 0 920 230">
+      <defs><marker id="aq1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#18212f"/></marker></defs>
+      <g fill="none" stroke="#18212f" stroke-width="1.8" marker-end="url(#aq1)">
+       <path d="M140 98H161"/><path d="M189 98H215"/><path d="M335 98H365"/><path d="M485 98H515"/><path d="M640 98H715"/><path d="M580 50V80"/><path d="M680 98V190H580"/><path d="M420 190H175V112"/></g>
+      <circle cx="175" cy="98" r="14" fill="#fff" stroke="#18212f" stroke-width="1.8"/><path d="M165 88L185 108M185 88L165 108" stroke="#18212f" stroke-width="1.4"/>
+      <text x="155" y="86" font-size="13" font-weight="700">+</text><text x="181" y="126" font-size="15" font-weight="700">−</text>
+      <g class="slot" data-l="consigne de température"><rect x="4" y="78" width="136" height="40" rx="7"/><text x="72" y="98">?</text></g>
+      <g class="slot" data-l="relais"><rect x="215" y="78" width="120" height="40" rx="7"/><text x="275" y="98">?</text></g>
+      <g class="slot" data-l="radiateur"><rect x="365" y="78" width="120" height="40" rx="7"/><text x="425" y="98">?</text></g>
+      <g class="slot" data-l="pièce"><rect x="515" y="78" width="125" height="40" rx="7"/><text x="577" y="98">?</text></g>
+      <g class="slot" data-l="température de la pièce"><rect x="715" y="78" width="200" height="40" rx="7"/><text x="815" y="98">?</text></g>
+      <g class="slot" data-l="perturbations (pertes)"><rect x="490" y="8" width="180" height="40" rx="7"/><text x="580" y="28">?</text></g>
+      <g class="slot" data-l="sonde de température"><rect x="420" y="170" width="160" height="40" rx="7"/><text x="500" y="190">?</text></g>
+     </svg></div>
+     <div class="chips" id="q1chips"></div><div id="q1done"></div>
+     <div class="qb"><button class="btn ghost" id="q1re">Recommencer</button></div>
+     <div class="cor"><span class="lab">Correction</span>Chaîne directe : <b>consigne → comparateur → relais → radiateur → pièce → température de la pièce</b>. Les <b>pertes</b> agissent sur la pièce (perturbation). La <b>sonde</b> mesure la température et la renvoie au comparateur (chaîne de retour).<div class="qb"><button class="btn ghost" id="q1sol">Afficher le schéma complet</button></div></div>
+    </div>
+  </div>
+ </section>
+
+ <!-- ================= MODELE 1 ================= -->
+ <section class="act" id="m1">
+  <div class="acthead"><div class="actnum">1</div><h2>Modèle 1 : radiateur et pièce, sans pertes<small>Commande par un générateur d'impulsions</small></h2></div>
+  <div class="card">
+   <span class="phase ph-mod">Modéliser</span>
+   <div class="seg" id="dgmode" style="margin-bottom:8px"><button data-m="1" class="on">Modèle 1</button><button data-m="2">Modèle 2</button><button data-m="3">Modèle 3</button></div>
+   <span class="small">&nbsp;Clique sur un bloc pour voir sa palette Matlab et son paramétrage.</span>
+   <div class="dg" id="tdg"></div>
+   <div class="g2" style="margin-top:10px;align-items:start">
+    <div class="panel" id="binfo"><h3>👆 Clique sur un bloc</h3><p class="small">Bleu : domaine électrique · orange : domaine thermique · noir : signaux Simulink.</p></div>
+    <div id="dlgbox"></div>
+   </div>
+  </div>
+  <div class="card">
+   <div class="q">
+    <div class="qh"><span class="qn">Q2</span><div class="qt"><p>Repérer sur le modèle 1 le <b>relais</b>, le <b>radiateur</b>, la <b>pièce</b> et la <b>sonde</b>. Choisis un nom, puis clique sur le bloc correspondant dans le schéma ci-dessus.</p></div></div>
+    <div class="chips" id="q2chips"></div><div id="q2fb" class="small"></div>
+    <div class="qb"></div>
+    <div class="cor"><span class="lab">Correction</span>
+     <table class="tb"><tr><th>Élément réel</th><th>Bloc Simscape</th><th>Pourquoi ?</th></tr>
+      <tr><td>Relais</td><td>Switch</td><td>Interrupteur commandé : ouvre/ferme le circuit électrique.</td></tr>
+      <tr><td>Radiateur</td><td>Thermal Resistor (50 Ω)</td><td>Résistance qui chauffe et transmet sa chaleur par son port thermique.</td></tr>
+      <tr><td>Pièce</td><td>Thermal Mass</td><td>Capacité thermique qui stocke la chaleur.</td></tr>
+      <tr><td>Sonde</td><td>Temperature Sensor</td><td>Mesure la température de la masse thermique.</td></tr></table>
+    </div>
+   </div>
+  </div>
+  <div class="card">
+   <div class="q">
+    <div class="qh"><span class="qn">Q3</span><div class="qt"><p>Compléter les paramètres des blocs puis lancer une simulation de <b>172 800 s</b>.</p></div></div>
+    <span class="phase ph-sim">Simuler</span>
+    <div class="scope" id="sc1"><div class="tb"><b>Scope</b><span class="menu">File Tools View Simulation</span><span class="sp"></span><button class="run" data-run="1">▶ Run</button></div><canvas></canvas><div class="st"><span class="stat">Ready</span><span class="tt">T=0.000</span></div></div>
+    <div class="slegend"><span><i style="background:#ffd400"></i>Température de la pièce (°C)</span><span><i style="background:#2bd4ff"></i>Pulse Generator (commande)</span></div>
+    <div class="readout" id="ro1">Lance la simulation puis survole la courbe pour lire les valeurs.</div>
+   </div>
+   <div class="q">
+    <div class="qh"><span class="qn">Q4</span><div class="qt"><p><b>Analyser la courbe obtenue.</b></p>
+     <p>a) Intérêt d'une durée de simulation de 172 800 s ? &nbsp; b) Température au bout de 24 h ? &nbsp; c) Rôle du générateur d'impulsions et du rapport cyclique ?</p></div></div>
+    <div class="inp"><label>b) T(24 h) en °C</label><input id="i24"><button class="btn ghost" id="c24">Vérifier</button><span id="f24"></span></div>
+    <div class="qb"></div>
+    <div class="hint"><span class="lab">Indice</span>172 800 / 3 600 = ? heures. Pour b), survole la courbe à t = 86 400 s. Pour c), regarde combien de temps dure une impulsion dans une période de 3 h.</div>
+    <div class="cor"><span class="lab">Correction</span>
+     <p><b>a)</b> 172 800 s = 48 h : on observe l'évolution sur <b>2 jours</b>.</p>
+     <p><b>b)</b> Au bout de 24 h, il fait environ <b>63 °C</b>.</p>
+     <p><b>c)</b> Le générateur simule la <b>commande du radiateur</b> : sur une période de 3 h, il chauffe pendant 3 × 0,2 = 0,6 h, soit <b>36 min</b>, puis reste à zéro pendant 2 h 24 min. Puis le cycle recommence. Le <b>rapport cyclique</b> (20 %) règle la proportion du temps de chauffe, donc l'énergie moyenne fournie.</p>
+    </div>
+   </div>
+   <div class="q">
+    <div class="qh"><span class="qn">Q4 d</span><div class="qt"><p>Calculer l'augmentation de température sur <b>une période</b> du signal de commande et la comparer à la courbe.</p></div></div>
+    <div class="g2">
+     <div>
+      <div class="ctrl"><label>Tension U <span id="cUv">230 V</span></label><input type="range" id="cU" min="200" max="240" step="10" value="230"></div>
+      <div class="ctrl"><label>Résistance R <span>50 Ω</span></label></div>
+      <div class="ctrl"><label>Durée de chauffe Δt <span>36 min = 2 160 s</span></label></div>
+      <div class="ctrl"><label>Capacité thermique C = m·c <span>1 kg × 500 000 J/(kg·K)</span></label></div>
+     </div>
+     <div class="panel" id="calc4"></div>
+    </div>
+    <div class="qb"></div>
+    <div class="hint"><span class="lab">Indice</span>E = P × Δt avec P = U²/R, puis ΔT = E / C. Rappel : 1 J = 1 W·s et un écart de 1 °C = un écart de 1 K.</div>
+    <div class="cor"><span class="lab">Correction</span>
+     <div class="eq">E = <span class="frac"><span>U²</span><span>R</span></span>·Δt = <span class="frac"><span>230²</span><span>50</span></span> × 2 160 ≈ 2 285 000 J &nbsp;⇒&nbsp; ΔT = <span class="frac"><span>E</span><span>C</span></span> = <span class="frac"><span>2 285 000</span><span>500 000</span></span> ≈ <b>4,6 °C</b></div>
+     <p>Cette élévation correspond à la « marche » visible sur la courbe à chaque impulsion : c'est <b>cohérent</b>. Vérification : la pièce part de 26,85 °C (300 K, valeur initiale par défaut de la masse thermique) et reçoit 8 impulsions en 24 h, donc 26,85 + 8 × 4,57 ≈ <b>63 °C</b>.</p>
+     <div class="warnbox"><b>Remarque pour l'enseignant :</b> le corrigé d'origine calcule avec <b>220 V</b> (E = 2 090 880 J, soit ΔT = 4,2 °C). Or le bloc est paramétré à <b>230 V</b>, et seuls 230 V redonnent les 63 °C lus à 24 h. Mets le curseur sur 220 V pour comparer.</div>
+    </div>
+   </div>
+   <div class="q">
+    <div class="qh"><span class="qn">Q5</span><div class="qt"><p>Conclure sur la validité de ce premier modèle.</p></div></div>
+    <div class="qb"></div>
+    <div class="cor"><span class="lab">Correction</span>Ce premier modèle est <b>trop simpliste</b> et ne reflète pas la réalité : il n'y a <b>aucune perte</b>, donc la température monte sans fin (≈ 100 °C au bout de 48 h). Il ne tient pas compte de l'extérieur.</div>
+   </div>
+  </div>
+ </section>
+
+ <!-- ================= MODELE 2 ================= -->
+ <section class="act" id="m2">
+  <div class="acthead"><div class="actnum">2</div><h2>Modèle 2 : prise en compte des pertes<small>Mur = conducteur thermique ; T<sub>ext</sub> = sinusoïde</small></h2></div>
+  <div class="card">
+   <p class="small">Dans le schéma Simscape ci-dessus, sélectionne <b>« Modèle 2 »</b> : une nouvelle branche relie la pièce à une source de température extérieure.</p>
+   <div class="q">
+    <div class="qh"><span class="qn">Q6 a</span><div class="qt"><p>Expliquer le rôle du bloc « conductivité thermique » (Conductive Heat Transfer).</p></div></div>
+    <div class="g2">
+     <div>
+      <div class="ctrl"><label>Conductivité λ <span>20 W/(m·K)</span></label></div>
+      <div class="ctrl"><label>Surface S <span id="cSv">1 m²</span></label><input type="range" id="cS" min="0.5" max="3" step="0.5" value="1"></div>
+      <div class="ctrl"><label>Épaisseur e <span id="cEv">30 cm</span></label><input type="range" id="cE" min="10" max="60" step="5" value="30"></div>
+     </div>
+     <div class="panel" id="calc6"></div>
+    </div>
+    <div class="qb"></div>
+    <div class="cor"><span class="lab">Correction</span>Ce bloc modélise le <b>mur</b> : il transfère la chaleur entre la pièce et l'extérieur. Le flux de chaleur est proportionnel à l'écart de température : <span class="m">Φ = G·(T<sub>pièce</sub> − T<sub>ext</sub>)</span>, avec <span class="m">G = λ·S / e</span>.
+     <div class="warnbox"><b>Remarque pour l'enseignant :</b> le corrigé d'origine indique « 20 W/K ». En réalité, 20 W/(m·K) est la <b>conductivité λ</b> du matériau. La conductance du mur vaut <b>G = 20 × 1 / 0,3 ≈ 66,7 W/K</b>. C'est cette valeur qui redonne la courbe de Q7 (maximum ≈ 28 °C).</div></div>
+   </div>
+   <div class="q">
+    <div class="qh"><span class="qn">Q6 b</span><div class="qt"><p>Expliquer les trois valeurs du signal sinusoïdal (amplitude 10 ; décalage 15 ; fréquence 1/(3600×24) Hz) et le rôle de l'addition de la constante 273,15.</p></div></div>
+    <div class="g64">
+     <div><canvas class="lite" id="sinecv"></canvas><div class="slegend"><span><i style="background:#1e9e5a"></i>T<sub>ext</sub>(t)</span><span><i style="background:#d6334a"></i>limites 5 °C et 25 °C</span></div></div>
+     <div>
+      <div class="ctrl"><label>Amplitude <span id="sAv">10</span></label><input type="range" id="sA" min="0" max="15" value="10"></div>
+      <div class="ctrl"><label>Décalage (bias) <span id="sBv">15</span></label><input type="range" id="sB" min="0" max="25" value="15"></div>
+      <div class="ctrl"><label>Période <span id="sPv">24 h</span></label><input type="range" id="sP" min="6" max="48" step="6" value="24"></div>
+     </div>
+    </div>
+    <div class="qb"></div>
+    <div class="cor"><span class="lab">Correction</span>
+     <ul class="dots"><li><b>Amplitude 10</b> : la température varie de ±10 °C, soit un écart de 20 °C dans la journée.</li>
+      <li><b>Décalage 15</b> : la sinusoïde est centrée sur 15 °C, donc elle varie entre 15 − 10 = <b>5 °C</b> et 15 + 10 = <b>25 °C</b>.</li>
+      <li><b>Fréquence 1/(3600×24) Hz</b> : une période de 86 400 s = <b>24 h</b> (une journée).</li>
+      <li><b>+ 273,15</b> : Simscape travaille en <b>kelvins</b>. On convertit les °C en K avant d'imposer la température (T(K) = T(°C) + 273,15). Inversement, on retranche 273,15 après le capteur pour afficher des °C.</li></ul></div>
+   </div>
+  </div>
+  <div class="card">
+   <div class="q">
+    <div class="qh"><span class="qn">Q7</span><div class="qt"><p>Lancer une simulation et analyser la courbe.</p></div></div>
+    <span class="phase ph-sim">Simuler</span>
+    <div class="scope" id="sc2"><div class="tb"><b>Scope1</b><span class="menu">File Tools View Simulation</span><span class="sp"></span><button class="run" data-run="2">▶ Run</button></div><canvas></canvas><div class="st"><span class="stat">Ready</span><span class="tt">T=0.000</span></div></div>
+    <div class="slegend"><span><i style="background:#ffd400"></i>T pièce</span><span><i style="background:#3fe07a"></i>T extérieure (Sine Wave)</span><span><i style="background:#2bd4ff"></i>Pulse Generator</span></div>
+    <div class="readout" id="ro2"></div>
+    <div class="qb"></div>
+    <div class="cor"><span class="lab">Correction</span>La température de la pièce <b>n'excède pas 28 °C</b>, mais elle <b>suit trop les fluctuations</b> de la température extérieure. Même quand la pièce est à 25 °C, le chauffage se met en route (il est commandé à heures fixes). Il ne parvient pas pour autant à maintenir une température supérieure à 17 °C sur la durée (la nuit, elle descend vers 8 °C).</div>
+   </div>
+   <div class="q">
+    <div class="qh"><span class="qn">Q8</span><div class="qt"><p>Conclure sur la validité de ce deuxième modèle.</p></div></div>
+    <div class="qb"></div>
+    <div class="cor"><span class="lab">Correction</span>Le modèle physique est plus réaliste (pertes prises en compte), mais <b>la commande TOR à heures fixes n'est pas adaptée</b> : elle ne tient pas compte de la température mesurée. Il manque une <b>boucle de retour</b>.</div>
+   </div>
+  </div>
+ </section>
+
+ <!-- ================= MODELE 3 ================= -->
+ <section class="act" id="m3">
+  <div class="acthead"><div class="actnum">3</div><h2>Modèle 3 : régulation en boucle fermée<small>Comparateur + hystérésis</small></h2></div>
+  <div class="card">
+   <span class="phase ph-mod">Comprendre l'hystérésis</span>
+   <div class="g64">
+    <div><canvas class="lite" id="hystcv"></canvas></div>
+    <div>
+     <p class="small">L'écart vaut <span class="m">dθ = θ<sub>consigne</sub> − θ<sub>mesure</sub></span>. La commande passe à <b>1</b> (relais fermé) quand dθ dépasse <b>3 °C</b>. Elle repasse à <b>0</b> (relais ouvert) quand l'écart redevient <b>nul</b>.</p>
+     <div class="ctrl"><label>Température mesurée <span id="hTv">20,0 °C</span></label><input type="range" id="hT" min="15" max="23" step="0.1" value="20"></div>
+     <div class="res" id="hres"></div>
+     <p class="small" style="margin-top:6px">Fais descendre la température jusqu'à 16 °C, puis remonte-la : le relais ne se coupe pas au même endroit, il a une <b>mémoire</b>.</p>
+    </div>
+   </div>
+  </div>
+  <div class="card">
+   <div class="q">
+    <div class="qh"><span class="qn">Q9</span><div class="qt"><p>Surligner la boucle de retour sur le schéma, puis entourer et nommer la sonde, le comparateur et l'hystérésis.</p></div></div>
+    <div class="qb"><button class="btn ghost" id="q9go">Voir sur le schéma du modèle 3</button></div>
+    <div class="cor"><span class="lab">Correction</span>Le <b>retour</b> part de la sortie « température pièce en °C » (après le capteur et l'addition −273,15). Il remonte jusqu'au <b>comparateur</b> (sommateur + −), qui reçoit la consigne de <b>20 °C</b>. L'écart attaque le bloc <b>hystérésis</b>, qui commande le relais. Le bouton ci-dessus affiche le schéma avec le retour surligné en jaune et les trois composants entourés.</div>
+   </div>
+  </div>
+  <div class="card">
+   <div class="q">
+    <div class="qh"><span class="qn">Q10</span><div class="qt"><p>Lancer la simulation, suivre l'évolution sur une journée (86 400 s), et expliquer ce qui se passe lorsque T<sub>ext</sub> = 14 °C et T<sub>pièce</sub> = 20 °C.</p></div></div>
+    <span class="phase ph-sim">Simuler</span>
+    <div class="scope" id="sc3"><div class="tb"><b>Scope</b><span class="menu">File Tools View Simulation</span><span class="sp"></span><button class="run" data-run="3">▶ Run</button></div><canvas></canvas><div class="st"><span class="stat">Ready</span><span class="tt">T=0.000</span></div></div>
+    <div class="slegend"><span><i style="background:#ffd400"></i>T pièce</span><span><i style="background:#3fe07a"></i>T extérieure</span><span><i style="background:#ff5ccd"></i>consigne 20 °C</span><span><i style="background:#2bd4ff"></i>relais (×5)</span></div>
+    <div class="readout" id="ro3"></div>
+    <div class="qb"></div>
+    <div class="hint"><span class="lab">Indice</span>À 20 °C, l'écart est nul : dans quel état est le relais ? Et si la pièce perd de la chaleur vers un extérieur à 14 °C ?</div>
+    <div class="cor"><span class="lab">Correction</span>Les résultats sont <b>cohérents</b>. Quand la maison descend à <b>17 °C</b> (écart de 3 °C), le chauffage se met en route et la température remonte à <b>20 °C</b>, quelle que soit la température extérieure.<br>
+     Avec T<sub>ext</sub> = 14 °C et T<sub>pièce</sub> = 20 °C : l'écart est nul, donc le <b>relais est ouvert</b>. La pièce se refroidit lentement (pertes par le mur) jusqu'à 17 °C, puis le radiateur se rallume.<br>
+     On constate aussi que le système <b>ne peut pas refroidir</b> la maison quand la température dépasse la consigne (l'après-midi, la pièce suit T<sub>ext</sub> vers 24 °C).</div>
+   </div>
+   <div class="q">
+    <div class="qh"><span class="qn">Q11</span><div class="qt"><p>Conclure sur la validité de ce dernier modèle.</p></div></div>
+    <div class="qb"></div>
+    <div class="cor"><span class="lab">Correction</span>Ce modèle paraît <b>convenir et refléter la réalité</b> : la température reste entre 17 °C et 20 °C dès que l'extérieur est plus froid. Sa limite : il n'y a <b>pas de climatisation</b> pour refroidir quand il fait chaud.</div>
+   </div>
+  </div>
+ </section>
+
+ <!-- ================= BILAN ================= -->
+ <section class="act" id="bilan">
+  <div class="acthead"><div class="actnum">✓</div><h2>Bilan : trois modèles comparés</h2></div>
+  <div class="card">
+   <div class="seg" id="cmpseg"><button data-m="1" class="on">Modèle 1</button><button data-m="2">Modèle 2</button><button data-m="3">Modèle 3</button><button data-m="0">Les trois</button></div>
+   <canvas class="lite" id="cmpcv" style="height:260px;margin-top:10px"></canvas>
+   <table class="tb" style="margin-top:12px">
+    <tr><th></th><th>Modèle 1</th><th>Modèle 2</th><th>Modèle 3</th></tr>
+    <tr><td><b>Pertes (mur)</b></td><td>❌</td><td>✅ G ≈ 66,7 W/K</td><td>✅</td></tr>
+    <tr><td><b>Commande</b></td><td>Impulsions fixes (boucle ouverte)</td><td>Impulsions fixes (boucle ouverte)</td><td>TOR + hystérésis (<b>boucle fermée</b>)</td></tr>
+    <tr><td><b>Résultat</b></td><td>T monte sans fin (≈ 100 °C)</td><td>T suit l'extérieur (8 → 28 °C)</td><td>T maintenue entre 17 et 20 °C</td></tr>
+    <tr><td><b>Validité</b></td><td><span class="tag ko">non</span></td><td><span class="tag ko">commande inadaptée</span></td><td><span class="tag ok">oui</span></td></tr>
+   </table>
+  </div>
+ </section>
+</main>
+<footer>Tle SI · Séquence 11 · Asservissements : TP régulation thermique (simulateur intégré reproduisant les modèles Simulink fournis)</footer>
+
+<script>const $=(s,r=document)=>r.querySelector(s),$$=(s,r=document)=>[...r.querySelectorAll(s)];
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const fmt=(v,d=2)=>{let s=(Math.round(v*10**d)/10**d).toFixed(d);if(/^-0[.]?0*$/.test(s))s=s.slice(1);return s.replace('.',',')};
+const fmtInt=v=>Math.round(v).toString().replace(/\B(?=(\d{3})+(?!\d))/g,' ');
+const NS='http://www.w3.org/2000/svg';
+const SC={y:'#ffd400',c:'#2bd4ff',g:'#3fe07a',m:'#ff5ccd',o:'#ff8a3d',w:'#e8e8e8',r:'#ff4d4d'};
+
+/* ---- tracé ---- */
+function niceTicks(a,b,n){const span=b-a;if(span<=0)return[a];const s0=span/n,mag=10**Math.floor(Math.log10(s0)),f=s0/mag;const st=(f<1.5?1:f<3?2:f<7?5:10)*mag;const t=[];for(let v=Math.ceil(a/st-1e-9)*st;v<=b+1e-9;v+=st)t.push(+v.toFixed(10));return t}
+const ft=v=>String(+(+v).toPrecision(6)).replace('.',',');
+function drawPlot(cv,o){const dpr=window.devicePixelRatio||1,w=cv.clientWidth,h=cv.clientHeight;if(!w||!h)return;
+ if(cv.width!==Math.round(w*dpr)||cv.height!==Math.round(h*dpr)){cv.width=Math.round(w*dpr);cv.height=Math.round(h*dpr)}
+ const c=cv.getContext('2d');c.setTransform(dpr,0,0,dpr,0,0);const dk=!!o.dark;
+ c.fillStyle=dk?'#000':'#fff';c.fillRect(0,0,w,h);
+ const m={l:48,r:12,t:12,b:28},pw=w-m.l-m.r,ph=h-m.t-m.b;const X=x=>m.l+(x-o.x0)/(o.x1-o.x0)*pw,Y=y=>m.t+ph-(y-o.y0)/(o.y1-o.y0)*ph;
+ cv._m={m,pw,ph,X,Y};cv._o=o;const F='11.5px "IBM Plex Sans",Inter,system-ui,sans-serif',FB='700 12px "IBM Plex Sans",Inter,system-ui,sans-serif';c.font=F;
+ c.strokeStyle=dk?'#2f2f2f':'#e7ebf0';c.lineWidth=1;c.fillStyle=dk?'#b5b5b5':'#687487';c.textAlign='center';c.textBaseline='top';
+ niceTicks(o.x0,o.x1,o.nx||(w<420?5:9)).forEach(v=>{const x=X(v);c.beginPath();c.moveTo(x,m.t);c.lineTo(x,m.t+ph);c.stroke();c.fillText(ft(v),x,m.t+ph+6)});
+ c.textAlign='right';c.textBaseline='middle';niceTicks(o.y0,o.y1,o.ny||6).forEach(v=>{const y=Y(v);c.beginPath();c.moveTo(m.l,y);c.lineTo(m.l+pw,y);c.stroke();c.fillText(ft(v),m.l-6,y)});
+ c.strokeStyle=dk?'#8a8a8a':'#18212f';c.lineWidth=1.3;c.strokeRect(m.l,m.t,pw,ph);
+ c.fillStyle=dk?'#d0d0d0':'#18212f';if(o.xlabel){c.textAlign='right';c.textBaseline='bottom';c.fillText(o.xlabel,m.l+pw-4,m.t+ph-4)}
+ if(o.ylabel){c.textAlign='left';c.textBaseline='top';c.fillText(o.ylabel,m.l+6,m.t+4)}
+ c.save();c.beginPath();c.rect(m.l,m.t,pw,ph);c.clip();
+ (o.bands||[]).forEach(b=>{c.fillStyle=b.color;c.fillRect(m.l,Y(b.y1),pw,Y(b.y0)-Y(b.y1))});
+ const xl=o.xlim??o.x1;
+ const L=(l,vert)=>{c.strokeStyle=l.color;c.lineWidth=l.w||1.4;c.setLineDash(l.dash||[6,5]);c.beginPath();
+  if(vert){c.moveTo(X(l.x),Y(l.ya??o.y0));c.lineTo(X(l.x),Y(l.yb??o.y1))}else{c.moveTo(X(l.xa??o.x0),Y(l.y));c.lineTo(X(l.xb??o.x1),Y(l.y))}c.stroke();c.setLineDash([]);
+  if(l.label){c.fillStyle=l.color;c.font=FB;if(vert){c.textAlign='left';c.textBaseline='top';c.fillText(l.label,X(l.x)+4,m.t+4+(l.dy||0))}else{c.textAlign=l.left?'left':'right';c.textBaseline='bottom';c.fillText(l.label,l.left?m.l+6:(l.lx!=null?X(l.lx)-4:m.l+pw-4),Y(l.y)-3)}c.font=F}};
+ if(!o.late||xl>=o.x1){(o.hlines||[]).forEach(l=>L(l,0));(o.vlines||[]).forEach(l=>L(l,1))}
+ (o.series||[]).forEach(s=>{c.strokeStyle=s.color;c.lineWidth=s.w||2;c.setLineDash(s.dash||[]);c.lineJoin='round';c.beginPath();let st=0;
+  for(const p of s.pts){if(p[0]>xl)break;if(!isFinite(p[1])){st=0;continue}const px=X(p[0]),py=Y(p[1]);st?c.lineTo(px,py):(c.moveTo(px,py),st=1)}c.stroke();c.setLineDash([])});
+ if(!o.late||xl>=o.x1)(o.marks||[]).forEach(k=>{c.fillStyle=k.color;c.beginPath();c.arc(X(k.x),Y(k.y),k.r||4.5,0,7);c.fill();if(k.label){c.font=FB;c.textAlign=k.right?'right':'left';c.textBaseline='bottom';c.fillText(k.label,X(k.x)+(k.right?-7:7),Y(k.y)-5);c.font=F}});
+ if(o.cross){const k=o.cross;c.strokeStyle=dk?'#fff':'#7a3bc6';c.lineWidth=1;c.setLineDash([3,3]);c.beginPath();c.moveTo(X(k.x),m.t);c.lineTo(X(k.x),m.t+ph);c.stroke();c.setLineDash([]);
+  (k.ys||[]).forEach(([y,col])=>{c.fillStyle=col;c.beginPath();c.arc(X(k.x),Y(y),4,0,7);c.fill()})}
+ c.restore()}
+function sample(fn,a,b,N=600){const r=[];for(let i=0;i<=N;i++){const t=a+(b-a)*i/N;r.push([t,fn(t)])}return r}
+/* animation progressive (façon simulation qui tourne) */
+function runPlot(cv,o,dur,onT){cancelAnimationFrame(cv._raf);const t0=performance.now();o.late=true;
+ const f=n=>{const p=Math.min(1,(n-t0)/dur);o.xlim=o.x0+(o.x1-o.x0)*p;drawPlot(cv,o);onT&&onT(o.xlim,p);if(p<1)cv._raf=requestAnimationFrame(f)};cv._raf=requestAnimationFrame(f)}
+function showPlot(cv,o){cancelAnimationFrame(cv._raf);o.xlim=o.x1;drawPlot(cv,o)}
+/* lecture au survol */
+function hoverRead(cv,getSeries,out,fmtX,fmtY){
+ const h=ev=>{if(!cv._m||!cv._o)return;const r=cv.getBoundingClientRect(),cx=(ev.touches?ev.touches[0].clientX:ev.clientX)-r.left,{m,pw}=cv._m,o=cv._o;
+  if((o.xlim??o.x1)<o.x1)return;const x=o.x0+clamp((cx-m.l)/pw,0,1)*(o.x1-o.x0);const ss=getSeries();const ys=[];const txt=[];
+  ss.forEach(s=>{let best=null;for(const p of s.pts){if(best===null||Math.abs(p[0]-x)<Math.abs(best[0]-x))best=p}if(best){ys.push([best[1],s.color]);txt.push(s.name+' = '+fmtY(best[1],s))}});
+  const oo=Object.assign({},o,{cross:{x,ys}});drawPlot(cv,oo);cv._o=o;out.textContent=fmtX(x)+'   |   '+txt.join('   |   ')};
+ cv.addEventListener('mousemove',h);cv.addEventListener('touchmove',h,{passive:true});cv.addEventListener('mouseleave',()=>{if(cv._o)drawPlot(cv,cv._o)})}
+let rzT;window.addEventListener('resize',()=>{clearTimeout(rzT);rzT=setTimeout(()=>$$('canvas').forEach(cv=>{if(cv._o&&cv.offsetParent)drawPlot(cv,cv._o)}),150)});
+
+/* ---- questions : indice / correction ---- */
+function initQuestions(){
+ $$('.q').forEach(q=>{const h=$('.hint',q),c=$('.cor',q),qb=$('.qb',q);if(!qb)return;
+  if(h){const b=document.createElement('button');b.className='btn hintb';b.textContent='💡 Indice';b.onclick=()=>h.classList.toggle('on');qb.appendChild(b)}
+  if(c){const b=document.createElement('button');b.className='btn acc';b.textContent='✓ Correction';b.onclick=()=>{c.classList.toggle('on');if(c.classList.contains('on'))c.dispatchEvent(new Event('open'))};qb.appendChild(b)}});
+ const sw=$('#profsw');if(sw)sw.onclick=()=>{document.body.classList.toggle('prof');if(document.body.classList.contains('prof'))$$('.cor').forEach(c=>c.dispatchEvent(new Event('open')))};
+ // navigation active
+ const links=$$('.steps a'),secs=links.map(a=>$(a.getAttribute('href')));
+ const onS=()=>{let k=0;secs.forEach((s,i)=>{if(s&&s.getBoundingClientRect().top<160)k=i});links.forEach((a,i)=>a.classList.toggle('on',i===k))};
+ window.addEventListener('scroll',onS,{passive:true});onS()}
+
+/* ---- jeu d'étiquettes (placer des noms dans des cases) ---- */
+function labelGame(svg,chipsHost,doneEl,onDone){
+ const slots=$$('.slot',svg);let sel=null;chipsHost.innerHTML='';
+ const labels=slots.map(s=>s.dataset.l).sort(()=>Math.random()-.5);
+ labels.forEach(l=>{const b=document.createElement('button');b.className='chip';b.textContent=l;b.dataset.l=l;b.onclick=()=>{sel=sel===b?null:b;$$('.chip',chipsHost).forEach(x=>x.classList.toggle('sel',x===sel))};chipsHost.appendChild(b)});
+ slots.forEach(s=>{s.classList.remove('good');$('text',s).textContent='?';s.onclick=()=>{if(!sel||s.classList.contains('good'))return;
+  if(sel.dataset.l===s.dataset.l){s.classList.add('good');$('text',s).textContent=s.dataset.l;sel.classList.add('used');sel.classList.remove('sel');sel=null;
+   if(!$$('.slot:not(.good)',svg).length){doneEl.innerHTML='<span class="tag ok">🎉 Schéma complet !</span>';onDone&&onDone()}}
+  else{s.classList.remove('shake');void s.getBBox();s.classList.add('shake')}}});
+ doneEl.innerHTML=''}
+function solveLabels(svg){$$('.slot',svg).forEach(s=>{s.classList.add('good');$('text',s).textContent=s.dataset.l})}
+
+/* ================= SCHEMA SIMSCAPE ================= */
+const COL={s:['#ffffff','#18212f'],e:['#eaf1ff','#2a6cd8'],t:['#fff1e6','#e8590c']};
+const BL=[
+ {id:'pg',x:96,y:86,w:56,h:40,t:['Pulse','Generator'],d:'s',v:'12',name:'Pulse Generator',path:'Simulink › Sources',par:[['Pulse type','Time based'],['Amplitude','5'],['Period (secs)','10800'],['Pulse Width (% of period)','20'],['Phase delay (secs)','0']],role:'Simule la commande du radiateur : 36 min de chauffe toutes les 3 h (rapport cyclique 20 %).'},
+ {id:'c20',x:8,y:92,w:46,h:28,t:['20'],d:'s',v:'3',name:'Constant (consigne)',path:'Simulink › Sources',par:[['Constant value','20']],role:'Consigne de température : 20 °C.'},
+ {id:'sum',x:72,y:90,w:34,h:32,t:['+ −'],d:'s',v:'3',name:'Add (comparateur)',path:'Simulink › Math Operations',par:[['List of signs','+-']],role:'Comparateur : forme l\'écart dθ = θconsigne − θmesure.'},
+ {id:'hyst',x:126,y:86,w:56,h:40,t:['Relay','(hystérésis)'],d:'s',v:'3',name:'Relay (hystérésis)',path:'Simulink › Discontinuities',par:[['Switch on point','3'],['Switch off point','0'],['Output when on','1'],['Output when off','0']],role:'Passe à 1 quand l\'écart dépasse 3 °C, repasse à 0 quand l\'écart est nul.'},
+ {id:'sps',x:204,y:94,w:42,h:24,t:['S→PS'],d:'s',v:'123',name:'Simulink-PS Converter',path:'Simscape › Utilities',par:[],role:'Convertit un signal Simulink en signal physique Simscape.'},
+ {id:'sw',x:276,y:84,w:62,h:44,t:['Switch'],d:'e',v:'123',name:'Switch',path:'Simscape › Foundation › Electrical › Electrical Elements',par:[['Closed resistance','0.01 Ω'],['Threshold','0.5']],role:'Interrupteur commandé : ferme le circuit quand la commande dépasse le seuil.',q:'relais'},
+ {id:'vs',x:232,y:186,w:56,h:44,t:['DC','230 V'],d:'e',v:'123',name:'DC Voltage Source',path:'Simscape › Foundation › Electrical › Electrical Sources',par:[['Constant voltage','230 V']],role:'Alimentation du radiateur.'},
+ {id:'tr',x:398,y:178,w:66,h:58,t:['Thermal','Resistor'],d:'e',v:'123',name:'Thermal Resistor',path:'Simscape › Foundation › Electrical › Electrical Elements',par:[['Nominal resistance','50 Ω'],['Reference temperature','293.15 K']],role:'Résistance chauffante : reçoit une puissance électrique U²/R et la cède sous forme de chaleur par son port thermique.',q:'radiateur'},
+ {id:'gnd',x:320,y:290,w:40,h:22,t:['⏚'],d:'e',v:'123',name:'Electrical Reference',path:'Simscape › Foundation › Electrical › Electrical Elements',par:[],role:'Masse électrique (référence 0 V).'},
+ {id:'solv',x:150,y:250,w:58,h:26,t:['f(x)=0'],d:'s',v:'123',name:'Solver Configuration',path:'Simscape › Utilities',par:[],role:'Obligatoire dans tout réseau Simscape : paramètres du solveur.'},
+ {id:'tm',x:522,y:164,w:74,h:46,t:['Thermal','Mass'],d:'t',v:'123',name:'Thermal Mass',path:'Simscape › Foundation › Thermal › Thermal Elements',par:[['Mass','1 kg'],['Specific heat','500000 J/(kg·K)'],['Initial temperature','300 K (par défaut)']],role:'Capacité thermique de la pièce : C = m·c = 500 000 J/K. Il faut 500 000 J pour gagner 1 °C.',q:'pièce'},
+ {id:'ts',x:624,y:84,w:72,h:44,t:['Temperature','Sensor'],d:'t',v:'123',name:'Temperature Sensor',path:'Simscape › Foundation › Thermal › Thermal Sensors',par:[],role:'Mesure la température (en K) de la masse thermique.',q:'sonde'},
+ {id:'tref',x:704,y:150,w:36,h:22,t:['⏚'],d:'t',v:'123',name:'Thermal Reference',path:'Simscape › Foundation › Thermal › Thermal Elements',par:[],role:'Référence de température (0 K) pour le capteur.'},
+ {id:'psc',x:722,y:94,w:42,h:24,t:['PS→S'],d:'s',v:'123',name:'PS-Simulink Converter',path:'Simscape › Utilities',par:[],role:'Convertit la mesure physique en signal Simulink.'},
+ {id:'k1',x:736,y:136,w:56,h:24,t:['273.15'],d:'s',v:'123',name:'Constant',path:'Simulink › Sources',par:[['Constant value','273.15']],role:'Pour convertir les kelvins en °C.'},
+ {id:'add',x:806,y:88,w:34,h:36,t:['+ −'],d:'s',v:'123',name:'Add',path:'Simulink › Math Operations',par:[['List of signs','+-']],role:'T(°C) = T(K) − 273,15.'},
+ {id:'scope',x:880,y:62,w:52,h:92,t:['Scope'],d:'s',v:'123',name:'Scope',path:'Simulink › Sinks',par:[['Number of input ports','2 ou 3']],role:'Visualise les grandeurs.'},
+ {id:'cht',x:500,y:268,w:104,h:42,t:['Conductive','Heat Transfer'],d:'t',v:'23',name:'Conductive Heat Transfer',path:'Simscape › Foundation › Thermal › Thermal Elements',par:[['Area','1 m²'],['Thickness','0.3 m'],['Thermal conductivity','20 W/(m·K)']],role:'Modélise le mur : flux Φ = λ·S/e·(Tpièce − Text).'},
+ {id:'cts',x:640,y:268,w:104,h:42,t:['Controlled','Temp. Source'],d:'t',v:'23',name:'Controlled Temperature Source',path:'Simscape › Foundation › Thermal › Thermal Sources',par:[],role:'Impose la température extérieure (en K) donnée par le signal sinusoïdal.'},
+ {id:'sine',x:404,y:336,w:50,h:36,t:['∿','Sine'],d:'s',v:'23',name:'Sine Wave',path:'Simulink › Sources',par:[['Amplitude','10'],['Bias','15'],['Frequency (rad/s)','2*pi/86400'],['Phase','0']],role:'Température extérieure en °C : de 5 à 25 °C sur 24 h.'},
+ {id:'k2',x:470,y:384,w:56,h:24,t:['273.15'],d:'s',v:'23',name:'Constant',path:'Simulink › Sources',par:[['Constant value','273.15']],role:'Conversion °C → K.'},
+ {id:'add2',x:556,y:336,w:34,h:36,t:['+ +'],d:'s',v:'23',name:'Add',path:'Simulink › Math Operations',par:[['List of signs','++']],role:'T(K) = T(°C) + 273,15.'},
+ {id:'sps2',x:612,y:342,w:42,h:24,t:['S→PS'],d:'s',v:'23',name:'Simulink-PS Converter',path:'Simscape › Utilities',par:[],role:'Signal Simulink → signal physique.'}];
+const WI=[
+ ['M152 106H204','s','12'],['M125 86V22H860V78H880','s','12'],
+ ['M54 106H72','s','3'],['M106 106H126','s','3'],['M182 106H204','s','3'],['M850 106V12H89V90','s','3','fb'],
+ ['M246 106H256V70H307V84','s','123'],
+ ['M260 186V106H276','e','123'],['M338 106H431V178','e','123'],['M431 236V300H260V230','e','123'],['M340 300V290','e','123'],['M208 263H260','e','123'],
+ ['M464 207H496V146H660','t','123'],['M559 146V164','t','123'],['M660 146V128','t','123'],['M696 120H722V150','t','123'],
+ ['M696 106H722','s','123'],['M764 106H786V98H806','s','123'],['M792 148H798V114H806','s','123'],['M840 106H880','s','123'],
+ ['M496 207V289H500','t','23'],['M604 289H640','t','23'],['M744 289H770V300','t','23'],
+ ['M454 354H540V346H556','s','23'],['M526 396H546V362H556','s','23'],['M590 354H612','s','23'],['M654 354H692V310','s','23'],['M429 336V326H866V136H880','s','23']];
+const WCOL={s:'#18212f',e:'#2a6cd8',t:'#e8590c'};
+function buildDiagram(){
+ let s=`<svg viewBox="0 0 940 420"><defs><marker id="arT" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10z" fill="#18212f"/></marker></defs>`;
+ WI.forEach(([d,dom,v,cls])=>s+=`<path d="${d}" fill="none" stroke="${WCOL[dom]}" stroke-width="${cls?2.4:1.7}" data-v="${v}" class="${cls||''}" ${dom==='s'?'marker-end="url(#arT)"':''}/>`);
+ BL.forEach(b=>{const [f,st]=COL[b.d];const n=b.t.length;
+  s+=`<g class="blk" data-id="${b.id}" data-v="${b.v}"><rect x="${b.x}" y="${b.y}" width="${b.w}" height="${b.h}" rx="5" fill="${f}" stroke="${st}" stroke-width="1.6"/>`+
+   b.t.map((l,i)=>`<text x="${b.x+b.w/2}" y="${b.y+b.h/2+(i-(n-1)/2)*13}" text-anchor="middle" dominant-baseline="middle" font-size="${l.length>8?10.5:12}" fill="#18212f">${l}</text>`).join('')+
+   `<text class="tagl" x="${b.x+b.w/2}" y="${b.y-5}" text-anchor="middle"></text></g>`});
+ // marques Q9
+ [['sum',89,106,'comparateur'],['hyst',154,106,'hystérésis'],['ts',660,106,'sonde']].forEach(([k,cx,cy,l])=>s+=`<g class="q9m" data-v="3" style="display:none"><ellipse cx="${cx}" cy="${cy}" rx="${k==='ts'?52:k==='sum'?30:36}" ry="32" fill="none" stroke="#d6334a" stroke-width="3"/><text x="${k==='sum'?cx-14:cx}" y="${k==='hyst'?cy-40:cy+50}" text-anchor="middle" font-size="13" font-weight="700" fill="#d6334a">${l}</text></g>`);
+ s+='</svg>';$('#tdg').innerHTML=s}
+buildDiagram();
+let dgMode=1;
+function setMode(m){dgMode=m;$$('#dgmode button').forEach(b=>b.classList.toggle('on',+b.dataset.m===m));
+ $$('#tdg [data-v]').forEach(e=>{if(e.classList.contains('q9m'))return;e.style.display=e.dataset.v.includes(m)?'':'none'})}
+$$('#dgmode button').forEach(b=>b.onclick=()=>setMode(+b.dataset.m));setMode(1);
+function showInfo(b){$('#binfo').innerHTML=`<h3>${b.name}</h3><div class="path">${b.path}</div><p style="margin-top:6px">${b.role}</p>`;
+ $('#dlgbox').innerHTML=`<div class="dlg"><div class="dt">Block Parameters: ${b.name.split(' (')[0]}</div><div class="db">${b.par.length?b.par.map(([k,v])=>`<div class="row"><label>${k}</label><input value="${v}" readonly></div>`).join(''):'<p>Aucun paramètre à régler.</p>'}</div><div class="df"><button>OK</button><button>Cancel</button><button>Help</button></div></div>`}
+/* Q2 identification */
+let q2sel=null;const Q2=['relais','radiateur','pièce','sonde'];
+Q2.slice().sort(()=>Math.random()-.5).forEach(n=>{const c=document.createElement('button');c.className='chip';c.textContent=n;c.onclick=()=>{q2sel=q2sel===c?null:c;$$('#q2chips .chip').forEach(x=>x.classList.toggle('sel',x===q2sel));$('#q2fb').textContent=q2sel?'Clique maintenant sur le bloc qui représente : '+n:''};$('#q2chips').appendChild(c)});
+$$('#tdg .blk').forEach(g=>g.addEventListener('click',()=>{const b=BL.find(x=>x.id===g.dataset.id);$$('#tdg .blk').forEach(x=>x.classList.toggle('sel',x===g));
+ if(q2sel){if(b.q===q2sel.textContent){g.classList.add('found');$('.tagl',g).textContent=b.q;q2sel.classList.add('used');q2sel.classList.remove('sel');q2sel=null;
+   const left=$$('#q2chips .chip:not(.used)').length;$('#q2fb').innerHTML=left?'<span class="tag ok">✓ Bien vu</span>':'<span class="tag ok">🎉 Les 4 éléments sont repérés !</span>'}
+  else $('#q2fb').innerHTML='<span class="tag ko">✗ Ce bloc est « '+b.name+' » : '+b.role+'</span>'}
+ showInfo(b)}));
+/* Q1 */
+labelGame($('#q1svg'),$('#q1chips'),$('#q1done'));
+$('#q1re').onclick=()=>labelGame($('#q1svg'),$('#q1chips'),$('#q1done'));
+$('#q1sol').onclick=()=>{solveLabels($('#q1svg'));$$('#q1chips .chip').forEach(c=>c.classList.add('used'))};
+/* Q9 */
+$('#q9go').onclick=()=>{setMode(3);$$('#tdg .q9m').forEach(e=>e.style.display='');$$('#tdg .fb').forEach(e=>{e.setAttribute('stroke','#f5b800');e.setAttribute('stroke-width','5')});$('#tdg').scrollIntoView({behavior:'smooth',block:'center'})};
+$$('#dgmode button').forEach(b=>b.addEventListener('click',()=>{$$('#tdg .q9m').forEach(e=>e.style.display='none');$$('#tdg .fb').forEach(e=>{e.setAttribute('stroke','#18212f');e.setAttribute('stroke-width','2.4')})}));
+
+/* ================= SIMULATION ================= */
+const C=500000,P0=230*230/50,G=20*1/0.3;
+function simTherm(m){let T=26.85,on=0;const dt=10,Tp=[],cmd=[],te=[];
+ for(let t=0;t<=172800;t+=dt){const Te=15+10*Math.sin(2*Math.PI*t/86400);let h;
+  if(m<3)h=(t%10800)<2160?1:0;else{const e=20-T;if(e>3)on=1;else if(e<=0)on=0;h=on}
+  if(t%120===0){const x=t/3600;Tp.push([x,T]);cmd.push([x,h*5]);te.push([x,Te])}
+  T+=(h*P0-(m===1?0:G*(T-Te)))/C*dt}
+ return{Tp,cmd,te}}
+const SIMS={1:simTherm(1),2:simTherm(2),3:simTherm(3)};
+function scopeOpts(m){const S=SIMS[m];
+ const o={dark:true,x0:0,x1:48,nx:12,xlabel:'t (h)',ylabel:'°C'};
+ if(m===1){o.y0=-5;o.y1=110;o.series=[{pts:S.cmd,color:SC.c,w:1.6,name:'commande'},{pts:S.Tp,color:SC.y,w:2.2,name:'T pièce'}];o.vlines=[{x:24,color:'#888',label:'24 h'}]}
+ if(m===2){o.y0=-2;o.y1=32;o.series=[{pts:S.cmd,color:SC.c,w:1.4,name:'commande'},{pts:S.te,color:SC.g,w:2,name:'T ext'},{pts:S.Tp,color:SC.y,w:2.2,name:'T pièce'}]}
+ if(m===3){o.y0=-2;o.y1=30;o.x1=48;o.series=[{pts:S.cmd,color:SC.c,w:1.4,name:'relais'},{pts:S.te,color:SC.g,w:2,name:'T ext'},{pts:S.Tp,color:SC.y,w:2.2,name:'T pièce'}];o.hlines=[{y:20,color:SC.m,dash:[5,4]},{y:17,color:'#777',dash:[2,4],label:'17 °C'}];o.vlines=[{x:24,color:'#888',label:'1 journée'}]}
+ return o}
+$$('[data-run]').forEach(b=>{const m=+b.dataset.run,sc=b.closest('.scope'),cv=$('canvas',sc);
+ const o=scopeOpts(m);o.xlim=0;drawPlot(cv,o);
+ b.onclick=()=>{const oo=scopeOpts(m);$('.stat',sc).textContent='Running';b.disabled=true;
+  runPlot(cv,oo,2600,(x,p)=>{$('.tt',sc).textContent='T='+(x*3600).toFixed(3);if(p>=1){$('.stat',sc).textContent='Ready';b.disabled=false}})};
+ hoverRead(cv,()=>cv._o.series,$('#ro'+m),x=>'t = '+fmtInt(x*3600)+' s ('+fmt(x,1)+' h)',(y,s)=>s.name==='commande'||s.name==='relais'?(y>0?'ON':'OFF'):fmt(y,1)+' °C')});
+$('#c24').onclick=()=>{const v=parseFloat($('#i24').value.replace(',','.'));$('#f24').innerHTML=Math.abs(v-63)<=2?'<span class="tag ok">✓ ≈ 63 °C</span>':'<span class="tag ko">✗ relis la courbe à 86 400 s</span>'};
+
+/* Q4d */
+function calc4(){const U=+$('#cU').value;$('#cUv').textContent=U+' V';const P=U*U/50,E=P*2160,dT=E/C;
+ $('#calc4').innerHTML=`<div class="res"><span>Puissance P = U²/R</span><b>${fmt(P,1)} W</b><span>Énergie E = P·Δt</span><b>${fmtInt(E)} J</b><span>ΔT = E / C</span><b>${fmt(dT,2)} °C</b><span>T(24 h) = 26,85 + 8·ΔT</span><b>${fmt(26.85+8*dT,1)} °C</b></div>`+(U!==230?'<p class="small" style="margin-top:6px">⚠️ Le bloc est réglé à 230 V : cette valeur ne redonne pas la courbe.</p>':'<p class="small" style="margin-top:6px">✓ Cohérent avec la courbe simulée (≈ 63 °C à 24 h).</p>')}
+$('#cU').oninput=calc4;calc4();
+/* Q6a */
+function calc6(){const S=+$('#cS').value,e=+$('#cE').value/100;$('#cSv').textContent=fmt(S,1).replace(',0','')+' m²';$('#cEv').textContent=Math.round(e*100)+' cm';const g=20*S/e,tau=C/g;
+ $('#calc6').innerHTML=`<div class="res"><span>Conductance G = λ·S/e</span><b>${fmt(g,1)} W/K</b><span>Pertes pour 15 °C d'écart</span><b>${fmtInt(g*15)} W</b><span>Constante de temps C/G</span><b>${fmtInt(tau)} s ≈ ${fmt(tau/3600,1)} h</b></div><p class="small" style="margin-top:6px">Plus G est grand, plus la pièce suit vite la température extérieure.</p>`}
+['cS','cE'].forEach(i=>$('#'+i).oninput=calc6);calc6();
+/* Q6b */
+function sine(){const A=+$('#sA').value,B=+$('#sB').value,P=+$('#sP').value;$('#sAv').textContent=A;$('#sBv').textContent=B;$('#sPv').textContent=P+' h';
+ showPlot($('#sinecv'),{x0:0,x1:48,y0:-5,y1:40,nx:8,xlabel:'t (h)',ylabel:'°C',series:[{pts:sample(t=>B+A*Math.sin(2*Math.PI*t/P),0,48,500),color:'#1e9e5a',w:2.6}],hlines:[{y:5,color:'#d6334a',label:'5 °C',dash:[4,4]},{y:25,color:'#d6334a',label:'25 °C',dash:[4,4]}]})}
+['sA','sB','sP'].forEach(i=>$('#'+i).oninput=sine);
+/* hystérésis */
+let hOn=0;
+function hyst(){const T=+$('#hT').value,e=20-T;if(e>3)hOn=1;else if(e<=0)hOn=0;$('#hTv').textContent=fmt(T,1)+' °C';
+ const cyc=[[-3,0],[3,0],[3,1],[6,1]],cyc2=[[6,1],[0,1],[0,0],[-3,0]];
+ showPlot($('#hystcv'),{x0:-3,x1:6,y0:-0.3,y1:1.4,nx:9,ny:3,xlabel:'dθ (°C)',ylabel:'commande',series:[{pts:cyc,color:'#2563eb',w:2.6},{pts:cyc2,color:'#e8590c',w:2.6,dash:[7,4]}],
+  vlines:[{x:3,color:'#888',label:'+3 °C : ON',dy:30},{x:0,color:'#888',label:'0 : OFF',dy:50}],marks:[{x:clamp(e,-3,6),y:hOn,color:hOn?'#d6334a':'#18212f',r:8,label:hOn?'relais fermé':'relais ouvert'}]});
+ $('#hres').innerHTML=`<span>Écart dθ = 20 − θ</span><b>${fmt(e,1)} °C</b><span>Relais</span><b>${hOn?'<span class="tag ko">FERMÉ · chauffe</span>':'<span class="tag ok">OUVERT</span>'}</b>`}
+$('#hT').oninput=hyst;
+/* comparaison */
+let cmpM=1;
+function cmp(anim){const ser=[];const cols={1:'#e8590c',2:'#2563eb',3:'#1e9e5a'};const ms=cmpM?[cmpM]:[1,2,3];
+ ms.forEach(m=>ser.push({pts:SIMS[m].Tp,color:cols[m],w:2.4}));ser.unshift({pts:SIMS[2].te,color:'#9aa5b5',w:1.4,dash:[4,4]});
+ const o={x0:0,x1:48,y0:0,y1:cmpM===1||cmpM===0?105:32,nx:8,xlabel:'t (h)',ylabel:'T pièce (°C)',series:ser,hlines:[{y:20,color:'#d6334a',dash:[5,4],label:'20 °C'}]};
+ anim?runPlot($('#cmpcv'),o,1200):showPlot($('#cmpcv'),o)}
+$$('#cmpseg button').forEach(b=>b.onclick=()=>{cmpM=+b.dataset.m;$$('#cmpseg button').forEach(x=>x.classList.toggle('on',x===b));cmp(true)});
+/* init */
+initQuestions();
+setTimeout(()=>{sine();hyst();cmp(false)},50);
+</script></body></html>

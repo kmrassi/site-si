@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Corrections asservissements – Séquence 11</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--paper:#f6f1e7;--card:#fffdf8;--ink:#14302f;--ink2:#2c4a48;--muted:#6b7c79;--line:#e3dccd;--teal:#1f7a74;--teal2:#d9efeb;--coral:#e4572e;--coral2:#fde3d9;--mustard:#e9a400;--mustard2:#fbefcc;--blue:#2f6fdb;--blue2:#dfe9fb;--green:#2a9d5c;--green2:#dcf3e5;--r:14px}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;background:var(--paper);color:var(--ink);line-height:1.55;font-size:16px}
+button{font:inherit;cursor:pointer}
+.wrap{max-width:1100px;margin:0 auto;padding:0 18px}
+/* header */
+header{background:var(--ink);color:#fff;padding:26px 0 0;position:relative;overflow:hidden}
+header::after{content:"";position:absolute;right:-80px;top:-80px;width:300px;height:300px;border-radius:50%;border:40px solid rgba(255,255,255,.05)}
+.hrow{display:flex;gap:20px;align-items:center;flex-wrap:wrap}
+.eyebrow{font-size:.78rem;letter-spacing:1.4px;text-transform:uppercase;color:#9fd6cf;font-weight:700}
+h1{font-family:Fraunces,Georgia,serif;font-size:2.3rem;line-height:1.1;margin:6px 0 6px}
+.hsub{color:#c5d6d3;max-width:620px}
+.ring{margin-left:auto;display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.07);padding:10px 16px;border-radius:14px}
+.ring svg{width:64px;height:64px}
+.ring b{font-size:1.4rem;display:block}
+.ring small{color:#c5d6d3;font-size:.8rem}
+.tabs{display:flex;gap:4px;margin-top:22px;flex-wrap:wrap}
+.tabs button{border:0;background:rgba(255,255,255,.08);color:#d6e4e2;padding:11px 18px;border-radius:12px 12px 0 0;font-weight:600;font-size:.95rem;transition:.2s}
+.tabs button:hover{background:rgba(255,255,255,.15)}
+.tabs button.on{background:var(--paper);color:var(--ink)}
+.tabs .n{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:7px;background:rgba(255,255,255,.15);font-size:.78rem;margin-right:6px}
+.tabs button.on .n{background:var(--ink);color:#fff}
+/* panels */
+.panel{display:none;padding:26px 0 50px}
+.panel.on{display:block;animation:fade .45s}
+@keyframes fade{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+h2{font-family:Fraunces,Georgia,serif;font-size:1.65rem;margin-bottom:4px}
+h3{font-size:1.08rem;margin-bottom:6px}
+.lead{color:var(--muted);margin-bottom:18px;max-width:820px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:18px;box-shadow:0 1px 0 rgba(20,48,47,.04),0 8px 24px rgba(20,48,47,.05);margin-bottom:18px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.g64{display:grid;grid-template-columns:1.5fr 1fr;gap:18px}
+@media(max-width:860px){.g2,.g64{grid-template-columns:1fr}h1{font-size:1.8rem}.ring{margin-left:0}}
+.chead{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+.badge{display:inline-flex;align-items:center;justify-content:center;min-width:34px;height:34px;padding:0 8px;border-radius:10px;background:var(--ink);color:#fff;font-weight:800;font-size:.9rem}
+.chead h3{margin:0;flex:1}
+/* self-assessment */
+.self{display:inline-flex;gap:6px}
+.self button{border:1.5px solid var(--line);background:#fff;border-radius:99px;padding:4px 11px;font-size:.8rem;font-weight:600;color:var(--muted)}
+.self button.ok.on{background:var(--green);border-color:var(--green);color:#fff}
+.self button.ko.on{background:var(--coral);border-color:var(--coral);color:#fff}
+/* reveal */
+.btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.btn{border:0;background:var(--teal);color:#fff;border-radius:10px;padding:8px 15px;font-weight:600;font-size:.92rem;transition:.2s}
+.btn:hover{filter:brightness(1.1)}
+.btn.ghost{background:#fff;color:var(--teal);border:1.5px solid var(--teal)}
+.btn.warn{background:var(--mustard)}
+.hint,.sol{display:none;margin-top:12px;border-radius:12px;padding:12px 14px}
+.hint{background:var(--mustard2);border-left:5px solid var(--mustard)}
+.sol{background:var(--teal2);border-left:5px solid var(--teal)}
+.hint.on,.sol.on{display:block;animation:fade .4s}
+.sol .t,.hint .t{font-weight:700;font-size:.82rem;letter-spacing:.8px;text-transform:uppercase;margin-bottom:4px;display:block}
+.hint .t{color:#9a6b00}.sol .t{color:var(--teal)}
+.m{font-family:"Cambria Math","Times New Roman",serif;font-style:italic;font-size:1.08em}
+.eq{font-family:"Cambria Math","Times New Roman",serif;font-size:1.15rem;text-align:center;padding:10px 12px;background:#fff;border-radius:10px;margin:8px 0;border:1px dashed var(--line);overflow-x:auto}
+.eq.box{border:2px solid var(--teal);background:#f3fbf9}
+.frac{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;margin:0 3px}
+.frac>span:last-child{border-top:1.5px solid currentColor;padding-top:1px}
+.small{font-size:.87rem;color:var(--muted)}
+.tag{display:inline-block;padding:2px 9px;border-radius:99px;font-size:.8rem;font-weight:700}
+.tag.ok{background:var(--green2);color:var(--green)}.tag.ko{background:var(--coral2);color:var(--coral)}
+/* block diagrams */
+.bd svg{width:100%;display:block}
+.bd .blk rect{fill:#fff;stroke:var(--ink);stroke-width:1.8;transition:.25s}
+.bd .blk text{font-size:13px;fill:var(--ink);text-anchor:middle;dominant-baseline:middle;pointer-events:none;font-family:Inter,system-ui,sans-serif}
+.bd .blk.empty rect{fill:#faf7f0;stroke-dasharray:5 4;cursor:pointer}
+.bd .blk.empty text{fill:#b0a68f;font-size:20px;font-weight:700}
+.bd .blk.empty:hover rect{fill:var(--mustard2)}
+.bd .blk.armed.empty rect{stroke:var(--mustard);stroke-width:2.5}
+.bd .blk.good rect{fill:var(--green2);stroke:var(--green)}
+.bd .blk.shake{animation:shake .4s}
+@keyframes shake{0%,100%{transform:none}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+.bd .sig{font-family:"Cambria Math","Times New Roman",serif;font-style:italic;font-size:14px;fill:var(--ink2)}
+.bd .grp{fill:var(--blue2);stroke:var(--blue);stroke-width:1.2;opacity:.75}
+.bd .grpl{font-size:12px;fill:var(--blue);font-weight:700}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+.chip{border:1.5px solid var(--line);background:#fff;border-radius:99px;padding:6px 13px;font-size:.88rem;font-weight:600;color:var(--ink);transition:.2s}
+.chip:hover{border-color:var(--teal)}
+.chip.sel{background:var(--ink);border-color:var(--ink);color:#fff;transform:translateY(-2px);box-shadow:0 4px 10px rgba(0,0,0,.15)}
+.chip.used{opacity:.3;pointer-events:none;text-decoration:line-through}
+.chip.tg.on{background:var(--teal);border-color:var(--teal);color:#fff}
+.instr{font-size:.88rem;color:var(--muted);background:#fff;border:1px dashed var(--line);border-radius:10px;padding:8px 12px}
+.donebar{font-weight:700;color:var(--green);margin-top:6px;min-height:1.5em}
+/* curves */
+canvas.cv{width:100%;height:280px;display:block}
+canvas.cv.sm{height:220px}
+.readout{font-family:"Cambria Math","Times New Roman",serif;color:var(--teal);font-size:.98rem;min-height:1.4em;margin-top:4px}
+.inp{display:flex;align-items:center;gap:8px;margin:7px 0;flex-wrap:wrap}
+.inp label{min-width:120px;font-weight:600;font-size:.92rem}
+.inp input{width:96px;padding:6px 9px;border:1.5px solid var(--line);border-radius:8px;font:inherit;background:#fff}
+.inp .fb{font-size:.85rem;font-weight:700}
+.qlist{list-style:none;margin:6px 0}
+.qlist li{padding:4px 0 4px 24px;position:relative;font-size:.93rem}
+.qlist li::before{content:"";position:absolute;left:3px;top:11px;width:9px;height:9px;border-radius:50%;border:2px solid var(--teal)}
+.curvetabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.curvetabs button{border:1.5px solid var(--line);background:#fff;border-radius:12px;padding:9px 16px;font-weight:700;color:var(--ink);display:flex;gap:8px;align-items:center}
+.curvetabs button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.curvetabs .dot{width:9px;height:9px;border-radius:50%;background:var(--line)}
+.curvetabs .dot.ok{background:var(--green)}.curvetabs .dot.ko{background:var(--coral)}
+.res{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:.93rem;margin-top:8px}
+.res b{font-family:"Cambria Math","Times New Roman",serif;font-size:1.02rem}
+/* TD timeline */
+.tl{position:relative;padding-left:34px}
+.tl::before{content:"";position:absolute;left:15px;top:8px;bottom:8px;width:3px;background:var(--line);border-radius:3px}
+.tl>.card{position:relative}
+.tl>.card::before{content:"";position:absolute;left:-26px;top:24px;width:14px;height:14px;border-radius:50%;background:var(--paper);border:3px solid var(--teal)}
+.tl>.card.okd::before{background:var(--green);border-color:var(--green)}
+.tl>.card.kod::before{background:var(--coral);border-color:var(--coral)}
+.qtxt{font-weight:600;margin-bottom:4px}
+.ctx{display:flex;gap:10px;align-items:flex-start;background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:18px}
+.ctx .ic{font-size:1.8rem}
+/* derivation */
+.dstep{border-radius:12px;padding:10px 14px;margin:8px 0;background:#fff;border:1px solid var(--line);opacity:.25;transition:.4s}
+.dstep.on{opacity:1;border-left:5px solid var(--teal)}
+.dstep .who{font-size:.78rem;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--teal)}
+#tdbd .blk.hl rect{fill:var(--mustard2);stroke:var(--mustard);stroke-width:3}
+.ident{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:10px}
+@media(max-width:700px){.ident{grid-template-columns:1fr 1fr}}
+.flip{perspective:800px;height:118px;cursor:pointer}
+.flip-in{position:relative;width:100%;height:100%;transition:transform .6s;transform-style:preserve-3d}
+.flip.on .flip-in{transform:rotateY(180deg)}
+.face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:12px;display:grid;place-items:center;text-align:center;padding:8px}
+.face.f{background:var(--ink);color:#fff;font-family:"Cambria Math","Times New Roman",serif;font-size:2rem;font-style:italic}
+.face.f small{display:block;font-family:Inter,sans-serif;font-style:normal;font-size:.72rem;opacity:.6}
+.face.b{background:var(--teal2);transform:rotateY(180deg);font-family:"Cambria Math","Times New Roman",serif;font-size:1.05rem;border:2px solid var(--teal)}
+/* validation */
+.crit{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;padding:10px 12px;border-radius:10px;background:#fff;border:1px solid var(--line);margin:8px 0;cursor:pointer;transition:.25s}
+.crit:hover{border-color:var(--teal)}
+.crit .ico{font-size:1.4rem}
+.crit .v{font-weight:700}
+.crit .why{grid-column:1/-1;display:none;font-size:.9rem;color:var(--ink2);border-top:1px dashed var(--line);padding-top:8px}
+.crit.on .why{display:block}
+.crit.on{border-color:var(--green);background:#f6fcf8}
+.ctrl{margin:8px 0}
+.ctrl label{display:block;font-weight:600;font-size:.92rem}
+.ctrl label span{float:right;font-family:"Cambria Math","Times New Roman",serif;color:var(--teal)}
+input[type=range]{width:100%;accent-color:var(--teal)}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:.84rem;color:var(--muted);margin-top:4px}
+.legend i{display:inline-block;width:18px;height:3px;border-radius:2px;vertical-align:middle;margin-right:5px}
+/* UML */
+.uml{background:#fff;border:1px solid var(--line);border-radius:12px;padding:8px}
+/* bilan */
+.sum{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+@media(max-width:860px){.sum{grid-template-columns:1fr}}
+.sumcell{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px}
+.sumcell h3{font-size:1rem}
+.pill{display:inline-block;margin:3px;padding:4px 10px;border-radius:99px;font-size:.82rem;font-weight:600;background:#f0ebe0}
+.pill.ok{background:var(--green2);color:var(--green)}.pill.ko{background:var(--coral2);color:var(--coral)}
+ul.keys{list-style:none}
+ul.keys li{padding:6px 0 6px 28px;position:relative;border-bottom:1px dashed var(--line);font-size:.94rem}
+ul.keys li::before{content:"✦";position:absolute;left:4px;color:var(--coral)}
+footer{text-align:center;color:var(--muted);font-size:.82rem;padding:16px 0 26px}
+</style>
+</head>
+<body>
+<header>
+ <div class="wrap">
+  <div class="hrow">
+   <div>
+    <div class="eyebrow">Spécialité SI · Séquence 11 · Asservissements</div>
+    <h1>Carnet de correction</h1>
+    <p class="hsub">Exercices d'application et TD « Pilote automatique de bateau PI8000 ». Essaie d'abord, demande un indice si besoin, puis compare avec la correction.</p>
+   </div>
+   <div class="ring">
+    <svg viewBox="0 0 64 64"><circle cx="32" cy="32" r="26" fill="none" stroke="rgba(255,255,255,.12)" stroke-width="7"/><circle id="ringc" cx="32" cy="32" r="26" fill="none" stroke="#5fd3a3" stroke-width="7" stroke-linecap="round" stroke-dasharray="163.4" stroke-dashoffset="163.4" transform="rotate(-90 32 32)" style="transition:stroke-dashoffset .5s"/></svg>
+    <div><b id="ringn">0 / 16</b><small>questions réussies</small></div>
+   </div>
+  </div>
+  <div class="tabs" id="tabs">
+   <button class="on" data-p="pA"><span class="n">A</span>Schémas-blocs</button>
+   <button data-p="pB"><span class="n">B</span>Analyse de courbes</button>
+   <button data-p="pC"><span class="n">C</span>TD Pilote PI8000</button>
+   <button data-p="pD"><span class="n">✓</span>Bilan</button>
+  </div>
+ </div>
+</header>
+
+<main class="wrap">
+
+<!-- ================= A : SCHEMAS-BLOCS ================= -->
+<section class="panel on" id="pA">
+ <h2>A · Exemples de systèmes asservis</h2>
+ <p class="lead">Reconstitue la chaîne d'asservissement de chaque système. <b>Clique sur une étiquette, puis sur la case vide</b> où elle doit aller. Les mauvaises réponses sont refusées.</p>
+ <div id="bdA"></div>
+ <div class="card">
+  <h3>💡 Méthode pour lire n'importe quel système asservi</h3>
+  <ul class="keys">
+   <li>Repère la <b>grandeur asservie</b> (sortie) : vitesse ω<sub>r</sub>, température t°<sub>p</sub>, angle β<sub>s</sub>…</li>
+   <li>La <b>consigne</b> est convertie par une <b>interface</b> en tension U<sub>c</sub>, de même nature que la mesure U<sub>M</sub> fournie par le <b>capteur</b>.</li>
+   <li>Le <b>comparateur</b> calcule ε = U<sub>c</sub> − U<sub>M</sub> ; le <b>correcteur</b> élabore l'ordre.</li>
+   <li>La chaîne de puissance suit toujours : <b>pré-actionneur → actionneur → transmetteur/effecteur</b>.</li>
+   <li>La gouverne d'avion possède <b>deux boucles imbriquées</b> : une boucle interne (position x₂ du vérin) dans une boucle externe (angle β<sub>s</sub>).</li>
+  </ul>
+ </div>
+</section>
+
+<!-- ================= B : COURBES ================= -->
+<section class="panel" id="pB">
+ <h2>B · Analyse de courbes</h2>
+ <p class="lead">Pour chaque réponse à un <b>échelon unitaire</b> (consigne = 1) : représente l'échelon, dis si le système est stable, donne son ordre, puis évalue l'erreur μ et le temps de réponse t<sub>r5%</sub>.</p>
+ <div class="curvetabs" id="ctabs"></div>
+ <div class="g64">
+  <div class="card">
+   <canvas class="cv" id="ccv" style="cursor:crosshair"></canvas>
+   <div class="readout" id="cro">Survole la courbe pour lire les valeurs.</div>
+   <div class="chips" id="ctog">
+    <button class="chip tg" data-t="step">① Échelon d'entrée</button>
+    <button class="chip tg" data-t="tan">② Tangente à l'origine</button>
+    <button class="chip tg" data-t="mu">③ Erreur μ</button>
+    <button class="chip tg" data-t="tr">④ Bande ±5 % et t<sub>r5%</sub></button>
+   </div>
+  </div>
+  <div class="card" id="cside"></div>
+ </div>
+ <div class="card">
+  <h3>📐 Rappels utilisés</h3>
+  <div class="g2">
+   <div>
+    <div class="eq">μ = <span class="frac"><span>|consigne − valeur finale|</span><span>consigne</span></span> × 100</div>
+    <p class="small">Valeur finale = valeur vers laquelle la sortie se stabilise.</p>
+   </div>
+   <div>
+    <div class="eq">bande : [0,95 × s<sub>∞</sub> ; 1,05 × s<sub>∞</sub>]</div>
+    <p class="small">t<sub>r5%</sub> = instant à partir duquel la courbe reste <b>définitivement</b> dans la bande.</p>
+   </div>
+  </div>
+  <p class="small" style="margin-top:6px">Tangente à l'origine <b>non nulle</b> et aucun dépassement → 1<sup>er</sup> ordre. Tangente <b>nulle</b> et dépassements → 2<sup>e</sup> ordre.</p>
+ </div>
+</section>
+
+<!-- ================= C : TD PILOTE ================= -->
+<section class="panel" id="pC">
+ <h2>C · TD Pilote automatique de bateau PI8000</h2>
+ <div class="ctx"><div class="ic">⛵</div><div>Le pilote maintient automatiquement le <b>cap</b> du bateau. Un calculateur commande un moteur électrique qui entraîne une pompe hydraulique ; celle-ci alimente un vérin qui fait tourner le <b>safran</b> (angle α) par l'intermédiaire d'un mécanisme.</div></div>
+ <div class="card bd"><div id="tdbd"></div></div>
+
+ <div class="tl" id="tdq">
+
+  <div class="card" data-q="C1">
+   <div class="chead"><span class="badge">Q1</span><h3>Diagramme des cas d'utilisation (mode automatique)</h3><span class="self"></span></div>
+   <p class="qtxt">Proposer un diagramme des cas d'utilisation dans la phase de vie d'utilisation en mode automatique.</p>
+   <div class="btns"><button class="btn warn" data-h>Indice</button><button class="btn" data-s>Correction</button></div>
+   <div class="hint"><span class="t">Indice</span>Qui utilise le pilote ? Quel service unique rend-il en mode automatique ?</div>
+   <div class="sol"><span class="t">Correction</span>
+    <div class="uml"><svg viewBox="0 0 560 210" style="width:100%;max-width:560px;display:block;margin:auto" font-family="Inter,system-ui">
+     <rect x="4" y="4" width="552" height="202" fill="none" stroke="#14302f" stroke-width="1.3"/>
+     <path d="M4 4H190V20L180 30H4" fill="#fff" stroke="#14302f" stroke-width="1.3"/>
+     <text x="12" y="22" font-size="12">uc [Modèle] PAB [CAS]</text>
+     <rect x="250" y="40" width="270" height="150" fill="#dfe9fb" stroke="#2f6fdb"/>
+     <text x="264" y="60" font-size="12" font-weight="700" fill="#2f6fdb">Pilote automatique</text>
+     <g stroke="#14302f" stroke-width="2" fill="none"><circle cx="90" cy="88" r="10"/><path d="M90 98V130M72 110H108M90 130L76 152M90 130L104 152"/></g>
+     <text x="90" y="172" font-size="13" text-anchor="middle">Barreur</text>
+     <path d="M110 112L300 128" stroke="#14302f" stroke-width="1.5"/>
+     <ellipse cx="390" cy="130" rx="95" ry="30" fill="#fbefcc" stroke="#e9a400" stroke-width="2"/>
+     <text x="390" y="125" font-size="13" text-anchor="middle">Maintenir le cap</text>
+     <text x="390" y="142" font-size="13" text-anchor="middle">automatiquement</text>
+    </svg></div>
+    <p style="margin-top:8px">Un seul acteur (le <b>barreur</b>) et un seul cas d'utilisation : <b>« Maintenir le cap automatiquement »</b>.</p>
+   </div>
+  </div>
+
+  <div class="card" data-q="C2">
+   <div class="chead"><span class="badge">Q2</span><h3>Est-ce un SLCI ?</h3><span class="self"></span></div>
+   <p class="qtxt">L'asservissement de cap du bateau peut-il être considéré comme un SLCI ? Justifier.</p>
+   <div class="btns"><button class="btn warn" data-h>Indice</button><button class="btn" data-s>Correction</button></div>
+   <div class="hint"><span class="t">Indice</span>Regarde la relation géométrique entre la sortie du vérin x et l'angle α du safran. Est-elle linéaire (une droite) ?</div>
+   <div class="sol"><span class="t">Correction</span>
+    <p><b>Non</b>, en première approche ce n'est pas un SLCI : la relation</p>
+    <div class="eq">x(t) = √( a² + b² + R² − 2aR·sin α(t) − 2bR·cos α(t) )</div>
+    <p>n'est pas une équation différentielle linéaire (racine, sinus, cosinus) : le système n'est <b>pas linéaire</b>.</p>
+    <div class="g2" style="margin-top:10px;align-items:center">
+     <div><canvas class="cv sm" id="q2cv"></canvas><div class="legend"><span><i style="background:#2f6fdb"></i>x(α) réel</span><span><i style="background:#e4572e"></i>droite (approximation linéaire)</span></div></div>
+     <div><p class="small">Allure tracée avec des valeurs <b>illustratives</b> de a, b, R. La courbe n'est pas une droite. Pour de petits angles, on peut l'approcher par une droite : c'est la <b>linéarisation</b>. C'est ce qui permet, en Q5, d'utiliser le modèle linéaire x = 0,3·α.</p>
+     <div class="ctrl"><label>Plage d'angle étudiée ±<span id="q2av">40°</span></label><input type="range" id="q2a" min="5" max="80" value="40"></div></div>
+    </div>
+   </div>
+  </div>
+
+  <div class="card" data-q="C3">
+   <div class="chead"><span class="badge">Q3</span><h3>Gain du capteur K<sub>capt</sub></h3><span class="self"></span></div>
+   <p class="qtxt">Déterminer la valeur numérique du coefficient K<sub>capt</sub>.</p>
+   <div class="inp"><label>K<sub>capt</sub> =</label><input id="iKc" placeholder="…"> V/° <button class="btn ghost" data-chk="Kc">Vérifier</button><span class="fb" id="fbKc"></span></div>
+   <div class="btns"><button class="btn warn" data-h>Indice</button><button class="btn" data-s>Correction</button></div>
+   <div class="hint"><span class="t">Indice</span>Un gain de capteur = (variation de la tension de sortie) / (variation de la grandeur mesurée). Utilise les données du capteur (5 V pour 60°).</div>
+   <div class="sol"><span class="t">Correction</span><div class="eq">K<sub>capt</sub> = <span class="frac"><span>5</span><span>60</span></span> = <b>0,083 V/°</b></div></div>
+  </div>
+
+  <div class="card" data-q="C4">
+   <div class="chead"><span class="badge">Q4</span><h3>Relation entre K<sub>capt</sub> et K<sub>a</sub></h3><span class="self"></span></div>
+   <p class="qtxt">Déterminer la relation liant K<sub>capt</sub> à K<sub>a</sub> (gain de l'adaptateur) pour que l'erreur en régime permanent soit nulle pour un échelon.</p>
+   <div class="btns"><button class="btn warn" data-h>Indice</button><button class="btn" data-s>Correction</button></div>
+   <div class="hint"><span class="t">Indice</span>Écris ε(t) avec l'adaptateur et le capteur. « Erreur nulle » signifie α = α<sub>c</sub> en régime permanent, et alors ε = 0.</div>
+   <div class="sol"><span class="t">Correction</span>
+    <div class="eq">ε(t) = K<sub>a</sub>·α<sub>c</sub>(t) − K<sub>capt</sub>·α(t)</div>
+    <p>En régime permanent ε(t) doit être nul, donc K<sub>a</sub>·α<sub>c</sub> = K<sub>capt</sub>·α. Pour avoir α = α<sub>c</sub> :</p>
+    <div class="eq box"><b>K<sub>a</sub> = K<sub>capt</sub></b></div>
+    <p class="small">À retenir : l'adaptateur doit avoir <b>le même gain que le capteur</b>, pour comparer des grandeurs comparables.</p>
+   </div>
+  </div>
+
+  <div class="card" data-q="C5">
+   <div class="chead"><span class="badge">Q5</span><h3>Équation différentielle de l'asservissement du safran</h3><span class="self"></span></div>
+   <p class="qtxt">Déterminer l'équation liant α(t) à α<sub>c</sub>(t) sous la forme :</p>
+   <div class="eq">a·<span class="frac"><span>d²α(t)</span><span>dt²</span></span> + b·<span class="frac"><span>dα(t)</span><span>dt</span></span> + c·α(t) = d·α<sub>c</sub>(t)</div>
+   <div class="btns"><button class="btn warn" data-h>Indice</button><button class="btn" data-s>Correction pas à pas</button></div>
+   <div class="hint"><span class="t">Indice</span>Pars de la <b>sortie α</b> et remonte la chaîne bloc par bloc (mécanisme+vérin → pompe → moteur → calculateur). À chaque étape, exprime la grandeur d'entrée du bloc en fonction de α.</div>
+   <div class="sol"><span class="t">Correction : remonte la chaîne (les blocs utilisés s'allument sur le schéma en haut)</span>
+    <div id="dsteps">
+     <div class="dstep on" data-b="ver,mec"><div class="who">① Mécanisme + vérin</div>
+      <div class="eq">x(t) = 0,3·α(t) &nbsp; et &nbsp; K<sub>v</sub>·Q(t) = <span class="frac"><span>dx(t)</span><span>dt</span></span> &nbsp;⇒&nbsp; <b>K<sub>v</sub>·Q(t) = 0,3·<span class="frac"><span>dα(t)</span><span>dt</span></span></b></div></div>
+     <div class="dstep" data-b="pom"><div class="who">② Pompe hydraulique</div>
+      <div class="eq">Q(t) = K<sub>p</sub>·Ω<sub>m</sub>(t) &nbsp;⇒&nbsp; K<sub>v</sub>K<sub>p</sub>·Ω<sub>m</sub>(t) = 0,3·<span class="frac"><span>dα</span><span>dt</span></span> &nbsp;⇔&nbsp; <b>Ω<sub>m</sub>(t) = <span class="frac"><span>0,3</span><span>K<sub>v</sub>K<sub>p</sub></span></span>·<span class="frac"><span>dα(t)</span><span>dt</span></span></b></div></div>
+     <div class="dstep" data-b="mot"><div class="who">③ Moteur électrique (1<sup>er</sup> ordre)</div>
+      <div class="eq">K<sub>m</sub>·u<sub>m</sub>(t) = Ω<sub>m</sub>(t) + τ<sub>m</sub>·<span class="frac"><span>dΩ<sub>m</sub>(t)</span><span>dt</span></span></div>
+      <div class="eq"><b>u<sub>m</sub>(t) = <span class="frac"><span>0,3</span><span>K<sub>v</sub>K<sub>p</sub>K<sub>m</sub></span></span>·<span class="frac"><span>dα</span><span>dt</span></span> + τ<sub>m</sub>·<span class="frac"><span>0,3</span><span>K<sub>v</sub>K<sub>p</sub>K<sub>m</sub></span></span>·<span class="frac"><span>d²α</span><span>dt²</span></span></b></div></div>
+     <div class="dstep" data-b="cal,ada,cap"><div class="who">④ Calculateur + comparateur</div>
+      <div class="eq">u<sub>m</sub>(t) = K<sub>c</sub>·ε(t) = K<sub>c</sub>·[K<sub>a</sub>·α<sub>c</sub>(t) − K<sub>capt</sub>·α(t)]</div></div>
+     <div class="dstep" data-b=""><div class="who">⑤ On regroupe</div>
+      <div class="eq box"><b>K<sub>c</sub>K<sub>a</sub>·α<sub>c</sub>(t) = K<sub>c</sub>K<sub>capt</sub>·α(t) + <span class="frac"><span>0,3</span><span>K<sub>v</sub>K<sub>p</sub>K<sub>m</sub></span></span>·<span class="frac"><span>dα(t)</span><span>dt</span></span> + τ<sub>m</sub>·<span class="frac"><span>0,3</span><span>K<sub>v</sub>K<sub>p</sub>K<sub>m</sub></span></span>·<span class="frac"><span>d²α(t)</span><span>dt²</span></span></b></div></div>
+    </div>
+    <div class="btns"><button class="btn" id="dnext">Étape suivante ▶</button></div>
+    <h3 style="margin-top:14px">Identification : retourne les cartes</h3>
+    <div class="ident">
+     <div class="flip"><div class="flip-in"><div class="face f"><div>a<small>coef. de d²α/dt²</small></div></div><div class="face b"><div>τ<sub>m</sub>·<span class="frac"><span>0,3</span><span>K<sub>v</sub>K<sub>p</sub>K<sub>m</sub></span></span></div></div></div></div>
+     <div class="flip"><div class="flip-in"><div class="face f"><div>b<small>coef. de dα/dt</small></div></div><div class="face b"><div><span class="frac"><span>0,3</span><span>K<sub>v</sub>K<sub>p</sub>K<sub>m</sub></span></span></div></div></div></div>
+     <div class="flip"><div class="flip-in"><div class="face f"><div>c<small>coef. de α</small></div></div><div class="face b"><div>K<sub>c</sub>·K<sub>capt</sub></div></div></div></div>
+     <div class="flip"><div class="flip-in"><div class="face f"><div>d<small>coef. de α<sub>c</sub></small></div></div><div class="face b"><div>K<sub>c</sub>·K<sub>a</sub></div></div></div></div>
+    </div>
+    <p class="small" style="margin-top:8px">Avec K<sub>a</sub> = K<sub>capt</sub> (Q4), on a c = d : en régime permanent, α = α<sub>c</sub>.</p>
+   </div>
+  </div>
+
+  <div class="card" data-q="C6">
+   <div class="chead"><span class="badge">Q6</span><h3>Valider les performances de l'asservissement du safran</h3><span class="self"></span></div>
+   <p class="qtxt">Analyser les résultats de simulation et valider les performances de l'asservissement de l'angle α.</p>
+   <div class="btns"><button class="btn warn" data-h>Indice</button><button class="btn" data-s>Correction</button></div>
+   <div class="hint"><span class="t">Indice</span>Évalue les trois critères : stabilité (converge ? dépassement ?), précision (erreur statique ?), rapidité (t<sub>r5%</sub>).</div>
+   <div class="sol"><span class="t">Correction · clique sur chaque critère</span>
+    <div class="g2" style="align-items:start">
+     <div><canvas class="cv sm" id="q6cv"></canvas><div class="legend"><span><i style="background:#e4572e"></i>consigne</span><span><i style="background:#2f6fdb"></i>α(t)</span><span><i style="background:#bfe8d1;height:9px"></i>bande ±5 %</span></div><p class="small">Allure reconstituée à partir des valeurs du corrigé.</p></div>
+     <div>
+      <div class="crit"><span class="ico">⚖️</span><span>Stabilité</span><span class="tag ok">validé</span><div class="why">Converge vers une valeur (<b>0,52 rad</b>) et ne présente <b>aucun dépassement</b>.</div></div>
+      <div class="crit"><span class="ico">🎯</span><span>Précision</span><span class="tag ok">validé</span><div class="why">Erreur statique <b>nulle</b> pour une entrée en échelon (grâce à K<sub>a</sub> = K<sub>capt</sub>).</div></div>
+      <div class="crit"><span class="ico">⚡</span><span>Rapidité</span><span class="tag ok">validé</span><div class="why">t<sub>r5%</sub> <b>légèrement inférieur à 1 s</b>.</div></div>
+     </div>
+    </div>
+   </div>
+  </div>
+
+  <div class="card" data-q="C7">
+   <div class="chead"><span class="badge">Q7</span><h3>Équation de l'angle du safran pour un échelon</h3><span class="self"></span></div>
+   <p class="qtxt">Avec le modèle simplifié <span class="m">τ·dα/dt + α(t) = α<sub>c</sub>(t)</span>, déterminer α(t) lorsque α<sub>c</sub>(t) = α<sub>0</sub>·u(t), avec α(0) = 0 rad.</p>
+   <div class="btns"><button class="btn warn" data-h>Indice</button><button class="btn" data-s>Correction</button></div>
+   <div class="hint"><span class="t">Indice</span>Reconnais la forme canonique du 1<sup>er</sup> ordre : τ·ds/dt + s = K·e. Identifie K et τ, puis applique la réponse à un échelon vue en cours.</div>
+   <div class="sol"><span class="t">Correction</span>
+    <p>C'est un modèle du <b>1<sup>er</sup> ordre</b>. D'après le cours, la réponse à un échelon α<sub>c</sub>(t) = α<sub>0</sub>·u(t) s'écrit :</p>
+    <div class="eq box">α(t) = K·α<sub>0</sub>·(1 − e<sup>−t/τ</sup>)·u(t)</div>
+    <p class="small">Identification : K est le coefficient devant α<sub>c</sub> (ici K = 1) et τ est le coefficient devant dα/dt.</p>
+   </div>
+  </div>
+
+  <div class="card" data-q="C8">
+   <div class="chead"><span class="badge">Q8</span><h3>Allure de α(t)</h3><span class="self"></span></div>
+   <p class="qtxt">Tracer l'allure de cette équation dans le domaine temporel.</p>
+   <div class="btns"><button class="btn warn" data-h>Indice</button><button class="btn" data-s>Correction interactive</button></div>
+   <div class="hint"><span class="t">Indice</span>Place d'abord la valeur finale K·α<sub>0</sub>, puis les points remarquables : 63 % à t = τ, 95 % à t = 3τ. La tangente à l'origine n'est pas nulle.</div>
+   <div class="sol"><span class="t">Correction</span>
+    <div class="g64" style="align-items:start">
+     <div><canvas class="cv sm" id="q8cv"></canvas><div class="legend"><span><i style="background:#2f6fdb"></i>α(t)</span><span><i style="background:#e9a400"></i>63 % → τ</span><span><i style="background:#2a9d5c"></i>95 % → 3τ</span><span><i style="background:#7c3aed"></i>tangente</span></div></div>
+     <div>
+      <div class="ctrl"><label>α<sub>0</sub> (°) <span id="a0v">5</span></label><input type="range" id="a0" min="1" max="10" step="0.5" value="5"></div>
+      <div class="ctrl"><label>τ (s) <span id="tauv">2</span></label><input type="range" id="tau" min="0.5" max="5" step="0.1" value="2"></div>
+      <div class="res" id="q8r"></div>
+      <p class="small" style="margin-top:8px">⚠️ Attention : K·e<sub>0</sub> devient ici K·α<sub>0</sub>.</p>
+     </div>
+    </div>
+   </div>
+  </div>
+
+  <div class="card" data-q="C9">
+   <div class="chead"><span class="badge">Q9</span><h3>Valider les performances du pilote automatique</h3><span class="self"></span></div>
+   <p class="qtxt">Analyser les résultats de simulation et valider les performances du pilote automatique par rapport au cahier des charges.</p>
+   <div class="btns"><button class="btn warn" data-h>Indice</button><button class="btn" data-s>Correction</button></div>
+   <div class="hint"><span class="t">Indice</span>Compare chaque valeur mesurée au critère du cahier des charges : dépassement &lt; 10 %, erreur ±0,5°, t<sub>r5%</sub> &lt; 15 s.</div>
+   <div class="sol"><span class="t">Correction · clique sur chaque critère</span>
+    <div class="g2" style="align-items:start">
+     <div><canvas class="cv sm" id="q9cv"></canvas><div class="legend"><span><i style="background:#e4572e"></i>consigne 10°</span><span><i style="background:#2f6fdb"></i>cap</span><span><i style="background:#fbefcc;height:9px"></i>tolérance ±0,5°</span></div><p class="small">Allure reconstituée à partir des valeurs du corrigé.</p></div>
+     <div>
+      <div class="crit"><span class="ico">⚖️</span><span>Stabilité : D &lt; 10 %</span><span class="tag ok">validé</span><div class="why">Converge vers <b>9,7°</b> et présente un dépassement <b>inférieur à 10 %</b>.</div></div>
+      <div class="crit"><span class="ico">🎯</span><span>Précision : ±0,5°</span><span class="tag ok">validé</span><div class="why">Erreur statique comprise dans l'intervalle <b>±0,5°</b> → 9,7° ∈ [9,5° ; 10,5°].</div></div>
+      <div class="crit"><span class="ico">⚡</span><span>Rapidité : t<sub>r5%</sub> &lt; 15 s</span><span class="tag ok">validé</span><div class="why">t<sub>r5%</sub> = <b>7 s</b>, inférieur aux <b>15 s</b> imposées par le cahier des charges.</div></div>
+     </div>
+    </div>
+   </div>
+  </div>
+
+ </div>
+</section>
+
+<!-- ================= D : BILAN ================= -->
+<section class="panel" id="pD">
+ <h2>Bilan de ton travail</h2>
+ <p class="lead">Ton auto-évaluation (boutons « ✓ Réussi » / « ↻ À revoir » sur chaque question). Clique sur une pastille pour y retourner.</p>
+ <div class="sum" id="sum"></div>
+ <div class="card" style="margin-top:18px">
+  <h3>🔑 Les erreurs fréquentes à éviter</h3>
+  <ul class="keys">
+   <li>Calculer μ ou t<sub>r5%</sub> à partir de la <b>consigne</b> au lieu de la <b>valeur finale</b> pour la bande ±5 %.</li>
+   <li>Prendre le <b>premier</b> passage dans la bande au lieu du passage <b>définitif</b>.</li>
+   <li>Oublier le <b>retard</b> (courbe 2) : la réponse démarre après un temps mort.</li>
+   <li>Confondre « tangente nulle à l'origine » (2<sup>e</sup> ordre) et « tangente non nulle » (1<sup>er</sup> ordre).</li>
+   <li>Oublier que l'<b>adaptateur doit avoir le même gain que le capteur</b> (K<sub>a</sub> = K<sub>capt</sub>) pour une erreur nulle.</li>
+   <li>Pour valider une performance, toujours <b>comparer une valeur mesurée à un critère chiffré</b> du cahier des charges.</li>
+  </ul>
+ </div>
+ <div class="btns"><button class="btn ghost" id="resetall">Réinitialiser mon auto-évaluation</button></div>
+</section>
+
+</main>
+<footer>Spécialité Sciences de l'Ingénieur · Séquence 11 · Asservissements : correction interactive</footer>
+
+<script>
+const $=(s,r=document)=>r.querySelector(s),$$=(s,r=document)=>[...r.querySelectorAll(s)];
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const fmt=(v,d=2)=>(Math.round(v*10**d)/10**d).toFixed(d).replace('.',',');
+const C={blue:'#2f6fdb',coral:'#e4572e',green:'#2a9d5c',mustard:'#e9a400',violet:'#7c3aed',ink:'#14302f',grey:'#9aa8a5'};
+const NS='http://www.w3.org/2000/svg';
+
+/* ---------- état d'auto-évaluation ---------- */
+const QIDS=['A1','A2','A3','B1','B2','B3','B4','C1','C2','C3','C4','C5','C6','C7','C8','C9'];
+const QNAMES={A1:'Robot BB8',A2:'Régulation de température',A3:'Gouverne d\'avion',B1:'Courbe 1',B2:'Courbe 2',B3:'Courbe 3',B4:'Courbe 4',C1:'Q1 Cas d\'utilisation',C2:'Q2 SLCI ?',C3:'Q3 K capt',C4:'Q4 K a = K capt',C5:'Q5 Équation diff.',C6:'Q6 Perf. safran',C7:'Q7 α(t)',C8:'Q8 Allure',C9:'Q9 Perf. pilote'};
+let state={};try{state=JSON.parse(localStorage.getItem('si_seq11_cor')||'{}')}catch(e){}
+function save(){try{localStorage.setItem('si_seq11_cor',JSON.stringify(state))}catch(e){}refresh()}
+function selfBtns(el,id){el.innerHTML='<button class="ok">✓ Réussi</button><button class="ko">↻ À revoir</button>';
+ const [ok,ko]=el.children;ok.onclick=()=>{state[id]=state[id]==='ok'?undefined:'ok';save()};ko.onclick=()=>{state[id]=state[id]==='ko'?undefined:'ko';save()};el.dataset.id=id}
+function refresh(){
+ $$('.self').forEach(el=>{const v=state[el.dataset.id];el.children[0].classList.toggle('on',v==='ok');el.children[1].classList.toggle('on',v==='ko')});
+ $$('#tdq>.card').forEach(c=>{const v=state[c.dataset.q];c.classList.toggle('okd',v==='ok');c.classList.toggle('kod',v==='ko')});
+ $$('#ctabs .dot').forEach(d=>{const v=state[d.dataset.id];d.className='dot'+(v?' '+v:'')});
+ const n=QIDS.filter(q=>state[q]==='ok').length;$('#ringn').textContent=n+' / '+QIDS.length;$('#ringc').style.strokeDashoffset=163.4*(1-n/QIDS.length);
+ const groups=[['A · Schémas-blocs','A'],['B · Courbes','B'],['C · TD Pilote','C']];
+ $('#sum').innerHTML=groups.map(([t,p])=>{const ids=QIDS.filter(q=>q[0]===p);const k=ids.filter(q=>state[q]==='ok').length;
+  return `<div class="sumcell"><h3>${t} <span class="small">(${k}/${ids.length})</span></h3>${ids.map(q=>`<span class="pill ${state[q]||''}" data-go="${q}" style="cursor:pointer">${state[q]==='ok'?'✓ ':state[q]==='ko'?'↻ ':''}${QNAMES[q]}</span>`).join('')}</div>`}).join('');
+ $$('[data-go]').forEach(p=>p.onclick=()=>goQ(p.dataset.go))}
+function goQ(q){const p={A:'pA',B:'pB',C:'pC'}[q[0]];openTab(p);setTimeout(()=>{
+ if(q[0]==='B')showCurve(+q[1]-1);
+ const el=q[0]==='A'?$('#bd-'+q):q[0]==='C'?$(`#tdq [data-q="${q}"]`):$('#ccv');el?.scrollIntoView({behavior:'smooth',block:'start'})},80)}
+$('#resetall').onclick=()=>{state={};save()};
+
+/* ---------- onglets ---------- */
+const hooks={};
+function openTab(id){$$('#tabs button').forEach(b=>b.classList.toggle('on',b.dataset.p===id));$$('.panel').forEach(p=>p.classList.toggle('on',p.id===id));setTimeout(()=>hooks[id]?.(),60)}
+$$('#tabs button').forEach(b=>b.onclick=()=>openTab(b.dataset.p));
+
+/* ---------- tracé ---------- */
+function niceTicks(a,b,n){const span=b-a;if(span<=0)return[a];const s0=span/n,mag=10**Math.floor(Math.log10(s0)),f=s0/mag;const st=(f<1.5?1:f<3?2:f<7?5:10)*mag;const t=[];for(let v=Math.ceil(a/st-1e-9)*st;v<=b+1e-9;v+=st)t.push(+v.toFixed(10));return t}
+const ft=v=>String(+(+v).toPrecision(6)).replace('.',',');
+function drawPlot(cv,o){const dpr=window.devicePixelRatio||1,w=cv.clientWidth,h=cv.clientHeight;if(!w||!h)return;
+ if(cv.width!==Math.round(w*dpr)||cv.height!==Math.round(h*dpr)){cv.width=Math.round(w*dpr);cv.height=Math.round(h*dpr)}
+ const c=cv.getContext('2d');c.setTransform(dpr,0,0,dpr,0,0);c.clearRect(0,0,w,h);
+ const m={l:44,r:12,t:14,b:26},pw=w-m.l-m.r,ph=h-m.t-m.b;const X=x=>m.l+(x-o.x0)/(o.x1-o.x0)*pw,Y=y=>m.t+ph-(y-o.y0)/(o.y1-o.y0)*ph;
+ cv._m={m,pw,ph};cv._o=o;const F='12px Inter,system-ui,sans-serif',FB='700 12px Inter,system-ui,sans-serif';c.font=F;
+ c.strokeStyle='#ece6d8';c.lineWidth=1;c.fillStyle='#6b7c79';c.textAlign='center';c.textBaseline='top';
+ niceTicks(o.x0,o.x1,o.nx||(w<420?5:8)).forEach(v=>{const x=X(v);c.beginPath();c.moveTo(x,m.t);c.lineTo(x,m.t+ph);c.stroke();c.fillText(ft(v),x,m.t+ph+6)});
+ c.textAlign='right';c.textBaseline='middle';niceTicks(o.y0,o.y1,o.ny||5).forEach(v=>{const y=Y(v);c.beginPath();c.moveTo(m.l,y);c.lineTo(m.l+pw,y);c.stroke();c.fillText(ft(v),m.l-6,y)});
+ c.strokeStyle=C.ink;c.lineWidth=1.5;c.beginPath();c.moveTo(m.l,m.t);c.lineTo(m.l,m.t+ph);c.lineTo(m.l+pw,m.t+ph);c.stroke();
+ c.fillStyle=C.ink;if(o.xlabel){c.textAlign='right';c.textBaseline='bottom';c.fillText(o.xlabel,m.l+pw-2,m.t+ph-4)}
+ if(o.ylabel){c.textAlign='left';c.textBaseline='top';c.fillText(o.ylabel,m.l+6,m.t+2)}
+ c.save();c.beginPath();c.rect(m.l,m.t-2,pw+2,ph+4);c.clip();
+ (o.bands||[]).forEach(b=>{c.fillStyle=b.color;c.fillRect(X(o.x0),Y(b.y1),pw,Y(b.y0)-Y(b.y1))});
+ const p=o.prog==null?1:o.prog,xl=o.x0+(o.x1-o.x0)*p;
+ (o.series||[]).forEach(s=>{c.strokeStyle=s.color;c.lineWidth=s.w||2.6;c.setLineDash(s.dash||[]);c.lineJoin='round';c.beginPath();let st=0;
+  for(const q of s.pts){if(q[0]>xl)break;const px=X(q[0]),py=Y(q[1]);st?c.lineTo(px,py):(c.moveTo(px,py),st=1)}c.stroke();c.setLineDash([])});
+ if(p>=1){
+  (o.hlines||[]).forEach(l=>{c.strokeStyle=l.color;c.lineWidth=l.w||1.5;c.setLineDash(l.dash||[6,5]);c.beginPath();c.moveTo(X(l.xa??o.x0),Y(l.y));c.lineTo(X(l.xb??o.x1),Y(l.y));c.stroke();c.setLineDash([]);
+   if(l.label){c.fillStyle=l.color;c.font=FB;c.textAlign='right';c.textBaseline='bottom';c.fillText(l.label,l.lx!=null?X(l.lx)-4:m.l+pw-4,Y(l.y)-3);c.font=F}});
+  (o.vlines||[]).forEach(l=>{c.strokeStyle=l.color;c.lineWidth=l.w||1.8;c.setLineDash(l.dash||[6,5]);c.beginPath();c.moveTo(X(l.x),Y(o.y0));c.lineTo(X(l.x),Y(l.yb??o.y1));c.stroke();c.setLineDash([]);
+   if(l.label){c.fillStyle=l.color;c.font=FB;c.textAlign='left';c.textBaseline='top';c.fillText(l.label,X(l.x)+4,m.t+4+(l.dy||0));c.font=F}});
+  (o.segs||[]).forEach(s=>{c.strokeStyle=s.color;c.lineWidth=s.w||1.8;c.setLineDash(s.dash||[]);c.beginPath();c.moveTo(X(s.a[0]),Y(s.a[1]));c.lineTo(X(s.b[0]),Y(s.b[1]));c.stroke();c.setLineDash([])});
+  (o.arrows||[]).forEach(a=>{const x=X(a.x),y1=Y(a.ya),y2=Y(a.yb);c.strokeStyle=a.color;c.fillStyle=a.color;c.lineWidth=2.2;c.beginPath();c.moveTo(x,y1);c.lineTo(x,y2);c.stroke();
+   [[y1,y2],[y2,y1]].forEach(([ya,yb])=>{const d=Math.sign(ya-yb)||1;c.beginPath();c.moveTo(x,ya);c.lineTo(x-5,ya-7*d);c.lineTo(x+5,ya-7*d);c.fill()});
+   if(a.label){c.font=FB;c.textAlign='right';c.textBaseline='middle';c.fillText(a.label,x-8,(y1+y2)/2);c.font=F}});
+  (o.marks||[]).forEach(k=>{c.fillStyle=k.color;c.beginPath();c.arc(X(k.x),Y(k.y),5,0,7);c.fill();if(k.label){c.font=FB;c.textAlign='left';c.textBaseline='bottom';c.fillText(k.label,X(k.x)+7,Y(k.y)-5);c.font=F}})}
+ if(o.cross){const k=o.cross;c.strokeStyle=C.violet;c.lineWidth=1;c.setLineDash([3,3]);c.beginPath();c.moveTo(X(k.x),m.t+ph);c.lineTo(X(k.x),Y(k.y));c.lineTo(m.l,Y(k.y));c.stroke();c.setLineDash([]);c.fillStyle=C.violet;c.beginPath();c.arc(X(k.x),Y(k.y),4.5,0,7);c.fill()}
+ c.restore()}
+function animatePlot(cv,o,dur=1000){cancelAnimationFrame(cv._raf);const t0=performance.now();const f=n=>{o.prog=Math.min(1,(n-t0)/dur);drawPlot(cv,o);if(o.prog<1)cv._raf=requestAnimationFrame(f)};cv._raf=requestAnimationFrame(f)}
+function sample(fn,a,b,N=600){const r=[];for(let i=0;i<=N;i++){const t=a+(b-a)*i/N;r.push([t,fn(t)])}return r}
+const first=(K,e0,tau,d=0)=>t=>t<d?0:K*e0*(1-Math.exp(-(t-d)/tau));
+function second(K,e0,xi,w0){return t=>{if(t<0)return 0;if(Math.abs(xi-1)<1e-3)return K*e0*(1-(1+w0*t)*Math.exp(-w0*t));const s=Math.sqrt(1-xi*xi),wa=w0*s;return K*e0*(1-Math.exp(-xi*w0*t)*(Math.cos(wa*t)+xi/s*Math.sin(wa*t)))}}
+let rz;window.addEventListener('resize',()=>{clearTimeout(rz);rz=setTimeout(()=>$$('canvas.cv').forEach(cv=>{if(cv._o&&cv.offsetParent){cv._o.prog=1;drawPlot(cv,cv._o)}}),120)});
+
+/* ================= A : schémas-blocs ================= */
+const DIAG=[
+ {id:'A1',title:'Robot BB8 : asservissement de vitesse',icon:'🤖',h:200,
+  grp:{x:58,y:20,w:260,h:110,l:'microcontrôleur'},
+  blocks:[{k:'interface',x:72,w:72},{k:'correcteur',x:220,w:86},{k:'hacheur',x:370,w:86},{k:'moteur',x:510,w:110},{k:'roue',x:680,w:110},{k:'capteur de vitesse',x:380,w:150,y:150}],
+  cmps:[180],
+  wires:['M10 70H72','M144 70H166','M194 70H220','M306 70H370','M456 70H510','M620 70H680','M790 70H880','M840 70V172H530','M380 172H180V84'],
+  sig:[[22,58,'ω','c'],[150,44,'U','c'],[208,58,'ε'],[338,58,'ordre'],[338,94,'(fréq. hacheur)'],[483,58,'U','moteur'],[650,58,'ω','moteur'],[860,58,'ω','r'],[160,120,'U','M']]},
+ {id:'A2',title:'Régulation de température',icon:'🌡️',h:200,
+  grp:{x:58,y:20,w:270,h:168,l:'thermostat d\'ambiance'},
+  blocks:[{k:'interface',x:72,w:72},{k:'correcteur (algorithme de régulation)',x:214,w:104,two:1},{k:'vanne d\'équerre',x:390,w:96},{k:'radiateur',x:540,w:110},{k:'pièce',x:700,w:110},{k:'sonde de température',x:150,w:150,y:150}],
+  cmps:[180],
+  wires:['M10 70H72','M144 70H166','M194 70H214','M318 70H390','M486 70H540','M650 70H700','M810 70H880','M850 70V172H300','M150 172H180V84'],
+  sig:[[22,58,'t°','c'],[150,44,'U','c'],[204,58,'ε'],[352,58,'ordre'],[865,58,'t°','p'],[192,120,'U','M']]},
+ {id:'A3',title:'Gouverne d\'avion : deux boucles imbriquées',icon:'✈️',h:250,
+  grp:{x:58,y:20,w:330,h:90,l:'ordinateur de bord'},
+  blocks:[{k:'interface',x:66,w:66},{k:'correcteur',x:176,w:80},{k:'correcteur ',x:300,w:80},{k:'servovalve',x:430,w:92},{k:'vérin',x:570,w:100},{k:'gouverne',x:730,w:100},{k:'capteur',x:380,w:110,y:140},{k:'capteur ',x:380,w:110,y:196}],
+  cmps:[154,278],
+  wires:['M10 70H66','M132 70H140','M168 70H176','M256 70H264','M292 70H300','M380 70H430','M522 70H570','M670 70H730','M830 70H900','M700 70V162H490','M380 162H278V84','M870 70V218H490','M380 218H154V84'],
+  sig:[[22,58,'β','c'],[128,44,'U','c'],[170,44,'ε'],[254,44,'U','x2c'],[294,44,'ε'],[400,58,'i'],[546,58,'Q'],[700,58,'x','2'],[885,58,'β','s'],[262,152,'U','x2'],[140,206,'U','M']]}];
+function diagSVG(d,host,interactive){
+ const svg=document.createElementNS(NS,'svg');svg.setAttribute('viewBox',`0 0 920 ${d.h}`);
+ let s=`<defs><marker id="ar${d.id}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#14302f"/></marker></defs>`;
+ if(d.grp)s+=`<rect class="grp" x="${d.grp.x}" y="${d.grp.y}" width="${d.grp.w}" height="${d.grp.h}" rx="10"/><text class="grpl" x="${d.grp.x+10}" y="${d.grp.y+14}">${d.grp.l}</text>`;
+ s+=`<g fill="none" stroke="#14302f" stroke-width="1.8">`+d.wires.map(w=>`<path d="${w}" marker-end="url(#ar${d.id})"/>`).join('')+'</g>';
+ d.cmps.forEach(x=>s+=`<circle cx="${x}" cy="70" r="14" fill="#fff" stroke="#14302f" stroke-width="1.8"/><path d="M${x-10} 60L${x+10} 80M${x+10} 60L${x-10} 80" stroke="#14302f" stroke-width="1.5"/><text x="${x-18}" y="60" font-size="13" font-weight="700">+</text><text x="${x+6}" y="98" font-size="15" font-weight="700">−</text>`);
+ d.blocks.forEach((b,i)=>{const y=(b.y||48),h=44;const lab=b.k.trim();
+  const txt=b.two?`<text x="${b.x+b.w/2}" y="${y+15}">correcteur</text><text x="${b.x+b.w/2}" y="${y+30}" style="font-size:10px">algorithme de régulation</text>`:`<text x="${b.x+b.w/2}" y="${y+h/2}">${lab}</text>`;
+  s+=`<g class="blk ${interactive?'empty':'good'}" data-i="${i}" data-l="${lab}" style="transform-box:fill-box;transform-origin:center"><rect x="${b.x}" y="${y}" width="${b.w}" height="${h}" rx="7"/>${interactive?`<text x="${b.x+b.w/2}" y="${y+h/2}">?</text>`:txt}</g>`});
+ d.sig.forEach(([x,y,t,sub])=>s+=`<text class="sig" x="${x}" y="${y}" text-anchor="middle">${t}${sub?`<tspan dy="4" font-size="10">${sub}</tspan>`:''}</text>`);
+ svg.innerHTML=s;host.appendChild(svg);return svg}
+DIAG.forEach(d=>{
+ const card=document.createElement('div');card.className='card bd';card.id='bd-'+d.id;
+ card.innerHTML=`<div class="chead"><span class="badge">${d.icon}</span><h3>${d.title}</h3><span class="self"></span></div><div class="host"></div><div class="instr">Étiquettes à placer :</div><div class="chips"></div><div class="donebar"></div><div class="btns"><button class="btn ghost" data-sol>Afficher la correction</button><button class="btn ghost" data-re>Recommencer</button></div>`;
+ $('#bdA').appendChild(card);selfBtns($('.self',card),d.id);
+ const host=$('.host',card),chips=$('.chips',card),bar=$('.donebar',card);let sel=null;
+ function build(inter){host.innerHTML='';const svg=diagSVG(d,host,inter);chips.innerHTML='';sel=null;bar.textContent='';
+  if(!inter){bar.textContent='✓ Chaîne complète';return}
+  const labels=d.blocks.map(b=>b.k.trim()).sort(()=>Math.random()-.5);
+  labels.forEach(l=>{const c=document.createElement('button');c.className='chip';c.textContent=l==='correcteur (algorithme de régulation)'?'correcteur':l;c.dataset.l=l;
+   c.onclick=()=>{sel=sel===c?null:c;$$('.chip',chips).forEach(x=>x.classList.toggle('sel',x===sel));$$('.blk.empty',svg).forEach(b=>b.classList.toggle('armed',!!sel))};chips.appendChild(c)});
+  $$('.blk',svg).forEach(g=>g.addEventListener('click',()=>{if(!sel||!g.classList.contains('empty'))return;
+   if(sel.dataset.l===g.dataset.l){const b=d.blocks[+g.dataset.i],y=b.y||48;g.classList.remove('empty','armed');g.classList.add('good');
+    g.innerHTML=`<rect x="${b.x}" y="${y}" width="${b.w}" height="44" rx="7"/>`+(b.two?`<text x="${b.x+b.w/2}" y="${y+15}">correcteur</text><text x="${b.x+b.w/2}" y="${y+30}" style="font-size:10px">algorithme de régulation</text>`:`<text x="${b.x+b.w/2}" y="${y+22}">${g.dataset.l}</text>`);
+    sel.classList.add('used');sel.classList.remove('sel');sel=null;$$('.blk',svg).forEach(x=>x.classList.remove('armed'));
+    if(!$$('.blk.empty',svg).length){bar.textContent='🎉 Bravo, chaîne complète !';if(!state[d.id]){state[d.id]='ok';save()}}}
+   else{g.classList.remove('shake');void g.getBBox();g.classList.add('shake');setTimeout(()=>g.classList.remove('shake'),450)}}))}
+ build(true);$('[data-sol]',card).onclick=()=>build(false);$('[data-re]',card).onclick=()=>build(true);
+});
+
+/* ================= B : courbes ================= */
+const CURVES=[
+ {id:'B1',x1:80,y1:2,fn:first(2,1,15),fin:2,tr:45,ordre:1,
+  sol:{st:'Stable : la sortie tend vers une valeur finale (2).',ord:'1<sup>er</sup> ordre : la tangente en 0 n\'est pas nulle et il n\'y a pas de dépassement.',mu:'μ = |1 − 2| / 1 × 100 = <b>100 %</b>',tr:'2 × 0,95 = 1,9 → t<sub>r5%</sub> = <b>45</b>'}},
+ {id:'B2',x1:80,y1:3,fn:first(3,1,10,5),fin:3,tr:35,ordre:1,delay:5,
+  sol:{st:'Stable : la sortie tend vers une valeur finale (3).',ord:'1<sup>er</sup> ordre : tangente non nulle, pas de dépassement. <b>Remarque : il y a un retard</b> (la réponse démarre vers t = 5).',mu:'μ = |1 − 3| / 1 × 100 = <b>200 %</b>',tr:'3 × 0,95 = 2,85 → t<sub>r5%</sub> = <b>35</b>'}},
+ {id:'B3',x1:2,y1:1.6,fn:second(1.2,1,0.4,9.4),fin:1.2,tr:0.8,ordre:2,
+  sol:{st:'Stable : la sortie tend vers une valeur finale (1,2).',ord:'2<sup>e</sup> ordre : la tangente en 0 est nulle et on observe des dépassements.',mu:'μ = |1 − 1,2| / 1 × 100 = <b>20 %</b>',tr:'1,2 × 0,95 = 1,14 et 1,2 × 1,05 = 1,26 → t<sub>r5%</sub> = <b>0,8</b>'}},
+ {id:'B4',x1:20,y1:1.6,fn:second(1,1,0.21,1.25),fin:1,tr:10.8,ordre:2,
+  sol:{st:'Stable : la sortie tend vers une valeur finale (1).',ord:'2<sup>e</sup> ordre : la tangente en 0 est nulle et on observe des dépassements.',mu:'μ = |1 − 1| / 1 × 100 = <b>0 %</b>',tr:'1 × 0,95 = 0,95 et 1 × 1,05 = 1,05 → t<sub>r5%</sub> = <b>10,8</b>'}}];
+let ci=0;const tog={step:false,tan:false,mu:false,tr:false};const ccv=$('#ccv');
+CURVES.forEach((c,i)=>{const b=document.createElement('button');b.innerHTML=`<span class="dot" data-id="${c.id}"></span>Courbe ${i+1}`;b.onclick=()=>showCurve(i);$('#ctabs').appendChild(b)});
+function curveOpts(){const c=CURVES[ci],o={x0:0,x1:c.x1,y0:0,y1:c.y1,xlabel:'t',series:[],hlines:[],vlines:[],bands:[],segs:[],arrows:[],marks:[]};
+ const pts=sample(c.fn,0,c.x1,800);
+ if(tog.tr)o.bands.push({y0:.95*c.fin,y1:1.05*c.fin,color:'rgba(233,164,0,.22)'});
+ if(tog.step)o.series.push({pts:[[0,0],[0,1],[c.x1,1]],color:'#38bdf8',w:3});
+ o.series.push({pts,color:C.ink,w:2.6});
+ if(tog.tan){if(c.ordre===1){const d=c.delay||0,tau=c.fin===2?15:10,sl=c.fin/tau;o.segs.push({a:[d,0],b:[d+tau*1.1,sl*tau*1.1],color:C.violet,dash:[6,4],w:2})}else{o.segs.push({a:[0,0],b:[c.x1*0.25,0],color:C.violet,w:4})}
+  o.marks.push({x:c.delay||0,y:0,color:C.violet,label:c.ordre===1?'tangente non nulle':'tangente nulle'})}
+ if(tog.mu){o.hlines.push({y:c.fin,color:C.grey,dash:[3,4]});if(c.fin!==1)o.arrows.push({x:c.x1*0.93,ya:1,yb:c.fin,color:C.blue,label:'μ'});else o.marks.push({x:c.x1*0.93,y:1,color:C.blue,label:'μ = 0'})}
+ if(tog.tr){o.hlines.push({y:.95*c.fin,color:C.mustard,dash:[4,3],w:1.2},{y:1.05*c.fin,color:C.mustard,dash:[4,3],w:1.2});o.vlines.push({x:c.tr,yb:.95*c.fin,color:C.coral,label:'t r5% = '+ft(c.tr)})}
+ return o}
+function drawCurve(anim){cancelAnimationFrame(ccv._raf);const o=curveOpts();if(anim)animatePlot(ccv,o,900);else{o.prog=1;drawPlot(ccv,o)}}
+function showCurve(i){ci=i;$$('#ctabs button').forEach((b,k)=>b.classList.toggle('on',k===i));Object.keys(tog).forEach(k=>tog[k]=false);$$('#ctog .chip').forEach(b=>b.classList.remove('on'));
+ const c=CURVES[i];
+ $('#cside').innerHTML=`<div class="chead"><span class="badge">${i+1}</span><h3>Courbe ${i+1}</h3><span class="self"></span></div>
+  <div class="inp"><label>Stable ?</label><button class="chip" data-a="st" data-v="1">Oui</button><button class="chip" data-a="st" data-v="0">Non</button><span class="fb" id="fbst"></span></div>
+  <div class="inp"><label>Ordre ?</label><button class="chip" data-a="ord" data-v="1">1<sup>er</sup></button><button class="chip" data-a="ord" data-v="2">2<sup>e</sup></button><span class="fb" id="fbord"></span></div>
+  <div class="inp"><label>Erreur μ (%)</label><input id="imu"><span class="fb" id="fbmu"></span></div>
+  <div class="inp"><label>t<sub>r5%</sub></label><input id="itr"><span class="fb" id="fbtr"></span></div>
+  <div class="btns"><button class="btn ghost" id="cchk">Vérifier</button><button class="btn" id="csol">Correction</button></div>
+  <div class="sol" id="csolbox"><span class="t">Correction</span><ul class="qlist"><li>${c.sol.st}</li><li>${c.sol.ord}</li><li>${c.sol.mu}</li><li>${c.sol.tr}</li></ul></div>`;
+ selfBtns($('#cside .self'),c.id);refresh();
+ $$('#cside [data-a]').forEach(b=>b.onclick=()=>{const a=b.dataset.a,ok=a==='st'?b.dataset.v==='1':+b.dataset.v===c.ordre;
+  $$(`#cside [data-a=${a}]`).forEach(x=>x.classList.toggle('sel',x===b));$('#fb'+a).innerHTML=ok?'<span class="tag ok">✓</span>':'<span class="tag ko">✗</span>'});
+ const muRef=Math.abs(1-c.fin)*100;const num=id=>parseFloat(($(id).value||'').replace(',','.'));
+ $('#cchk').onclick=()=>{const m=num('#imu'),t=num('#itr');
+  $('#fbmu').innerHTML=isFinite(m)?(Math.abs(m-muRef)<=2?'<span class="tag ok">✓</span>':'<span class="tag ko">✗ revois la valeur finale</span>'):'';
+  $('#fbtr').innerHTML=isFinite(t)?(Math.abs(t-c.tr)<=c.tr*0.1?'<span class="tag ok">✓</span>':'<span class="tag ko">✗ passage définitif ?</span>'):''};
+ $('#csol').onclick=()=>{$('#csolbox').classList.add('on');Object.keys(tog).forEach(k=>tog[k]=true);$$('#ctog .chip').forEach(b=>b.classList.add('on'));drawCurve(false)};
+ drawCurve(true)}
+$$('#ctog .chip').forEach(b=>b.onclick=()=>{tog[b.dataset.t]=!tog[b.dataset.t];b.classList.toggle('on',tog[b.dataset.t]);drawCurve(false)});
+function hover(ev){if(!ccv._m)return;const r=ccv.getBoundingClientRect(),cx=(ev.touches?ev.touches[0].clientX:ev.clientX)-r.left,{m,pw}=ccv._m,c=CURVES[ci];
+ cancelAnimationFrame(ccv._raf);const t=clamp((cx-m.l)/pw,0,1)*c.x1,y=c.fn(t);const o=curveOpts();o.prog=1;o.cross={x:t,y};drawPlot(ccv,o);$('#cro').textContent='t = '+fmt(t,c.x1<5?2:1)+'   ;   s(t) = '+fmt(y,3)}
+ccv.addEventListener('mousemove',hover);ccv.addEventListener('touchmove',hover,{passive:true});ccv.addEventListener('mouseleave',()=>drawCurve(false));
+hooks.pB=()=>showCurve(ci);
+
+/* ================= C : TD ================= */
+// schéma du pilote
+(function(){const host=$('#tdbd');const bl=[['ada','Adaptateur',60,92],['cal','Calculateur',218,92],['mot','Moteur électrique',350,104],['pom','Pompe hydraulique',494,104],['ver','Vérin',638,84],['mec','Mécanisme',762,92],['cap','Capteur',420,92,130]];
+ let s=`<svg viewBox="0 0 900 180"><defs><marker id="arT" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#14302f"/></marker></defs><g fill="none" stroke="#14302f" stroke-width="1.8">`+
+ ['M6 60H60','M152 60H176','M204 60H218','M310 60H350','M454 60H494','M598 60H638','M722 60H762','M854 60H896','M875 60V152H512','M420 152H190V74'].map(p=>`<path d="${p}" marker-end="url(#arT)"/>`).join('')+'</g>';
+ s+=`<circle cx="190" cy="60" r="14" fill="#fff" stroke="#14302f" stroke-width="1.8"/><path d="M180 50L200 70M200 50L180 70" stroke="#14302f" stroke-width="1.5"/><text x="170" y="50" font-size="13" font-weight="700">+</text><text x="196" y="88" font-size="15" font-weight="700">−</text>`;
+ bl.forEach(([k,l,x,w,y])=>{y=y||38;s+=`<g class="blk" data-k="${k}"><rect x="${x}" y="${y}" width="${w}" height="44" rx="7"/>${l.includes(' ')&&w<110?l.split(' ').map((p,i)=>`<text x="${x+w/2}" y="${y+15+i*15}">${p}</text>`).join(''):`<text x="${x+w/2}" y="${y+22}">${l}</text>`}</g>`});
+ [[24,48,'α','c(t)'],[164,48,'u','αc(t)'],[211,40,'ε(t)'],[330,48,'u','m(t)'],[474,48,'Ω','m(t)'],[618,48,'Q(t)'],[742,48,'x(t)'],[880,48,'α(t)'],[176,118,'u','c(t)']].forEach(([x,y,t,sb])=>s+=`<text class="sig" x="${x}" y="${y}" text-anchor="middle">${t}${sb?`<tspan dy="4" font-size="10">${sb}</tspan>`:''}</text>`);
+ host.innerHTML=s+'</svg>'})();
+// questions : indice / correction / auto-éval
+$$('#tdq>.card').forEach(c=>{selfBtns($('.self',c),c.dataset.q);
+ $('[data-h]',c).onclick=()=>$('.hint',c).classList.toggle('on');
+ $('[data-s]',c).onclick=()=>{const s=$('.sol',c);s.classList.toggle('on');if(s.classList.contains('on'))solHooks[c.dataset.q]?.()}});
+const solHooks={};
+// Q2
+(function(){const cv=$('#q2cv');const a=0.4,b=0.6,R=0.25;const x=al=>Math.sqrt(a*a+b*b+R*R-2*a*R*Math.sin(al)-2*b*R*Math.cos(al));let A=40;
+ function draw(an){const r=A*Math.PI/180,x0=x(0),d=(x(1e-4)-x(-1e-4))/2e-4;const pts=sample(t=>x(t*Math.PI/180)*1000,-A,A,300);const lin=sample(t=>(x0+d*t*Math.PI/180)*1000,-A,A,2);
+  const ys=pts.concat(lin).map(p=>p[1]);const o={x0:-A,x1:A,y0:Math.min(...ys)*0.98,y1:Math.max(...ys)*1.02,xlabel:'α (°)',ylabel:'x (mm)',series:[{pts:lin,color:C.coral,w:2,dash:[6,4]},{pts,color:C.blue}]};
+  an?animatePlot(cv,o,800):(o.prog=1,drawPlot(cv,o))}
+ $('#q2a').oninput=e=>{A=+e.target.value;$('#q2av').textContent=A+'°';draw(false)};solHooks.C2=()=>draw(true)})();
+// Q3
+$('[data-chk="Kc"]').onclick=()=>{const v=parseFloat($('#iKc').value.replace(',','.'));$('#fbKc').innerHTML=Math.abs(v-0.0833)<0.003?'<span class="tag ok">✓ Exact</span>':'<span class="tag ko">✗ pense à 5 V / 60°</span>'};
+// Q5 étapes
+(function(){const st=$$('#dsteps .dstep');let n=0;
+ function hl(){$$('#tdbd .blk').forEach(b=>b.classList.remove('hl'));(st[n].dataset.b||'').split(',').filter(Boolean).forEach(k=>$(`#tdbd .blk[data-k="${k}"]`)?.classList.add('hl'))}
+ $('#dnext').onclick=()=>{n=(n+1)%st.length;st.forEach((s,i)=>s.classList.toggle('on',i<=n));$('#dnext').textContent=n===st.length-1?'↺ Recommencer':'Étape suivante ▶';hl()};
+ solHooks.C5=()=>{hl();$('#tdbd').scrollIntoView({behavior:'smooth',block:'start'})}})();
+$$('.flip').forEach(f=>f.onclick=()=>f.classList.toggle('on'));
+$$('.crit').forEach(c=>c.onclick=()=>c.classList.toggle('on'));
+// Q6
+solHooks.C6=()=>{const f=second(1,0.52,1,5);animatePlot($('#q6cv'),{x0:0,x1:3,y0:0,y1:0.65,xlabel:'t (s)',ylabel:'α (rad)',bands:[{y0:.494,y1:.546,color:'rgba(42,157,92,.18)'}],
+ series:[{pts:[[0,.52],[3,.52]],color:C.coral,w:2},{pts:sample(f,0,3),color:C.blue}],vlines:[{x:0.95,yb:.494,color:C.green,label:'t r5% ≈ 0,95 s'}]},1000)};
+// Q8
+(function(){const cv=$('#q8cv');let a0=5,tau=2;
+ function o(){const F=a0,x1=Math.max(6*tau,8);
+  $('#q8r').innerHTML=`<span>Valeur finale K·α<sub>0</sub></span><b>${fmt(F,1)}°</b><span>α(τ) = 63 %</span><b>${fmt(.632*F,2)}°</b><span>t<sub>r5%</sub> = 3τ</span><b>${fmt(3*tau,1)} s</b>`;
+  return{x0:0,x1,y0:0,y1:Math.max(F*1.2,2),xlabel:'t (s)',ylabel:'α (°)',series:[{pts:sample(first(1,a0,tau),0,x1),color:C.blue}],
+   hlines:[{y:F,color:C.ink,dash:[3,4],label:'K·α₀'},{y:.632*F,xb:tau,color:C.mustard,label:'63 %',lx:tau},{y:.95*F,xb:3*tau,color:C.green,label:'95 %',lx:3*tau}],
+   vlines:[{x:tau,yb:.632*F,color:C.mustard,label:'τ'},{x:3*tau,yb:.95*F,color:C.green,label:'3τ',dy:16}],segs:[{a:[0,0],b:[tau*1.1,F*1.1],color:C.violet,dash:[6,4]}]}}
+ const now=()=>{const x=o();x.prog=1;drawPlot(cv,x)};
+ $('#a0').oninput=e=>{a0=+e.target.value;$('#a0v').textContent=fmt(a0,1).replace(',0','');now()};
+ $('#tau').oninput=e=>{tau=+e.target.value;$('#tauv').textContent=fmt(tau,1);now()};
+ solHooks.C8=()=>animatePlot(cv,o(),1000)})();
+// Q9
+solHooks.C9=()=>{const f=second(0.97,10,0.6,0.75);animatePlot($('#q9cv'),{x0:0,x1:20,y0:0,y1:14,xlabel:'t (s)',ylabel:'cap (°)',bands:[{y0:9.5,y1:10.5,color:'rgba(233,164,0,.25)'}],
+ series:[{pts:[[0,10],[20,10]],color:C.coral,w:2},{pts:sample(f,0,20),color:C.blue}],vlines:[{x:7,yb:9.215,color:C.green,label:'t r5% = 7 s'},{x:15,color:C.coral,label:'limite 15 s',dash:[2,4]}],marks:[{x:5.2,y:10.62,color:C.violet,label:'D < 10 %'}]},1000)};
+
+refresh();
+</script>
+</body>
+</html>

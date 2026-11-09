@@ -1,0 +1,1192 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Correction – Sciences de l'Ingénieur | Bac 2022 – Transporteur NINO</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
+
+  :root {
+    --bg: #f5f2eb;
+    --surface: #ffffff;
+    --surface2: #f0ede4;
+    --accent: #1a3c5e;
+    --accent2: #c8490a;
+    --accent3: #2e7d5a;
+    --gold: #b8963e;
+    --text: #1c1c1c;
+    --text-muted: #6b6560;
+    --border: #d4cfc5;
+    --shadow: 0 2px 12px rgba(0,0,0,0.08);
+    --radius: 6px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    font-size: 15px;
+    line-height: 1.7;
+  }
+
+  /* HEADER */
+  header {
+    background: var(--accent);
+    color: white;
+    padding: 40px 48px 36px;
+    position: relative;
+    overflow: hidden;
+  }
+  header::before {
+    content: '';
+    position: absolute;
+    right: -60px; top: -60px;
+    width: 320px; height: 320px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.05);
+  }
+  header::after {
+    content: '';
+    position: absolute;
+    right: 80px; bottom: -80px;
+    width: 200px; height: 200px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.04);
+  }
+  .header-badge {
+    display: inline-block;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    background: rgba(255,255,255,0.15);
+    padding: 4px 12px;
+    border-radius: 20px;
+    margin-bottom: 16px;
+    color: rgba(255,255,255,0.9);
+  }
+  header h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 2.2rem;
+    font-weight: 400;
+    line-height: 1.2;
+    margin-bottom: 8px;
+  }
+  header p {
+    color: rgba(255,255,255,0.75);
+    font-size: 14px;
+  }
+
+  /* LAYOUT */
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 40px 24px 80px;
+  }
+
+  /* NAV */
+  .toc {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px 28px;
+    margin-bottom: 40px;
+    box-shadow: var(--shadow);
+  }
+  .toc h2 {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 14px;
+  }
+  .toc-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px 24px;
+  }
+  .toc a {
+    color: var(--accent);
+    text-decoration: none;
+    font-size: 13.5px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 3px 0;
+    transition: color 0.2s;
+  }
+  .toc a:hover { color: var(--accent2); }
+  .toc-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--text-muted);
+    min-width: 28px;
+  }
+
+  /* SECTION */
+  .section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 28px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+  }
+  .section-header {
+    padding: 18px 28px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .section-header.sp1 { background: linear-gradient(135deg, #1a3c5e08, #1a3c5e14); border-left: 4px solid var(--accent); }
+  .section-header.sp2a { background: linear-gradient(135deg, #c8490a08, #c8490a14); border-left: 4px solid var(--accent2); }
+  .section-header.sp2b { background: linear-gradient(135deg, #2e7d5a08, #2e7d5a14); border-left: 4px solid var(--accent3); }
+
+  .section-num {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.6rem;
+    color: var(--accent);
+    line-height: 1;
+    min-width: 44px;
+  }
+  .sp2a .section-num { color: var(--accent2); }
+  .sp2b .section-num { color: var(--accent3); }
+
+  .section-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.05rem;
+    font-weight: 400;
+    color: var(--text);
+    line-height: 1.3;
+  }
+  .section-subtitle {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 2px;
+    font-family: 'DM Mono', monospace;
+    letter-spacing: 0.05em;
+  }
+
+  /* QUESTION BLOCK */
+  .question {
+    border-bottom: 1px solid var(--border);
+  }
+  .question:last-child { border-bottom: none; }
+
+  .q-header {
+    padding: 16px 28px;
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.15s;
+  }
+  .q-header:hover { background: var(--surface2); }
+
+  .q-badge {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    font-weight: 500;
+    padding: 3px 10px;
+    border-radius: 20px;
+    background: var(--accent);
+    color: white;
+    white-space: nowrap;
+    margin-top: 2px;
+    flex-shrink: 0;
+  }
+  .sp2a .q-badge { background: var(--accent2); }
+  .sp2b .q-badge { background: var(--accent3); }
+
+  .q-text {
+    font-size: 14px;
+    color: var(--text);
+    flex: 1;
+    font-style: italic;
+  }
+  .q-arrow {
+    font-size: 18px;
+    color: var(--text-muted);
+    transition: transform 0.2s;
+    margin-top: 2px;
+    flex-shrink: 0;
+  }
+  .question.open .q-arrow { transform: rotate(90deg); }
+
+  .q-answer {
+    display: none;
+    padding: 20px 28px 24px;
+    background: var(--surface2);
+    border-top: 1px solid var(--border);
+  }
+  .question.open .q-answer { display: block; }
+
+  /* ANSWER CONTENT */
+  .answer-block {
+    margin-bottom: 16px;
+  }
+  .answer-block:last-child { margin-bottom: 0; }
+
+  .step-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+  }
+
+  .result-box {
+    background: var(--accent);
+    color: white;
+    border-radius: var(--radius);
+    padding: 14px 18px;
+    font-size: 14px;
+    margin-top: 10px;
+  }
+  .result-box.orange { background: var(--accent2); }
+  .result-box.green { background: var(--accent3); }
+  .result-box.gold { background: var(--gold); }
+
+  .result-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    opacity: 0.8;
+    margin-bottom: 4px;
+  }
+  .result-value {
+    font-size: 1.15rem;
+    font-weight: 600;
+  }
+
+  .formula {
+    font-family: 'DM Mono', monospace;
+    background: #1c1c1c;
+    color: #e8d5a3;
+    padding: 12px 16px;
+    border-radius: var(--radius);
+    font-size: 13px;
+    margin: 10px 0;
+    overflow-x: auto;
+  }
+
+  p { margin-bottom: 8px; }
+  p:last-child { margin-bottom: 0; }
+
+  ul, ol {
+    padding-left: 20px;
+    margin: 8px 0;
+  }
+  li { margin-bottom: 4px; }
+
+  .warn-box {
+    border: 1px solid var(--gold);
+    border-radius: var(--radius);
+    padding: 12px 16px;
+    background: #b8963e0d;
+    font-size: 13.5px;
+    margin-top: 10px;
+    display: flex;
+    gap: 10px;
+  }
+  .warn-icon { flex-shrink: 0; font-size: 16px; }
+
+  .check-box {
+    border: 1px solid var(--accent3);
+    border-radius: var(--radius);
+    padding: 12px 16px;
+    background: #2e7d5a0d;
+    font-size: 13.5px;
+    margin-top: 10px;
+    display: flex;
+    gap: 10px;
+  }
+  .check-icon { flex-shrink: 0; font-size: 16px; }
+
+  .info-box {
+    border: 1px solid var(--accent);
+    border-radius: var(--radius);
+    padding: 12px 16px;
+    background: #1a3c5e0d;
+    font-size: 13.5px;
+    margin-top: 10px;
+    display: flex;
+    gap: 10px;
+  }
+
+  /* TABLE */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13.5px;
+    margin: 12px 0;
+  }
+  th {
+    background: var(--accent);
+    color: white;
+    padding: 8px 12px;
+    text-align: left;
+    font-weight: 500;
+    font-size: 12px;
+    font-family: 'DM Mono', monospace;
+    letter-spacing: 0.05em;
+  }
+  .sp2a th { background: var(--accent2); }
+  .sp2b th { background: var(--accent3); }
+
+  td {
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  tr:last-child td { border-bottom: none; }
+  tr:nth-child(even) td { background: rgba(0,0,0,0.02); }
+
+  .td-highlight {
+    font-family: 'DM Mono', monospace;
+    font-weight: 500;
+    color: var(--accent);
+  }
+  .sp2a .td-highlight { color: var(--accent2); }
+  .sp2b .td-highlight { color: var(--accent3); }
+
+  /* PART DIVIDER */
+  .part-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.4rem;
+    color: var(--text);
+    margin: 40px 0 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .part-dot {
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    background: var(--accent);
+    flex-shrink: 0;
+  }
+  .part-dot.orange { background: var(--accent2); }
+  .part-dot.green { background: var(--accent3); }
+
+  /* CODE */
+  code {
+    font-family: 'DM Mono', monospace;
+    background: #e8e3d8;
+    padding: 1px 5px;
+    border-radius: 3px;
+    font-size: 13px;
+  }
+
+  pre.python {
+    background: #1c1c1c;
+    color: #a8d8a8;
+    padding: 16px 20px;
+    border-radius: var(--radius);
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    line-height: 1.6;
+    overflow-x: auto;
+    margin: 10px 0;
+  }
+  .kw { color: #d1a0e0; }
+  .cm { color: #6b8b6b; }
+  .st { color: #e8c77a; }
+  .nm { color: #88ccee; }
+
+  /* FOOTER */
+  footer {
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 12px;
+    padding: 20px;
+    border-top: 1px solid var(--border);
+    font-family: 'DM Mono', monospace;
+  }
+
+  /* EXPAND ALL */
+  .controls {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+  }
+  .btn {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 7px 16px;
+    cursor: pointer;
+    font-size: 13px;
+    font-family: 'DM Sans', sans-serif;
+    color: var(--text);
+    transition: all 0.15s;
+  }
+  .btn:hover { background: var(--accent); color: white; border-color: var(--accent); }
+
+  @media (max-width: 600px) {
+    header { padding: 28px 20px 24px; }
+    header h1 { font-size: 1.6rem; }
+    .container { padding: 24px 12px 60px; }
+    .toc-grid { grid-template-columns: 1fr; }
+    .section-header, .q-header, .q-answer { padding-left: 16px; padding-right: 16px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-badge">Baccalauréat Général · Session 2022</div>
+  <h1>Correction — Sciences de l'Ingénieur<br><em>Transporteur NINO</em></h1>
+  <p>Partie 1 complète · Sous-partie 1 + Choix A + Choix B</p>
+</header>
+
+<div class="container">
+
+  <!-- TOC -->
+  <div class="toc">
+    <h2>Sommaire</h2>
+    <div class="toc-grid">
+      <a href="#q11"><span class="toc-num">Q1.1</span> Image moderne et valorisante</a>
+      <a href="#q12"><span class="toc-num">Q1.2</span> Valeur finale de β</a>
+      <a href="#q13"><span class="toc-num">Q1.3</span> Réglage du correcteur</a>
+      <a href="#q14"><span class="toc-num">Q1.4</span> Nature du mouvement & accélération</a>
+      <a href="#q15"><span class="toc-num">Q1.5</span> Distance et durée de freinage</a>
+      <a href="#q16"><span class="toc-num">Q1.6</span> Interprétation courbes transfert</a>
+      <a href="#q17"><span class="toc-num">Q1.7</span> Désactivation & béquilles</a>
+      <a href="#q18"><span class="toc-num">Q1.8</span> [A] Valeur maximale yA & vitesse vérin</a>
+      <a href="#q19"><span class="toc-num">Q1.9</span> [A] Raccordement capteur vitesse</a>
+      <a href="#q110"><span class="toc-num">Q1.10</span> [A] Tension & rapport cyclique</a>
+      <a href="#q111"><span class="toc-num">Q1.11</span> [A] Actions mécaniques extérieures</a>
+      <a href="#q112"><span class="toc-num">Q1.12</span> [A] Tableau répartition du poids</a>
+      <a href="#q113"><span class="toc-num">Q1.13</span> [A] Pourcentages & conclusion</a>
+      <a href="#q114"><span class="toc-num">Q1.14</span> [B] Précision des mesures</a>
+      <a href="#q115"><span class="toc-num">Q1.15</span> [B] Expressions & calcul tronçon 1</a>
+      <a href="#q116"><span class="toc-num">Q1.16</span> [B] Code Python & puissance</a>
+      <a href="#q117"><span class="toc-num">Q1.17</span> [B] Temps t[174] & énergies</a>
+      <a href="#q118"><span class="toc-num">Q1.18</span> [B] Tension, capacité, énergie batterie</a>
+      <a href="#q119"><span class="toc-num">Q1.19</span> [B] SOC & conclusion</a>
+    </div>
+  </div>
+
+  <div class="controls">
+    <button class="btn" onclick="toggleAll(true)">Tout ouvrir</button>
+    <button class="btn" onclick="toggleAll(false)">Tout fermer</button>
+  </div>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- SOUS-PARTIE 1 -->
+  <!-- ═══════════════════════════════════════════ -->
+  <div class="part-title">
+    <div class="part-dot"></div>
+    Sous-partie 1 — Obligatoire : Stabilité et sécurité
+  </div>
+
+  <div class="section">
+    <div class="section-header sp1">
+      <div>
+        <div class="section-title">Stabilité et sécurité dans les différents cas d'utilisation</div>
+        <div class="section-subtitle">Questions Q1.1 à Q1.7</div>
+      </div>
+    </div>
+
+    <!-- Q1.1 -->
+    <div class="question" id="q11">
+      <div class="q-header" onclick="toggle(this)">
+        <span class="q-badge">Q 1.1</span>
+        <span class="q-text">Donner deux arguments montrant que le NINO satisfait l'exigence « le produit doit donner une image moderne et valorisante ».</span>
+        <span class="q-arrow">›</span>
+      </div>
+      <div class="q-answer">
+        <p>D'après la présentation du système, on peut relever notamment :</p>
+        <ul>
+          <li><strong>Argument 1 — Design esthétique soigné :</strong> Le NINO possède un châssis léger en aluminium avec des lignes épurées et modernes (carénages colorés, formes travaillées). Les concepteurs ont explicitement voulu rompre avec l'image négative du fauteuil roulant classique en proposant un produit fonctionnel <em>et</em> esthétique.</li>
+          <li><strong>Argument 2 — Technologie embarquée & connectivité :</strong> Le NINO intègre un support smartphone, une application mobile (Ninedroid) permettant de configurer le véhicule et d'accéder à des données (état de charge, distance parcourue). Cette dimension connectée et technologique lui confère une image de produit innovant et moderne.</li>
+        </ul>
+        <div class="info-box">
+          <span class="warn-icon">ℹ</span>
+          <span>D'autres arguments valables : guidon amovible, dossier ajustable et repliable, béquilles rétractables (design discret), mode rapide sur pistes cyclables (mobilité urbaine moderne)…</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Q1.2 -->
+    <div class="question" id="q12">
+      <div class="q-header" onclick="toggle(this)">
+        <span class="q-badge">Q 1.2</span>
+        <span class="q-text">À l'aide de la figure 3, donner la valeur finale de l'angle β gérée par l'asservissement pour respecter l'exigence Id.1.1.</span>
+        <span class="q-arrow">›</span>
+      </div>
+      <div class="q-answer">
+        <div class="step-label">Lecture du diagramme des exigences (figure 3)</div>
+        <p>L'exigence <strong>Id.1.1</strong> stipule : <em>« Le siège doit rester parallèle à la route. »</em></p>
+        <p>Pour que le siège reste parallèle à la route (sol horizontal), l'angle d'inclinaison du châssis β doit être maintenu nul par l'asservissement.</p>
+        <div class="result-box">
+          <div class="result-label">Valeur finale de β</div>
+          <div class="result-value">β = 0°</div>
+        </div>
+        <p style="margin-top:10px;">La consigne de l'asservissement est bien <code>0</code> comme indiqué sur le schéma bloc de la figure 5.</p>
+      </div>
+    </div>
+
+    <!-- Q1.3 -->
+    <div class="question" id="q13">
+      <div class="q-header" onclick="toggle(this)">
+        <span class="q-badge">Q 1.3</span>
+        <span class="q-text">À l'aide de la figure 6, déterminer le ou les réglages du correcteur permettant de satisfaire l'exigence relative à la stabilité Id.1.1.1. Justifier.</span>
+        <span class="q-arrow">›</span>
+      </div>
+      <div class="q-answer">
+        <div class="step-label">Rappel de l'exigence Id.1.1.1 (figure 3)</div>
+        <p>Id.1.1.1 impose que la perturbation de la stabilité (inclinaison du châssis β) provoquée par l'inclinaison du buste du passager <strong>reste inférieure à 10 % de l'angle alpha</strong> en régime permanent, et que le temps de rejet de la perturbation soit <strong>inférieur à 0,1 s</strong> avec un dépassement maximal nul.</p>
+        <div class="step-label">Analyse de la figure 6</div>
+        <ul>
+          <li><strong>Réglage 1</strong> (courbe rose tiretée) : présente des <strong>oscillations importantes</strong> (dépassements de ±5°). Le système est instable ou très oscillant → <em>non satisfaisant</em>.</li>
+          <li><strong>Réglage 2</strong> (courbe orange pointillée) : présente également des oscillations importantes de β, le système oscille autour de 0 → <em>non satisfaisant</em>.</li>
+          <li><strong>Réglage 3</strong> (courbe verte pleine) : β tend rapidement vers 0° sans dépassement significatif, en moins de 0,1 s. L'erreur statique est nulle → <em>satisfaisant</em>.</li>
+        </ul>
+        <div class="check-box">
+          <span class="check-icon">✓</span>
+          <span><strong>Seul le Réglage 3</strong> satisfait l'exigence Id.1.1.1 : réponse rapide (temps de stabilisation ≤ 0,1 s), sans dépassement, avec une erreur statique nulle.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Q1.4 -->
+    <div class="question" id="q14">
+      <div class="q-header" onclick="toggle(this)">
+        <span class="q-badge">Q 1.4</span>
+        <span class="q-text">Indiquer la nature du mouvement du NINO par rapport au sol. Pour α = 30° lors d'un freinage d'urgence, déterminer l'accélération A.</span>
+        <span class="q-arrow">›</span>
+      </div>
+      <div class="q-answer">
+        <div class="step-label">Nature du mouvement</div>
+        <p>La relation A = −2,1 · α montre que l'accélération A est <strong>proportionnelle</strong> à l'angle α (constant lors d'une inclinaison maintenue). Ainsi A est constante → le mouvement du NINO est un <strong>mouvement rectiligne uniformément varié (MRUV)</strong>.</p>
+
+        <div class="step-label">Calcul de l'accélération de freinage</div>
+        <p>Pour un freinage d'urgence, le passager se penche <strong>en arrière</strong> : α = +30° (sens opposé à la marche).</p>
+        <div class="formula">α = 30° → α en radians = 30 × π/180 ≈ 0,5236 rad
+A = −2,1 × 0,5236 ≈ −1,10 m·s⁻²</div>
+        <p>Le signe négatif indique un <strong>freinage</strong> (décélération dans le sens du déplacement).</p>
+        <div class="result-box">
+          <div class="result-label">Accélération de freinage</div>
+          <div class="result-value">|A| ≈ 1,10 m·s⁻²</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Q1.5 -->
+    <div class="question" id="q15">
+      <div class="q-header" onclick="toggle(this)">
+        <span class="q-badge">Q 1.5</span>
+        <span class="q-text">Déterminer la durée puis la distance de freinage dans l'espace public. Conclure sur le respect de l'exigence relative au freinage d'urgence.</span>
+        <span class="q-arrow">›</span>
+      </div>
+      <div class="q-answer">
+        <div class="step-label">Données</div>
+        <ul>
+          <li>Vitesse initiale : v₀ = 10 km·h⁻¹ = 10/3,6 ≈ 2,78 m·s⁻¹</li>
+          <li>Vitesse finale : vf = 0 m·s⁻¹ (arrêt complet)</li>
+          <li>Accélération (freinage) : A = −1,10 m·s⁻²</li>
+        </ul>
+
+        <div class="step-label">Durée de freinage</div>
+        <div class="formula">vf = v₀ + A·t
+0 = 2,78 + (−1,10)·t
+t = 2,78 / 1,10 ≈ 2,53 s</div>
+
+        <div class="step-label">Distance de freinage</div>
+        <div class="formula">d = v₀·t + ½·A·t²
+d = 2,78 × 2,53 + ½ × (−1,10) × 2,53²
+d = 7,03 − 3,52 ≈ 3,51 m</div>
+        <p>On peut également utiliser : <code>d = v₀² / (2|A|) = 2,78² / (2 × 1,10) ≈ 3,51 m</code></p>
+
+        <div class="result-box">
+          <div class="result-label">Résultats</div>
+          <div class="result-value">t ≈ 2,53 s &nbsp;|&nbsp; d ≈ 3,51 m</div>
+        </div>
+
+        <div class="step-label">Conclusion (exigence Id.1.4)</div>
+        <p>L'exigence Id.1.4 impose une distance d'arrêt <strong>≤ 4 m</strong>.</p>
+        <div class="check-box">
+          <span class="check-icon">✓</span>
+          <span><strong>L'exigence est respectée</strong> : la distance de freinage d ≈ 3,51 m est inférieure à la limite de 4 m fixée par l'exigence Id.1.4.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Q1.6 -->
+    <div class="question" id="q16">
+      <div class="q-header" onclick="toggle(this)">
+        <span class="q-badge">Q 1.6</span>
+        <span class="q-text">Interpréter les courbes β(t) et x(t) lors du transfert. Conclure sur le respect des exigences de stabilité de déplacement.</span>
+        <span class="q-arrow">›</span>
+      </div>
+      <div class="q-answer">
+        <div class="step-label">Interprétation de β(t)</div>
+        <p>L'inclinaison du châssis β(t) présente une <strong>perturbation transitoire</strong> (pic à environ 3×10⁻³ degrés) puis revient à zéro. La perturbation est donc <strong>très faible en amplitude</strong> (quelques millièmes de degré) et rapidement résorbée.</p>
+
+        <div class="step-label">Interprétation de x(t)</div>
+        <p>Le déplacement x(t) est <strong>non nul et croissant</strong> en valeur absolue : le transporteur se déplace continuellement sur environ 8 cm pendant la phase de transfert. Ce déplacement ne se stabilise pas.</p>
+
+        <div class="step-label">Conclusion (exigence Id.2.3)</div>
+        <p>L'exigence Id.2.3 impose que le transporteur <strong>ne se déplace pas sur le sol pendant le transfert</strong>.</p>
+        <div class="warn-box">
+          <span class="warn-icon">⚠</span>
+          <span><strong>L'exigence Id.2.3 n'est pas respectée</strong> : bien que l'inclinaison β soit quasiment nulle (le système maintient l'équilibre angulaire), le transporteur se déplace quand même sur environ 8 cm lors du transfert de la personne, ce qui est non conforme.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Q1.7 -->
+    <div class="question" id="q17">
+      <div class="q-header" onclick="toggle(this)">
+        <span class="q-badge">Q 1.7</span>
+        <span class="q-text">En déduire pourquoi le système doit être désactivé lors du transfert et que les béquilles rétractables sont nécessaires.</span>
+        <span class="q-arrow">›</span>
+      </div>
+      <div class="q-answer">
+        <p>La simulation montre que même avec l'asservissement actif, <strong>l'action de la personne sur la poignée crée une perturbation</strong> qui entraîne un déplacement du transporteur (x(t) ≠ 0). Le système d'auto-équilibrage, conçu pour maintenir β ≈ 0 en déplaçant les roues, <strong>ne peut pas maintenir le transporteur fixe</strong> : pour corriger l'inclinaison, il fait avancer les roues.</p>
+
+        <p>Il est donc nécessaire de :</p>
+        <ol>
+          <li><strong>Désactiver l'auto-balancement</strong> lors du transfert, car s'il reste actif il génère un déplacement des roues dangereux (risque de chute).</li>
+          <li><strong>Déployer les béquilles rétractables</strong> pour assurer mécaniquement la stabilité du transporteur à l'arrêt : les béquilles bloquent physiquement tout déplacement et tout basculement, indépendamment de tout système électronique.</li>
+        </ol>
+
+        <div class="check-box">
+          <span class="check-icon">✓</span>
+          <span>L'asservissement est désactivé dès que les béquilles touchent le sol (et réactivé quand elles se rétractent), comme indiqué dans la brochure NINO (figure 10).</span>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end section sp1 -->
+
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- SOUS-PARTIE 2 – CHOIX A -->
+  <!-- ═══════════════════════════════════════════ -->
+  <div class="part-title">
+    <div class="part-dot orange"></div>
+    Sous-partie 2 — Choix A : Validation de la solution de béquille
+  </div>
+
+  <div class="section">
+    <div class="section-header sp2a">
+      <div>
+        <div class="section-title">Validation des béquilles — performances et stabilité</div>
+        <div class="section-subtitle">Questions Q1.8 à Q1.13 · Choix A</div>
+      </div>
+    </div>
+
+    <!-- Q1.8 -->
+    <div class="question sp2a" id="q18">
+      <div class="q-header" onclick="toggle(this)">
+        <span class="q-badge">Q 1.8</span>
+        <span class="q-text">Déterminer la valeur maximale de yA pour respecter l'exigence Id.2.2 et la course c correspondante. Calculer la vitesse minimum de la tige du vérin pour un temps de manœuvre ≤ 5 s.</span>
+        <span class="q-arrow">›</span>
+      </div>
+      <div class="q-answer">
+        <div class="step-label">Valeur maximale de y_A</div>
+        <p>L'exigence Id.2.2 impose que la jambe arrive en contact avec le sol <strong>sans soulever les roues</strong>. Le point A est le point de contact de la béquille avec le sol. La roue a un <strong>diamètre de 390 mm</strong>, donc son rayon est 195 mm. Le point E (contact de la roue avec le sol) est à y = 0. Pour que la béquille touche le sol <em>sans soulever la roue</em>, la béquille doit descendre jusqu'au niveau du sol :</p>
+
+        <div class="formula">y_A max = y_E = 0 mm (niveau du sol)
+→ y_A doit atteindre au moins 0 mm (point de contact avec le sol)
+→ mais y_A est mesuré négativement vers le bas</div>
+
+        <p>D'après le tableau de la figure 11, la <strong>valeur maximale de déploiement</strong> (béquille au sol, sans soulever la roue) correspond à :</p>
+        <div class="formula">y_A = −201,0 mm  →  course c = 55,4 mm</div>
+
+        <div class="result-box orange">
+          <div class="result-label">Valeur maximale & course correspondante</div>
+          <div class="result-value">y_A max = −201,0 mm &nbsp;→&nbsp; c = 55,4 mm</div>
+        </div>
+
+        <div class="step-label">Vitesse minimale de la tige du vérin</div>
+        <p>Le mouvement est uniforme, le temps de manœuvre doit être ≤ 5 s :</p>
+        <div class="formula">v_min = course / t_max = 55,4 mm / 5 s = 11,08 mm·s⁻¹</div>
+
+        <div class="result-box orange">
+          <div class="result-label">Vitesse minimale de la tige</div>
+          <div class="result-value">v_min ≈ 11,1 mm·s⁻¹</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Q1.9 -->
+    <div class="question sp2a" id="q19">
+      <div class="q-header" onclick="toggle(this)">
+        <span class="q-badge">Q 1.9</span>
+        <span class="q-text">Indiquer à quel repère (2, 3, 4 ou 5) raccorder le port de mesure du capteur logiciel de vitesse. Justifier.</span>
+        <span class="q-arrow">›</span>
+      </div>
+      <div class="q-answer">
+        <div class="step-label">Analyse du modèle multiphysique (figure 12)</div>
+        <p>Le capteur logiciel de vitesse doit mesurer la <strong>vitesse de translation de la tige du vérin</strong> (en mm·s⁻¹), c'est-à-dire un mouvement linéaire.</p>
+
+        <p>En suivant la chaîne de puissance :</p>
+        <ul>
+          <li>Repère <strong>2</strong> : entre l'alimentation et le moteur CC → signal électrique (tension/courant)</li>
+          <li>Repère <strong>3</strong> : entre le moteur et le réducteur → vitesse de rotation (rad·s⁻¹)</li>
+          <li>Repère <strong>4</strong> : entre le réducteur et le système vis/écrou → vitesse de rotation réduite</li>
+          <li>Repère <strong>5</strong> : sortie du système vis/écrou → <strong>vitesse de translation de la tige</strong> (mm·s⁻¹)</li>
+        </ul>
+
+        <div class="check-box">
+          <span class="check-icon">✓</span>
+          <span>Le port de mesure doit être raccordé au <strong>repère 5</strong>, car c'est à la sortie du système vis/écrou que l'on dispose d'un mouvement de translation correspondant au déplacement de la tige du vérin — grandeur que l'on cherche à mesurer.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Q1.10 -->
+    <div class="question sp2a" id="q110">
+      <div class="q-header" onclick="toggle(this)">
+        <span class="q-badge">Q 1.10</span>
+        <span class="q-text">Relever sur la figure 13 la tension pour une vitesse de 11 mm·s⁻¹. En déduire le rapport cyclique du hacheur.</span>
+        <span class="q-arrow">›</span>
+      </div>
+      <div class="q-answer">
+        <div class="step-label">Lecture graphique (figure 13)</div>
+        <p>La courbe de la figure 13 est linéaire. Pour une vitesse de sortie du vérin de <strong>11 mm·s⁻¹</strong>, on lit graphiquement :</p>
+        <div class="formula">V_moteur ≈ 30 V</div>
+
+        <div class="step-label">Calcul du rapport cyclique</div>
+        <p>La tension d'alimentation de la batterie est <strong>U_bat = 55 V</strong>. Le rapport cyclique α du hacheur est :</p>
+        <div class="formula">α = V_moteur / U_bat = 30 / 55 ≈ 0,545</div>
+
+        <div class="result-box orange">
+          <div class="result-label">Résultats</div>
+          <div class="result-value">U_moteur ≈ 30 V &nbsp;|&nbsp; Rapport cyclique α ≈ 0,545 (soit ~54,5 %)</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Q1.11 -->
+    <div class="question sp2a" id="q111">
+      <div class="q-header" onclick="toggle(this)">
+        <span class="q-badge">Q 1.11</span>
+        <span class="q-text">Sur le DR1, représenter les actions mécaniques extérieures sur l'ensemble (S). Montrer que l'effort en A = effort en B.</span>
+        <span class="q-arrow">›</span>
+      </div>
+      <div class="q-answer">
+        <div class="step-label">Actions mécaniques extérieures sur (S)</div>
+        <p>À représenter sur le schéma DR1 :</p>
+        <ul>
+          <li><strong>En G</strong> : le poids P = M·g dirigé vers le bas (–ȳ₀)</li>
+          <li><strong>En A</strong> : la réaction normale du sol sur la béquille gauche : <code>A(0→S)</code> vers le haut (+ȳ₀)</li>
+          <li><strong>En B</strong> : la réaction normale du sol sur la béquille droite : <code>B(0→S)</code> vers le haut (+ȳ₀)</li>
+          <li><strong>En E</strong> (résultante des roues C et D) : la réaction du sol sur les roues : <code>E(0→S)</code> vers le haut (+ȳ₀)</li>
+        </ul>
+        <p><em>Note : problème plan, pas d'effort horizontal car le système est à l'équilibre sans déplacement horizontal. Les réactions sont uniquement verticales (composante normale).</em></p>
+
+        <div class="step-label">Démonstration de A(0→S) = B(0→S)</div>
+        <p>Par <strong>symétrie</strong> du système :</p>
+        <ul>
+          <li>L'axe (G, ȳ₀) est un axe de symétrie pour les béquilles : <code>‖AE⃗‖ = ‖BE⃗‖</code></li>
+          <li>La répartition du poids est symétrique par rapport à ce plan</li>
+          <li>Le centre de gravité G se trouve sur l'axe de symétrie</li>
+        </ul>
+        <p>Par le théorème des moments par rapport à l'axe de symétrie passant par G, les distances de A et B à l'axe sont égales. Les réactions en A et B sont donc <strong>égales en norme</strong> :</p>
+        <div class="formula">‖A(0→S)‖ = ‖B(0→S)‖  (symétrie géométrique et de chargement)</div>
+        <div class="check-box">
+          <span class="check-icon">✓</span>
+          <span>Par symétrie du système (‖AE⃗‖ = ‖BE⃗‖ et G sur l'axe de symétrie), les réactions normales en A et B sont nécessairement égales.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Q1.12 -->
+    <div class="question sp2a" id="q112">
+      <div class="q-header" onclick="toggle(this)">
+        <span class="q-badge">Q 1.12</span>
+        <span class="q-text">Compléter la ligne « Poids total » dans le tableau DR1. Exprimer et calculer l'effort en C ou D.</span>
+        <span class="q-arrow">›</span>
+      </div>
+      <div class="q-answer">
+        <div class="step-label">Calcul du poids total</div>
+        <div class="formula">P = M_total × g</div>
+
+        <table>
+          <tr>
+            <th>Cas de charge</th>
+            <th>Masse totale</th>
+            <th>Poids total P (N)</th>
+          </tr>
+          <tr>
+            <td>Transporteur seul</td>
+            <td>48 kg</td>
+            <td class="td-highlight">48 × 9,81 ≈ 471 N</td>
+          </tr>
+          <tr>
+            <td>Transporteur + passager 40 kg</td>
+            <td>48 + 40 = 88 kg</td>
+            <td class="td-highlight">88 × 9,81 ≈ 863 N</td>
+          </tr>
+          <tr>
+            <td>Transporteur + passager 90 kg</td>
+            <td>48 + 90 = 138 kg</td>
+            <td class="td-highlight">138 × 9,81 ≈ 1354 N</td>
+          </tr>
+        </table>
+
+        <div class="step-label">Expression de l'effort en C ou D (PFS)</div>
+        <p>Application du principe fondamental de la statique (équilibre en translation ȳ₀) :</p>
+        <div class="formula">∑F_ext = 0 :
+A(0→S) + B(0→S) + 2×C(0→S) − P = 0
+
+Avec A(0→S) = B(0→S) = 180 N (données) :
+2 × 180 + 2 × C(0→S) = P
+C(0→S) = (P − 360) / 2</div>
+
+        <table>
+          <tr>
+            <th>Cas de charge</th>
+            <th>P (N)</th>
+            <th>Effort en C ou D (N)</th>
+          </tr>
+          <tr>
+            <td>Transporteur seul (48 kg)</td>
+            <td>471 N</td>
+            <td class="td-highlight">(471 − 360) / 2 ≈ 55,5 N</td>
+          </tr>
+          <tr>
+            <td>+ passager 40 kg</td>
+            <td>863 N</td>
+            <td class="td-highlight">(863 − 360) / 2 ≈ 251,5 N</td>
+          </tr>
+          <tr>
+            <td>+ passager 90 kg</td>
+            <td>1354 N</td>
+            <td class="td-highlight">(1354 − 360) / 2 ≈ 497 N</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- Q1.13 -->
+    <div class="question sp2a" id="q113">
+      <div class="q-header" onclick="toggle(this)">
+        <span class="q-badge">Q 1.13</span>
+        <span class="q-text">Compléter les pourcentages du poids dans le tableau DR1. Conclure sur la stabilité lors du transfert.</span>
+        <span class="q-arrow">›</span>
+      </div>
+      <div class="q-answer">
+        <div class="step-label">Calcul des pourcentages</div>
+        <p>Il y a <strong>4 appuis</strong> au total : 2 béquilles (A et B) + 2 roues (C et D). Chaque appui représente un effort. Les pourcentages sont calculés par rapport au poids total P.</p>
+
+        <table>
+          <tr>
+            <th>Cas</th>
+            <th>P (N)</th>
+            <th>% en A ou B</th>
+            <th>% en C ou D</th>
+          </tr>
+          <tr>
+            <td>Transporteur seul (48 kg)</td>
+            <td>471 N</td>
+            <td class="td-highlight">180/471 ≈ 38,2 %</td>
+            <td class="td-highlight">55,5/471 ≈ 11,8 %</td>
+          </tr>
+          <tr>
+            <td>+ passager 40 kg</td>
+            <td>863 N</td>
+            <td class="td-highlight">180/863 ≈ 20,9 %</td>
+            <td class="td-highlight">251,5/863 ≈ 29,1 %</td>
+          </tr>
+          <tr>
+            <td>+ passager 90 kg</td>
+            <td>1354 N</td>
+            <td class="td-highlight">180/1354 ≈ 13,3 %</td>
+            <td class="td-highlight">497/1354 ≈ 36,7 %</td>
+          </tr>
+        </table>
+
+        <div class="step-label">Conclusion (exigence Id.2.2.1)</div>
+        <p>L'exigence Id.2.2.1 impose que l'appui le moins chargé soit au minimum <strong>10 % du poids total</strong>.</p>
+
+        <p>L'appui le moins chargé est toujours celui en <strong>C ou D</strong> (roues) dans tous les cas :</p>
+        <ul>
+          <li>Transporteur seul : 11,8 % ≥ 10 % ✓</li>
+          <li>+ passager 40 kg : 29,1 % ≥ 10 % ✓</li>
+          <li>+ passager 90 kg : 36,7 % ≥ 10 % ✓</li>
+        </ul>
+
+        <div class="check-box">
+          <span class="check-icon">✓</span>
+          <span><strong>L'exigence Id.2.2.1 est respectée</strong> dans les trois cas de chargement. Le système de béquilles assure bien la stabilité lors du transfert pour des masses de passager comprises entre 40 kg et 90 kg (exigence Id.2.2.2).</span>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end section sp2a -->
+
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- SOUS-PARTIE 2 – CHOIX B -->
+  <!-- ═══════════════════════════════════════════ -->
+  <div class="part-title">
+    <div class="part-dot green"></div>
+    Sous-partie 2 — Choix B : Prédiction d'autonomie sur un parcours donné
+  </div>
+
+  <div class="section">
+    <div class="section-header sp2b">
+      <div>
+        <div class="section-title">Prédiction d'autonomie — algorithme et calculs énergétiques</div>
+        <div class="section-subtitle">Questions Q1.14 à Q1.19 · Choix B</div>
+      </div>
+    </div>
+
+    <!-- Q1.14 -->
+    <div class="question sp2b" id="q114">
+      <div class="q-header" onclick="toggle(this)">
+        <span class="q-badge">Q 1.14</span>
+        <span class="q-text">Indiquer la précision des mesures d'élévation, de longitude et latitude. Expliquer pourquoi une telle précision est nécessaire pour les mesures angulaires.</span>
+        <span class="q-arrow">›</span>
+      </div>
+      <div class="q-answer">
+        <div class="step-label">Précision des mesures (lecture du fichier GPX, figure 16)</div>
+        <ul>
+          <li><strong>Élévation</strong> : donnée en mètres entiers → précision au <strong>mètre</strong> (valeurs : 98, 80…)</li>
+          <li><strong>Latitude et Longitude</strong> : données avec <strong>6 décimales</strong> → précision à 10⁻⁶ degré</li>
+        </ul>
+
+        <div class="step-label">Justification de la précision angulaire (sans calcul)</div>
+        <p>La Terre a un rayon d'environ 6 371 km. Un angle de 1° correspond à une distance en surface d'environ :</p>
+        <div class="formula">arc ≈ 2π × 6 371 000 / 360 ≈ 111 320 m ≈ 111 km</div>
+        <p>Ainsi :</p>
+        <ul>
+          <li>1° → ~111 km</li>
+          <li>0,001° → ~111 m</li>
+          <li>0,000001° (10⁻⁶°) → ~0,11 m ≈ 11 cm</li>
+        </ul>
+        <div class="check-box">
+          <span class="check-icon">✓</span>
+          <span>Une précision à 6 décimales est nécessaire car les tronçons du parcours de NINO sont de l'ordre de la dizaine de mètres. Avec une précision moindre (ex. 3 décimales → ~111 m), les distances calculées entre points consécutifs seraient trop imprécises, voire nulles, rendant le calcul de pente et d'énergie inexploitable.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Q1.15 -->
+    <div class="question sp2b" id="q115">
+      <div class="q-header" onclick="toggle(this)">
+        <span class="q-badge">Q 1.15</span>
+        <span class="q-text">Exprimer denivele[i], pente[i] et distance_reelle[i]. Calculer distance réelle et pente % pour le premier tronçon.</span>
+        <span class="q-arrow">›</span>
+      </div>
+      <div class="q-answer">
+        <div class="step-label">Expressions (d'après la figure 19)</div>
+        <p>Le tronçon est modélisé par un triangle rectangle avec :</p>
+        <ul>
+          <li>Base : <code>distance_projetee[i]</code> (côté horizontal)</li>
+          <li>Hauteur : <code>denivele[i]</code> (différence d'altitude)</li>
+          <li>Hypoténuse : <code>distance_reelle[i]</code></li>
+          <li>Angle : λ[i]</li>
+        </ul>
+
+        <div class="formula">denivele[i] = elevation[i+1] − elevation[i]
+
+pente[i] = (denivele[i] / distance_projetee[i]) × 100
+         = tan(λ[i]) × 100  (en %)
+
+distance_reelle[i] = √( distance_projetee[i]² + denivele[i]² )</div>
+
+        <div class="step-label">Calcul pour le tronçon 1→2 (données DR2)</div>
+        <p>D'après le tableau DR2 : point 1 (élévation 87 m) → point 2 (élévation 89 m), distance projetée = 17,47 m.</p>
+
+        <div class="formula">denivele[1] = 89 − 87 = 2 m
+
+pente[1] = (2 / 17,47) × 100 ≈ 11,45 %
+
+distance_reelle[1] = √(17,47² + 2²)
+                   = √(305,2 + 4)
+                   = √309,2
+                   ≈ 17,58 m</div>
+
+        <div class="result-box green">
+          <div class="result-label">Tronçon 1 → 2</div>
+          <div class="result-value">pente ≈ 11,45 % &nbsp;|&nbsp; distance réelle ≈ 17,58 m</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Q1.16 -->
+    <div class="question sp2b" id="q116">
+      <div class="q-header" onclick="toggle(this)">
+        <span class="q-badge">Q 1.16</span>
+        <span class="q-text">Compléter le code Python de la fonction calc_P_absorbee. Calculer la puissance pour le dernier tronçon.</span>
+        <span class="q-arrow">›</span>
+      </div>
+      <div class="q-answer">
+        <div class="step-label">Code Python complété</div>
+        <p>D'après la figure 20, la modélisation mathématique est :</p>
+        <div class="formula">P_(6;90) = 0,5 × p%² + 27,7 × p% + 53  (pour pente p% > 0)
+P_(6;90) = 53  (pour pente p% ≤ 0)</div>
+
+        <pre class="python"><span class="kw">Def</span> <span class="nm">calc_P_absorbee</span>(pente[i]):
+    <span class="kw">If</span> pente[i] <span class="kw">&gt;</span> <span class="nm">0</span> :
+        P_absorbee[i] = <span class="nm">0.5</span> * pente[i]**<span class="nm">2</span> + <span class="nm">27.7</span> * pente[i] + <span class="nm">53</span>
+    <span class="kw">Else</span> :
+        P_absorbee[i] = <span class="nm">53</span>
+    <span class="kw">Return</span> P_absorbee[i]</pre>
+
+        <div class="step-label">Calcul pour le dernier tronçon 174→175</div>
+        <p>D'après le tableau DR2 : tronçon 174→175, pente = <strong>12,24 %</strong>.</p>
+        <div class="formula">P_absorbee[174] = 0,5 × 12,24² + 27,7 × 12,24 + 53
+                = 0,5 × 149,82 + 338,83 + 53
+                = 74,91 + 338,83 + 53
+                ≈ 466,7 W</div>
+
+        <div class="result-box green">
+          <div class="result-label">Puissance absorbée — tronçon 174→175</div>
+          <div class="result-value">P_absorbee[174] ≈ 466,7 W</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Q1.17 -->
+    <div class="question sp2b" id="q117">
+      <div class="q-header" onclick="toggle(this)">
+        <span class="q-badge">Q 1.17</span>
+        <span class="q-text">Calculer le temps t[174], l'énergie E_conso[174] et l'énergie totale E_conso_totale.</span>
+        <span class="q-arrow">›</span>
+      </div>
+      <div class="q-answer">
+        <div class="step-label">Calcul du temps t[174]</div>
+        <p>La vitesse est 6 km·h⁻¹ = 6/3,6 = 1,667 m·s⁻¹. La distance réelle du tronçon 174→175 est <strong>49,4 m</strong> (d'après le tableau DR2).</p>
+        <div class="formula">t[174] = distance_reelle[174] / vitesse
+       = 49,4 / 1,667
+       ≈ 29,6 s</div>
+
+        <div class="step-label">Calcul de E_conso[174]</div>
+        <div class="formula">E_conso[174] = P_absorbee[174] × t[174] / 3600
+             = 466,7 × 29,6 / 3600
+             ≈ 13 793 / 3600
+             ≈ 3,83 Wh</div>
+
+        <div class="step-label">Calcul de E_conso_totale</div>
+        <p>D'après le tableau DR2 : E_conso_totale après le tronçon 173→174 = 150 Wh.</p>
+        <div class="formula">E_conso_totale = 150 + E_conso[174]
+              = 150 + 3,83
+              ≈ 153,8 Wh</div>
+
+        <div class="result-box green">
+          <div class="result-label">Résultats tronçon 174→175</div>
+          <div class="result-value">t[174] ≈ 29,6 s &nbsp;|&nbsp; E_conso[174] ≈ 3,83 Wh &nbsp;|&nbsp; E_conso_totale ≈ 153,8 Wh</div>
+        </div>
+
+        <div class="info-box">
+          <span class="warn-icon">ℹ</span>
+          <span>Note : l'énoncé indique une énergie totale estimée de 155 Wh pour l'ensemble du parcours, ce qui est cohérent avec notre calcul (~153,8 Wh, les tronçons finaux comptant peu).</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Q1.18 -->
+    <div class="question sp2b" id="q118">
+      <div class="q-header" onclick="toggle(this)">
+        <span class="q-badge">Q 1.18</span>
+        <span class="q-text">Déterminer la tension nominale et la capacité en Ah de la batterie. En déduire E_bat100%.</span>
+        <span class="q-arrow">›</span>
+      </div>
+      <div class="q-answer">
+        <div class="step-label">Structure de la batterie (figure 22)</div>
+        <ul>
+          <li>4 packs <strong>en parallèle</strong></li>
+          <li>Chaque pack : 15 éléments <strong>en série</strong></li>
+          <li>Chaque élément : tension = <strong>3,6 V</strong>, capacité = <strong>2,9 Ah</strong></li>
+        </ul>
+
+        <div class="step-label">Tension nominale de la batterie</div>
+        <p>Les éléments en série additionnent leurs tensions :</p>
+        <div class="formula">U_bat = 15 × 3,6 = 54 V</div>
+
+        <div class="step-label">Capacité de la batterie</div>
+        <p>Les packs en parallèle additionnent leurs capacités :</p>
+        <div class="formula">C_bat = 4 × 2,9 = 11,6 Ah</div>
+
+        <div class="step-label">Énergie disponible E_bat100%</div>
+        <div class="formula">E_bat100% = U_bat × C_bat = 54 × 11,6 = 626,4 Wh</div>
+
+        <div class="result-box green">
+          <div class="result-label">Caractéristiques de la batterie</div>
+          <div class="result-value">U = 54 V &nbsp;|&nbsp; C = 11,6 Ah &nbsp;|&nbsp; E_bat100% ≈ 626 Wh</div>
+        </div>
+
+        <div class="info-box">
+          <span class="warn-icon">ℹ</span>
+          <span>La valeur arrondie de 620 Wh utilisée dans l'énoncé est cohérente avec ce calcul (54 V × 11,6 Ah = 626 Wh ≈ 620 Wh, les 2,9 Ah étant une capacité minimale).</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Q1.19 -->
+    <div class="question sp2b" id="q119">
+      <div class="q-header" onclick="toggle(this)">
+        <span class="q-badge">Q 1.19</span>
+        <span class="q-text">Déterminer l'état de charge SOC à la fin du parcours. Conclure sur la faisabilité de la promenade avec la marge de sécurité.</span>
+        <span class="q-arrow">›</span>
+      </div>
+      <div class="q-answer">
+        <div class="step-label">Données</div>
+        <ul>
+          <li>E_bat100% = 620 Wh (valeur donnée dans l'énoncé)</li>
+          <li>E_init = 620 Wh (batterie pleine au départ)</li>
+          <li>E_conso_totale = 155 Wh (donnée de l'énoncé)</li>
+          <li>SOC minimal requis : 30 %</li>
+        </ul>
+
+        <div class="step-label">Calcul du SOC</div>
+        <div class="formula">SOC = (E_init − E_conso_totale) / E_bat100% × 100
+    = (620 − 155) / 620 × 100
+    = 465 / 620 × 100
+    ≈ 75 %</div>
+
+        <div class="result-box green">
+          <div class="result-label">État de charge estimé à la fin du parcours</div>
+          <div class="result-value">SOC ≈ 75 %</div>
+        </div>
+
+        <div class="step-label">Conclusion</div>
+        <div class="check-box">
+          <span class="check-icon">✓</span>
+          <span><strong>Le transporteur peut effectuer la promenade en assurant la marge de sécurité.</strong> Le SOC final est de 75 %, soit bien supérieur au SOC minimal imposé de 30 %. La batterie conserve plus de 465 Wh à l'issue du parcours, ce qui offre une marge confortable.</span>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end section sp2b -->
+
+</div><!-- end container -->
+
+<footer>
+  Correction Sciences de l'Ingénieur · Bac 2022 · Transporteur NINO · Partie 1 complète
+</footer>
+
+<script>
+  function toggle(header) {
+    const q = header.closest('.question');
+    q.classList.toggle('open');
+  }
+  function toggleAll(open) {
+    document.querySelectorAll('.question').forEach(q => {
+      if (open) q.classList.add('open');
+      else q.classList.remove('open');
+    });
+  }
+  // Open all by default
+  toggleAll(true);
+</script>
+</body>
+</html>

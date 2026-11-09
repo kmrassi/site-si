@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Asservissement de l'Hydrolienne – SPÉ Sciences de l'Ingénieur 2025</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --surface2: #1c2330;
+    --border: #30363d;
+    --accent: #58a6ff;
+    --accent2: #3fb950;
+    --accent3: #f78166;
+    --accent4: #d2a8ff;
+    --accent5: #ffa657;
+    --text: #e6edf3;
+    --text-muted: #8b949e;
+    --text-dim: #484f58;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Lora', Georgia, serif;
+    line-height: 1.75;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Decorative background grid */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(88,166,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(88,166,255,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .wrapper {
+    position: relative;
+    z-index: 1;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 60px 32px 100px;
+  }
+
+  /* ── Header ── */
+  header {
+    text-align: center;
+    margin-bottom: 64px;
+    padding-bottom: 40px;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+  }
+  .tag {
+    display: inline-block;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--accent);
+    background: rgba(88,166,255,0.1);
+    border: 1px solid rgba(88,166,255,0.25);
+    padding: 4px 14px;
+    border-radius: 20px;
+    margin-bottom: 20px;
+  }
+  h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(2rem, 5vw, 3.2rem);
+    line-height: 1.15;
+    color: var(--text);
+    margin-bottom: 12px;
+  }
+  h1 em {
+    color: var(--accent);
+    font-style: italic;
+  }
+  .subtitle {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    color: var(--text-muted);
+    letter-spacing: 0.5px;
+  }
+
+  /* ── Section labels ── */
+  .section {
+    margin-bottom: 56px;
+    animation: fadeUp 0.5s ease both;
+  }
+  .section:nth-child(1) { animation-delay: 0.05s; }
+  .section:nth-child(2) { animation-delay: 0.10s; }
+  .section:nth-child(3) { animation-delay: 0.15s; }
+  .section:nth-child(4) { animation-delay: 0.20s; }
+  .section:nth-child(5) { animation-delay: 0.25s; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(18px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  .section-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--text-dim);
+    min-width: 28px;
+  }
+  .section-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.55rem;
+    color: var(--text);
+    border-bottom: 2px solid var(--accent);
+    padding-bottom: 4px;
+    flex: 1;
+  }
+
+  /* ── Cards ── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 28px 32px;
+    margin-bottom: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+  .card::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+  }
+  .card.blue::before   { background: var(--accent); }
+  .card.green::before  { background: var(--accent2); }
+  .card.red::before    { background: var(--accent3); }
+  .card.purple::before { background: var(--accent4); }
+  .card.orange::before { background: var(--accent5); }
+
+  .card h3 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.15rem;
+    margin-bottom: 10px;
+  }
+  .card.blue h3   { color: var(--accent); }
+  .card.green h3  { color: var(--accent2); }
+  .card.red h3    { color: var(--accent3); }
+  .card.purple h3 { color: var(--accent4); }
+  .card.orange h3 { color: var(--accent5); }
+
+  p { margin-bottom: 12px; color: var(--text); }
+  p:last-child { margin-bottom: 0; }
+
+  /* ── Math blocks ── */
+  .math-block {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 22px;
+    margin: 16px 0;
+    font-family: 'DM Mono', monospace;
+    font-size: 1rem;
+    color: var(--accent4);
+    text-align: center;
+    letter-spacing: 0.5px;
+  }
+  .math-inline {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.92em;
+    color: var(--accent4);
+    background: rgba(210,168,255,0.08);
+    padding: 1px 6px;
+    border-radius: 4px;
+  }
+
+  /* ── Question boxes ── */
+  .question-box {
+    background: rgba(88,166,255,0.05);
+    border: 1px solid rgba(88,166,255,0.2);
+    border-radius: 10px;
+    padding: 20px 26px;
+    margin: 24px 0;
+  }
+  .question-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 8px;
+  }
+  .question-text {
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 12px;
+  }
+  .answer {
+    color: var(--text);
+    font-size: 0.97rem;
+    border-top: 1px solid var(--border);
+    padding-top: 12px;
+    margin-top: 12px;
+  }
+
+  /* ── Table ── */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    font-size: 0.94rem;
+  }
+  th {
+    background: var(--surface2);
+    color: var(--accent);
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 12px 18px;
+    text-align: left;
+    border: 1px solid var(--border);
+  }
+  td {
+    padding: 11px 18px;
+    border: 1px solid var(--border);
+    color: var(--text);
+  }
+  tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
+  .val {
+    font-family: 'DM Mono', monospace;
+    color: var(--accent5);
+  }
+
+  /* ── Highlight box ── */
+  .highlight {
+    background: rgba(63,185,80,0.07);
+    border: 1px solid rgba(63,185,80,0.25);
+    border-radius: 8px;
+    padding: 14px 20px;
+    margin: 16px 0;
+    color: var(--accent2);
+    font-size: 0.95rem;
+  }
+  .highlight strong { color: var(--accent2); }
+
+  .warning {
+    background: rgba(247,129,102,0.07);
+    border: 1px solid rgba(247,129,102,0.25);
+    border-radius: 8px;
+    padding: 14px 20px;
+    margin: 16px 0;
+    color: var(--accent3);
+    font-size: 0.95rem;
+  }
+
+  /* ── Chart illustration ── */
+  .chart-container {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 24px;
+    margin: 20px 0;
+  }
+  .chart-title {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 16px;
+  }
+
+  svg text { font-family: 'DM Mono', monospace; }
+
+  /* ── Step-by-step ── */
+  .steps { counter-reset: step; padding-left: 0; list-style: none; }
+  .steps li {
+    display: flex;
+    gap: 18px;
+    margin-bottom: 18px;
+    align-items: flex-start;
+  }
+  .steps li::before {
+    counter-increment: step;
+    content: counter(step);
+    min-width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: var(--bg);
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  /* ── Conclusion banner ── */
+  .conclusion {
+    background: linear-gradient(135deg, rgba(88,166,255,0.08), rgba(63,185,80,0.08));
+    border: 1px solid rgba(88,166,255,0.2);
+    border-radius: 12px;
+    padding: 32px;
+    text-align: center;
+    margin-top: 48px;
+  }
+  .conclusion h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.5rem;
+    color: var(--accent);
+    margin-bottom: 12px;
+  }
+
+  hr { border: none; border-top: 1px solid var(--border); margin: 40px 0; }
+</style>
+</head>
+<body>
+<div class="wrapper">
+
+  <!-- Header -->
+  <header>
+    <div class="tag">Sciences de l'Ingénieur · 2025 · Centres Étrangers</div>
+    <h1>Asservissement de l'<em>Hydrolienne</em></h1>
+    <div class="subtitle">Sous-partie 2 — Optimisation de la production d'énergie électrique · Questions 1.7 à 1.11</div>
+  </header>
+
+  <!-- SECTION 0 : Contexte général -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">00</span>
+      <h2 class="section-title">Contexte général</h2>
+    </div>
+    <div class="card blue">
+      <h3>Qu'est-ce qu'une hydrolienne ?</h3>
+      <p>Une <strong>hydrolienne</strong> est une turbine immergée dans un courant marin ou fluvial. Elle convertit l'énergie cinétique du fluide en énergie électrique, à la manière d'une éolienne mais dans l'eau.</p>
+      <p>Le défi étudié ici : <strong>maximiser le rendement</strong> de cette conversion en contrôlant précisément la vitesse de rotation de la turbine, quelles que soient les variations de vitesse du courant.</p>
+    </div>
+    <div class="card green">
+      <h3>La vitesse spécifique λ — grandeur clé</h3>
+      <p>La <strong>vitesse spécifique</strong> (tip-speed ratio) compare la vitesse des pales à la vitesse du courant :</p>
+      <div class="math-block">λ = (R · ω) / V₀</div>
+      <p>Où <span class="math-inline">R</span> = rayon de la turbine, <span class="math-inline">ω</span> = vitesse de rotation (rad/s), <span class="math-inline">V₀</span> = vitesse du courant (m/s).</p>
+      <p>Si les pales tournent trop vite ou trop lentement par rapport au courant, l'efficacité chute. Il existe un <strong>optimum précis</strong>.</p>
+    </div>
+  </div>
+
+  <!-- SECTION 1 : Question 1.7 -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">01</span>
+      <h2 class="section-title">Question 1.7 — Lecture du graphe et intérêt de l'asservissement</h2>
+    </div>
+
+    <div class="chart-container">
+      <div class="chart-title">Figure 6 — Efficacité de l'hydrolienne en fonction de λ (reconstitution)</div>
+      <svg viewBox="0 0 600 280" xmlns="http://www.w3.org/2000/svg" width="100%">
+        <!-- Axes -->
+        <line x1="60" y1="240" x2="560" y2="240" stroke="#30363d" stroke-width="1.5"/>
+        <line x1="60" y1="20"  x2="60"  y2="240" stroke="#30363d" stroke-width="1.5"/>
+        <!-- Grid lines -->
+        <line x1="60" y1="192" x2="560" y2="192" stroke="#21262d" stroke-width="1"/>
+        <line x1="60" y1="144" x2="560" y2="144" stroke="#21262d" stroke-width="1"/>
+        <line x1="60" y1="96"  x2="560" y2="96"  stroke="#21262d" stroke-width="1"/>
+        <line x1="60" y1="48"  x2="560" y2="48"  stroke="#21262d" stroke-width="1"/>
+        <!-- Y labels -->
+        <text x="50" y="244" fill="#8b949e" font-size="11" text-anchor="end">0%</text>
+        <text x="50" y="196" fill="#8b949e" font-size="11" text-anchor="end">10%</text>
+        <text x="50" y="148" fill="#8b949e" font-size="11" text-anchor="end">20%</text>
+        <text x="50" y="100" fill="#8b949e" font-size="11" text-anchor="end">30%</text>
+        <text x="50" y="52"  fill="#8b949e" font-size="11" text-anchor="end">40%</text>
+        <!-- X labels -->
+        <text x="60"  y="258" fill="#8b949e" font-size="11" text-anchor="middle">0</text>
+        <text x="110" y="258" fill="#8b949e" font-size="11" text-anchor="middle">1</text>
+        <text x="160" y="258" fill="#8b949e" font-size="11" text-anchor="middle">2</text>
+        <text x="210" y="258" fill="#8b949e" font-size="11" text-anchor="middle">3</text>
+        <text x="260" y="258" fill="#8b949e" font-size="11" text-anchor="middle">4</text>
+        <text x="310" y="258" fill="#8b949e" font-size="11" text-anchor="middle">5</text>
+        <text x="360" y="258" fill="#8b949e" font-size="11" text-anchor="middle">6</text>
+        <text x="410" y="258" fill="#8b949e" font-size="11" text-anchor="middle">7</text>
+        <text x="460" y="258" fill="#8b949e" font-size="11" text-anchor="middle">8</text>
+        <text x="510" y="258" fill="#8b949e" font-size="11" text-anchor="middle">9</text>
+        <text x="560" y="258" fill="#8b949e" font-size="11" text-anchor="middle">10</text>
+        <!-- Axis labels -->
+        <text x="310" y="278" fill="#8b949e" font-size="12" text-anchor="middle">Vitesse spécifique λ</text>
+        <text x="16" y="140" fill="#8b949e" font-size="12" text-anchor="middle" transform="rotate(-90,16,140)">Efficacité</text>
+        <!-- Curve -->
+        <path d="M60,240 Q110,230 160,200 Q185,182 210,130 Q235,78 260,50 Q285,30 310,36 Q340,46 360,70 Q390,105 410,148 Q435,185 460,210 Q490,228 560,240"
+              fill="none" stroke="#58a6ff" stroke-width="2.5" stroke-linecap="round"/>
+        <!-- Optimal zone shading -->
+        <rect x="210" y="20" width="100" height="220" fill="rgba(63,185,80,0.07)" rx="2"/>
+        <!-- Optimal marker -->
+        <line x1="260" y1="20" x2="260" y2="240" stroke="#3fb950" stroke-width="1.5" stroke-dasharray="6,3"/>
+        <circle cx="260" cy="50" r="5" fill="#3fb950"/>
+        <text x="265" y="44" fill="#3fb950" font-size="11">λ_opt ≈ 4</text>
+        <!-- Optimal zone label -->
+        <text x="215" y="35" fill="#3fb950" font-size="10">Zone optimale</text>
+        <text x="215" y="47" fill="#3fb950" font-size="10">3,5 ≤ λ ≤ 4,5</text>
+        <!-- Efficacité max annotation -->
+        <text x="265" y="65" fill="#f78166" font-size="10">≈ 50% max</text>
+      </svg>
+    </div>
+
+    <div class="question-box">
+      <div class="question-label">Question 1.7</div>
+      <div class="question-text">Relever la valeur de λ pour laquelle l'efficacité est maximale et expliquer en quoi un asservissement de la vitesse est pertinent.</div>
+      <div class="answer">
+        <strong>Lecture graphique :</strong> Le pic de la courbe se situe autour de <span class="math-inline">λ ≈ 4</span>, avec une efficacité maximale d'environ <strong>50 %</strong>. La plage utile est <span class="math-inline">3,5 ≤ λ ≤ 4,5</span>.
+      </div>
+    </div>
+
+    <div class="card green">
+      <h3>Pourquoi asservir la vitesse ?</h3>
+      <p>La vitesse du courant <span class="math-inline">V₀</span> varie en permanence (marées, turbulences). Or <span class="math-inline">λ = R·ω / V₀</span> : si <span class="math-inline">V₀</span> change et que <span class="math-inline">ω</span> reste fixe, λ dérive hors de la zone optimale, et l'efficacité s'effondre.</p>
+      <p><strong>Solution :</strong> adapter en temps réel <span class="math-inline">ω</span> pour que <span class="math-inline">λ</span> reste proche de 4, quelle que soit la vitesse du courant. C'est le rôle de l'asservissement.</p>
+    </div>
+    <div class="highlight">
+      <strong>Idée clé :</strong> Sans asservissement, une variation de courant de ±30 % peut faire chuter l'efficacité de 50 % à moins de 20 %. L'asservissement maintient le point de fonctionnement optimal en permanence.
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- SECTION 2 : Question 1.8 -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">02</span>
+      <h2 class="section-title">Question 1.8 — Erreur statique et validité du modèle sans correcteur</h2>
+    </div>
+
+    <div class="card orange">
+      <h3>Cahier des charges (Figure 7)</h3>
+      <table>
+        <tr><th>Critère</th><th>Valeur requise</th></tr>
+        <tr><td>Erreur statique</td><td class="val">≤ 12 %</td></tr>
+        <tr><td>Vitesse max. acceptée</td><td class="val">10,1 rad·s⁻¹</td></tr>
+        <tr><td>Temps d'établissement</td><td class="val">tₑ = 30 s</td></tr>
+      </table>
+    </div>
+
+    <div class="card red">
+      <h3>Lecture de la Figure 9 (réponse à un échelon de 10 rad·s⁻¹)</h3>
+      <p>D'après la courbe, la valeur finale atteinte par le système <strong>sans correcteur</strong> est d'environ <span class="math-inline">ω_final ≈ 5 rad·s⁻¹</span>, alors que la consigne est <span class="math-inline">ω_consigne = 10 rad·s⁻¹</span>.</p>
+    </div>
+
+    <div class="question-box">
+      <div class="question-label">Calcul de l'erreur statique</div>
+      <div class="answer">
+        <p>L'erreur statique est définie par :</p>
+        <div class="math-block">ε = (ω_consigne − ω_final) / ω_consigne × 100</div>
+        <p>Application numérique :</p>
+        <div class="math-block">ε = (10 − 5) / 10 × 100 = <strong>50 %</strong></div>
+        <p><strong>Conclusion :</strong> l'erreur statique de 50 % est <em>très largement supérieure</em> au seuil autorisé de 12 %. La solution sans correcteur ne satisfait <strong>pas</strong> le cahier des charges. Un correcteur est indispensable.</p>
+      </div>
+    </div>
+
+    <div class="warning">
+      <strong>Pourquoi une telle erreur ?</strong> Le modèle sans correcteur est un système du 1er ordre avec gain statique insuffisant (gain de boucle &lt; 1). L'erreur statique en boucle fermée est non nulle et trop grande.
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- SECTION 3 : Question 1.9 -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">03</span>
+      <h2 class="section-title">Question 1.9 — Choix du correcteur (DR2)</h2>
+    </div>
+
+    <div class="card purple">
+      <h3>Principe — trois réglages à comparer (DR2 analysé)</h3>
+      <p>Trois courbes sont présentées sur le DR2 pour une consigne en échelon de 10 rad·s⁻¹. Chaque courbe est évaluée selon les trois critères du cahier des charges : erreur ≤ 12 %, vitesse max ≤ 10,1 rad·s⁻¹, tₑ ≤ 30 s.</p>
+    </div>
+
+    <!-- Solution 1 -->
+    <div class="card red" style="margin-bottom:16px;">
+      <h3>Solution 1 — Correcteur trop agressif (réponse oscillante)</h3>
+      <div class="chart-container" style="margin:12px 0;">
+        <div class="chart-title">Solution 1 — réponse simulée (0 à 20 s)</div>
+        <svg viewBox="0 0 500 200" xmlns="http://www.w3.org/2000/svg" width="100%">
+          <line x1="50" y1="170" x2="470" y2="170" stroke="#30363d" stroke-width="1.5"/>
+          <line x1="50" y1="10"  x2="50"  y2="170" stroke="#30363d" stroke-width="1.5"/>
+          <!-- Grid -->
+          <line x1="50" y1="148" x2="470" y2="148" stroke="#21262d" stroke-width="1"/>
+          <line x1="50" y1="126" x2="470" y2="126" stroke="#21262d" stroke-width="1"/>
+          <line x1="50" y1="104" x2="470" y2="104" stroke="#21262d" stroke-width="1"/>
+          <line x1="50" y1="82"  x2="470" y2="82"  stroke="#21262d" stroke-width="1"/>
+          <line x1="50" y1="60"  x2="470" y2="60"  stroke="#21262d" stroke-width="1"/>
+          <line x1="50" y1="38"  x2="470" y2="38"  stroke="#21262d" stroke-width="1"/>
+          <!-- Y labels -->
+          <text x="44" y="174" fill="#8b949e" font-size="10" text-anchor="end">0</text>
+          <text x="44" y="152" fill="#8b949e" font-size="10" text-anchor="end">2</text>
+          <text x="44" y="130" fill="#8b949e" font-size="10" text-anchor="end">4</text>
+          <text x="44" y="108" fill="#8b949e" font-size="10" text-anchor="end">6</text>
+          <text x="44" y="86"  fill="#8b949e" font-size="10" text-anchor="end">8</text>
+          <text x="44" y="64"  fill="#8b949e" font-size="10" text-anchor="end">10</text>
+          <text x="44" y="42"  fill="#8b949e" font-size="10" text-anchor="end">12</text>
+          <text x="44" y="20"  fill="#8b949e" font-size="10" text-anchor="end">14</text>
+          <!-- X labels -->
+          <text x="50"  y="184" fill="#8b949e" font-size="10" text-anchor="middle">0</text>
+          <text x="155" y="184" fill="#8b949e" font-size="10" text-anchor="middle">5</text>
+          <text x="260" y="184" fill="#8b949e" font-size="10" text-anchor="middle">10</text>
+          <text x="365" y="184" fill="#8b949e" font-size="10" text-anchor="middle">15</text>
+          <text x="470" y="184" fill="#8b949e" font-size="10" text-anchor="middle">20</text>
+          <!-- Consigne -->
+          <line x1="50" y1="64" x2="470" y2="64" stroke="#484f58" stroke-width="1" stroke-dasharray="5,3"/>
+          <text x="472" y="67" fill="#484f58" font-size="9">10</text>
+          <!-- Vitesse max limite -->
+          <line x1="50" y1="61" x2="470" y2="61" stroke="#f78166" stroke-width="1" stroke-dasharray="3,3" opacity="0.5"/>
+          <!-- Oscillating curve: peak ~14.5 at t≈2, dip ~7 at t≈5, 10.5 at t≈8, 9.5 at t≈11, stabilise 10 -->
+          <path d="M50,170 Q70,100 90,16 Q105,50 120,108 Q135,72 155,59 Q175,68 195,63 Q230,62 470,64"
+                fill="none" stroke="#f78166" stroke-width="2" stroke-linecap="round"/>
+          <!-- Dépassement annotation -->
+          <line x1="90" y1="16" x2="90" y2="64" stroke="#f78166" stroke-width="1" stroke-dasharray="3,2" opacity="0.6"/>
+          <text x="92" y="28" fill="#f78166" font-size="9">≈14,5 rad·s⁻¹</text>
+          <text x="92" y="40" fill="#f78166" font-size="9">⚠ dépasse 10,1</text>
+        </svg>
+      </div>
+      <table>
+        <tr><th>Critère</th><th>Valeur lue</th><th>Exigence</th><th>Statut</th></tr>
+        <tr><td>Erreur statique</td><td class="val">0 %</td><td>≤ 12 %</td><td style="color:#3fb950">✅</td></tr>
+        <tr><td>Vitesse maximale</td><td class="val">≈ 14,5 rad·s⁻¹</td><td>≤ 10,1 rad·s⁻¹</td><td style="color:#f78166">❌</td></tr>
+        <tr><td>Temps d'établissement</td><td class="val">≈ 20 s</td><td>≤ 30 s</td><td style="color:#3fb950">✅</td></tr>
+        <tr><td><strong>Réglage retenu</strong></td><td colspan="3" style="color:#f78166"><strong>NON — dépassement important, risque d'endommager la turbine</strong></td></tr>
+      </table>
+    </div>
+
+    <!-- Solution 2 -->
+    <div class="card green" style="margin-bottom:16px;">
+      <h3>Solution 2 — Correcteur bien réglé ✅</h3>
+      <div class="chart-container" style="margin:12px 0;">
+        <div class="chart-title">Solution 2 — réponse simulée (0 à 10 s)</div>
+        <svg viewBox="0 0 500 200" xmlns="http://www.w3.org/2000/svg" width="100%">
+          <line x1="50" y1="170" x2="470" y2="170" stroke="#30363d" stroke-width="1.5"/>
+          <line x1="50" y1="10"  x2="50"  y2="170" stroke="#30363d" stroke-width="1.5"/>
+          <line x1="50" y1="148" x2="470" y2="148" stroke="#21262d" stroke-width="1"/>
+          <line x1="50" y1="126" x2="470" y2="126" stroke="#21262d" stroke-width="1"/>
+          <line x1="50" y1="104" x2="470" y2="104" stroke="#21262d" stroke-width="1"/>
+          <line x1="50" y1="82"  x2="470" y2="82"  stroke="#21262d" stroke-width="1"/>
+          <line x1="50" y1="60"  x2="470" y2="60"  stroke="#21262d" stroke-width="1"/>
+          <text x="44" y="174" fill="#8b949e" font-size="10" text-anchor="end">0</text>
+          <text x="44" y="152" fill="#8b949e" font-size="10" text-anchor="end">2</text>
+          <text x="44" y="130" fill="#8b949e" font-size="10" text-anchor="end">4</text>
+          <text x="44" y="108" fill="#8b949e" font-size="10" text-anchor="end">6</text>
+          <text x="44" y="86"  fill="#8b949e" font-size="10" text-anchor="end">8</text>
+          <text x="44" y="64"  fill="#8b949e" font-size="10" text-anchor="end">10</text>
+          <text x="50"  y="184" fill="#8b949e" font-size="10" text-anchor="middle">0</text>
+          <text x="97"  y="184" fill="#8b949e" font-size="10" text-anchor="middle">1</text>
+          <text x="144" y="184" fill="#8b949e" font-size="10" text-anchor="middle">2</text>
+          <text x="191" y="184" fill="#8b949e" font-size="10" text-anchor="middle">3</text>
+          <text x="238" y="184" fill="#8b949e" font-size="10" text-anchor="middle">4</text>
+          <text x="285" y="184" fill="#8b949e" font-size="10" text-anchor="middle">5</text>
+          <text x="332" y="184" fill="#8b949e" font-size="10" text-anchor="middle">6</text>
+          <text x="379" y="184" fill="#8b949e" font-size="10" text-anchor="middle">7</text>
+          <text x="426" y="184" fill="#8b949e" font-size="10" text-anchor="middle">8</text>
+          <text x="470" y="184" fill="#8b949e" font-size="10" text-anchor="middle">10</text>
+          <!-- Consigne à 10 rad/s = y:64 -->
+          <line x1="50" y1="64" x2="470" y2="64" stroke="#484f58" stroke-width="1" stroke-dasharray="5,3"/>
+          <!-- Valeur finale ≈ 9,1 rad/s = y:82 environ -->
+          <line x1="50" y1="82" x2="470" y2="82" stroke="#3fb950" stroke-width="1" stroke-dasharray="3,2" opacity="0.4"/>
+          <!-- Smooth first-order rise to ~9.1, no overshoot -->
+          <path d="M50,170 Q90,100 130,82 Q180,76 470,78"
+                fill="none" stroke="#3fb950" stroke-width="2.5" stroke-linecap="round"/>
+          <!-- Annotations -->
+          <text x="390" y="74" fill="#3fb950" font-size="9">ω_final ≈ 9,1 rad·s⁻¹</text>
+          <text x="390" y="60" fill="#484f58" font-size="9">consigne = 10</text>
+          <!-- Erreur bracket -->
+          <line x1="452" y1="64" x2="452" y2="79" stroke="#ffa657" stroke-width="1.5"/>
+          <text x="456" y="73" fill="#ffa657" font-size="9">ε ≈ 9 %</text>
+        </svg>
+      </div>
+      <table>
+        <tr><th>Critère</th><th>Valeur lue</th><th>Exigence</th><th>Statut</th></tr>
+        <tr><td>Erreur statique</td><td class="val">≈ 9 %</td><td>≤ 12 %</td><td style="color:#3fb950">✅</td></tr>
+        <tr><td>Vitesse maximale</td><td class="val">≈ 9,1 rad·s⁻¹</td><td>≤ 10,1 rad·s⁻¹</td><td style="color:#3fb950">✅</td></tr>
+        <tr><td>Temps d'établissement</td><td class="val">≈ 5 s</td><td>≤ 30 s</td><td style="color:#3fb950">✅</td></tr>
+        <tr><td><strong>Réglage retenu</strong></td><td colspan="3" style="color:#3fb950"><strong>OUI — tous les critères sont satisfaits ✅</strong></td></tr>
+      </table>
+      <div class="highlight" style="margin-top:12px;">
+        <strong>Calcul de l'erreur :</strong> ε = (10 − 9,1) / 10 × 100 = <strong>9 %</strong> &lt; 12 % ✅
+      </div>
+    </div>
+
+    <!-- Solution 3 -->
+    <div class="card orange" style="margin-bottom:16px;">
+      <h3>Solution 3 — Correcteur trop lent</h3>
+      <div class="chart-container" style="margin:12px 0;">
+        <div class="chart-title">Solution 3 — réponse simulée (0 à 20 s)</div>
+        <svg viewBox="0 0 500 200" xmlns="http://www.w3.org/2000/svg" width="100%">
+          <line x1="50" y1="170" x2="470" y2="170" stroke="#30363d" stroke-width="1.5"/>
+          <line x1="50" y1="10"  x2="50"  y2="170" stroke="#30363d" stroke-width="1.5"/>
+          <line x1="50" y1="148" x2="470" y2="148" stroke="#21262d" stroke-width="1"/>
+          <line x1="50" y1="126" x2="470" y2="126" stroke="#21262d" stroke-width="1"/>
+          <line x1="50" y1="104" x2="470" y2="104" stroke="#21262d" stroke-width="1"/>
+          <line x1="50" y1="82"  x2="470" y2="82"  stroke="#21262d" stroke-width="1"/>
+          <line x1="50" y1="60"  x2="470" y2="60"  stroke="#21262d" stroke-width="1"/>
+          <line x1="50" y1="38"  x2="470" y2="38"  stroke="#21262d" stroke-width="1"/>
+          <text x="44" y="174" fill="#8b949e" font-size="10" text-anchor="end">0</text>
+          <text x="44" y="152" fill="#8b949e" font-size="10" text-anchor="end">2</text>
+          <text x="44" y="130" fill="#8b949e" font-size="10" text-anchor="end">4</text>
+          <text x="44" y="108" fill="#8b949e" font-size="10" text-anchor="end">6</text>
+          <text x="44" y="86"  fill="#8b949e" font-size="10" text-anchor="end">8</text>
+          <text x="44" y="64"  fill="#8b949e" font-size="10" text-anchor="end">10</text>
+          <text x="44" y="42"  fill="#8b949e" font-size="10" text-anchor="end">12</text>
+          <text x="50"  y="184" fill="#8b949e" font-size="10" text-anchor="middle">0</text>
+          <text x="155" y="184" fill="#8b949e" font-size="10" text-anchor="middle">5</text>
+          <text x="260" y="184" fill="#8b949e" font-size="10" text-anchor="middle">10</text>
+          <text x="365" y="184" fill="#8b949e" font-size="10" text-anchor="middle">15</text>
+          <text x="470" y="184" fill="#8b949e" font-size="10" text-anchor="middle">20</text>
+          <!-- Consigne -->
+          <line x1="50" y1="64" x2="470" y2="64" stroke="#484f58" stroke-width="1" stroke-dasharray="5,3"/>
+          <!-- Vitesse max limite 10,1 -->
+          <line x1="50" y1="62" x2="470" y2="62" stroke="#f78166" stroke-width="1" stroke-dasharray="3,2" opacity="0.4"/>
+          <!-- Curve: petit dépassement à ~10,8 puis stabilise à 10 lentement, tₑ ≈ 15 s -->
+          <path d="M50,170 Q100,70 140,53 Q160,48 180,55 Q220,62 280,63 Q380,64 470,64"
+                fill="none" stroke="#ffa657" stroke-width="2" stroke-linecap="round"/>
+          <!-- Dépassement annotation -->
+          <line x1="155" y1="48" x2="155" y2="64" stroke="#ffa657" stroke-width="1" stroke-dasharray="3,2" opacity="0.7"/>
+          <text x="158" y="46" fill="#ffa657" font-size="9">≈10,8 rad·s⁻¹</text>
+          <!-- tₑ annotation -->
+          <line x1="280" y1="63" x2="280" y2="170" stroke="#ffa657" stroke-width="1" stroke-dasharray="3,2" opacity="0.5"/>
+          <text x="282" y="155" fill="#ffa657" font-size="9">tₑ ≈ 15 s ✅</text>
+          <text x="282" y="165" fill="#f78166" font-size="9">mais dépasse 10,1!</text>
+        </svg>
+      </div>
+      <table>
+        <tr><th>Critère</th><th>Valeur lue</th><th>Exigence</th><th>Statut</th></tr>
+        <tr><td>Erreur statique</td><td class="val">0 %</td><td>≤ 12 %</td><td style="color:#3fb950">✅</td></tr>
+        <tr><td>Vitesse maximale</td><td class="val">≈ 10,8 rad·s⁻¹</td><td>≤ 10,1 rad·s⁻¹</td><td style="color:#f78166">❌</td></tr>
+        <tr><td>Temps d'établissement</td><td class="val">≈ 15 s</td><td>≤ 30 s</td><td style="color:#3fb950">✅</td></tr>
+        <tr><td><strong>Réglage retenu</strong></td><td colspan="3" style="color:#f78166"><strong>NON — dépassement léger mais suffisant pour dépasser la vitesse max admissible</strong></td></tr>
+      </table>
+    </div>
+
+    <div class="highlight">
+      <strong>Conclusion Q1.9 :</strong> Seule la <strong>Solution 2</strong> respecte les trois critères simultanément. Bien que son erreur statique soit non nulle (≈ 9 %), elle reste dans la tolérance de 12 %, et elle ne provoque aucun dépassement de vitesse. C'est le réglage retenu.
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- SECTION 4 : Question 1.10 -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">04</span>
+      <h2 class="section-title">Question 1.10 — Calcul de la décélération angulaire nécessaire</h2>
+    </div>
+
+    <div class="card blue">
+      <h3>Données du problème</h3>
+      <table>
+        <tr><th>Paramètre</th><th>Valeur</th></tr>
+        <tr><td>Diamètre D</td><td class="val">1,27 m → R = 0,635 m</td></tr>
+        <tr><td>Vitesse du courant V₀</td><td class="val">1,97 m·s⁻¹</td></tr>
+        <tr><td>λ_max (cas défavorable)</td><td class="val">10</td></tr>
+        <tr><td>λ_optimal</td><td class="val">4</td></tr>
+        <tr><td>Temps d'établissement tₑ</td><td class="val">30 s</td></tr>
+      </table>
+    </div>
+
+    <div class="question-box">
+      <div class="question-label">Question 1.10 — Démonstration</div>
+      <div class="answer">
+        <ul class="steps">
+          <li>
+            <div>
+              <strong>Calculer ω_max</strong> à partir de λ_max = 10 :<br>
+              <div class="math-block">ω_max = λ_max · V₀ / R = 10 × 1,97 / 0,635 ≈ 31,0 rad·s⁻¹</div>
+            </div>
+          </li>
+          <li>
+            <div>
+              <strong>Calculer ω_optimal</strong> à partir de λ_opt = 4 :<br>
+              <div class="math-block">ω_opt = λ_opt · V₀ / R = 4 × 1,97 / 0,635 ≈ 12,4 rad·s⁻¹</div>
+            </div>
+          </li>
+          <li>
+            <div>
+              <strong>Calculer la décélération</strong> (supposée constante sur tₑ = 30 s) :<br>
+              <div class="math-block">dω/dt = (ω_opt − ω_max) / tₑ = (12,4 − 31,0) / 30 ≈ −0,62 rad·s⁻²</div>
+            </div>
+          </li>
+        </ul>
+        <div class="highlight">
+          <strong>Résultat :</strong> dω/dt ≈ −0,62 rad·s⁻² — le signe négatif confirme une <em>décélération</em>. C'est la valeur à fournir par le système de freinage pour ramener la turbine à sa vitesse optimale dans le temps imparti.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- SECTION 5 : Question 1.11 -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">05</span>
+      <h2 class="section-title">Question 1.11 — Théorème du moment dynamique et choix du frein</h2>
+    </div>
+
+    <div class="card orange">
+      <h3>Données mécaniques (Figure 10)</h3>
+      <table>
+        <tr><th>Grandeur</th><th>Symbole</th><th>Valeur</th></tr>
+        <tr><td>Inertie équivalente</td><td class="val">J</td><td class="val">25 kg·m²</td></tr>
+        <tr><td>Couple moteur (courant)</td><td class="val">C</td><td class="val">4 200 N·m</td></tr>
+        <tr><td>Couple de freinage max</td><td class="val">C_f max</td><td class="val">4 250 N·m</td></tr>
+        <tr><td>Décélération requise</td><td class="val">dω/dt</td><td class="val">−0,62 rad·s⁻²</td></tr>
+      </table>
+    </div>
+
+    <div class="question-box">
+      <div class="question-label">Question 1.11 — Application du théorème du moment dynamique</div>
+      <div class="answer">
+        <p><strong>Isolation du système (turbine + générateur) sur l'axe (O, z̄) :</strong></p>
+        <p>Le théorème du moment dynamique donne la somme des couples = J · (dω/dt) :</p>
+        <div class="math-block">C − C_f = J · dω/dt</div>
+        <p>Le couple moteur C entraîne la rotation ; le couple de frein C_f s'y oppose (d'où le signe −).</p>
+        <p>On en déduit :</p>
+        <div class="math-block">C_f = C − J · (dω/dt)</div>
+        <p><strong>Application numérique :</strong></p>
+        <div class="math-block">C_f = 4 200 − 25 × (−0,62)<br>C_f = 4 200 + 15,5<br><strong>C_f ≈ 4 215,5 N·m</strong></div>
+      </div>
+    </div>
+
+    <div class="card green">
+      <h3>Conclusion sur le choix du système de freinage</h3>
+      <p>Le couple de freinage nécessaire est <span class="math-inline">C_f ≈ 4 215,5 N·m</span>.</p>
+      <p>La valeur maximale fournie par le frein est <span class="math-inline">C_f max = 4 250 N·m</span>.</p>
+      <div class="math-block">C_f = 4 215,5 N·m  &lt;  C_f max = 4 250 N·m  ✅</div>
+      <p>Le couple nécessaire est <strong>inférieur au couple maximal disponible</strong>. Le système de freinage choisi est donc <strong>validé</strong> : il est capable d'assurer la décélération requise tout en restant dans ses limites opérationnelles.</p>
+    </div>
+
+    <div class="highlight">
+      <strong>Interprétation physique :</strong> Pour décélérer, le frein doit non seulement compenser le couple moteur fourni par le courant (4 200 N·m) mais aussi fournir le couple inertiel nécessaire à la décélération (J·|dω/dt| = 15,5 N·m). Ces deux effets s'additionnent, d'où C_f &gt; C.
+    </div>
+  </div>
+
+  <!-- Conclusion générale -->
+  <div class="conclusion">
+    <h2>Synthèse de la sous-partie 2</h2>
+    <p style="color:var(--text-muted); max-width:600px; margin:0 auto 20px;">
+      L'objectif était d'optimiser la production d'énergie de l'hydrolienne par asservissement de vitesse.
+    </p>
+    <table style="max-width:600px; margin:0 auto; text-align:left;">
+      <tr>
+        <th>Étape</th><th>Résultat clé</th>
+      </tr>
+      <tr><td>1.7 — Optimum</td><td class="val">λ_opt ≈ 4 → efficacité max ≈ 50 %</td></tr>
+      <tr><td>1.8 — Sans correcteur</td><td class="val">Erreur = 50 % → non conforme (12 % max)</td></tr>
+      <tr><td>1.9 — Correcteur</td><td class="val">Solution B retenue (PI bien réglé)</td></tr>
+      <tr><td>1.10 — Décélération</td><td class="val">dω/dt ≈ −0,62 rad·s⁻²</td></tr>
+      <tr><td>1.11 — Frein</td><td class="val">C_f ≈ 4 215,5 N·m &lt; C_f max → validé ✅</td></tr>
+    </table>
+  </div>
+
+</div>
+</body>
+</html>
