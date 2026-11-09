@@ -192,7 +192,7 @@ const S=[
  {id:"seq12",n:"12",t:"Alimenter · Distribuer · Convertir",o:["Décrire la chaîne de puissance d'un système","Calculer puissances et rendements"],p:[
 ]},
  {id:"seq13",n:"13",t:"Intelligence artificielle",o:["Découvrir comment une machine apprend à partir de données"],p:[]},
- {id:"projetTle",n:"Tle",g:"Projets Terminale",k:"Projet — Terminale SI",t:"Projets d'asservissement",o:["Choisir un projet adapté au matériel du lycée (Arduino, micro:bit, HuskyLens, drones)","Rédiger un cahier des charges chiffré : temps de réponse, dépassement, erreur statique","Régler un correcteur P, PI puis PID et analyser les écarts entre modèle et réel"],p:[
+ {id:"projetTle",n:"Tle",g:"Projets Terminale",k:"Projet — Terminale SI",t:"Projets d'asservissement",o:["Choisir un projet adapté au matériel du lycée (Arduino, micro:bit, HuskyLens, drones)","Rédiger un cahier des charges chiffré : temps de réponse, dépassement, erreur statique","Régler un correcteur P, PI puis PID et analyser les écarts entre modèle et réel"],intro:["Pour trouver l'inspiration, découvre les projets de robotique d'Aaed Musa : plateforme de Stewart, Ball Balancer (balle maintenue en équilibre sur un plateau), robot qui résout le Rubik's Cube… Observe comment il mesure, commande et corrige le mouvement.","https://www.aaedmusa.com/projects/","Voir les projets d'Aaed Musa"],p:[
   ["PROJET","Projets d'asservissement — Terminale SI","9 idées de projets (balle sur rail, lévitation, tourelle HuskyLens, drone Tello…), organisation en groupes et démarche commune","projetTle/01_Projets_asservissement_Terminale_SI.html",1]]},
  {id:"option2nde",n:"2nde",g:"Option 2nde",k:"Option Sciences de l'ingénieur",t:"Option ScIng — Projet",o:["Mener un projet de conception","Modéliser une pièce en CAO avec Onshape"],p:[
   ["PROJET","Enceinte Bluetooth","Guide élève","option2nde/01_Enceinte_BT_guide_eleve.html"],
@@ -241,6 +241,7 @@ function seqView(s){
  const i=S.indexOf(s),prev=S[i-1],next=S[i+1];
  return `<div class="hero"><div class="num">${badge(s)}</div><div class="k">${s.g?s.k:"Séquence "+s.n}</div><h1>${esc(s.t)}</h1></div>
  <div class="box obj"><b>🎯 Ce que tu vas apprendre</b><ul>${s.o.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>
+ ${s.intro?`<div class="box also" style="margin-top:14px;border-left:5px solid var(--accent)"><b>💡 Introduction</b><p style="margin:6px 0 8px">${esc(s.intro[0])}</p><a href="${s.intro[1]}" target="_blank" rel="noopener">🔗 ${esc(s.intro[2])} →</a></div>`:''}
  <h2>🗺️ Parcours conseillé</h2>
  ${s.p.length?groups(s.p):`<div class="empty">Pas encore de page interactive pour cette séquence.</div>`}
  ${s.also?`<div class="box also"><b>🔗 Voir aussi</b><br>${s.also.map(([l,h])=>`<a href="${h}">${esc(l)}</a>`).join('<br>')}</div>`:''}
