@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Projets d'asservissement — Terminale SI</title>
+<style>
+  :root {
+    --bleu: #1F4E79;
+    --bleu-clair: #E8F0F8;
+    --gris: #555;
+    --bord: #C9D3DF;
+    --vert: #2E7D32;
+    --orange: #E08A00;
+    --rouge: #C62828;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: "Segoe UI", Roboto, Arial, sans-serif;
+    color: #222;
+    background: #F6F8FB;
+    line-height: 1.55;
+  }
+  header {
+    background: linear-gradient(135deg, var(--bleu), #2F6FA8);
+    color: #fff;
+    padding: 2.2rem 1.5rem 2rem;
+    text-align: center;
+  }
+  header h1 { margin: 0 0 .4rem; font-size: 2rem; }
+  header p { margin: 0 auto; max-width: 720px; opacity: .92; }
+  main { max-width: 1050px; margin: 0 auto; padding: 1.5rem 1rem 3rem; }
+  section { margin-top: 2rem; }
+  h2 {
+    color: var(--bleu);
+    border-bottom: 3px solid var(--bleu);
+    padding-bottom: .3rem;
+    font-size: 1.4rem;
+  }
+  .intro {
+    background: #fff;
+    border-left: 5px solid var(--bleu);
+    padding: 1rem 1.2rem;
+    border-radius: 6px;
+    box-shadow: 0 1px 4px rgba(0,0,0,.06);
+  }
+
+  /* Tableau */
+  .table-wrap { overflow-x: auto; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+    font-size: .92rem;
+    box-shadow: 0 1px 4px rgba(0,0,0,.06);
+  }
+  th, td { padding: .6rem .7rem; border: 1px solid var(--bord); text-align: left; }
+  th { background: var(--bleu); color: #fff; }
+  tr:nth-child(even) td { background: var(--bleu-clair); }
+  td.num { text-align: center; font-weight: bold; color: var(--bleu); }
+  .etoiles { white-space: nowrap; letter-spacing: 1px; }
+  .etoiles .on { color: var(--orange); }
+  .etoiles .off { color: #CCC; }
+
+  /* Cartes */
+  .cartes {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1rem;
+  }
+  .carte {
+    background: #fff;
+    border-radius: 10px;
+    padding: 1.1rem 1.2rem;
+    box-shadow: 0 2px 6px rgba(0,0,0,.07);
+    border-top: 5px solid var(--bleu);
+    display: flex;
+    flex-direction: column;
+  }
+  .carte h3 { margin: 0 0 .5rem; font-size: 1.1rem; color: var(--bleu); }
+  .carte p { margin: 0 0 .7rem; flex: 1; }
+  .tags { display: flex; flex-wrap: wrap; gap: .35rem; }
+  .tag {
+    font-size: .75rem;
+    background: var(--bleu-clair);
+    color: var(--bleu);
+    padding: .2rem .55rem;
+    border-radius: 999px;
+  }
+  .niv-1 { border-top-color: var(--vert); }
+  .niv-2 { border-top-color: #1976D2; }
+  .niv-3 { border-top-color: var(--orange); }
+  .niv-4 { border-top-color: var(--rouge); }
+  .alerte {
+    font-size: .85rem;
+    background: #FFF4E0;
+    border-left: 3px solid var(--orange);
+    padding: .4rem .6rem;
+    margin-bottom: .7rem;
+    border-radius: 4px;
+  }
+
+  /* Groupes */
+  .groupes {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1rem;
+  }
+  .groupe {
+    background: #fff;
+    border-radius: 10px;
+    padding: 1rem;
+    text-align: center;
+    box-shadow: 0 2px 6px rgba(0,0,0,.07);
+  }
+  .groupe .badge {
+    display: inline-block;
+    color: #fff;
+    font-weight: bold;
+    padding: .25rem .8rem;
+    border-radius: 999px;
+    margin-bottom: .5rem;
+  }
+  .roles {
+    margin-top: 1rem;
+    background: #fff;
+    border-radius: 10px;
+    padding: 1rem 1.2rem;
+    box-shadow: 0 2px 6px rgba(0,0,0,.07);
+  }
+
+  /* Démarche */
+  .etapes { counter-reset: e; list-style: none; padding: 0; }
+  .etapes li {
+    counter-increment: e;
+    background: #fff;
+    margin-bottom: .6rem;
+    padding: .8rem 1rem .8rem 3.4rem;
+    border-radius: 8px;
+    position: relative;
+    box-shadow: 0 1px 4px rgba(0,0,0,.06);
+  }
+  .etapes li::before {
+    content: counter(e);
+    position: absolute;
+    left: .9rem; top: 50%;
+    transform: translateY(-50%);
+    width: 1.9rem; height: 1.9rem;
+    border-radius: 50%;
+    background: var(--bleu);
+    color: #fff;
+    font-weight: bold;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  .legende { font-size: .85rem; color: var(--gris); margin-top: .5rem; }
+  footer { text-align: center; color: var(--gris); font-size: .85rem; padding: 1rem; }
+
+  @media print {
+    body { background: #fff; }
+    .carte, .groupe, .etapes li, table { box-shadow: none; }
+    .carte { break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <a href="../index.html#projetTle" style="display:inline-block;margin-bottom:1rem;color:#fff;text-decoration:none;border:1px solid rgba(255,255,255,.5);border-radius:6px;padding:.3rem .8rem;font-size:.9rem">← Retour au site SI</a>
+  <h1>Projets d'asservissement — Terminale SI</h1>
+  <p>Idées de projets réalisables avec le matériel de l'établissement : Arduino, micro:bit, caméras HuskyLens et drones.</p>
+</header>
+
+<main>
+
+  <div class="intro">
+    Chaque projet permet de travailler la <strong>chaîne de mesure</strong>, la <strong>boucle fermée</strong>,
+    le <strong>correcteur P / PI / PID</strong>, les <strong>performances</strong> (précision, rapidité, stabilité)
+    et l'<strong>écart entre le modèle et le réel</strong>.
+  </div>
+
+  <!-- 1. Vue d'ensemble -->
+  <section>
+    <h2>1. Vue d'ensemble</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>#</th><th>Projet</th><th>Grandeur asservie</th><th>Capteur</th><th>Actionneur</th><th>Difficulté</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="num">1</td><td>Balle sur rail</td><td>Position de la balle</td><td>Distance ToF (VL53L0X) ou ultrason</td><td>Servomoteur</td><td class="etoiles"><span class="on">★★</span><span class="off">★★</span></td></tr>
+          <tr><td class="num">2</td><td>Balle en lévitation dans un tube</td><td>Hauteur de la balle</td><td>Distance ToF en haut du tube</td><td>Ventilateur PWM</td><td class="etoiles"><span class="on">★★</span><span class="off">★★</span></td></tr>
+          <tr><td class="num">3</td><td>Tourelle qui suit un objet</td><td>Angles horizontal et vertical</td><td>HuskyLens</td><td>2 servomoteurs</td><td class="etoiles"><span class="on">★★</span><span class="off">★★</span></td></tr>
+          <tr><td class="num">4</td><td>Balancier à hélice</td><td>Angle du bras</td><td>Potentiomètre ou MPU6050</td><td>Moteur brushless + ESC</td><td class="etoiles"><span class="on">★★★</span><span class="off">★</span></td></tr>
+          <tr><td class="num">5</td><td>Robot gyropode (pendule inversé)</td><td>Inclinaison</td><td>MPU6050</td><td>2 moteurs CC</td><td class="etoiles"><span class="on">★★★★</span></td></tr>
+          <tr><td class="num">6</td><td>Vitesse d'un moteur CC</td><td>Vitesse de rotation</td><td>Codeur incrémental</td><td>Moteur CC + pont en H</td><td class="etoiles"><span class="on">★</span><span class="off">★★★</span></td></tr>
+          <tr><td class="num">7</td><td>Mini-serre ou couveuse</td><td>Température</td><td>DS18B20 / DHT22</td><td>Résistance chauffante + ventilateur</td><td class="etoiles"><span class="on">★</span><span class="off">★★★</span></td></tr>
+          <tr><td class="num">8</td><td>Drone Tello qui suit une cible</td><td>Position par rapport à la cible</td><td>Caméra du Tello</td><td>Le drone (piloté en Python)</td><td class="etoiles"><span class="on">★★★</span><span class="off">★</span></td></tr>
+          <tr><td class="num">9</td><td>Suiveur solaire 2 axes</td><td>Orientation du panneau</td><td>4 photorésistances</td><td>2 servos ou moteurs pas à pas</td><td class="etoiles"><span class="on">★★</span><span class="off">★★</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="legende">La couleur du haut de chaque carte ci-dessous indique la difficulté : vert ★ · bleu ★★ · orange ★★★ · rouge ★★★★</p>
+  </section>
+
+  <!-- 2. Détail -->
+  <section>
+    <h2>2. Détail des projets</h2>
+    <div class="cartes">
+
+      <article class="carte niv-2">
+        <h3>1. Balle sur rail</h3>
+        <p>Le classique des asservissements : un rail incliné par un servo, la balle doit s'arrêter à une position demandée. Le système est instable en boucle ouverte, donc on voit tout de suite pourquoi il faut un correcteur. Le dérivé (D) y est indispensable. Peu coûteux, fabricable en impression 3D ou en bois.</p>
+        <div class="tags"><span class="tag">PID</span><span class="tag">Instabilité</span><span class="tag">Arduino</span></div>
+      </article>
+
+      <article class="carte niv-2">
+        <h3>2. Balle en lévitation</h3>
+        <p>Une balle de ping-pong flotte dans un tube transparent grâce à un ventilateur placé en dessous. Très visuel, idéal pour l'oral. On peut ajouter des perturbations (ouvrir un trou dans le tube, changer de balle) pour montrer le rejet de perturbation et l'intérêt de l'intégrateur (I) contre l'erreur statique.</p>
+        <div class="tags"><span class="tag">Perturbations</span><span class="tag">Erreur statique</span><span class="tag">PWM</span></div>
+      </article>
+
+      <article class="carte niv-2">
+        <h3>3. Tourelle qui suit un objet</h3>
+        <p>La HuskyLens donne la position de l'objet dans l'image ; l'écart avec le centre de l'image est l'erreur à annuler. C'est un asservissement visuel, simple à coder car la caméra renvoie directement les coordonnées. Extensions : caméra de surveillance, projecteur de scène qui suit un acteur.</p>
+        <div class="tags"><span class="tag">Asservissement visuel</span><span class="tag">HuskyLens</span><span class="tag">Arduino / micro:bit</span></div>
+      </article>
+
+      <article class="carte niv-3">
+        <h3>4. Balancier à hélice</h3>
+        <p>Un bras pivote autour d'un axe, avec une hélice au bout, et doit tenir un angle donné. Très bon projet pour la mécanique : moment du poids, moment de la poussée, PFD en rotation (lien direct avec le TP sur les moments). Il explique en petit comment un drone se stabilise.</p>
+        <div class="alerte">⚠ Sécurité : prévoir un carter autour de l'hélice.</div>
+        <div class="tags"><span class="tag">Moments</span><span class="tag">PFD</span><span class="tag">Brushless</span></div>
+      </article>
+
+      <article class="carte niv-4">
+        <h3>5. Gyropode</h3>
+        <p>Le projet le plus ambitieux : un robot sur deux roues qui tient debout tout seul. Il faut fusionner les mesures de l'accéléromètre et du gyroscope, puis régler finement le PID. À réserver à un groupe solide et motivé.</p>
+        <div class="tags"><span class="tag">Pendule inversé</span><span class="tag">Fusion de capteurs</span><span class="tag">PID</span></div>
+      </article>
+
+      <article class="carte niv-1">
+        <h3>6. Vitesse d'un moteur CC</h3>
+        <p>Base idéale pour identifier un système du 1er ordre (gain statique, constante de temps), puis comparer boucle ouverte et boucle fermée avec une charge. Un peu léger seul : mieux comme brique d'un projet plus large (convoyeur, treuil, robot).</p>
+        <div class="tags"><span class="tag">1er ordre</span><span class="tag">Identification</span><span class="tag">Codeur</span></div>
+      </article>
+
+      <article class="carte niv-1">
+        <h3>7. Mini-serre ou couveuse</h3>
+        <p>Système lent, donc très facile à mesurer et à modéliser. Peut être porté par un vrai besoin, utile pour le cahier des charges. On peut comparer une régulation tout-ou-rien et une régulation PI.</p>
+        <div class="tags"><span class="tag">Régulation</span><span class="tag">Tout-ou-rien vs PI</span><span class="tag">Thermique</span></div>
+      </article>
+
+      <article class="carte niv-3">
+        <h3>8. Drone Tello en suivi de cible</h3>
+        <p>Programmation en Python (djitellopy + OpenCV) pour suivre un visage ou un marqueur ArUco. Idéal pour expliquer l'imbrication de deux boucles : la stabilisation est dans le drone, la boucle de suivi est écrite par les élèves.</p>
+        <div class="alerte">⚠ Un seul Tello fonctionnel : prévoir une batterie de rechange et une zone de vol dégagée.</div>
+        <div class="tags"><span class="tag">Boucles imbriquées</span><span class="tag">Python</span><span class="tag">Vision</span></div>
+      </article>
+
+      <article class="carte niv-2">
+        <h3>9. Suiveur solaire</h3>
+        <p>Facile à justifier par le développement durable. On mesure l'énergie récupérée avec un panneau fixe puis avec le suiveur, ce qui donne un critère de performance chiffré.</p>
+        <div class="tags"><span class="tag">Développement durable</span><span class="tag">Énergie</span><span class="tag">2 axes</span></div>
+      </article>
+
+    </div>
+  </section>
+
+  <!-- 3. Organisation -->
+  <section>
+    <h2>3. Organisation pour 9 élèves</h2>
+    <p>Le plus simple : <strong>3 groupes de 3</strong>, avec des projets de difficulté variée.</p>
+    <div class="groupes">
+      <div class="groupe">
+        <span class="badge" style="background:var(--vert)">Groupe A</span>
+        <p><strong>Visuel et accessible</strong><br>Balle en lévitation ou tourelle HuskyLens</p>
+      </div>
+      <div class="groupe">
+        <span class="badge" style="background:#1976D2">Groupe B</span>
+        <p><strong>Intermédiaire</strong><br>Balle sur rail ou suiveur solaire</p>
+      </div>
+      <div class="groupe">
+        <span class="badge" style="background:var(--orange)">Groupe C</span>
+        <p><strong>Ambitieux</strong><br>Balancier à hélice ou drone Tello</p>
+      </div>
+    </div>
+    <div class="roles">
+      <strong>Répartition des rôles dans chaque groupe :</strong>
+      🔧 mécanique et structure · 💻 chaîne d'information et code · 📈 modélisation et mesure des performances
+    </div>
+  </section>
+
+  <!-- 4. Démarche -->
+  <section>
+    <h2>4. Démarche commune à tous les projets</h2>
+    <ol class="etapes">
+      <li><strong>Cahier des charges chiffré</strong> : temps de réponse à 5 %, dépassement maximal, erreur statique.</li>
+      <li><strong>Essais en boucle ouverte.</strong></li>
+      <li><strong>Modèle en schéma-blocs</strong>, simulé en Python ou Scilab/Xcos.</li>
+      <li><strong>Réglage progressif du correcteur</strong> : P, puis PI, puis PID.</li>
+      <li><strong>Analyse des écarts</strong> entre cahier des charges, simulation et mesure réelle.</li>
+    </ol>
+  </section>
+
+</main>
+
+<footer>Projets d'asservissement — Terminale SI</footer>
+
+</body>
+</html>

@@ -192,15 +192,17 @@ const S=[
  {id:"seq12",n:"12",t:"Alimenter · Distribuer · Convertir",o:["Décrire la chaîne de puissance d'un système","Calculer puissances et rendements"],p:[
 ]},
  {id:"seq13",n:"13",t:"Intelligence artificielle",o:["Découvrir comment une machine apprend à partir de données"],p:[]},
- {id:"option2nde",n:"2nde",t:"Option ScIng — Projet",o:["Mener un projet de conception","Modéliser une pièce en CAO avec Onshape"],p:[
+ {id:"projetTle",n:"Tle",g:"Projets Terminale",k:"Projet — Terminale SI",t:"Projets d'asservissement",o:["Choisir un projet adapté au matériel du lycée (Arduino, micro:bit, HuskyLens, drones)","Rédiger un cahier des charges chiffré : temps de réponse, dépassement, erreur statique","Régler un correcteur P, PI puis PID et analyser les écarts entre modèle et réel"],p:[
+  ["PROJET","Projets d'asservissement — Terminale SI","9 idées de projets (balle sur rail, lévitation, tourelle HuskyLens, drone Tello…), organisation en groupes et démarche commune","projetTle/01_Projets_asservissement_Terminale_SI.html",1]]},
+ {id:"option2nde",n:"2nde",g:"Option 2nde",k:"Option Sciences de l'ingénieur",t:"Option ScIng — Projet",o:["Mener un projet de conception","Modéliser une pièce en CAO avec Onshape"],p:[
   ["PROJET","Enceinte Bluetooth","Guide élève","option2nde/01_Enceinte_BT_guide_eleve.html"],
   ["PROJET","Onshape, premiers pas","Tutoriel en images","option2nde/02_Demarche_Onshape_premiers_pas.html"]]}
 ];
 
 const $=s=>document.querySelector(s);
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-const badge=s=>s.n==="2nde"?"2nde":"S"+s.n;
-const label=s=>s.n==="2nde"?s.t:"Séquence "+s.n+" — "+s.t;
+const badge=s=>s.g?s.n:"S"+s.n;
+const label=s=>s.g?s.t:"Séquence "+s.n+" — "+s.t;
 const rk=k=>['LOGICIEL','EVAL','EVALC'].includes(k)?0:ORDRE.indexOf(k);
 const sorted=p=>p.map((r,i)=>[r,i]).sort((a,b)=>rk(a[0][0])-rk(b[0][0])||a[1]-b[1]).map(x=>x[0]);
 
@@ -214,8 +216,8 @@ function buildNav(filter){
   $('#nav').innerHTML=`<div class="grp">Résultats (${hits.length})</div>`+(hits.length?hits.map(([s,r])=>`<a href="${r[3]}"><i>${badge(s)}</i><span class="t">${T[r[0]].i} ${esc(r[1])}</span></a>`).join(''):'<div style="padding:6px 8px;opacity:.7;font-size:.88rem">Aucune ressource trouvée.</div>');return}
  const item=s=>`<a href="#${s.id}" data-id="${s.id}" class="${s.p.length?'':'vide'}"><i>${badge(s)}</i><span class="t">${esc(s.t)}</span>${s.p.length?`<span class="c">${s.p.length}</span>`:''}</a>`;
  $('#nav').innerHTML=`<a href="#accueil" data-id="accueil"><i>⌂</i><span class="t">Accueil</span></a>`+
-  `<div class="grp">Séquences</div>`+S.filter(s=>s.n!=="2nde").map(item).join('')+
-  `<div class="grp">Option 2nde</div>`+S.filter(s=>s.n==="2nde").map(item).join('');
+  `<div class="grp">Séquences</div>`+S.filter(s=>!s.g).map(item).join('')+
+  [...new Set(S.filter(s=>s.g).map(s=>s.g))].map(g=>`<div class="grp">${esc(g)}</div>`+S.filter(s=>s.g===g).map(item).join('')).join('');
  markNav()}
 function markNav(){const id=(location.hash||'#accueil').slice(1);document.querySelectorAll('#nav a[data-id]').forEach(a=>a.classList.toggle('on',a.dataset.id===id))}
 
@@ -237,7 +239,7 @@ function groups(p){const th=[...new Set(p.map(r=>r[5]||''))];
  return th.map(t=>`${t?`<h3 class="theme">${esc(t)}</h3>`:''}<ol class="path">${((t.startsWith('🧩')||t.startsWith('📝'))?(x=>x):sorted)(p.filter(r=>(r[5]||'')===t)).map(r=>`<li>${card(r)}</li>`).join('')}</ol>`).join('')}
 function seqView(s){
  const i=S.indexOf(s),prev=S[i-1],next=S[i+1];
- return `<div class="hero"><div class="num">${badge(s)}</div><div class="k">${s.n==="2nde"?"Option Sciences de l'ingénieur":"Séquence "+s.n}</div><h1>${esc(s.t)}</h1></div>
+ return `<div class="hero"><div class="num">${badge(s)}</div><div class="k">${s.g?s.k:"Séquence "+s.n}</div><h1>${esc(s.t)}</h1></div>
  <div class="box obj"><b>🎯 Ce que tu vas apprendre</b><ul>${s.o.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>
  <h2>🗺️ Parcours conseillé</h2>
  ${s.p.length?groups(s.p):`<div class="empty">Pas encore de page interactive pour cette séquence.</div>`}
