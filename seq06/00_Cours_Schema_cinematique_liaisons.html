@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Le Schéma Cinématique — Révision BAC SI</title>
+<style>
+:root{
+  --bleu:#1a5f7a;
+  --bleu-fonce:#0d3b4d;
+  --bleu-clair:#e7f3f7;
+  --accent:#0ea5c4;
+  --vert:#2e8b57;
+  --rouge:#c0392b;
+  --orange:#e07b1a;
+  --gris:#5a6b73;
+  --gris-clair:#f4f7f8;
+  --bord:#d3e2e6;
+  --texte:#1c2b30;
+  --blanc:#ffffff;
+  font-size:16px;
+}
+*{box-sizing:border-box;}
+body{
+  margin:0;
+  font-family:"Segoe UI", Roboto, Arial, sans-serif;
+  background:var(--gris-clair);
+  color:var(--texte);
+  line-height:1.55;
+}
+header.top{
+  background:linear-gradient(135deg,var(--bleu-fonce),var(--bleu));
+  color:#fff;
+  padding:28px 24px 22px;
+  text-align:center;
+  position:relative;
+}
+header.top h1{
+  margin:0 0 6px;
+  font-size:1.9rem;
+  letter-spacing:.5px;
+}
+header.top p.sub{
+  margin:0;
+  opacity:.9;
+  font-size:.95rem;
+}
+.badge-row{
+  display:flex;
+  justify-content:center;
+  gap:10px;
+  margin-top:14px;
+  flex-wrap:wrap;
+}
+.badge{
+  background:rgba(255,255,255,.15);
+  border:1px solid rgba(255,255,255,.35);
+  padding:4px 12px;
+  border-radius:20px;
+  font-size:.78rem;
+}
+
+nav.tabs{
+  position:sticky;
+  top:0;
+  z-index:50;
+  background:#fff;
+  border-bottom:2px solid var(--bord);
+  display:flex;
+  overflow-x:auto;
+  padding:0 8px;
+  box-shadow:0 2px 6px rgba(0,0,0,.06);
+}
+nav.tabs button{
+  background:none;
+  border:none;
+  padding:14px 16px;
+  font-size:.85rem;
+  font-weight:600;
+  color:var(--gris);
+  cursor:pointer;
+  white-space:nowrap;
+  border-bottom:3px solid transparent;
+  transition:.2s;
+}
+nav.tabs button:hover{color:var(--bleu);}
+nav.tabs button.active{
+  color:var(--bleu);
+  border-bottom-color:var(--accent);
+}
+
+main{
+  max-width:1050px;
+  margin:0 auto;
+  padding:22px 18px 70px;
+}
+section.panel{display:none;animation:fade .25s ease;}
+section.panel.active{display:block;}
+@keyframes fade{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+
+.card{
+  background:#fff;
+  border:1px solid var(--bord);
+  border-radius:12px;
+  padding:20px 22px;
+  margin-bottom:18px;
+  box-shadow:0 1px 4px rgba(0,0,0,.04);
+}
+h2.section-title{
+  color:var(--bleu-fonce);
+  border-left:5px solid var(--accent);
+  padding-left:12px;
+  margin-top:0;
+  font-size:1.3rem;
+}
+h3{color:var(--bleu);font-size:1.05rem;}
+
+.def-box{
+  background:var(--bleu-clair);
+  border-left:4px solid var(--bleu);
+  padding:14px 16px;
+  border-radius:6px;
+  margin:12px 0;
+}
+.def-box b{color:var(--bleu-fonce);}
+
+/* Contact type switch */
+.contact-switch{display:flex;gap:10px;margin:14px 0;flex-wrap:wrap;}
+.contact-switch button{
+  flex:1;
+  min-width:140px;
+  padding:12px;
+  border-radius:8px;
+  border:2px solid var(--bord);
+  background:#fff;
+  cursor:pointer;
+  font-weight:600;
+  color:var(--gris);
+  transition:.2s;
+}
+.contact-switch button.active{
+  border-color:var(--accent);
+  background:var(--bleu-clair);
+  color:var(--bleu-fonce);
+}
+.contact-view{display:none;text-align:center;padding:14px;}
+.contact-view.active{display:block;}
+.contact-view svg{max-width:220px;}
+.contact-view p{max-width:480px;margin:10px auto 0;color:var(--gris);font-size:.92rem;}
+
+/* DOF explorer */
+.dof-explorer{display:flex;gap:26px;flex-wrap:wrap;align-items:center;justify-content:center;margin:16px 0;}
+.dof-cube-wrap{text-align:center;}
+.dof-list{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:340px;}
+.dof-btn{
+  border:2px solid var(--bord);
+  background:#fbfdfe;
+  border-radius:8px;
+  padding:10px 6px;
+  cursor:pointer;
+  font-weight:700;
+  text-align:center;
+  transition:.15s;
+  color:var(--gris);
+}
+.dof-btn.on{
+  border-color:var(--vert);
+  background:#eafaf1;
+  color:var(--vert);
+}
+.dof-btn:hover{transform:translateY(-2px);}
+#dofCount{font-weight:700;color:var(--accent);}
+
+/* Liaisons grid */
+.filter-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;}
+.filter-row button{
+  border:1px solid var(--bord);
+  background:#fff;
+  padding:6px 13px;
+  border-radius:20px;
+  cursor:pointer;
+  font-size:.8rem;
+  font-weight:600;
+  color:var(--gris);
+}
+.filter-row button.active{background:var(--bleu);color:#fff;border-color:var(--bleu);}
+
+.liaisons-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
+  gap:14px;
+}
+.liaison-card{
+  border:1px solid var(--bord);
+  border-radius:10px;
+  background:#fff;
+  padding:12px;
+  cursor:pointer;
+  text-align:center;
+  transition:.2s;
+  perspective:800px;
+}
+.liaison-card:hover{box-shadow:0 4px 12px rgba(0,0,0,.1);transform:translateY(-3px);}
+.liaison-card .ddl-tag{
+  display:inline-block;
+  font-size:.72rem;
+  font-weight:700;
+  background:var(--bleu-clair);
+  color:var(--bleu-fonce);
+  padding:2px 9px;
+  border-radius:12px;
+  margin-bottom:6px;
+}
+.liaison-card svg{width:100%;height:70px;}
+.liaison-card .name{font-weight:700;font-size:.88rem;color:var(--texte);margin-top:4px;}
+.liaison-card .mob{font-size:.74rem;color:var(--gris);}
+
+/* Modal */
+.modal-bg{
+  display:none;
+  position:fixed;inset:0;
+  background:rgba(10,30,40,.55);
+  z-index:200;
+  align-items:center;justify-content:center;
+  padding:16px;
+}
+.modal-bg.show{display:flex;}
+.modal{
+  background:#fff;
+  border-radius:14px;
+  max-width:480px;
+  width:100%;
+  padding:24px;
+  position:relative;
+  max-height:90vh;
+  overflow-y:auto;
+}
+.modal .close-x{
+  position:absolute;top:12px;right:14px;
+  border:none;background:none;font-size:1.4rem;cursor:pointer;color:var(--gris);
+}
+.modal svg{width:100%;max-width:260px;display:block;margin:10px auto;}
+.modal table{width:100%;border-collapse:collapse;margin-top:10px;font-size:.85rem;}
+.modal table td,.modal table th{border:1px solid var(--bord);padding:5px 8px;text-align:center;}
+.modal table th{background:var(--bleu-clair);}
+
+/* CEC interactive example */
+.perfo-wrap{display:flex;gap:24px;flex-wrap:wrap;align-items:flex-start;justify-content:center;}
+.perfo-svg-wrap svg{max-width:320px;}
+.piece-toggle{cursor:pointer;transition:.15s;}
+.piece-toggle:hover{opacity:.75;}
+.cec-legend{display:flex;flex-direction:column;gap:8px;min-width:200px;}
+.cec-item{
+  display:flex;align-items:center;gap:8px;
+  border:1px solid var(--bord);
+  padding:8px 10px;border-radius:8px;
+  cursor:pointer;font-size:.85rem;font-weight:600;
+}
+.cec-item.dim{opacity:.35;}
+.swatch{width:16px;height:16px;border-radius:4px;display:inline-block;}
+
+/* Graphe des liaisons */
+.graph-wrap{text-align:center;}
+.graph-wrap svg{max-width:360px;}
+.graph-node{cursor:pointer;}
+.info-pop{
+  margin-top:12px;
+  background:var(--bleu-clair);
+  border-radius:8px;
+  padding:10px 14px;
+  min-height:24px;
+  font-size:.9rem;
+  color:var(--bleu-fonce);
+  font-weight:600;
+}
+
+/* Stepper */
+.stepper{display:flex;flex-direction:column;gap:0;}
+.step{
+  border-left:3px solid var(--bord);
+  padding:6px 0 22px 22px;
+  position:relative;
+}
+.step::before{
+  content:attr(data-n);
+  position:absolute;
+  left:-17px;top:0;
+  width:30px;height:30px;
+  border-radius:50%;
+  background:var(--bord);
+  color:#fff;
+  display:flex;align-items:center;justify-content:center;
+  font-weight:700;font-size:.85rem;
+  transition:.2s;
+}
+.step.active::before{background:var(--accent);}
+.step.active{border-left-color:var(--accent);}
+.step h4{margin:0 0 6px;color:var(--bleu-fonce);cursor:pointer;}
+.step .body{display:none;color:var(--gris);font-size:.92rem;}
+.step.active .body{display:block;}
+.step ul{margin:6px 0 0 18px;padding:0;}
+
+/* Quiz */
+.quiz-card{border:1px solid var(--bord);border-radius:10px;padding:16px;margin-bottom:14px;}
+.quiz-card p.q{font-weight:700;margin:0 0 10px;color:var(--bleu-fonce);}
+.quiz-opts{display:flex;flex-direction:column;gap:8px;}
+.quiz-opts button{
+  text-align:left;
+  border:1px solid var(--bord);
+  background:#fbfdfe;
+  padding:9px 12px;
+  border-radius:8px;
+  cursor:pointer;
+  font-size:.88rem;
+}
+.quiz-opts button:hover{background:var(--bleu-clair);}
+.quiz-opts button.correct{background:#e6f7ec;border-color:var(--vert);color:var(--vert);font-weight:700;}
+.quiz-opts button.wrong{background:#fdecea;border-color:var(--rouge);color:var(--rouge);font-weight:700;}
+#scoreBox{
+  text-align:center;font-weight:700;font-size:1.05rem;color:var(--bleu-fonce);
+  padding:12px;background:var(--bleu-clair);border-radius:10px;margin-top:10px;
+}
+#resetQuiz{
+  display:block;margin:14px auto 0;
+  background:var(--bleu);color:#fff;border:none;padding:9px 20px;
+  border-radius:20px;cursor:pointer;font-weight:600;
+}
+
+footer{
+  text-align:center;padding:20px;font-size:.78rem;color:var(--gris);
+}
+
+@media print{
+  nav.tabs, .modal-bg, footer{display:none;}
+  section.panel{display:block !important;page-break-after:always;}
+}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <h1>⚙️ Le Schéma Cinématique</h1>
+  <p class="sub">SPÉCIALITÉ SI · Séquence 6 · Modélisation d'un système mécanique</p>
+  <div class="badge-row">
+    <span class="badge">Nature des contacts</span>
+    <span class="badge">Degrés de liberté</span>
+    <span class="badge">11 liaisons normalisées</span>
+    <span class="badge">CEC & Graphe des liaisons</span>
+  </div>
+</header>
+
+<nav class="tabs" id="tabsNav">
+  <button data-tab="def" class="active">1. Définition</button>
+  <button data-tab="contact">2. Contacts</button>
+  <button data-tab="ddl">3. Mouvements &amp; DDL</button>
+  <button data-tab="liaisons">4. Liaisons normalisées</button>
+  <button data-tab="cec">5. Classe d'équivalence</button>
+  <button data-tab="graphe">6. Graphe des liaisons</button>
+  <button data-tab="etapes">7-8. Schéma &amp; méthode</button>
+  <button data-tab="quiz">✅ Auto-évaluation</button>
+</nav>
+
+<main>
+
+  <!-- 1. DEFINITION -->
+  <section class="panel active" id="panel-def">
+    <div class="card">
+      <h2 class="section-title">1. Définition</h2>
+      <div class="def-box">
+        <b>Cinématique :</b> l'étude des mouvements entre solides. Un solide est considéré <b>indéformable</b>,
+        et peut être une pièce unique ou un groupe de pièces cinématiquement liées.
+      </div>
+      <div class="def-box">
+        <b>Schéma cinématique :</b> il a pour but de montrer le <b>principe de fonctionnement</b> du mécanisme
+        (mouvement des différents ensembles) sous une forme codée, <u>sans</u> s'attacher aux solutions
+        techniques retenues (épaisseur des pièces, forme réelle…).
+      </div>
+      <h3>Ce que le schéma cinématique...</h3>
+      <div style="display:flex;gap:14px;flex-wrap:wrap;">
+        <div style="flex:1;min-width:220px;background:#eafaf1;border-radius:8px;padding:12px;">
+          <b style="color:var(--vert)">✔ PERMET</b>
+          <ul style="margin:8px 0 0 18px;font-size:.9rem;">
+            <li>Visualiser les classes d'équivalence cinématique</li>
+            <li>Visualiser sous forme simplifiée les liaisons et mouvements possibles entre CEC</li>
+          </ul>
+        </div>
+        <div style="flex:1;min-width:220px;background:#fdecea;border-radius:8px;padding:12px;">
+          <b style="color:var(--rouge)">✘ NE DONNE PAS</b>
+          <ul style="margin:8px 0 0 18px;font-size:.9rem;">
+            <li>Les solutions technologiques réelles qui constituent le système</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. CONTACTS -->
+  <section class="panel" id="panel-contact">
+    <div class="card">
+      <h2 class="section-title">2. Nature des contacts</h2>
+      <p>Deux pièces sont <b>en liaison</b> si elles sont en contact par l'intermédiaire de surfaces, de lignes
+      ou de points. Cliquez sur un type pour voir un exemple :</p>
+      <div class="contact-switch" id="contactSwitch">
+        <button data-c="ponctuel" class="active">Ponctuel</button>
+        <button data-c="lineique">Linéique</button>
+        <button data-c="surfacique">Surfacique</button>
+      </div>
+
+      <div class="contact-view active" id="view-ponctuel">
+        <svg viewBox="0 0 200 140">
+          <rect x="30" y="90" width="140" height="26" fill="#3b82f6" opacity=".85" rx="3"/>
+          <circle cx="100" cy="70" r="20" fill="#c0392b"/>
+          <line x1="100" y1="50" x2="100" y2="20" stroke="#111" stroke-width="2" marker-end="url(#arrow)"/>
+        </svg>
+        <p>La zone de contact est réduite à <b>un point</b> (ex. sphère sur plan).</p>
+      </div>
+      <div class="contact-view" id="view-lineique">
+        <svg viewBox="0 0 200 140">
+          <rect x="30" y="95" width="140" height="24" fill="#3b82f6" opacity=".85" rx="3"/>
+          <rect x="70" y="55" width="60" height="40" rx="20" fill="#c0392b"/>
+        </svg>
+        <p>La zone de contact est réduite à <b>une ligne</b> (droite = rectiligne, ou courbe = circulaire/annulaire).</p>
+      </div>
+      <div class="contact-view" id="view-surfacique">
+        <svg viewBox="0 0 200 140">
+          <rect x="30" y="70" width="140" height="45" fill="#3b82f6" opacity=".85" rx="3"/>
+          <rect x="30" y="40" width="140" height="34" fill="#c0392b" rx="3"/>
+        </svg>
+        <p>La zone de contact est <b>une surface</b> (plan, cylindre, sphère, cône, hélice…).</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. DDL -->
+  <section class="panel" id="panel-ddl">
+    <div class="card">
+      <h2 class="section-title">3. Mouvements &amp; degré de liberté</h2>
+      <div class="def-box">La notion de mouvement est <b>relative</b> : il faut préciser l'élément de référence
+      (fixe ou mobile / à la Terre). Il existe <b>6 mouvements élémentaires</b> : 3 translations (Tx,Ty,Tz) et
+      3 rotations (Rx,Ry,Rz).</div>
+      <h3>Explorateur de degrés de liberté</h3>
+      <p style="font-size:.9rem;color:var(--gris);">Cliquez sur les mouvements pour simuler les mobilités d'une liaison :
+      un ddl <b>actif (vert)</b> = mouvement <b>autorisé (1)</b>, <b>inactif (gris)</b> = mouvement <b>interdit (0)</b>.</p>
+      <div class="dof-explorer">
+        <div class="dof-cube-wrap">
+          <svg id="cubeSvg" viewBox="0 0 220 220" width="220" height="220">
+            <line x1="110" y1="110" x2="110" y2="20" stroke="#aaa" stroke-width="2" id="axisRy"/>
+            <polygon points="110,14 104,26 116,26" fill="#aaa" id="arrRy"/>
+            <line x1="110" y1="110" x2="190" y2="150" stroke="#aaa" stroke-width="2" id="axisRx"/>
+            <polygon points="196,153 183,150 188,161" fill="#aaa" id="arrRx"/>
+            <line x1="110" y1="110" x2="40" y2="150" stroke="#aaa" stroke-width="2" id="axisRz"/>
+            <polygon points="34,153 47,150 42,161" fill="#aaa" id="arrRz"/>
+            <rect x="94" y="94" width="32" height="32" fill="#1a5f7a" rx="4"/>
+            <text x="110" y="10" text-anchor="middle" font-size="12" fill="#555">y</text>
+            <text x="205" y="165" text-anchor="middle" font-size="12" fill="#555">x</text>
+            <text x="25" y="165" text-anchor="middle" font-size="12" fill="#555">z</text>
+          </svg>
+        </div>
+        <div class="dof-list" id="dofList">
+          <button class="dof-btn" data-d="Tx">Tx</button>
+          <button class="dof-btn" data-d="Ty">Ty</button>
+          <button class="dof-btn" data-d="Tz">Tz</button>
+          <button class="dof-btn" data-d="Rx">Rx</button>
+          <button class="dof-btn" data-d="Ry">Ry</button>
+          <button class="dof-btn" data-d="Rz">Rz</button>
+        </div>
+      </div>
+      <p style="text-align:center;">Degré de liberté total : <span id="dofCount">0</span> / 6 &nbsp;→&nbsp;
+      <span id="dofName" style="color:var(--bleu-fonce);font-weight:700;">sélectionnez des mouvements</span></p>
+      <div class="def-box" style="font-size:.85rem;">
+        <b>Remarque :</b> le sens du mouvement et son amplitude n'entrent pas en compte ; seule la
+        <b>possibilité physique</b> du mouvement compte (valeur 1 = autorisé, 0 = interdit).
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. LIAISONS -->
+  <section class="panel" id="panel-liaisons">
+    <div class="card">
+      <h2 class="section-title">4. Représentation normalisée des liaisons</h2>
+      <p>11 liaisons normalisées (NF EN 23952 / ISO 3952). Filtrez par nombre de degrés de liberté ou cliquez
+      sur une carte pour voir le détail des mobilités.</p>
+      <div class="filter-row" id="ddlFilter">
+        <button data-f="all" class="active">Toutes</button>
+        <button data-f="0">0 ddl</button>
+        <button data-f="1">1 ddl</button>
+        <button data-f="2">2 ddl</button>
+        <button data-f="3">3 ddl</button>
+        <button data-f="4">4 ddl</button>
+        <button data-f="5">5 ddl</button>
+      </div>
+      <div class="liaisons-grid" id="liaisonsGrid"></div>
+    </div>
+  </section>
+
+  <!-- 5. CEC -->
+  <section class="panel" id="panel-cec">
+    <div class="card">
+      <h2 class="section-title">5. Classe d'équivalence cinématique (CEC)</h2>
+      <div class="def-box">Une <b>CEC</b> est un groupe de pièces n'ayant <b>aucun mouvement relatif</b> entre
+      elles ; elles sont rigidement liées. Les éléments déformables (ressorts, joints) et les éléments roulants
+      (roulements, billes) ne font partie <b>d'aucune</b> classe — ce sont des éléments de jonction.</div>
+      <h3>Exemple « La perforatrice » — cliquez sur une pièce numérotée</h3>
+      <div class="perfo-wrap">
+        <div class="perfo-svg-wrap">
+          <svg viewBox="0 0 300 220">
+            <!-- ground / socle -->
+            <rect x="30" y="170" width="220" height="18" fill="#2e8b57" class="piece-toggle" data-cec="B"/>
+            <rect x="70" y="140" width="40" height="34" fill="#2e8b57" class="piece-toggle" data-cec="B"/>
+            <!-- yellow spring 8 -->
+            <rect x="118" y="120" width="14" height="50" fill="#d4b106"/>
+            <!-- C circular part -->
+            <circle cx="140" cy="150" r="16" fill="#0ea5c4" class="piece-toggle" data-cec="C"/>
+            <!-- red lever A -->
+            <polygon points="60,120 240,50 250,66 90,140" fill="#c0392b" class="piece-toggle" data-cec="A"/>
+            <circle cx="1" cy="1" r="0"/>
+            <text x="10" y="130" font-size="11" fill="#333">1,2,3</text>
+            <text x="255" y="45" font-size="11" fill="#333">A</text>
+            <text x="255" y="185" font-size="11" fill="#333">B</text>
+            <text x="150" y="115" font-size="11" fill="#333">C</text>
+          </svg>
+        </div>
+        <div class="cec-legend" id="cecLegend">
+          <div class="cec-item" data-cec="A"><span class="swatch" style="background:#c0392b;"></span> CEC A = {1;2;3} — le levier</div>
+          <div class="cec-item" data-cec="B"><span class="swatch" style="background:#2e8b57;"></span> CEC B = {4;5;9;10} — le socle</div>
+          <div class="cec-item" data-cec="C"><span class="swatch" style="background:#0ea5c4;"></span> CEC C = {6;7} — la tige</div>
+          <div class="cec-item" data-cec="ressort"><span class="swatch" style="background:#d4b106;"></span> Élément 8 = ressort (déformable, hors CEC)</div>
+        </div>
+      </div>
+      <div id="cecInfo" class="info-pop">Cliquez sur une pièce colorée du schéma ou sur la légende.</div>
+    </div>
+  </section>
+
+  <!-- 6. GRAPHE -->
+  <section class="panel" id="panel-graphe">
+    <div class="card">
+      <h2 class="section-title">6. Graphe des liaisons</h2>
+      <p>Le graphe des liaisons visualise l'ensemble des liaisons existant entre les différentes CEC.
+      Règle : <b>s'il n'y a pas de contact entre deux CEC, il n'y a pas de liaison</b>. Cliquez sur un nœud ou une arête :</p>
+      <div class="graph-wrap">
+        <svg viewBox="0 0 300 220">
+          <line x1="80" y1="80" x2="220" y2="80" stroke="#333" stroke-width="2" class="graph-node" data-edge="AB"/>
+          <line x1="80" y1="80" x2="150" y2="170" stroke="#333" stroke-width="2" class="graph-node" data-edge="AC"/>
+          <line x1="220" y1="80" x2="150" y2="170" stroke="#333" stroke-width="2" class="graph-node" data-edge="BC"/>
+          <text x="150" y="65" text-anchor="middle" font-size="12" fill="#333">Pivot</text>
+          <text x="95" y="130" text-anchor="middle" font-size="12" fill="#333">Ponctuelle</text>
+          <text x="205" y="130" text-anchor="middle" font-size="12" fill="#333">Pivot glissant</text>
+          <circle cx="80" cy="80" r="22" fill="#c0392b" class="graph-node" data-node="A"/>
+          <text x="80" y="85" text-anchor="middle" fill="#fff" font-weight="700">A</text>
+          <circle cx="220" cy="80" r="22" fill="#2e8b57" class="graph-node" data-node="B"/>
+          <text x="220" y="85" text-anchor="middle" fill="#fff" font-weight="700">B</text>
+          <circle cx="150" cy="170" r="22" fill="#0ea5c4" class="graph-node" data-node="C"/>
+          <text x="150" y="175" text-anchor="middle" fill="#fff" font-weight="700">C</text>
+        </svg>
+      </div>
+      <div id="graphInfo" class="info-pop">Cliquez sur un élément du graphe pour l'expliquer.</div>
+    </div>
+  </section>
+
+  <!-- 7-8 ETAPES -->
+  <section class="panel" id="panel-etapes">
+    <div class="card">
+      <h2 class="section-title">7. Schéma cinématique &amp; 8. Méthode de réalisation</h2>
+      <div class="def-box">Le schéma cinématique contient, sous forme de symboles, toutes les liaisons du
+      graphe, en respectant (autant que possible) : <b>l'orientation des axes</b>, la <b>coïncidence des centres</b>,
+      et l'<b>alignement (coaxialité)</b> de certains axes. La pièce de référence est repérée par des hachures
+      <code>▨</code>.</div>
+      <h3>Cliquez sur chaque étape pour dérouler la méthode :</h3>
+      <div class="stepper" id="stepper">
+        <div class="step active" data-n="1">
+          <h4>Étape 1 — Repérer les classes d'équivalence cinématique</h4>
+          <div class="body">
+            <ul>
+              <li>Colorier les CEC sur le plan d'ensemble</li>
+              <li>Recenser les pièces de chaque groupe (exclure les pièces élastiques)</li>
+              <li>Les écrire sous la forme <code>E = {…}</code></li>
+            </ul>
+          </div>
+        </div>
+        <div class="step" data-n="2">
+          <h4>Étape 2 — Établir le graphe des liaisons</h4>
+          <div class="body">
+            <ul>
+              <li>Relier par un trait les CEC ayant un contact entre elles</li>
+              <li>Déterminer la nature du contact et/ou les degrés de liberté</li>
+              <li>En déduire la liaison normalisée (centre et axe)</li>
+              <li>Compléter le graphe : nom de la liaison, centre, axe</li>
+            </ul>
+          </div>
+        </div>
+        <div class="step" data-n="3">
+          <h4>Étape 3 — Construire le schéma cinématique minimal</h4>
+          <div class="body">
+            <ul>
+              <li>Choisir un point de vue de représentation</li>
+              <li>Repérer la position relative des liaisons (points « centres »)</li>
+              <li>Placer les liaisons sur les centres identifiés</li>
+              <li>Relier les liaisons entre elles en respectant les couleurs des blocs</li>
+              <li>Habillage final : symbole de la CEC de référence, noms des CEC/centres, flèches d'entrée/sortie</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- QUIZ -->
+  <section class="panel" id="panel-quiz">
+    <div class="card">
+      <h2 class="section-title">✅ Auto-évaluation rapide</h2>
+      <div id="quizContainer"></div>
+      <div id="scoreBox" style="display:none;"></div>
+      <button id="resetQuiz" style="display:none;">Recommencer</button>
+    </div>
+  </section>
+
+</main>
+
+<div class="modal-bg" id="modalBg">
+  <div class="modal">
+    <button class="close-x" id="modalClose">✕</button>
+    <div id="modalContent"></div>
+  </div>
+</div>
+
+<footer>Support de révision interactif — Modélisation d'un système mécanique / Schéma cinématique — SPÉ SI</footer>
+
+<script>
+// ---------- TABS ----------
+const tabBtns = document.querySelectorAll('nav.tabs button');
+tabBtns.forEach(b=>b.addEventListener('click',()=>{
+  tabBtns.forEach(x=>x.classList.remove('active'));
+  b.classList.add('active');
+  document.querySelectorAll('section.panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('panel-'+b.dataset.tab).classList.add('active');
+}));
+
+// ---------- CONTACT SWITCH ----------
+document.querySelectorAll('#contactSwitch button').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('#contactSwitch button').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active');
+  document.querySelectorAll('.contact-view').forEach(v=>v.classList.remove('active'));
+  document.getElementById('view-'+b.dataset.c).classList.add('active');
+}));
+
+// ---------- DOF EXPLORER ----------
+const dofState = {Tx:false,Ty:false,Tz:false,Rx:false,Ry:false,Rz:false};
+const dofNames = {
+  '000000':'Aucun mouvement',
+};
+function liaisonFromDof(state){
+  const key = ['Tx','Ty','Tz','Rx','Ry','Rz'].map(k=>state[k]?'1':'0').join('');
+  const map = {
+    '000000':'Encastrement (0 ddl)',
+    '000100':'Pivot d\'axe x (1 ddl)',
+    '000010':'Pivot d\'axe y (1 ddl)',
+    '000001':'Pivot d\'axe z (1 ddl)',
+    '100000':'Glissière d\'axe x (1 ddl)',
+    '010000':'Glissière d\'axe y (1 ddl)',
+    '001000':'Glissière d\'axe z (1 ddl)',
+    '100100':'Hélicoïdale ou Pivot glissant d\'axe x (2 ddl)',
+    '010010':'Pivot glissant d\'axe y (2 ddl)',
+    '001001':'Pivot glissant d\'axe z (2 ddl)',
+    '000111':'Sphérique / rotule (3 ddl)',
+    '110001':'Appui plan de normale z (3 ddl)',
+    '000011':'Sphérique à doigt (2 ddl)',
+    '110111':'Cylindre-plan (4 ddl)',
+    '100111':'Sphère-cylindre / linéaire annulaire (4 ddl)',
+    '111111':'Sphère-plan / ponctuelle (5 ddl)',
+  };
+  return map[key] || ('Combinaison libre — '+Object.keys(state).filter(k=>state[k]).join(', '));
+}
+document.querySelectorAll('.dof-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    const d = btn.dataset.d;
+    dofState[d]=!dofState[d];
+    btn.classList.toggle('on');
+    updateDof();
+  });
+});
+function updateDof(){
+  const count = Object.values(dofState).filter(Boolean).length;
+  document.getElementById('dofCount').textContent = count;
+  document.getElementById('dofName').textContent = liaisonFromDof(dofState);
+  // update cube arrows opacity
+  document.getElementById('axisRy').setAttribute('stroke', dofState.Ry?'#0ea5c4':'#ccc');
+  document.getElementById('arrRy').setAttribute('fill', dofState.Ry?'#0ea5c4':'#ccc');
+  document.getElementById('axisRx').setAttribute('stroke', dofState.Rx?'#0ea5c4':'#ccc');
+  document.getElementById('arrRx').setAttribute('fill', dofState.Rx?'#0ea5c4':'#ccc');
+  document.getElementById('axisRz').setAttribute('stroke', dofState.Rz?'#0ea5c4':'#ccc');
+  document.getElementById('arrRz').setAttribute('fill', dofState.Rz?'#0ea5c4':'#ccc');
+}
+
+// ---------- LIAISONS DATA ----------
+const liaisons = [
+  {name:'Encastrement', ddl:0, mob:'—', axe:'—', svg:`<line x1="20" y1="35" x2="45" y2="35" stroke="#111" stroke-width="3"/><line x1="45" y1="20" x2="45" y2="50" stroke="#111" stroke-width="3"/><circle cx="20" cy="35" r="3" fill="#111"/>`},
+  {name:'Pivot', ddl:1, mob:'Rx', axe:"D'axe (O,x)", svg:`<circle cx="55" cy="35" r="14" fill="none" stroke="#0ea5c4" stroke-width="3"/><rect x="18" y="27" width="22" height="16" fill="none" stroke="#111" stroke-width="2"/>`},
+  {name:'Glissière', ddl:1, mob:'Tx', axe:"D'axe (O,x)", svg:`<rect x="18" y="27" width="55" height="16" fill="none" stroke="#111" stroke-width="2"/><line x1="18" y1="35" x2="73" y2="35" stroke="#0ea5c4" stroke-width="2" stroke-dasharray="4 2"/>`},
+  {name:'Hélicoïdale', ddl:1, mob:'Tx + Rx (combinés)', axe:"D'axe (O,x), pas p", svg:`<rect x="18" y="25" width="40" height="20" fill="none" stroke="#111" stroke-width="2"/><path d="M18 35 q5 -8 10 0 q5 8 10 0 q5 -8 10 0 q5 8 10 0" stroke="#0ea5c4" fill="none" stroke-width="2"/><circle cx="70" cy="35" r="12" fill="none" stroke="#111" stroke-width="2"/>`},
+  {name:'Pivot glissant', ddl:2, mob:'Tx + Rx', axe:"D'axe (O,x)", svg:`<rect x="15" y="27" width="55" height="16" fill="none" stroke="#111" stroke-width="2"/><circle cx="43" cy="35" r="5" fill="#0ea5c4"/>`},
+  {name:'Sphérique à doigt', ddl:2, mob:'Ry + Rz', axe:'Centre O, rotation x bloquée', svg:`<circle cx="45" cy="35" r="16" fill="none" stroke="#0ea5c4" stroke-width="3"/><line x1="45" y1="35" x2="70" y2="35" stroke="#111" stroke-width="2"/>`},
+  {name:'Sphérique (rotule)', ddl:3, mob:'Rx + Ry + Rz', axe:'Centre O', svg:`<circle cx="45" cy="35" r="16" fill="none" stroke="#0ea5c4" stroke-width="3"/><circle cx="45" cy="35" r="4" fill="#111"/>`},
+  {name:'Appui plan', ddl:3, mob:'Tx + Ty + Rz', axe:'Normale z', svg:`<polygon points="15,45 75,45 60,25 30,25" fill="none" stroke="#0ea5c4" stroke-width="3"/><line x1="45" y1="45" x2="45" y2="20" stroke="#111" stroke-width="2"/>`},
+  {name:'Linéaire rectiligne (Cylindre-plan)', ddl:4, mob:'Tx + Ty + Rx + Rz', axe:"D'axe (O,y), normale z", svg:`<polygon points="15,45 75,45 60,25 30,25" fill="none" stroke="#111" stroke-width="2"/><line x1="20" y1="35" x2="70" y2="35" stroke="#0ea5c4" stroke-width="3"/>`},
+  {name:'Linéaire annulaire (Sphère-cylindre)', ddl:4, mob:'Tx + Ry + Rz', axe:"Centre O, d'axe (O,x)", svg:`<rect x="15" y="27" width="55" height="16" fill="none" stroke="#111" stroke-width="2"/><circle cx="43" cy="35" r="8" fill="none" stroke="#0ea5c4" stroke-width="3"/>`},
+  {name:'Ponctuelle (Sphère-plan)', ddl:5, mob:'Tx + Ty + Rx + Ry + Rz', axe:'Normale (O,z)', svg:`<polygon points="15,45 75,45 60,25 30,25" fill="none" stroke="#111" stroke-width="2"/><circle cx="45" cy="30" r="6" fill="#0ea5c4"/>`}
+];
+const grid = document.getElementById('liaisonsGrid');
+function renderLiaisons(filter){
+  grid.innerHTML='';
+  liaisons.filter(l=>filter==='all'||l.ddl==filter).forEach(l=>{
+    const div = document.createElement('div');
+    div.className='liaison-card';
+    div.innerHTML = `<span class="ddl-tag">${l.ddl} ddl</span>
+      <svg viewBox="0 0 90 60">${l.svg}</svg>
+      <div class="name">${l.name}</div>
+      <div class="mob">${l.mob}</div>`;
+    div.addEventListener('click',()=>openLiaisonModal(l));
+    grid.appendChild(div);
+  });
+}
+renderLiaisons('all');
+document.querySelectorAll('#ddlFilter button').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('#ddlFilter button').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active');
+  renderLiaisons(b.dataset.f);
+}));
+
+function openLiaisonModal(l){
+  document.getElementById('modalContent').innerHTML = `
+    <h3 style="margin-top:0;">${l.name}</h3>
+    <svg viewBox="0 0 90 60">${l.svg}</svg>
+    <table>
+      <tr><th>Degrés de liberté</th><td>${l.ddl}</td></tr>
+      <tr><th>Mobilités</th><td>${l.mob}</td></tr>
+      <tr><th>Particularité géométrique</th><td>${l.axe}</td></tr>
+    </table>`;
+  document.getElementById('modalBg').classList.add('show');
+}
+document.getElementById('modalClose').addEventListener('click',()=>document.getElementById('modalBg').classList.remove('show'));
+document.getElementById('modalBg').addEventListener('click',e=>{if(e.target.id==='modalBg')e.target.classList.remove('show');});
+
+// ---------- CEC EXAMPLE ----------
+const cecData = {
+  A:"CEC A = {1;2;3} : le levier rouge — une seule classe malgré 3 pièces distinctes assemblées rigidement.",
+  B:"CEC B = {4;5;9;10} : le socle vert (bâti) — sert souvent de référence (hachures).",
+  C:"CEC C = {6;7} : la tige/came bleue.",
+  ressort:"Élément 8 = ressort : pièce déformable, il ne fait partie d'aucune CEC — c'est un élément de jonction."
+};
+function showCec(key){
+  document.getElementById('cecInfo').textContent = cecData[key];
+  document.querySelectorAll('.cec-item').forEach(it=>{
+    it.classList.toggle('dim', it.dataset.cec!==key);
+  });
+}
+document.querySelectorAll('.piece-toggle').forEach(p=>p.addEventListener('click',()=>showCec(p.dataset.cec)));
+document.querySelectorAll('.cec-item').forEach(it=>it.addEventListener('click',()=>showCec(it.dataset.cec)));
+
+// ---------- GRAPHE ----------
+const graphInfo = {
+  A:"CEC A (rouge) : le levier mobile.",
+  B:"CEC B (vert) : la référence fixe (bâti).",
+  C:"CEC C (bleu) : la pièce intermédiaire.",
+  AB:"Liaison Pivot entre A et B : 1 seul degré de liberté en rotation.",
+  AC:"Liaison Ponctuelle entre A et C : 5 degrés de liberté, contact réduit à un point.",
+  BC:"Liaison Pivot glissant entre B et C : 2 degrés de liberté (translation + rotation)."
+};
+document.querySelectorAll('.graph-node').forEach(n=>n.addEventListener('click',()=>{
+  const key = n.dataset.node || n.dataset.edge;
+  document.getElementById('graphInfo').textContent = graphInfo[key];
+}));
+
+// ---------- STEPPER ----------
+document.querySelectorAll('.step h4').forEach(h=>h.addEventListener('click',()=>{
+  const step = h.parentElement;
+  const wasActive = step.classList.contains('active');
+  document.querySelectorAll('.step').forEach(s=>s.classList.remove('active'));
+  if(!wasActive) step.classList.add('active');
+}));
+
+// ---------- QUIZ ----------
+const quiz = [
+  {q:"Combien de mouvements élémentaires existe-t-il pour décrire toute mobilité d'un solide ?",
+   opts:["3","6","11","2"], correct:1},
+  {q:"Quelle liaison possède 0 degré de liberté ?",
+   opts:["Pivot","Glissière","Encastrement","Rotule"], correct:2},
+  {q:"La liaison pivot autorise quel(s) mouvement(s) ?",
+   opts:["Une translation","Une rotation","Trois rotations","Une translation et une rotation combinées"], correct:1},
+  {q:"Un ressort dans un mécanisme...",
+   opts:["Constitue sa propre CEC","Fait partie de la CEC la plus proche","N'appartient à aucune CEC (élément de jonction)","N'est jamais représenté"], correct:2},
+  {q:"Que faut-il vérifier avant de tracer une liaison entre deux CEC dans le graphe des liaisons ?",
+   opts:["Qu'elles ont la même couleur","Qu'il existe un contact direct entre elles","Qu'elles sont toutes les deux mobiles","Qu'elles ont le même nombre de pièces"], correct:1},
+  {q:"La liaison rotule (sphérique) possède combien de degrés de liberté ?",
+   opts:["1","2","3","5"], correct:2},
+  {q:"Le schéma cinématique doit respecter, autant que possible :",
+   opts:["L'épaisseur réelle des pièces","L'orientation des axes, la coïncidence des centres et la coaxialité","Le poids des pièces","La couleur des matériaux réels"], correct:1}
+];
+let score = 0, answered = 0;
+const qContainer = document.getElementById('quizContainer');
+function buildQuiz(){
+  qContainer.innerHTML='';
+  score=0; answered=0;
+  document.getElementById('scoreBox').style.display='none';
+  document.getElementById('resetQuiz').style.display='none';
+  quiz.forEach((item,i)=>{
+    const card = document.createElement('div');
+    card.className='quiz-card';
+    card.innerHTML = `<p class="q">${i+1}. ${item.q}</p><div class="quiz-opts"></div>`;
+    const optsWrap = card.querySelector('.quiz-opts');
+    item.opts.forEach((opt,j)=>{
+      const b = document.createElement('button');
+      b.textContent = opt;
+      b.addEventListener('click',()=>{
+        if(optsWrap.dataset.locked) return;
+        optsWrap.dataset.locked='1';
+        answered++;
+        if(j===item.correct){b.classList.add('correct');score++;}
+        else{
+          b.classList.add('wrong');
+          optsWrap.children[item.correct].classList.add('correct');
+        }
+        if(answered===quiz.length) finishQuiz();
+      });
+      optsWrap.appendChild(b);
+    });
+    qContainer.appendChild(card);
+  });
+}
+function finishQuiz(){
+  const box = document.getElementById('scoreBox');
+  box.style.display='block';
+  box.textContent = `Score : ${score} / ${quiz.length} — ${score===quiz.length?'Excellent ! 🎉':score>=quiz.length/2?'Bon travail, continue à réviser 👍':'Reprends les sections ci-dessus 📘'}`;
+  document.getElementById('resetQuiz').style.display='block';
+}
+document.getElementById('resetQuiz').addEventListener('click',buildQuiz);
+buildQuiz();
+</script>
+</body>
+</html>

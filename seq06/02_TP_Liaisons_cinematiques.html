@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Liaisons cinématiques &amp; TP — SPÉ SI</title>
+<style>
+:root{
+  --bleu:#1a5f7a; --bleu-fonce:#0d3b4d; --bleu-clair:#e7f3f7;
+  --accent:#0ea5c4; --vert:#2e8b57; --rouge:#c0392b; --orange:#e07b1a;
+  --gris:#5a6b73; --gris-clair:#f4f7f8; --bord:#d3e2e6; --texte:#1c2b30;
+}
+*{box-sizing:border-box;}
+body{margin:0;font-family:"Segoe UI",Roboto,Arial,sans-serif;background:var(--gris-clair);color:var(--texte);line-height:1.55;}
+header.top{background:linear-gradient(135deg,var(--bleu-fonce),var(--bleu));color:#fff;padding:24px 20px;text-align:center;}
+header.top h1{margin:0 0 6px;font-size:1.6rem;}
+header.top p{margin:0;opacity:.9;font-size:.88rem;}
+
+nav.tabs{position:sticky;top:0;z-index:50;background:#fff;border-bottom:2px solid var(--bord);
+  display:flex;overflow-x:auto;padding:0 6px;box-shadow:0 2px 6px rgba(0,0,0,.06);}
+nav.tabs button{background:none;border:none;padding:12px 13px;font-size:.78rem;font-weight:600;
+  color:var(--gris);cursor:pointer;white-space:nowrap;border-bottom:3px solid transparent;transition:.2s;}
+nav.tabs button:hover{color:var(--bleu);}
+nav.tabs button.active{color:var(--bleu);border-bottom-color:var(--accent);}
+
+main{max-width:1020px;margin:0 auto;padding:20px 16px 70px;}
+section.panel{display:none;animation:fade .25s ease;}
+section.panel.active{display:block;}
+@keyframes fade{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+
+.card{background:#fff;border:1px solid var(--bord);border-radius:12px;padding:18px 20px;margin-bottom:16px;box-shadow:0 1px 4px rgba(0,0,0,.04);}
+h2.ex-title{color:var(--bleu-fonce);border-left:5px solid var(--accent);padding-left:12px;margin-top:0;font-size:1.2rem;}
+h3{color:var(--bleu);font-size:1rem;margin-bottom:6px;}
+.def-box{background:var(--bleu-clair);border-left:4px solid var(--bleu);padding:12px 14px;border-radius:6px;margin:10px 0;font-size:.9rem;}
+.def-box b{color:var(--bleu-fonce);}
+.badge{display:inline-block;font-size:.72rem;font-weight:700;padding:3px 10px;border-radius:12px;margin-left:8px;vertical-align:middle;}
+.badge.simple{background:#eafaf1;color:var(--vert);}
+.badge.composee{background:#fdf3e5;color:var(--orange);}
+
+table.discovery{width:100%;border-collapse:collapse;font-size:.82rem;margin-top:8px;}
+table.discovery th,table.discovery td{border:1px solid var(--bord);padding:6px 8px;text-align:left;}
+table.discovery th{background:var(--bleu-clair);color:var(--bleu-fonce);}
+.libre{color:var(--vert);font-weight:700;}
+.bloque{color:var(--rouge);font-weight:700;}
+
+.matrices-row{display:flex;gap:14px;flex-wrap:wrap;margin-top:10px;}
+.matrix-block{text-align:center;}
+.matrix-block h4{margin:0 0 6px;font-size:.85rem;color:var(--bleu-fonce);}
+table.mob-matrix{border-collapse:collapse;margin:0 auto;}
+table.mob-matrix td{border:1px solid #aaa;width:44px;height:32px;text-align:center;font-weight:700;font-size:.85rem;}
+table.mob-matrix td.free{background:#eafaf1;color:var(--vert);}
+table.mob-matrix td.blocked{background:#f4f4f4;color:#999;}
+.hidden-cell{filter:blur(4px);}
+
+.reveal-btn{background:var(--vert);color:#fff;border:none;padding:8px 18px;border-radius:20px;cursor:pointer;font-weight:600;font-size:.82rem;margin:12px 0;}
+.reveal-btn:hover{opacity:.9;}
+.ddl-sentence{background:#f4f4f4;border-radius:8px;padding:10px 14px;margin-top:10px;font-size:.9rem;}
+.ddl-sentence .val{display:inline-block;min-width:22px;text-align:center;font-weight:700;padding:1px 8px;border-radius:6px;background:#ddd;color:#999;}
+.ddl-sentence .val.shown{background:#eafaf1;color:var(--vert);}
+
+/* stepper */
+.stepper{display:flex;flex-direction:column;gap:0;}
+.step{border-left:3px solid var(--bord);padding:6px 0 20px 22px;position:relative;}
+.step::before{content:attr(data-n);position:absolute;left:-17px;top:0;width:30px;height:30px;border-radius:50%;
+  background:var(--bord);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem;transition:.2s;}
+.step.active::before{background:var(--accent);}
+.step.active{border-left-color:var(--accent);}
+.step h4{margin:0 0 6px;color:var(--bleu-fonce);cursor:pointer;}
+.step .body{display:none;color:var(--gris);font-size:.9rem;}
+.step.active .body{display:block;}
+.step ul{margin:6px 0 0 18px;padding:0;}
+
+/* calc boxes */
+.calc-box{background:var(--gris-clair);border-radius:10px;padding:14px 16px;margin-top:10px;}
+.calc-row{display:flex;gap:10px;align-items:center;margin-bottom:8px;flex-wrap:wrap;}
+.calc-row label{font-size:.85rem;font-weight:600;min-width:220px;}
+.calc-row input{padding:6px 9px;border:1px solid var(--bord);border-radius:6px;font-size:.85rem;width:140px;}
+.calc-result{font-weight:700;color:var(--bleu-fonce);background:#fff;border:1px solid var(--bord);border-radius:6px;padding:4px 10px;min-width:100px;display:inline-block;text-align:center;}
+table.calc-table{width:100%;border-collapse:collapse;margin-top:8px;font-size:.83rem;}
+table.calc-table th,table.calc-table td{border:1px solid var(--bord);padding:6px 8px;text-align:center;}
+table.calc-table th{background:var(--bleu-clair);color:var(--bleu-fonce);}
+table.calc-table input{width:90px;padding:4px;border:1px solid var(--bord);border-radius:5px;text-align:center;}
+
+.hint-note{font-size:.78rem;color:var(--gris);font-style:italic;margin-top:6px;}
+.warn-box{background:#fff8e6;border-left:4px solid var(--orange);padding:10px 14px;border-radius:6px;font-size:.85rem;margin-top:10px;}
+
+.anim-wrap{text-align:center;background:var(--gris-clair);border-radius:10px;padding:14px;margin-top:10px;}
+.anim-controls{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:12px;}
+.anim-btn{background:var(--bleu);color:#fff;border:none;padding:8px 16px;border-radius:20px;cursor:pointer;font-weight:600;font-size:.8rem;}
+.anim-btn:hover{opacity:.9;}
+.anim-btn.playing{background:var(--rouge);}
+
+.cec-block{display:inline-block;width:70px;height:36px;border-radius:6px;margin:0 6px 6px 0;text-align:center;line-height:36px;font-weight:700;color:#fff;font-size:.8rem;}
+.graph-box{text-align:center;background:var(--gris-clair);border-radius:10px;padding:16px;margin-top:8px;}
+.graph-box svg{max-width:100%;}
+
+footer{text-align:center;padding:18px;font-size:.76rem;color:var(--gris);}
+@media print{ nav.tabs, footer{display:none;} section.panel{display:block !important;page-break-after:always;} }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <h1>⚙️ Liaisons cinématiques &amp; Travaux Pratiques</h1>
+  <p>SPÉ SI · Pivot · Pivot glissant · Ponctuelle · Rotule · Linéaire annulaire · Hélicoïdale · Méca3D · TP Pilote · TP Astrolab</p>
+</header>
+
+<nav class="tabs" id="tabsNav">
+  <button data-tab="pivot" class="active">Pivot</button>
+  <button data-tab="pivotGlissant">Pivot glissant</button>
+  <button data-tab="ponctuelle">Ponctuelle</button>
+  <button data-tab="rotule">Rotule</button>
+  <button data-tab="lineaireAnnulaire">Linéaire annulaire</button>
+  <button data-tab="helicoidale">Hélicoïdale</button>
+  <button data-tab="meca3d">Guide Méca3D</button>
+  <button data-tab="pilote">TP Pilote</button>
+  <button data-tab="astrolab">TP Astrolab</button>
+</nav>
+
+<main>
+  <section class="panel active" id="panel-pivot"></section>
+  <section class="panel" id="panel-pivotGlissant"></section>
+  <section class="panel" id="panel-ponctuelle"></section>
+  <section class="panel" id="panel-rotule"></section>
+  <section class="panel" id="panel-lineaireAnnulaire"></section>
+  <section class="panel" id="panel-helicoidale"></section>
+
+  <!-- MECA3D -->
+  <section class="panel" id="panel-meca3d">
+    <div class="card">
+      <h2 class="ex-title">Guide Méca3D — méthode</h2>
+      <div class="def-box">Méca3D est un module complémentaire de SOLIDWORKS qui transforme une maquette
+      en modèle numérique de calcul cinématique et statique. Si l'onglet n'apparaît pas :
+      <b>Outils / Compléments / cocher MECA 3D</b>.</div>
+      <div class="stepper" id="meca3dStepper">
+        <div class="step active" data-n="1">
+          <h4>1 — Déclaration des pièces (groupes cinématiques)</h4>
+          <div class="body"><ul>
+            <li><b>Méca3D / Ajout des composants / Pièce…</b> (ou clic droit sur « Pièces » → Ajouter)</li>
+            <li>⚠️ La <b>première pièce déclarée doit être LE CORPS</b> (pièce fixe du mécanisme) — obligatoire pour que Méca3D fonctionne</li>
+            <li>Cliquer sur chaque pièce puis « Ajouter » ; la fenêtre reste ouverte pour enchaîner</li>
+            <li>Astuce plus rapide : clic droit sur « Pièces » → <b>Conversion automatique</b></li>
+            <li>Chaque pièce reçoit un repère <b>bleu</b> à son centre de gravité</li>
+          </ul></div>
+        </div>
+        <div class="step" data-n="2">
+          <h4>2 — Déclaration des liaisons</h4>
+          <div class="body"><ul>
+            <li><b>Méca3D / Ajout des composants / Liaison…</b></li>
+            <li>Choisir le type de liaison, puis les 2 pièces concernées</li>
+            <li>Sélectionner la <b>contrainte géométrique</b> correspondante (ex. « Concentrique » pour un pivot) — un drapeau vert confirme un choix cohérent</li>
+            <li>Chaque liaison reçoit un repère <b>rouge</b> (repère local de la liaison)</li>
+            <li>⚠️ Si 2 liaisons pivot sont juxtaposées au même point, en créer une <b>entre chaque paire de pièces</b> séparément</li>
+          </ul></div>
+        </div>
+        <div class="step" data-n="3">
+          <h4>3 — Déclaration des efforts</h4>
+          <div class="body"><ul>
+            <li>Il faut au minimum <b>1 effort moteur</b> et <b>1 effort résistant</b></li>
+            <li>Effort moteur connu → type <b>Vérin</b> (ou Moteur), avec 2 points d'ancrage (une pièce chacun, touche CTRL pour sélectionner les 2)</li>
+            <li>Efforts résistants connus → type <b>Ressort variable</b>, etc.</li>
+            <li>Effort inconnu à calculer (ex. effort de serrage) → type <b>Vérin inconnu / Moteur inconnu</b></li>
+          </ul></div>
+        </div>
+        <div class="step" data-n="4">
+          <h4>4 — Paramètres de simulation et calcul</h4>
+          <div class="body"><ul>
+            <li>Positionner le mécanisme dans sa configuration de départ (contrainte de distance si besoin)</li>
+            <li>Clic droit sur <b>Analyse / Calcul mécanique</b></li>
+            <li>Choisir la <b>liaison d'entrée</b> qui pilote le mouvement, le <b>degré de liberté</b> à piloter, la <b>vitesse</b> (signe « − » pour inverser le sens), la <b>durée</b> et le <b>nombre de positions</b></li>
+            <li>Lancer le calcul en <b>« Étude cinématique et statique »</b></li>
+          </ul></div>
+        </div>
+        <div class="step" data-n="5">
+          <h4>5 — Analyse des résultats</h4>
+          <div class="body"><ul>
+            <li><b>Courbes :</b> Méca3D / Résultats / Courbes / Simples — choisir la grandeur (ex. effort de serrage en fonction du temps)</li>
+            <li><b>Isolement de pièce :</b> clic droit sur la pièce → « Isolement » pour visualiser résultante et moment des actions mécaniques</li>
+            <li>Repères : <b>bleu</b> = pièce (centre de gravité), <b>rouge</b> = liaison, <b>noir</b> = absolu (1 flèche = x, 2 flèches = y, 3 flèches = z)</li>
+          </ul></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TP PILOTE -->
+  <section class="panel" id="panel-pilote">
+    <div class="card">
+      <h2 class="ex-title">TP — Schéma cinématique du Pilote TP32</h2>
+      <div class="def-box"><b>Problématique :</b> comment créer le modèle d'un mécanisme afin de l'exploiter en simulation ?
+      3 classes d'équivalence cinématiques (CEC) : <b>Corps</b>, <b>Vis</b>, <b>Tige</b>.</div>
+
+      <h3>1. Classes d'équivalence — Q1 à Q3</h3>
+      <p>Coloriage demandé : Corps → <b>rouge</b>, Vis → <b>vert</b>, Tige → <b>bleu</b>. Cliquez pour visualiser :</p>
+      <div style="text-align:center;">
+        <span class="cec-block" id="cecCorps" style="background:#ccc;" onclick="this.style.background='#c0392b'">Corps</span>
+        <span class="cec-block" id="cecVis" style="background:#ccc;" onclick="this.style.background='#2e8b57'">Vis</span>
+        <span class="cec-block" id="cecTige" style="background:#ccc;" onclick="this.style.background='#0ea5c4'">Tige</span>
+      </div>
+
+      <h3 style="margin-top:16px;">2. Graphe des liaisons — Q5, Q6</h3>
+      <p>Q5 donnait déjà : contact « Bâti / Levier moteur » → surfaces <b>S3 sur S3'</b>, nature <b>Plan/Plan</b>,
+      contact géométrique <b>Plan</b>, liaison <b>Glissière</b>.</p>
+      <button class="reveal-btn" data-target="corr-pilote">Afficher / masquer une proposition de corrigé complet</button>
+      <div class="warn-box" id="corr-pilote" style="display:none;">
+        <p style="margin-top:0;"><b>Proposition de corrigé</b> (mécanisme type « stylo à vis » — à confirmer avec votre professeur/l'edrawing) :</p>
+        <ul style="font-size:.85rem;">
+          <li><b>Corps ↔ Vis :</b> la vis tourne dans le corps sans y translater → liaison <b>Pivot</b> d'axe x</li>
+          <li><b>Vis ↔ Tige :</b> le filetage convertit la rotation en translation → liaison <b>Hélicoïdale</b> d'axe x</li>
+          <li><b>Corps ↔ Tige :</b> la tige est guidée en translation pure (rotation bloquée par le corps) → liaison <b>Glissière</b> d'axe x (confirmé par Q5)</li>
+        </ul>
+        <div class="graph-box">
+          <svg viewBox="0 0 260 170" width="260" height="170">
+            <line x1="60" y1="130" x2="130" y2="40" stroke="#999" stroke-width="2"/>
+            <line x1="200" y1="130" x2="130" y2="40" stroke="#999" stroke-width="2"/>
+            <line x1="60" y1="130" x2="200" y2="130" stroke="#999" stroke-width="2"/>
+            <circle cx="130" cy="40" r="22" fill="#eafaf1" stroke="#2e8b57" stroke-width="2"/><text x="130" y="45" text-anchor="middle" font-weight="700">Vis</text>
+            <circle cx="60" cy="130" r="22" fill="#fdecea" stroke="#c0392b" stroke-width="2"/><text x="60" y="135" text-anchor="middle" font-weight="700">Corps</text>
+            <circle cx="200" cy="130" r="22" fill="#e7f3f7" stroke="#0ea5c4" stroke-width="2"/><text x="200" y="135" text-anchor="middle" font-weight="700">Tige</text>
+            <text x="85" y="80" text-anchor="middle" font-size="10">Pivot (x)</text>
+            <text x="175" y="80" text-anchor="middle" font-size="10">Hélicoïdale (x)</text>
+            <text x="130" y="150" text-anchor="middle" font-size="10">Glissière (x)</text>
+          </svg>
+        </div>
+      </div>
+
+      <h3 style="margin-top:16px;">3. Schéma cinématique — Q7</h3>
+      <p style="font-size:.88rem;">Parmi les 3 propositions du sujet, le schéma cohérent doit respecter le graphe ci-dessus :
+      un <b>pivot</b> entre corps et vis, une <b>liaison hélicoïdale</b> entre vis et tige, et une <b>glissière</b> reliant
+      directement corps et tige en parallèle (boucle fermée). Vérifiez laquelle des 3 propositions respecte cet ordre
+      et ces 3 symboles alignés sur l'axe x, avec le bâti repéré par les hachures <code>▨</code>.</p>
+      <p class="hint-note">La détermination précise du numéro de la bonne proposition nécessite de comparer visuellement
+      les 3 schémas du sujet original — demandez confirmation à votre professeur si un doute persiste.</p>
+    </div>
+  </section>
+
+  <!-- TP ASTROLAB -->
+  <section class="panel" id="panel-astrolab">
+    <div class="card">
+      <h2 class="ex-title">TP — Transmission de mouvement : Télescope Astrolab</h2>
+      <div class="def-box">Chaîne d'énergie du télescope motorisé SET : moteur → réducteur (roues dentées) → vis sans fin
+      → roue dentée 15 → fourche. Hypothèse : la vitesse du moteur est proportionnelle à la tension d'alimentation
+      (V<sub>nominale</sub>=12V → N<sub>nominal</sub>=8000 tr/min sous charge).</div>
+
+      <h3>Q1-Q3 — Vitesse moteur &amp; rapport de réduction (calcul automatique)</h3>
+      <table class="calc-table" id="tableQ3">
+        <tr><th>Vitesse raquette</th><th>Tension (V)</th><th>N<sub>moteur</sub> théorique (tr/min)</th><th>N<sub>fourche</sub> mesurée (tr/min) — à saisir</th><th>Rapport r = N<sub>fourche</sub>/N<sub>moteur</sub></th></tr>
+      </table>
+      <p style="text-align:right;font-weight:700;color:var(--bleu-fonce);">Moyenne des rapports : <span id="moyRapport">—</span></p>
+      <div class="hint-note">Q2 : r = N<sub>fourche</sub> / N<sub>moteur</sub> (rapport de réduction du réducteur de l'embase).
+      Saisissez vos mesures réelles de N<sub>fourche</sub> pour compléter le tableau — la moyenne se recalcule automatiquement.</div>
+
+      <h3 style="margin-top:18px;">Q4 — Vitesse sidérale</h3>
+      <div class="calc-box">
+        <p style="margin:0;font-size:.88rem;">Vitesse sidérale = 1 tour de la Terre en 23h56min = 1 tour en
+        <span class="calc-result" id="sidMin">1436</span> minutes.</p>
+        <p style="margin:6px 0 0;font-weight:700;color:var(--bleu-fonce);">
+        N<sub>sidérale</sub> = 1 / 1436 ≈ <span class="calc-result" id="sidResult">6,966×10⁻⁴</span> tr/min</p>
+      </div>
+
+      <h3 style="margin-top:18px;">Q5 — Écart vitesse mesurée / spécification (touche 6)</h3>
+      <div class="calc-box">
+        <div class="calc-row"><label>Vitesse spécifiée touche 6 = 128 × N<sub>sidérale</sub> :</label>
+          <span class="calc-result" id="specTouche6">≈ 0,0892 tr/min</span></div>
+        <div class="calc-row"><label>Votre vitesse mesurée (tr/min) pour la touche 6 :</label>
+          <input type="number" id="mesureTouche6" step="any" placeholder="ex. 0.089"></div>
+        <div class="calc-row"><label>Écart en % :</label><span class="calc-result" id="ecartResult">—</span></div>
+      </div>
+
+      <h3 style="margin-top:18px;">Q6-Q8 — Rapport de réduction du réducteur de l'embase</h3>
+      <div class="def-box">Données : Z1=Z3=Z5=Z7=Z9=12 dents ; Z2=56 ; Z4=Z6=Z8=Z10=Z11=24 ; Z12=8 ; Z13=22 ;
+      vis (14) à 1 filet (Z14=1) ; roue (15) à 60 dents (Z15=60).</div>
+      <div class="calc-box">
+        <p style="font-weight:700;color:var(--bleu-fonce);margin-top:0;">Q7 — Rapport roue/vis sans fin (résultat sûr, indépendant de la topologie) :</p>
+        <p style="margin:0;font-size:.9rem;">r<sub>roue/vis</sub> = Z<sub>vis</sub>(filets) / Z<sub>roue</sub>(dents) = 1/60 ≈ <b>0,0167</b></p>
+      </div>
+      <div class="calc-box">
+        <p style="font-weight:700;color:var(--bleu-fonce);margin-top:0;">Q6/Q8 — Constructeur de train d'engrenages (hypothèse à vérifier sur le dessin technique)</p>
+        <p class="hint-note">D'après la symétrie des valeurs de dents (5 pignons à 12 dents, plusieurs roues à 24 dents),
+        une chaîne plausible est : (1→2), (3→4), (5→6), (7→8), (9→11), (12→13), puis (14→15). Ajustez si votre dessin
+        montre un autre enchaînement.</p>
+        <table class="calc-table" id="gearTable"></table>
+        <p style="text-align:right;font-weight:700;color:var(--bleu-fonce);margin-top:8px;">
+        r<sub>1/13</sub> = <span id="r113">—</span> &nbsp;|&nbsp; r<sub>global</sub> (r<sub>1/13</sub> × Z12/Z13 × r<sub>roue/vis</sub>) = <span id="rGlobal">—</span></p>
+      </div>
+
+      <h3 style="margin-top:18px;">Q9-Q11 — Simulation &amp; synthèse</h3>
+      <div class="def-box" style="font-size:.85rem;">Comparez la vitesse de fourche obtenue par simulation Méca3D
+      (construction automatique du mécanisme, calcul cinématique) à la valeur mesurée expérimentalement (tableau Q3)
+      et à la valeur calculée par le rapport de réduction global (Q8). Les écarts proviennent généralement du frottement,
+      du jeu dans les engrenages, ou de l'hypothèse de proportionnalité tension/vitesse qui n'est qu'une approximation.</div>
+    </div>
+  </section>
+
+</main>
+
+<footer>Fiches interactives — Liaisons cinématiques &amp; TP — SPÉ SI</footer>
+
+<script>
+// ---------- TABS ----------
+const tabBtns = document.querySelectorAll('nav.tabs button');
+tabBtns.forEach(function(b){
+  b.addEventListener('click',function(){
+    tabBtns.forEach(function(x){x.classList.remove('active');});
+    b.classList.add('active');
+    document.querySelectorAll('section.panel').forEach(function(p){p.classList.remove('active');});
+    document.getElementById('panel-'+b.dataset.tab).classList.add('active');
+  });
+});
+
+// ---------- GENERIC MOBILITY MATRIX RENDER ----------
+function matrixHTML(freeArr, hide){
+  var rows = [['Tx','Rx'],['Ty','Ry'],['Tz','Rz']];
+  var html = '<table class="mob-matrix">';
+  rows.forEach(function(pair){
+    html += '<tr>';
+    pair.forEach(function(v){
+      var isFree = freeArr.indexOf(v) > -1;
+      var cls = isFree ? 'free' : 'blocked';
+      var label = isFree ? v : '0';
+      if(hide){ html += '<td class="'+cls+' hidden-cell">'+label+'</td>'; }
+      else{ html += '<td class="'+cls+'">'+label+'</td>'; }
+    });
+    html += '</tr>';
+  });
+  html += '</table>';
+  return html;
+}
+
+// ---------- LIAISON DATA ----------
+var LIAISONS = {
+  pivot: {
+    title:'Liaison PIVOT', type:'composée', ddl:1, dl:5, particLabel:"D'axe",
+    axes:{X:['Rx'], Y:['Ry'], Z:['Rz']}, refAxis:'X'
+  },
+  pivotGlissant: {
+    title:'Liaison PIVOT GLISSANT', type:'simple', ddl:2, dl:4, particLabel:"D'axe",
+    axes:{X:['Tx','Rx'], Y:['Ty','Ry'], Z:['Tz','Rz']}, refAxis:'X'
+  },
+  ponctuelle: {
+    title:'Liaison PONCTUELLE', type:'simple', ddl:5, dl:1, particLabel:'De normale',
+    axes:{X:['Ty','Tz','Rx','Ry','Rz'], Y:['Tx','Tz','Rx','Ry','Rz'], Z:['Tx','Ty','Rx','Ry','Rz']}, refAxis:'Y'
+  },
+  rotule: {
+    title:'Liaison ROTULE', type:'simple', ddl:3, dl:3, particLabel:'De centre',
+    axes:{A:['Rx','Ry','Rz']}, refAxis:'A'
+  },
+  lineaireAnnulaire: {
+    title:'Liaison LINÉAIRE ANNULAIRE', type:'simple', ddl:4, dl:2, particLabel:"D'axe",
+    axes:{X:['Tx','Rx','Ry','Rz'], Y:['Ty','Ry','Rx','Rz'], Z:['Tz','Rz','Rx','Ry']}, refAxis:'X'
+  },
+  helicoidale: {
+    title:'Liaison HÉLICOÏDALE', type:'composée', ddl:1, dl:5, particLabel:"D'axe",
+    axes:{X:['Tx','Rx'], Y:['Ty','Ry'], Z:['Tz','Rz']}, refAxis:'X', linked:true
+  }
+};
+
+var MOVE_LABELS = {
+  Tx:"Translation selon (O,x⃗)", Ty:"Translation selon (O,y⃗)", Tz:"Translation selon (O,z⃗)",
+  Rx:"Rotation autour de (O,x⃗)", Ry:"Rotation autour de (O,y⃗)", Rz:"Rotation autour de (O,z⃗)"
+};
+
+function buildLiaisonCard(key){
+  var L = LIAISONS[key];
+  var refFree = L.axes[L.refAxis];
+  var order = ['Tx','Ty','Tz','Rx','Ry','Rz'];
+
+  var html = '';
+  html += '<div class="card">';
+  html += '<h2 class="ex-title">'+L.title+'<span class="badge '+(L.type==='simple'?'simple':'composee')+'">Liaison '+L.type+'</span></h2>';
+
+  html += '<h3>1. Manipulation « Découvrir la liaison » — élève moteur / élève récepteur</h3>';
+  html += '<div class="def-box">Il faut conserver l\u2019orientation par rapport au repère durant toute la manipulation. '+
+          'Table pour la configuration de référence ('+L.particLabel+' '+L.refAxis+') :</div>';
+  html += '<table class="discovery"><tr><th>Mouvement (élève moteur)</th><th>Perception (élève récepteur)</th></tr>';
+  order.forEach(function(m){
+    var free = refFree.indexOf(m) > -1;
+    html += '<tr><td>'+MOVE_LABELS[m]+'</td><td>'+
+      (free ? '<span class="libre">Aucun effort perçu — mouvement libre (degré de liberté)</span>'
+            : '<span class="bloque">Effort perçu — mouvement bloqué (degré de liaison)</span>')+
+      '</td></tr>';
+  });
+  html += '</table>';
+
+  html += '<h3 style="margin-top:16px;">Animation du mouvement</h3>';
+  html += '<div class="anim-wrap">'+ANIM_SVG[key]+'</div>';
+  html += '<div class="anim-controls"><button class="anim-btn" id="btn_'+key+'_anim">Lancer l\u0027animation</button></div>';
+
+  html += '<h3 style="margin-top:16px;">2. Fiche d\u2019identité — mobilités</h3>';
+  html += '<div class="matrices-row">';
+  Object.keys(L.axes).forEach(function(axKey){
+    var hide = (axKey !== L.refAxis);
+    html += '<div class="matrix-block" data-axis="'+axKey+'">';
+    html += '<h4>'+L.particLabel+' '+axKey+'</h4>';
+    html += matrixHTML(L.axes[axKey], hide);
+    html += '</div>';
+  });
+  html += '</div>';
+  if(L.linked){
+    html += '<p class="hint-note">Les 2 mobilités marquées sont <b>liées</b> (mouvement combiné translation+rotation, pas de p) — elles ne comptent que pour <b>1 seul</b> degré de liberté au total.</p>';
+  }
+
+  html += '<button class="reveal-btn" data-liaison="'+key+'">Afficher / masquer la correction complète</button>';
+
+  html += '<div class="ddl-sentence">Liaison '+L.type+' &nbsp;•&nbsp; <span class="val ddl-val" data-liaison="'+key+'">?</span> degré(s) de liberté &nbsp;•&nbsp; <span class="val dl-val" data-liaison="'+key+'">?</span> degré(s) de liaison</div>';
+
+  html += '</div>';
+  return html;
+}
+
+// ---------- ANIMATIONS PAR LIAISON ----------
+var ANIM_SVG = {
+  pivot: '<svg viewBox="0 0 200 100" width="200" height="100">'+
+    '<rect x="85" y="30" width="30" height="40" fill="none" stroke="#333" stroke-width="2"/>'+
+    '<line x1="10" y1="50" x2="190" y2="50" stroke="#0ea5c4" stroke-width="10" stroke-linecap="round"/>'+
+    '<g id="anim_pivot_marker" transform="rotate(0 100 50)"><line x1="100" y1="50" x2="100" y2="26" stroke="#fff" stroke-width="3"/></g>'+
+    '<circle cx="100" cy="50" r="4" fill="#0d3b4d"/>'+
+    '</svg>',
+  pivotGlissant: '<svg viewBox="0 0 200 100" width="200" height="100">'+
+    '<rect x="85" y="30" width="30" height="40" fill="none" stroke="#333" stroke-width="2"/>'+
+    '<g id="anim_pg_group" transform="translate(0,0)">'+
+      '<line x1="-40" y1="50" x2="140" y2="50" stroke="#0ea5c4" stroke-width="10" stroke-linecap="round"/>'+
+      '<g id="anim_pg_marker" transform="rotate(0 50 50)"><line x1="50" y1="50" x2="50" y2="26" stroke="#fff" stroke-width="3"/></g>'+
+      '<circle cx="50" cy="50" r="4" fill="#0d3b4d"/>'+
+    '</g>'+
+    '</svg>',
+  ponctuelle: '<svg viewBox="0 0 200 100" width="200" height="100">'+
+    '<line x1="10" y1="75" x2="190" y2="75" stroke="#333" stroke-width="3"/>'+
+    '<circle id="anim_pt_ball" cx="100" cy="60" r="15" fill="#e07b1a" stroke="#a8570f" stroke-width="2"/>'+
+    '<g id="anim_pt_marker" transform="rotate(0 100 60)"><line x1="100" y1="60" x2="100" y2="47" stroke="#fff" stroke-width="2"/></g>'+
+    '</svg>',
+  rotule: '<svg viewBox="0 0 200 100" width="200" height="100">'+
+    '<circle cx="100" cy="55" r="18" fill="#eee" stroke="#333" stroke-width="2"/>'+
+    '<line id="anim_rot_stick" x1="100" y1="55" x2="100" y2="20" stroke="#c0392b" stroke-width="4" stroke-linecap="round"/>'+
+    '<circle cx="100" cy="55" r="4" fill="#0d3b4d"/>'+
+    '</svg>',
+  lineaireAnnulaire: '<svg viewBox="0 0 200 100" width="200" height="100">'+
+    '<line x1="10" y1="50" x2="190" y2="50" stroke="#333" stroke-width="4"/>'+
+    '<circle id="anim_la_ring" cx="100" cy="50" r="14" fill="none" stroke="#0ea5c4" stroke-width="5"/>'+
+    '<g id="anim_la_marker" transform="rotate(0 100 50)"><line x1="100" y1="50" x2="100" y2="36" stroke="#0d3b4d" stroke-width="2"/></g>'+
+    '</svg>',
+  helicoidale: '<svg viewBox="0 0 200 100" width="200" height="100">'+
+    '<rect x="70" y="35" width="30" height="30" fill="none" stroke="#333" stroke-width="2"/>'+
+    '<path d="M20 50 q4 -8 8 0 q4 8 8 0 q4 -8 8 0 q4 8 8 0 q4 -8 8 0 q4 8 8 0" stroke="#0ea5c4" fill="none" stroke-width="2"/>'+
+    '<g id="anim_heli_group" transform="translate(0,0)">'+
+      '<circle id="anim_heli_head" cx="150" cy="50" r="10" fill="#e07b1a" stroke="#a8570f" stroke-width="2"/>'+
+      '<g id="anim_heli_marker" transform="rotate(0 150 50)"><line x1="150" y1="50" x2="150" y2="40" stroke="#fff" stroke-width="2"/></g>'+
+    '</g>'+
+    '</svg>'
+};
+
+function createComboAnim(btnId, interval, onTick){
+  var t = 0, timer = null;
+  var btn = document.getElementById(btnId);
+  function tick(){ t += 1; onTick(t); }
+  onTick(t);
+  btn.addEventListener('click', function(){
+    if(timer){
+      clearInterval(timer); timer = null;
+      btn.classList.remove('playing');
+      btn.textContent = "Lancer l'animation";
+    } else {
+      btn.classList.add('playing');
+      btn.textContent = "Arreter l'animation";
+      timer = setInterval(tick, interval);
+    }
+  });
+}
+
+function initLiaisonAnim(key){
+  if(key === 'pivot'){
+    createComboAnim('btn_pivot_anim', 90, function(t){
+      document.getElementById('anim_pivot_marker').setAttribute('transform','rotate('+(t*15)+' 100 50)');
+    });
+  } else if(key === 'pivotGlissant'){
+    createComboAnim('btn_pivotGlissant_anim', 90, function(t){
+      var tx = 30*Math.sin(t*0.15);
+      document.getElementById('anim_pg_group').setAttribute('transform','translate('+tx+',0)');
+      document.getElementById('anim_pg_marker').setAttribute('transform','rotate('+(t*15)+' 50 50)');
+    });
+  } else if(key === 'ponctuelle'){
+    createComboAnim('btn_ponctuelle_anim', 90, function(t){
+      var tx = 55*Math.sin(t*0.13);
+      var rot = tx*3.5;
+      document.getElementById('anim_pt_ball').setAttribute('cx', 100+tx);
+      document.getElementById('anim_pt_marker').setAttribute('transform','rotate('+rot+' '+(100+tx)+' 60)');
+    });
+  } else if(key === 'rotule'){
+    createComboAnim('btn_rotule_anim', 90, function(t){
+      var ex = 100 + 20*Math.sin(t*0.11);
+      var ey = 20 + 8*Math.sin(t*0.17);
+      document.getElementById('anim_rot_stick').setAttribute('x2', ex);
+      document.getElementById('anim_rot_stick').setAttribute('y2', ey);
+    });
+  } else if(key === 'lineaireAnnulaire'){
+    createComboAnim('btn_lineaireAnnulaire_anim', 90, function(t){
+      var tx = 35*Math.sin(t*0.14);
+      var cy = 50 + 4*Math.sin(t*0.3);
+      document.getElementById('anim_la_ring').setAttribute('cx', 100+tx);
+      document.getElementById('anim_la_ring').setAttribute('cy', cy);
+      document.getElementById('anim_la_marker').setAttribute('transform','rotate('+(t*15)+' '+(100+tx)+' '+cy+')');
+    });
+  } else if(key === 'helicoidale'){
+    createComboAnim('btn_helicoidale_anim', 90, function(t){
+      var phase = t*0.15;
+      var tx = 25*Math.sin(phase);
+      var angle = tx*14;
+      document.getElementById('anim_heli_group').setAttribute('transform','translate('+tx+',0)');
+      document.getElementById('anim_heli_marker').setAttribute('transform','rotate('+angle+' '+(150+tx)+' 50)');
+    });
+  }
+}
+
+['pivot','pivotGlissant','ponctuelle','rotule','lineaireAnnulaire','helicoidale'].forEach(function(key){
+  document.getElementById('panel-'+key).innerHTML = buildLiaisonCard(key);
+});
+['pivot','pivotGlissant','ponctuelle','rotule','lineaireAnnulaire','helicoidale'].forEach(function(key){
+  initLiaisonAnim(key);
+});
+
+// reveal handler for liaison cards
+document.querySelectorAll('.reveal-btn[data-liaison]').forEach(function(btn){
+  btn.addEventListener('click',function(){
+    var key = btn.dataset.liaison;
+    var panel = btn.closest('.card');
+    var hiddenCells = panel.querySelectorAll('.hidden-cell');
+    var isHidden = hiddenCells.length > 0 && hiddenCells[0].classList.contains('hidden-cell');
+    hiddenCells.forEach(function(c){ c.classList.toggle('hidden-cell'); });
+    var ddlEl = panel.querySelector('.ddl-val[data-liaison="'+key+'"]');
+    var dlEl = panel.querySelector('.dl-val[data-liaison="'+key+'"]');
+    var L = LIAISONS[key];
+    if(ddlEl.textContent === '?'){
+      ddlEl.textContent = L.ddl; ddlEl.classList.add('shown');
+      dlEl.textContent = L.dl; dlEl.classList.add('shown');
+    } else {
+      ddlEl.textContent = '?'; ddlEl.classList.remove('shown');
+      dlEl.textContent = '?'; dlEl.classList.remove('shown');
+    }
+  });
+});
+
+// ---------- MECA3D STEPPER ----------
+document.querySelectorAll('#meca3dStepper .step h4').forEach(function(h){
+  h.addEventListener('click',function(){
+    var step = h.parentElement;
+    var wasActive = step.classList.contains('active');
+    document.querySelectorAll('#meca3dStepper .step').forEach(function(s){s.classList.remove('active');});
+    if(!wasActive) step.classList.add('active');
+  });
+});
+
+// ---------- PILOTE reveal ----------
+document.querySelectorAll('.reveal-btn[data-target]').forEach(function(btn){
+  btn.addEventListener('click',function(){
+    var t = document.getElementById(btn.dataset.target);
+    t.style.display = (t.style.display === 'none' || t.style.display === '') ? 'block' : 'none';
+  });
+});
+
+// ---------- ASTROLAB CALCULATIONS ----------
+var VITESSES = [
+  {code:'Vitesse 6', v:1.7},
+  {code:'Vitesse 7', v:3.8},
+  {code:'Vitesse 8', v:6}
+];
+var V_NOM = 12, N_NOM = 8000;
+
+var q3table = document.getElementById('tableQ3');
+VITESSES.forEach(function(row, idx){
+  var nMoteur = (row.v / V_NOM) * N_NOM;
+  var tr = document.createElement('tr');
+  tr.innerHTML = '<td>'+row.code+'</td><td>'+row.v+'</td><td>'+nMoteur.toFixed(1)+'</td>'+
+    '<td><input type="number" step="any" class="nFourcheInput" data-nmoteur="'+nMoteur+'" placeholder="mesure…"></td>'+
+    '<td class="ratioCell">—</td>';
+  q3table.appendChild(tr);
+});
+
+function updateRatios(){
+  var ratios = [];
+  document.querySelectorAll('.nFourcheInput').forEach(function(inp){
+    var nMoteur = parseFloat(inp.dataset.nmoteur);
+    var nFourche = parseFloat(inp.value);
+    var cell = inp.closest('tr').querySelector('.ratioCell');
+    if(!isNaN(nFourche) && nMoteur){
+      var r = nFourche / nMoteur;
+      cell.textContent = r.toExponential(3);
+      ratios.push(r);
+    } else {
+      cell.textContent = '—';
+    }
+  });
+  var moyEl = document.getElementById('moyRapport');
+  if(ratios.length){
+    var moy = ratios.reduce(function(a,b){return a+b;},0) / ratios.length;
+    moyEl.textContent = moy.toExponential(3);
+  } else {
+    moyEl.textContent = '—';
+  }
+}
+document.querySelectorAll('.nFourcheInput').forEach(function(inp){
+  inp.addEventListener('input', updateRatios);
+});
+
+// Q4 sidereal
+var sidMinutes = 23*60+56;
+var sidSpeed = 1/sidMinutes;
+document.getElementById('sidMin').textContent = sidMinutes;
+document.getElementById('sidResult').textContent = sidSpeed.toExponential(3);
+
+// Q5
+var specTouche6 = 128 * sidSpeed;
+document.getElementById('specTouche6').textContent = '\u2248 ' + specTouche6.toFixed(4) + ' tr/min';
+document.getElementById('mesureTouche6').addEventListener('input', function(){
+  var mesure = parseFloat(this.value);
+  var ecartEl = document.getElementById('ecartResult');
+  if(!isNaN(mesure)){
+    var ecart = ((mesure - specTouche6) / specTouche6) * 100;
+    ecartEl.textContent = ecart.toFixed(1) + ' %';
+  } else {
+    ecartEl.textContent = '—';
+  }
+});
+
+// Q6-Q8 gear train
+var GEARS = {1:12,2:56,3:12,4:24,5:12,6:24,7:12,8:24,9:12,10:24,11:24,12:8,13:22,14:1,15:60};
+var DEFAULT_CHAIN = [[1,2],[3,4],[5,6],[7,8],[9,11],[12,13]];
+var gearTable = document.getElementById('gearTable');
+gearTable.innerHTML = '<tr><th>Étage</th><th>Pignon menant (dents)</th><th>Roue menée (dents)</th><th>Rapport</th></tr>';
+DEFAULT_CHAIN.forEach(function(pair, i){
+  var tr = document.createElement('tr');
+  tr.innerHTML = '<td>'+pair[0]+' → '+pair[1]+'</td>'+
+    '<td><input type="number" class="gDriver" value="'+GEARS[pair[0]]+'"></td>'+
+    '<td><input type="number" class="gDriven" value="'+GEARS[pair[1]]+'"></td>'+
+    '<td class="gRatio">—</td>';
+  gearTable.appendChild(tr);
+});
+
+function updateGearChain(){
+  var product = 1;
+  var rows = gearTable.querySelectorAll('tr');
+  for(var i=1;i<rows.length;i++){
+    var driver = parseFloat(rows[i].querySelector('.gDriver').value);
+    var driven = parseFloat(rows[i].querySelector('.gDriven').value);
+    var ratio = driver && driven ? driver/driven : NaN;
+    rows[i].querySelector('.gRatio').textContent = isNaN(ratio) ? '—' : ratio.toFixed(4);
+    if(!isNaN(ratio)) product *= ratio;
+  }
+  document.getElementById('r113').textContent = product.toExponential(3);
+  var rGlobal = product * (GEARS[12]/GEARS[13]) * (GEARS[14]/GEARS[15]);
+  document.getElementById('rGlobal').textContent = rGlobal.toExponential(3);
+}
+gearTable.addEventListener('input', updateGearChain);
+updateGearChain();
+</script>
+</body>
+</html>
