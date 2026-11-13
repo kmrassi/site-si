@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Synthèse — Lois de Kirchhoff · 1ère SI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#EEF1F4; --panel:#FFFFFF; --ink:#1C2A39; --muted:#5B6B7C; --line:#C9D2DC;
+  --elec:#2563C9; --maille:#8A5A9E; --req:#D97F12; --div:#0E9AA7; --mill:#B03A6F; --loss:#C8453A;
+  --elec-soft:#E3ECFA; --maille-soft:#EEE6F2; --req-soft:#FBEEDC; --div-soft:#DDF2F4; --mill-soft:#F6E3EC;
+  --display:"Barlow Condensed","Arial Narrow",Arial,sans-serif;
+  --body:"Source Sans 3","Segoe UI",Arial,sans-serif;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#141B24; --panel:#1C2531; --ink:#E6ECF2; --muted:#9AA9B8; --line:#33414F;
+    --elec:#6C9CF0; --maille:#B892CC; --req:#F0A145; --div:#3EC3CF; --mill:#E0709F; --loss:#EE7066;
+    --elec-soft:#1E2E4A; --maille-soft:#2C2238; --req-soft:#3A2A14; --div-soft:#15353A; --mill-soft:#3A1D2B;
+  }
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-behavior:smooth; scroll-padding-top:calc(64px + env(safe-area-inset-top,0px))}
+body{margin:0; background:var(--paper); color:var(--ink); font-family:var(--body); font-size:17px; line-height:1.55}
+h1,h2,h3{font-family:var(--display); line-height:1.1; margin:0}
+h2{font-size:clamp(2rem,4vw,2.8rem); font-weight:700}
+h3{font-size:1.45rem; font-weight:600; margin:1.6rem 0 .6rem}
+p{margin:.5rem 0; max-width:72ch}
+button,input,select{font:inherit; color:inherit}
+:focus-visible{outline:3px solid var(--elec); outline-offset:2px}
+
+nav{position:sticky; top:env(safe-area-inset-top,0px); z-index:10; background:var(--paper); border-bottom:1px solid var(--line)}
+nav ul{list-style:none; margin:0 auto; padding:.55rem 1rem; display:flex; gap:.4rem; overflow-x:auto; max-width:1100px}
+nav a{display:block; white-space:nowrap; text-decoration:none; color:var(--ink); font-family:var(--display); font-weight:600; font-size:1.1rem; padding:.3rem .8rem; border-radius:999px; border:2px solid transparent}
+nav a:hover{border-color:var(--c,var(--ink))}
+nav a.on{background:var(--c); color:#fff}
+
+main{max-width:1100px; margin:0 auto; padding:0 1rem 4rem}
+
+.hero{padding:2.5rem 0 1rem}
+.hero h1{font-size:clamp(2.6rem,7vw,4.8rem); font-weight:700; letter-spacing:-.01em}
+.hero p{color:var(--muted); font-size:1.15rem}
+.pillbar{display:flex; gap:.5rem; flex-wrap:wrap; margin-top:1rem}
+.pillbar a{background:var(--panel); border:2px solid var(--c); color:var(--c); text-decoration:none; font-family:var(--display); font-weight:600; padding:.4rem .9rem; border-radius:999px}
+
+section.sec{padding:2.5rem 0 1rem; border-top:6px solid var(--c)}
+section.sec + section.sec{margin-top:2rem}
+.sec-head{display:flex; gap:1rem; align-items:baseline; flex-wrap:wrap}
+.sec-head .tag{font-family:var(--display); font-size:1.1rem; color:var(--c); font-weight:600}
+.lead{font-size:1.1rem; color:var(--muted)}
+
+.grid{display:grid; gap:1rem; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); margin:1rem 0}
+.f{background:var(--panel); border-left:5px solid var(--c); padding:.8rem 1rem; border-radius:0 8px 8px 0}
+.f .eq{font-family:Cambria,"Times New Roman",serif; font-size:1.45rem; font-style:italic; margin:.1rem 0 .3rem}
+.f .eq sub{font-size:.65em}
+.f small{color:var(--muted); display:block; line-height:1.4}
+
+.lab{background:var(--panel); border:2px solid var(--c); border-radius:14px; padding:1.2rem; margin:1.4rem 0; display:grid; gap:1.2rem; grid-template-columns:minmax(240px,1fr) minmax(260px,1.3fr)}
+@media (max-width:760px){.lab{grid-template-columns:1fr}}
+.lab h3{margin-top:0; color:var(--c)}
+.ctrl{margin:.7rem 0}
+.ctrl label{display:flex; justify-content:space-between; font-weight:600; font-size:.95rem}
+.ctrl label output{font-family:var(--display); font-size:1.15rem; color:var(--c)}
+input[type=range]{width:100%; accent-color:var(--c)}
+input[type=number]{width:100%; padding:.35rem .5rem; border:1px solid var(--line); border-radius:6px; background:var(--paper)}
+.res{display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); gap:.5rem; margin-top:.6rem}
+.res div{background:var(--soft); border-radius:8px; padding:.45rem .6rem}
+.res b{display:block; font-family:var(--display); font-size:1.35rem; line-height:1.1}
+.res span{font-size:.85rem; color:var(--muted)}
+.btn{background:var(--c); color:#fff; border:0; border-radius:8px; padding:.5rem 1rem; font-weight:700; cursor:pointer}
+.btn.ghost{background:transparent; color:var(--c); border:2px solid var(--c)}
+.seg{display:inline-flex; border:2px solid var(--c); border-radius:8px; overflow:hidden; flex-wrap:wrap}
+.seg button{background:transparent; border:0; padding:.4rem .8rem; cursor:pointer; font-weight:600}
+.seg button[aria-pressed=true]{background:var(--c); color:#fff}
+.note{font-size:.95rem; color:var(--muted); border-left:3px solid var(--line); padding-left:.7rem}
+.warn{color:var(--loss); font-weight:600}
+.app{background:var(--soft); border-radius:10px; padding:.8rem 1rem; margin-top:1rem; font-size:.95rem}
+
+.branch{display:grid; grid-template-columns:auto 1fr auto; gap:.5rem; align-items:center; padding:.5rem; border:1px solid var(--line); border-radius:8px; margin:.4rem 0; background:var(--paper)}
+.branch b{font-family:var(--display); color:var(--c)}
+
+.q{background:var(--panel); border-radius:10px; padding:1rem; margin:.8rem 0; border:1px solid var(--line)}
+.q p{font-weight:600; margin-top:0}
+.q .opts{display:flex; flex-wrap:wrap; gap:.4rem}
+.q .opts button{border:2px solid var(--line); background:var(--paper); border-radius:8px; padding:.4rem .8rem; cursor:pointer}
+.q .opts button.ok{border-color:#2E9E6B; background:#E1F3EA}
+.q .opts button.ko{border-color:var(--loss); text-decoration:line-through}
+.q .fb{margin-top:.5rem; font-size:.95rem; min-height:1.2em}
+.score{font-family:var(--display); font-size:2rem}
+
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *{transition:none!important; animation:none!important}
+}
+</style>
+</head>
+<body>
+
+<nav aria-label="Sections">
+  <ul>
+    <li><a href="#noeuds" style="--c:var(--elec)">Nœuds</a></li>
+    <li><a href="#mailles" style="--c:var(--maille)">Mailles</a></li>
+    <li><a href="#req" style="--c:var(--req)">Résistances équiv.</a></li>
+    <li><a href="#diviseurs" style="--c:var(--div)">Diviseurs</a></li>
+    <li><a href="#millman" style="--c:var(--mill)">Millman</a></li>
+    <li><a href="#quiz" style="--c:var(--req)">Quiz</a></li>
+  </ul>
+</nav>
+
+<main>
+<header class="hero">
+  <h1>Lois de Kirchhoff</h1>
+  <p>Fiche de synthèse pour revoir la loi des nœuds, la loi des mailles, les résistances équivalentes, les diviseurs et le théorème de Millman — les outils mobilisés dans l'évaluation « trottinette électrique ». Chaque bloc a sa calculette : modifie les curseurs pour vérifier les lois.</p>
+  <div class="pillbar">
+    <a href="01_Cours_Lois_de_Kirchhoff.html" style="--c:var(--elec)">↩ Revoir le cours</a>
+    <a href="16_Evaluation_Corrige_interactif_Trottinette.html" style="--c:var(--mill)">↩ Revoir le corrigé trottinette</a>
+  </div>
+</header>
+
+<!-- ============ NŒUDS ============ -->
+<section class="sec" id="noeuds" style="--c:var(--elec); --soft:var(--elec-soft)">
+  <div class="sec-head"><h2>Loi des nœuds</h2><span class="tag">conservation de la charge</span></div>
+  <p class="lead">Un nœud est un point où se rejoignent au moins trois fils. Il ne peut pas y avoir d'accumulation de charges en un point : tout ce qui entre doit ressortir.</p>
+
+  <div class="grid">
+    <div class="f"><div class="eq">Σ I<sub>entrants</sub> = Σ I<sub>sortants</sub></div><small>énoncé « physique » de la loi des nœuds</small></div>
+    <div class="f"><div class="eq">Σ I = 0</div><small>forme algébrique : un courant sortant est compté négativement</small></div>
+  </div>
+
+  <div class="lab">
+    <div>
+      <h3>Vérifie la loi au nœud</h3>
+      <p class="note">Deux courants entrent (I₁, I₂), un seul en sort (I₃).</p>
+      <div class="ctrl"><label>I₁ entrant <output id="nI1">3 A</output></label><input type="range" id="nI1in" min="0" max="10" step="0.1" value="3"></div>
+      <div class="ctrl"><label>I₂ entrant <output id="nI2">5 A</output></label><input type="range" id="nI2in" min="0" max="10" step="0.1" value="5"></div>
+    </div>
+    <div>
+      <div class="res">
+        <div><b id="nI3">–</b><span>I₃ sortant = I₁ + I₂</span></div>
+      </div>
+      <p class="note" id="nTxt"></p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ MAILLES ============ -->
+<section class="sec" id="mailles" style="--c:var(--maille); --soft:var(--maille-soft)">
+  <div class="sec-head"><h2>Loi des mailles</h2><span class="tag">conservation de l'énergie</span></div>
+  <p class="lead">Une maille est une portion de circuit fermée. On choisit <b>arbitrairement</b> un sens de parcours : les tensions dans ce sens sont comptées positivement, celles en opposition négativement.</p>
+
+  <div class="grid">
+    <div class="f"><div class="eq">Σ U<sub>maille</sub> = 0</div><small>sur tout parcours fermé, en respectant le sens choisi</small></div>
+  </div>
+
+  <div class="lab">
+    <div>
+      <h3>Circuit série E, R1, R2, R3</h3>
+      <div class="ctrl"><label>Tension de source E <output id="mE">15 V</output></label><input type="range" id="mEin" min="1" max="30" step="0.5" value="15"></div>
+      <div class="ctrl"><label>R1 <output id="mR1">5 Ω</output></label><input type="range" id="mR1in" min="1" max="30" value="5"></div>
+      <div class="ctrl"><label>R2 <output id="mR2">10 Ω</output></label><input type="range" id="mR2in" min="1" max="30" value="10"></div>
+      <div class="ctrl"><label>R3 <output id="mR3">15 Ω</output></label><input type="range" id="mR3in" min="1" max="30" value="15"></div>
+    </div>
+    <div>
+      <div class="res">
+        <div><b id="mI">–</b><span>I = E / (R1+R2+R3)</span></div>
+        <div><b id="mU1">–</b><span>U1 = R1 × I</span></div>
+        <div><b id="mU2">–</b><span>U2 = R2 × I</span></div>
+        <div><b id="mU3">–</b><span>U3 = R3 × I</span></div>
+      </div>
+      <p class="note" id="mTxt"></p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ RÉSISTANCES ÉQUIVALENTES ============ -->
+<section class="sec" id="req" style="--c:var(--req); --soft:var(--req-soft)">
+  <div class="sec-head"><h2>Résistances équivalentes</h2><span class="tag">série et parallèle</span></div>
+  <p class="lead">Associer des résistances permet de les remplacer par une seule résistance équivalente, qui a le même effet sur le reste du circuit.</p>
+
+  <div class="grid">
+    <div class="f"><div class="eq">R<sub>éq</sub> = R₁ + R₂ + …</div><small>association en <b>série</b> : les résistances s'ajoutent</small></div>
+    <div class="f"><div class="eq">1/R<sub>éq</sub> = 1/R₁ + 1/R₂ + …</div><small>association en <b>parallèle</b> : les inverses s'ajoutent</small></div>
+    <div class="f"><div class="eq">R<sub>éq</sub> = (R₁ × R₂)/(R₁ + R₂)</div><small>cas particulier à deux résistances en parallèle</small></div>
+  </div>
+
+  <div class="lab">
+    <div>
+      <h3>Associe deux résistances</h3>
+      <div class="ctrl"><div class="seg" id="rType"><button aria-pressed="true" data-v="s">Série</button><button aria-pressed="false" data-v="p">Parallèle</button></div></div>
+      <div class="ctrl"><label>R1 <output id="rR1">10 Ω</output></label><input type="range" id="rR1in" min="1" max="100" value="10"></div>
+      <div class="ctrl"><label>R2 <output id="rR2">20 Ω</output></label><input type="range" id="rR2in" min="1" max="100" value="20"></div>
+    </div>
+    <div>
+      <div class="res">
+        <div><b id="rReq">–</b><span>R<sub>éq</sub></span></div>
+      </div>
+      <p class="note" id="rTxt"></p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ DIVISEURS ============ -->
+<section class="sec" id="diviseurs" style="--c:var(--div); --soft:var(--div-soft)">
+  <div class="sec-head"><h2>Diviseurs de tension et de courant</h2><span class="tag">répartir E ou I entre deux résistances</span></div>
+  <p class="lead">Ce sont deux montages très fréquents, à ne pas confondre : le diviseur de tension (résistances en série) et le diviseur de courant (résistances en parallèle).</p>
+
+  <div class="grid">
+    <div class="f"><div class="eq">U<sub>s</sub> = E × R₂/(R₁ + R₂)</div><small>pont diviseur de <b>tension</b> : R1 et R2 en série, U<sub>s</sub> aux bornes de R2</small></div>
+    <div class="f"><div class="eq">I₁ = I × R₂/(R₁ + R₂)</div><small>diviseur de <b>courant</b> : R1 et R2 en parallèle ; attention, I₁ dépend de l'<i>autre</i> résistance R2</small></div>
+  </div>
+
+  <div class="lab">
+    <div>
+      <h3>Calculette</h3>
+      <div class="ctrl"><div class="seg" id="dType"><button aria-pressed="true" data-v="u">Tension</button><button aria-pressed="false" data-v="i">Courant</button></div></div>
+      <div class="ctrl"><label id="dSrcLbl">E (source de tension) <output id="dSrc">12 V</output></label><input type="range" id="dSrcin" min="1" max="30" step="0.5" value="12"></div>
+      <div class="ctrl"><label>R1 <output id="dR1">5 Ω</output></label><input type="range" id="dR1in" min="1" max="50" value="5"></div>
+      <div class="ctrl"><label>R2 <output id="dR2">10 Ω</output></label><input type="range" id="dR2in" min="1" max="50" value="10"></div>
+    </div>
+    <div>
+      <div class="res">
+        <div><b id="dOut">–</b><span id="dOutLbl">U2 de sortie</span></div>
+      </div>
+      <p class="note" id="dTxt"></p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ MILLMAN ============ -->
+<section class="sec" id="millman" style="--c:var(--mill); --soft:var(--mill-soft)">
+  <div class="sec-head"><h2>Théorème de Millman</h2><span class="tag">calculer un potentiel de nœud</span></div>
+  <p class="lead">Au nœud A où arrivent plusieurs branches, chacune avec une résistance R<sub>i</sub> et éventuellement une source E<sub>i</sub> en série, le théorème de Millman donne directement le potentiel V<sub>A</sub>. Une branche sans source compte avec E<sub>i</sub> = 0 (c'est le cas de R3 ci-dessous).</p>
+
+  <div class="grid">
+    <div class="f"><div class="eq">V<sub>A</sub> = (ΣE<sub>i</sub>/R<sub>i</sub>) / (Σ1/R<sub>i</sub>)</div><small>somme sur toutes les branches arrivant au nœud A</small></div>
+  </div>
+  <p class="note">C'est en fait la loi des nœuds écrite en A : Σ (E<sub>i</sub> − V<sub>A</sub>)/R<sub>i</sub> = 0. On isole V<sub>A</sub> et on retrouve Millman.</p>
+
+  <div class="lab">
+    <div>
+      <h3>Nœud à 3 branches</h3>
+      <div class="branch">
+        <b>Branche 1</b>
+        <div class="ctrl" style="margin:0"><label>E1 <output id="kE1">10 V</output> · R1 <output id="kR1">5 Ω</output></label></div>
+      </div>
+      <input type="range" id="kE1in" min="0" max="30" step="0.5" value="10">
+      <input type="range" id="kR1in" min="1" max="30" value="5">
+      <div class="branch">
+        <b>Branche 2</b>
+        <div class="ctrl" style="margin:0"><label>E2 <output id="kE2">5 V</output> · R2 <output id="kR2">10 Ω</output></label></div>
+      </div>
+      <input type="range" id="kE2in" min="0" max="30" step="0.5" value="5">
+      <input type="range" id="kR2in" min="1" max="30" value="10">
+      <div class="branch">
+        <b>Branche 3 (sans source, E3 = 0)</b>
+        <div class="ctrl" style="margin:0"><label>R3 <output id="kR3">15 Ω</output></label></div>
+      </div>
+      <input type="range" id="kR3in" min="1" max="30" value="15">
+    </div>
+    <div>
+      <div class="res">
+        <div><b id="kVA">–</b><span>V<sub>A</sub> (Millman)</span></div>
+        <div><b id="kI1">–</b><span>I1 = (E1 − V<sub>A</sub>)/R1</span></div>
+        <div><b id="kI2">–</b><span>I2 = (E2 − V<sub>A</sub>)/R2</span></div>
+        <div><b id="kI3">–</b><span>I3 = (0 − V<sub>A</sub>)/R3</span></div>
+      </div>
+      <p class="note" id="kTxt"></p>
+      <div class="app">Dans le corrigé de l'évaluation trottinette, cette même méthode donne le potentiel du point A puis, avec Rb branchée, celui du point S (pont diviseur chargé) — avec le même raisonnement, en ajoutant une branche.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ QUIZ ============ -->
+<section class="sec" id="quiz" style="--c:var(--req); --soft:var(--req-soft)">
+  <div class="sec-head"><h2>Vérifie tes acquis</h2><span class="score" id="score">0 / 0</span></div>
+  <div id="qz"></div>
+  <p><button class="btn" id="qReset">Recommencer le quiz</button></p>
+</section>
+</main>
+
+<script>
+(function(){
+const $=id=>document.getElementById(id);
+const nf=(x,d=0)=>isFinite(x)?x.toLocaleString('fr-FR',{minimumFractionDigits:d,maximumFractionDigits:d}):'–';
+const bind=(ids,fn)=>ids.forEach(i=>$(i).addEventListener('input',fn));
+
+/* ---- nav active ---- */
+const links=[...document.querySelectorAll('nav a')];
+const io=new IntersectionObserver(es=>es.forEach(e=>{ if(e.isIntersecting){ links.forEach(a=>a.classList.toggle('on',a.getAttribute('href')==='#'+e.target.id)); }}),{rootMargin:'-40% 0px -55% 0px'});
+document.querySelectorAll('section.sec').forEach(s=>io.observe(s));
+
+/* ---- nœuds ---- */
+function noeud(){
+  const I1=+$('nI1in').value,I2=+$('nI2in').value;
+  $('nI1').textContent=nf(I1,1)+' A'; $('nI2').textContent=nf(I2,1)+' A';
+  const I3=I1+I2;
+  $('nI3').textContent=nf(I3,1)+' A';
+  $('nTxt').innerHTML=`Loi des nœuds : I₁ + I₂ = I₃ → ${nf(I1,1)} + ${nf(I2,1)} = <b>${nf(I3,1)} A</b>. Rien ne s'accumule au nœud.`;
+}
+bind(['nI1in','nI2in'],noeud); noeud();
+
+/* ---- mailles ---- */
+function maille(){
+  const E=+$('mEin').value,R1=+$('mR1in').value,R2=+$('mR2in').value,R3=+$('mR3in').value;
+  $('mE').textContent=nf(E,1)+' V'; $('mR1').textContent=R1+' Ω'; $('mR2').textContent=R2+' Ω'; $('mR3').textContent=R3+' Ω';
+  const I=E/(R1+R2+R3), U1=R1*I, U2=R2*I, U3=R3*I;
+  $('mI').textContent=nf(I,2)+' A'; $('mU1').textContent=nf(U1,1)+' V'; $('mU2').textContent=nf(U2,1)+' V'; $('mU3').textContent=nf(U3,1)+' V';
+  $('mTxt').innerHTML=`Vérification : U1 + U2 + U3 = ${nf(U1,1)} + ${nf(U2,1)} + ${nf(U3,1)} = <b>${nf(U1+U2+U3,1)} V</b> = E. La loi des mailles est vérifiée.`;
+}
+bind(['mEin','mR1in','mR2in','mR3in'],maille); maille();
+
+/* ---- résistances équivalentes ---- */
+let rt='s';
+document.querySelectorAll('#rType button').forEach(b=>b.addEventListener('click',()=>{rt=b.dataset.v; document.querySelectorAll('#rType button').forEach(x=>x.setAttribute('aria-pressed',x===b)); req();}));
+function req(){
+  const R1=+$('rR1in').value,R2=+$('rR2in').value;
+  $('rR1').textContent=R1+' Ω'; $('rR2').textContent=R2+' Ω';
+  const Req=rt==='s'?(R1+R2):(R1*R2)/(R1+R2);
+  $('rReq').textContent=nf(Req,2)+' Ω';
+  $('rTxt').innerHTML=rt==='s'
+    ?`Série : R<sub>éq</sub> = R1 + R2 = ${R1} + ${R2} = <b>${nf(Req,2)} Ω</b>. Toujours plus grande que la plus grande des deux.`
+    :`Parallèle : R<sub>éq</sub> = (R1×R2)/(R1+R2) = (${R1}×${R2})/(${R1}+${R2}) = <b>${nf(Req,2)} Ω</b>. Toujours plus petite que la plus petite des deux.`;
+}
+bind(['rR1in','rR2in'],req); req();
+
+/* ---- diviseurs ---- */
+let dt='u';
+document.querySelectorAll('#dType button').forEach(b=>b.addEventListener('click',()=>{dt=b.dataset.v; document.querySelectorAll('#dType button').forEach(x=>x.setAttribute('aria-pressed',x===b)); div();}));
+function div(){
+  const S=+$('dSrcin').value,R1=+$('dR1in').value,R2=+$('dR2in').value;
+  $('dSrcLbl').textContent=(dt==='u'?'E (source de tension) ':'I (source de courant) ');
+  $('dSrc').textContent=nf(S,1)+(dt==='u'?' V':' A');
+  $('dR1').textContent=R1+' Ω'; $('dR2').textContent=R2+' Ω';
+  if(dt==='u'){
+    const Us=S*R2/(R1+R2);
+    $('dOutLbl').textContent='Us aux bornes de R2 (R1, R2 en série)';
+    $('dOut').textContent=nf(Us,2)+' V';
+    $('dTxt').innerHTML=`Us = E × R2/(R1+R2) = ${nf(S,1)} × ${R2}/(${R1}+${R2}) = <b>${nf(Us,2)} V</b>.`;
+  } else {
+    const I1=S*R2/(R1+R2), I2=S*R1/(R1+R2);
+    $('dOutLbl').textContent='I1 dans R1 (R1, R2 en parallèle)';
+    $('dOut').textContent=nf(I1,2)+' A';
+    $('dTxt').innerHTML=`I1 = I × R2/(R1+R2) = ${nf(S,1)} × ${R2}/(${R1}+${R2}) = <b>${nf(I1,2)} A</b>. Par symétrie, I2 = ${nf(I2,2)} A (I1+I2 = ${nf(I1+I2,2)} A = I).`;
+  }
+}
+bind(['dSrcin','dR1in','dR2in'],div); div();
+
+/* ---- Millman ---- */
+function millman(){
+  const E1=+$('kE1in').value,R1=+$('kR1in').value,E2=+$('kE2in').value,R2=+$('kR2in').value,R3=+$('kR3in').value;
+  $('kE1').textContent=nf(E1,1)+' V'; $('kR1').textContent=R1+' Ω';
+  $('kE2').textContent=nf(E2,1)+' V'; $('kR2').textContent=R2+' Ω';
+  $('kR3').textContent=R3+' Ω';
+  const num=E1/R1+E2/R2+0/R3, den=1/R1+1/R2+1/R3, VA=num/den;
+  $('kVA').textContent=nf(VA,2)+' V';
+  $('kI1').textContent=nf((E1-VA)/R1,2)+' A';
+  $('kI2').textContent=nf((E2-VA)/R2,2)+' A';
+  $('kI3').textContent=nf((0-VA)/R3,2)+' A';
+  $('kTxt').innerHTML=`V<sub>A</sub> = (${nf(E1,1)}/${R1} + ${nf(E2,1)}/${R2} + 0/${R3}) / (1/${R1} + 1/${R2} + 1/${R3}) = <b>${nf(VA,2)} V</b>.`;
+}
+bind(['kE1in','kR1in','kE2in','kR2in','kR3in'],millman); millman();
+
+/* ---- quiz ---- */
+const Q=[
+ ['Au nœud A, I1 = 4 A et I2 = 6 A entrent, un seul courant I3 en sort. Que vaut I3 ?',['2 A','10 A','4 A'],1,'Loi des nœuds : I3 = I1 + I2 = 4 + 6 = 10 A.'],
+ ['La loi des mailles traduit la conservation de…',["l'énergie","la charge électrique","la puissance"],0,'Σ U = 0 sur une maille : c\'est la conservation de l\'énergie le long d\'un parcours fermé.'],
+ ['Deux résistances 10 Ω et 20 Ω en série : résistance équivalente ?',['6,7 Ω','30 Ω','200 Ω'],1,'Série : Réq = R1 + R2 = 10 + 20 = 30 Ω.'],
+ ['Deux résistances 10 Ω et 10 Ω en parallèle : résistance équivalente ?',['20 Ω','5 Ω','100 Ω'],1,'Parallèle : Réq = (10×10)/(10+10) = 5 Ω.'],
+ ['Pont diviseur de tension E = 10 V, R1 = 5 Ω, R2 = 5 Ω. Tension Us aux bornes de R2 ?',['10 V','5 V','2,5 V'],1,'Us = E × R2/(R1+R2) = 10 × 5/10 = 5 V.'],
+ ['Dans un diviseur de courant à deux branches, le courant I1 dans R1 dépend surtout de…',['R1','R2','la tension aux bornes'],1,'I1 = I × R2/(R1+R2) : I1 est proportionnel à l\'autre résistance, R2.'],
+ ['Le théorème de Millman permet de calculer directement…',['un courant de branche','un potentiel de nœud','une puissance'],1,'Millman donne le potentiel V_A d\'un nœud à partir des branches qui y arrivent.'],
+ ['Une branche sans source reliée au nœud A compte, dans Millman, avec…',['Ei infini','Ei = 0','Ri = 0'],1,'Une branche sans générateur a simplement Ei = 0 dans la somme ΣEi/Ri.'],
+ ['Millman : branche 1 (E=12 V, R=4 Ω), branche 2 (E=0 V, R=4 Ω, pas de source). V_A ?',['12 V','6 V','0 V'],1,'V_A = (12/4 + 0/4) / (1/4 + 1/4) = 3 / 0,5 = 6 V.']
+];
+let good=0,done=0;
+function quiz(){
+  good=0;done=0; const z=$('qz'); z.innerHTML='';
+  Q.forEach(([q,o,c,ex],i)=>{
+    const d=document.createElement('div'); d.className='q';
+    d.innerHTML=`<p>${i+1}. ${q}</p><div class="opts"></div><div class="fb" aria-live="polite"></div>`;
+    const os=d.querySelector('.opts');
+    o.forEach((t,j)=>{const b=document.createElement('button'); b.textContent=t;
+      b.addEventListener('click',()=>{
+        if(d.dataset.done) return; d.dataset.done=1; done++;
+        const bs=os.querySelectorAll('button'); bs[c].classList.add('ok');
+        if(j===c){good++; d.querySelector('.fb').innerHTML='<b style="color:#2E9E6B">Juste.</b> '+ex;}
+        else{b.classList.add('ko'); d.querySelector('.fb').innerHTML='<b style="color:var(--loss)">Pas tout à fait.</b> '+ex;}
+        bs.forEach(x=>x.disabled=true); $('score').textContent=good+' / '+done;
+      }); os.appendChild(b);});
+    z.appendChild(d);
+  });
+  $('score').textContent='0 / 0';
+}
+$('qReset').addEventListener('click',quiz); quiz();
+})();
+</script>
+<a href="../index.html" style="position:fixed;bottom:16px;left:16px;z-index:99999;background:#1e3a5f;color:#fff;padding:10px 16px;border-radius:24px;font:600 14px system-ui,sans-serif;text-decoration:none;box-shadow:0 2px 8px rgba(0,0,0,.25)">← Sommaire</a><script data-goatcounter="https://mrassi-si.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+</body>
+</html>
