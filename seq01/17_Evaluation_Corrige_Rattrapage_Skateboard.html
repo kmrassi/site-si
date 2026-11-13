@@ -1,0 +1,391 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Corrigé interactif – Skateboard électrique</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f6f8fc; --card:#ffffff; --ink:#1d2733; --soft:#5a6678; --line:#dbe2ec;
+  --blue:#2f7fe0; --blue-t:#e7f1fe; --orange:#ef8a17; --orange-t:#fff3e0; --green:#1f9d5c; --green-t:#e5f6ec;
+  --violet:#7c5cd6; --violet-t:#f3eefe; --red:#d64545; --red-t:#fdeaea; --yellow:#f2b01e; --yellow-t:#fff8e6;
+  --navy:#1b4f9c;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:70px}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Nunito,system-ui,-apple-system,"Segoe UI",Arial,sans-serif;font-size:16px;line-height:1.55}
+.mono{font-family:"JetBrains Mono",ui-monospace,Consolas,monospace}
+sub{font-size:.72em} sup{font-size:.72em}
+
+/* ---------- top bar ---------- */
+.top{position:sticky;top:0;z-index:20;background:rgba(255,255,255,.94);backdrop-filter:blur(6px);border-bottom:1px solid var(--line)}
+.top-in{max-width:1080px;margin:0 auto;display:flex;align-items:center;gap:10px;padding:8px 16px;flex-wrap:wrap}
+.brand{font-weight:800;color:var(--navy);margin-right:auto;display:flex;align-items:center;gap:8px}
+.nav a{display:inline-block;text-decoration:none;font-weight:700;font-size:.92rem;padding:5px 12px;border-radius:20px;color:#fff}
+.nav .na{background:var(--orange)} .nav .nb{background:var(--blue)} .nav .nc{background:var(--green)}
+.score{font-weight:800;background:var(--violet-t);color:var(--violet);border-radius:20px;padding:5px 12px;font-size:.92rem;white-space:nowrap}
+
+main{max-width:1080px;margin:0 auto;padding:18px 16px 60px}
+
+/* ---------- hero ---------- */
+.hero{background:linear-gradient(135deg,#eef5ff 0%,#f3eefe 100%);border:1.5px solid #c9dbf5;border-radius:18px;padding:22px 24px;display:grid;grid-template-columns:1fr 210px;gap:18px;align-items:center}
+.hero h1{margin:0 0 6px;font-size:1.75rem;line-height:1.15;color:var(--navy)}
+.hero p{margin:4px 0;color:#3e5878}
+.pill{display:inline-block;font-size:.78rem;font-weight:800;color:#fff;background:var(--navy);border-radius:20px;padding:2px 10px;margin-bottom:6px}
+.howto{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.howto span{background:#fff;border:1px solid var(--line);border-radius:10px;padding:4px 10px;font-size:.88rem}
+@media (max-width:720px){.hero{grid-template-columns:1fr}.hero svg{display:none}}
+
+/* ---------- parts ---------- */
+.part{margin-top:30px}
+.part-h{display:flex;align-items:center;justify-content:space-between;gap:10px;border-radius:14px;padding:10px 16px;border-left:8px solid}
+.part-h h2{margin:0;font-size:1.3rem}
+.part-h .tag{color:#fff;font-weight:800;border-radius:20px;padding:3px 12px;font-size:.9rem;white-space:nowrap}
+.pa .part-h{background:var(--orange-t);border-color:var(--orange)} .pa .tag{background:var(--orange)}
+.pb .part-h{background:var(--blue-t);border-color:var(--blue)} .pb .tag{background:var(--blue)}
+.pc .part-h{background:var(--green-t);border-color:var(--green)} .pc .tag{background:var(--green)}
+.intro{margin:10px 4px;color:var(--soft)}
+
+/* ---------- lab (animated figure) ---------- */
+.lab{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 16px;margin:14px 0;box-shadow:0 1px 3px rgba(20,40,80,.05)}
+.lab h3{margin:0 0 4px;font-size:1.05rem}
+.lab .sub{margin:0 0 8px;color:var(--soft);font-size:.92rem}
+.lab-grid{display:grid;grid-template-columns:1.25fr 1fr;gap:16px;align-items:center}
+@media (max-width:820px){.lab-grid{grid-template-columns:1fr}}
+.lab svg{width:100%;height:auto;display:block}
+.ctrl{display:flex;flex-direction:column;gap:10px}
+.ctrl label{font-weight:700;font-size:.92rem}
+input[type=range]{width:100%;accent-color:var(--blue)}
+.readout{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.ro{background:#f4f7fb;border-radius:10px;padding:6px 10px}
+.ro b{display:block;font-size:1.15rem}
+.ro span{font-size:.8rem;color:var(--soft)}
+.ro.neg b{color:var(--red)} .ro.ok b{color:var(--green)} .ro.bad b{color:var(--red)}
+.btns{display:flex;flex-wrap:wrap;gap:8px}
+button{font:inherit;cursor:pointer}
+.btn{border:1.5px solid var(--navy);background:#fff;color:var(--navy);font-weight:700;border-radius:10px;padding:6px 12px;font-size:.9rem;transition:transform .1s,background .2s}
+.btn:hover{background:#eef5ff}
+.btn:active{transform:scale(.97)}
+.btn.on{background:var(--navy);color:#fff}
+.msg{font-size:.92rem;border-radius:10px;padding:8px 10px;background:var(--yellow-t);border-left:4px solid var(--yellow)}
+
+/* ---------- question card ---------- */
+.q{background:var(--card);border:1px solid var(--line);border-radius:16px;margin:14px 0;overflow:hidden;box-shadow:0 1px 3px rgba(20,40,80,.05)}
+.q-h{display:flex;gap:12px;align-items:flex-start;padding:14px 16px;cursor:pointer;user-select:none}
+.q-n{flex:none;width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff}
+.pa .q-n{background:var(--orange)} .pb .q-n{background:var(--blue)} .pc .q-n{background:var(--green)}
+.q-t{flex:1}
+.q-t .ask{font-weight:600}
+.q-t .meta{margin-top:4px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.pts{font-size:.8rem;font-weight:800;background:#eef1f5;color:#5a6678;border-radius:20px;padding:1px 9px}
+.theme{font-size:.8rem;font-weight:700;color:var(--soft)}
+.chev{flex:none;font-size:1.3rem;color:var(--soft);transition:transform .25s;margin-top:8px}
+.q.open .chev{transform:rotate(90deg)}
+.q-b{display:none;padding:0 16px 16px 70px}
+.q.open .q-b{display:block}
+@media (max-width:600px){.q-b{padding:0 14px 14px 14px}}
+
+.steps{list-style:none;margin:0;padding:0;counter-reset:st}
+.step{position:relative;padding:10px 12px 10px 44px;border-radius:12px;background:#f8fafd;border:1px solid #e6ecf3;margin:8px 0;opacity:0;transform:translateY(10px);transition:opacity .45s ease,transform .45s ease;display:none}
+.step.show{display:block}
+.step.vis{opacity:1;transform:none}
+.step::before{counter-increment:st;content:counter(st);position:absolute;left:12px;top:10px;width:22px;height:22px;border-radius:50%;background:var(--navy);color:#fff;font-weight:800;font-size:.8rem;display:flex;align-items:center;justify-content:center}
+.step .lbl{font-size:.78rem;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:var(--soft);display:block;margin-bottom:2px}
+.eq{display:block;margin:6px 0;padding:8px 12px;background:#fff;border:1px dashed #c8d3e1;border-radius:10px;font-family:"JetBrains Mono",ui-monospace,Consolas,monospace;font-size:.92rem;overflow-x:auto;white-space:nowrap}
+.res{display:inline-block;margin-top:4px;font-weight:800;color:var(--green);background:var(--green-t);border-radius:8px;padding:2px 10px}
+.res.r{color:var(--red);background:var(--red-t)}
+.trap{margin:8px 0 0;padding:8px 12px;border-radius:10px;background:var(--red-t);border-left:4px solid var(--red);font-size:.92rem}
+.trap b{color:var(--red)}
+.why{margin:8px 0 0;padding:8px 12px;border-radius:10px;background:var(--violet-t);border-left:4px solid var(--violet);font-size:.92rem}
+.why b{color:var(--violet)}
+.bareme{margin:8px 0 0;padding:6px 12px;border-radius:10px;background:#eef1f5;font-size:.88rem;color:#3e4a5c}
+.q-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;align-items:center}
+.next{border:none;background:var(--navy);color:#fff;font-weight:800;border-radius:10px;padding:8px 14px}
+.next:disabled{opacity:.4;cursor:default}
+.all{border:none;background:transparent;color:var(--navy);font-weight:700;text-decoration:underline;padding:8px 6px}
+.self{margin-left:auto;display:flex;gap:6px;align-items:center;font-size:.85rem;color:var(--soft)}
+.self button{border:1.5px solid var(--line);background:#fff;border-radius:8px;padding:3px 9px;font-weight:800}
+.self button.sel.full{background:var(--green);border-color:var(--green);color:#fff}
+.self button.sel.half{background:var(--yellow);border-color:var(--yellow);color:#fff}
+.self button.sel.zero{background:var(--red);border-color:var(--red);color:#fff}
+
+table.t{border-collapse:collapse;width:100%;margin:6px 0;font-size:.92rem;background:#fff}
+table.t th,table.t td{border:1px solid #d5dde8;padding:5px 8px;text-align:left}
+table.t th{background:#eef3f9}
+
+.concl{background:linear-gradient(135deg,#e5f6ec,#e7f1fe);border:1.5px solid #bfe3cf;border-radius:16px;padding:16px 18px;margin-top:28px}
+.concl h2{margin:0 0 8px;color:var(--green)}
+.check{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+@media (max-width:720px){.check{grid-template-columns:1fr}}
+.check div{background:#fff;border-radius:12px;padding:10px 12px;border:1px solid var(--line)}
+.check b{display:block;font-size:1.1rem}
+.foot{text-align:center;color:var(--soft);font-size:.85rem;margin-top:30px}
+
+/* anim helpers */
+.flow{fill:none;stroke-linecap:round}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.step{transition:none}}
+
+.gearsvg g.gear path{stroke:#2b3a4e;stroke-width:1.2}
+.dir{font-weight:800}
+.bars .row{display:grid;grid-template-columns:120px 1fr 70px;gap:8px;align-items:center;margin:4px 0;font-size:.9rem}
+.bars .track{background:#eef1f5;border-radius:6px;height:16px;overflow:hidden}
+.bars .fill{height:100%;border-radius:6px;transition:width .5s ease}
+.batt{display:flex;gap:4px;align-items:flex-end;height:80px;margin:6px 0}
+.batt div{flex:1;border-radius:4px 4px 0 0;transition:height .4s}
+</style></head><body>
+<div class="top"><div class="top-in">
+<div class="brand"><svg width="30" height="20" viewBox="0 0 60 40" aria-hidden="true"><path d="M4 18 Q8 26 14 26 H46 Q52 26 56 18" fill="none" stroke="#1b4f9c" stroke-width="5" stroke-linecap="round"/><circle cx="16" cy="33" r="5" fill="#f2b01e"/><circle cx="44" cy="33" r="5" fill="#f2b01e"/></svg> Corrigé interactif</div>
+<a href="../index.html#seq01" style="font-weight:700;color:#1b4f9c;text-decoration:none;font-size:.9rem">← Séquence 1</a>
+<nav class="nav"><a class="na" href="#A">A · Électricité</a> <a class="nb" href="#B">B · Transmission</a> <a class="nc" href="#C">C · Énergie</a></nav>
+<div class="score" id="score">Mon score : 0 / 20</div></div></div>
+<main>
+<section class="hero"><div>
+<span class="pill">SEQ 1 · Devoir de rattrapage · 1re SI</span>
+<h1>Mission : le skateboard électrique est-il conforme ?</h1>
+<p>Corrigé détaillé du devoir de rattrapage (noté sur 20 points). Les schémas sont animés : changez les valeurs et observez ce qui se passe.</p>
+<p style="font-size:.92rem"><b>Exigences :</b> vitesse ≤ 25 km/h · au moins 2 jours de trajets sans recharge · tension de la carte de mesure ≤ 5 V.</p>
+<div class="howto"><span><b>1.</b> Cliquez sur une question</span><span><b>2.</b> « Étape suivante » pour avancer pas à pas</span><span><b>3.</b> Notez-vous : ✓ ½ ✗</span></div></div>
+<svg viewBox="0 0 210 150" aria-hidden="true"><path d="M14 78 Q24 98 44 98 H166 Q186 98 196 78" fill="none" stroke="#1b4f9c" stroke-width="10" stroke-linecap="round"/><rect x="120" y="100" width="40" height="14" rx="4" fill="#1b4f9c"/><g id="hw1"><circle cx="58" cy="122" r="16" fill="#f2b01e" stroke="#1b4f9c" stroke-width="4"/><line x1="58" y1="108" x2="58" y2="136" stroke="#1b4f9c" stroke-width="3"/></g><g id="hw2"><circle cx="152" cy="122" r="16" fill="#f2b01e" stroke="#1b4f9c" stroke-width="4"/><line x1="152" y1="108" x2="152" y2="136" stroke="#1b4f9c" stroke-width="3"/></g><path d="M96 40l-12 24h14l-9 22 26-30h-14l9-16z" fill="#f2b01e"/></svg>
+</section>
+
+<section class="part pa" id="A"><div class="part-h"><h2>Partie A – Lois de Kirchhoff et théorème de Millman</h2><span class="tag">8 points</span></div>
+<p class="intro">Recharge : E1 = 24 V, R1 = 2 Ω (chargeur) · E2 = 14 V, R2 = 4 Ω (batterie auxiliaire) · R4 = 4 Ω (câble) · R3 = 20 Ω (LED) · R5 = 32 Ω (capteurs) · V<sub>M</sub> = 0 V.</p>
+<div class="lab"><h3>Laboratoire 1 – Le circuit de recharge animé</h3>
+<p class="sub">Les points lumineux suivent le <b>sens réel</b> des courants, leur vitesse dépend de l'intensité. Faites varier E2 (l'état de charge de la batterie auxiliaire) : à partir de quelle tension la batterie arrête-t-elle de se charger ?</p>
+<div class="lab-grid">
+<svg id="circA" viewBox="40 60 650 270" font-family="Nunito, Arial" font-size="13">
+<path d="M80 120V100H310M370 100H600V170M600 230V300H80V258M80 222V170M240 100V160M240 220V300M440 100V120M440 170V222M440 258V300" fill="none" stroke="#2b3a4e" stroke-width="2"/>
+<rect x="70" y="120" width="20" height="50" rx="3" fill="#fff" stroke="#2b3a4e" stroke-width="2"/>
+<rect x="310" y="90" width="60" height="20" rx="3" fill="#fff" stroke="#2b3a4e" stroke-width="2"/>
+<rect id="led" x="230" y="160" width="20" height="60" rx="3" fill="#fff8e6" stroke="#2b3a4e" stroke-width="2"/>
+<rect x="430" y="120" width="20" height="50" rx="3" fill="#fff" stroke="#2b3a4e" stroke-width="2"/>
+<rect x="590" y="170" width="20" height="60" rx="3" fill="#fff" stroke="#2b3a4e" stroke-width="2"/>
+<circle cx="80" cy="240" r="18" fill="#fff" stroke="#2b3a4e" stroke-width="2"/><line x1="80" y1="222" x2="80" y2="258" stroke="#2b3a4e" stroke-width="1.5"/>
+<circle cx="440" cy="240" r="18" fill="#fff" stroke="#2b3a4e" stroke-width="2"/><line x1="440" y1="222" x2="440" y2="258" stroke="#2b3a4e" stroke-width="1.5"/>
+<path id="g1" class="flow" d="M80 300V100H240" stroke="#ef8a17" stroke-width="4"/>
+<path id="g3" class="flow" d="M240 100V300" stroke="#f2b01e" stroke-width="4"/>
+<path id="g4" class="flow" d="M240 100H440" stroke="#7c5cd6" stroke-width="4"/>
+<path id="g2" class="flow" d="M440 100V300" stroke="#2f7fe0" stroke-width="4"/>
+<path id="g5" class="flow" d="M440 100H600V300" stroke="#1f9d5c" stroke-width="4"/>
+<circle cx="240" cy="100" r="4" fill="#2b3a4e"/><circle cx="440" cy="100" r="4" fill="#2b3a4e"/><circle cx="240" cy="300" r="4" fill="#2b3a4e"/><circle cx="440" cy="300" r="4" fill="#2b3a4e"/>
+<text x="92" y="226" font-weight="800">+</text><text x="452" y="226" font-weight="800">+</text>
+<text x="96" y="150">R1 = 2 Ω</text><text x="104" y="244">E1 = 24 V</text>
+<text x="256" y="186">R3 = 20 Ω</text><text x="256" y="202" fill="#5a6678" font-size="11.5">LED</text>
+<text x="340" y="82" text-anchor="middle">R4 = 4 Ω</text>
+<text x="456" y="150">R2 = 4 Ω</text><text id="labE2" x="464" y="244">E2 = 14 V</text>
+<text x="616" y="206">R5 = 32 Ω</text><text x="616" y="222" fill="#5a6678" font-size="11.5">capteurs</text>
+<text x="230" y="90" text-anchor="end" font-weight="800">A</text><text x="452" y="90" font-weight="800">B</text><text x="340" y="322" text-anchor="middle" font-weight="800">M (0 V)</text>
+</svg>
+<div class="ctrl"><label for="e2">E2 = <span id="e2v">14</span> V</label><input type="range" id="e2" min="8" max="22" step="0.5" value="14">
+<div class="readout"><div class="ro"><b id="rVA">–</b><span>V<sub>A</sub></span></div><div class="ro"><b id="rVB">–</b><span>V<sub>B</sub></span></div><div class="ro"><b id="rI1">–</b><span>I1 (chargeur)</span></div><div class="ro" id="bI2"><b id="rI2">–</b><span>I2 (batterie)</span></div><div class="ro"><b id="rI4">–</b><span>I4 (câble)</span></div><div class="ro"><b id="rP">–</b><span>Puissance stockée</span></div></div>
+<div class="msg" id="mA"></div><div class="btns"><button class="btn" id="rsA">↺ Valeur du sujet</button></div></div></div></div><div class="q" data-pts="1" data-id="A1">
+<div class="q-h"><div class="q-n">A1</div><div class="q-t"><div class="ask">Combien ce circuit comporte-t-il de nœuds principaux et de branches ? Pourquoi ne peut-on pas obtenir V<sub>A</sub> avec un seul théorème de Millman ?</div><div class="meta"><span class="pts">1 pt</span><span class="theme">Topologie du circuit</span></div></div><div class="chev">›</div></div>
+<div class="q-b"><ol class="steps"><li class="step"><span class="lbl">Je compte les nœuds</span>Un nœud principal relie <b>au moins trois</b> branches : <b>A</b>, <b>B</b> et la masse <b>M</b>. Il y a donc 3 nœuds principaux.<span class="res">3 nœuds : A, B, M</span></li><li class="step"><span class="lbl">Je compte les branches</span>Une branche relie deux nœuds : {E1, R1} (M–A), R3 (A–M), R4 (A–B), {R2, E2} (B–M), R5 (B–M).<span class="res">5 branches</span></li><li class="step"><span class="lbl">Pourquoi un seul Millman ne suffit pas</span>Au nœud A, la branche R4 n'arrive pas à la masse mais au nœud B. Dans la formule, elle apporte le terme V<sub>B</sub>/R4, et V<sub>B</sub> est <b>inconnu</b>.<div class="why"><b>Pourquoi ?</b> Une équation avec deux inconnues ne se résout pas : il faut une deuxième équation, écrite au nœud B.</div><div class="bareme">Barème : 0,5 pt nœuds et branches, 0,5 pt justification.</div></li></ol>
+<div class="q-actions"><button class="next">Étape suivante ▸</button><button class="all">Tout afficher</button><div class="self">Je me note : <button data-v="full">✓</button><button data-v="half">½</button><button data-v="zero">✗</button></div></div></div></div><div class="q" data-pts="2" data-id="A2">
+<div class="q-h"><div class="q-n">A2</div><div class="q-t"><div class="ask">Appliquer Millman au nœud A, puis au nœud B. En déduire un système de deux équations d'inconnues V<sub>A</sub> et V<sub>B</sub>, puis le résoudre.</div><div class="meta"><span class="pts">2 pts</span><span class="theme">Théorème de Millman · système</span></div></div><div class="chev">›</div></div>
+<div class="q-b"><ol class="steps"><li class="step"><span class="lbl">Millman au nœud A</span>Trois branches arrivent en A : {E1, R1}, R3 (vers la masse, E = 0) et R4 (vers B, « tension » V<sub>B</sub>).<span class="eq">V<sub>A</sub> = (E1/R1 + 0/R3 + V<sub>B</sub>/R4) / (1/R1 + 1/R3 + 1/R4)</span><span class="eq">V<sub>A</sub> = (12 + V<sub>B</sub>/4) / (0,5 + 0,05 + 0,25) = (12 + 0,25·V<sub>B</sub>) / 0,8</span><span class="eq">(1)   0,8·V<sub>A</sub> − 0,25·V<sub>B</sub> = 12</span></li><li class="step"><span class="lbl">Millman au nœud B</span>Trois branches arrivent en B : R4 (vers A), {R2, E2} et R5 (vers la masse).<span class="eq">V<sub>B</sub> = (V<sub>A</sub>/R4 + E2/R2 + 0/R5) / (1/R4 + 1/R2 + 1/R5)</span><span class="eq">V<sub>B</sub> = (0,25·V<sub>A</sub> + 3,5) / (0,25 + 0,25 + 0,03125) = (0,25·V<sub>A</sub> + 3,5) / 0,53125</span><span class="eq">(2)   −0,25·V<sub>A</sub> + 0,53125·V<sub>B</sub> = 3,5</span></li><li class="step"><span class="lbl">Je résous par substitution</span>De (1) : V<sub>A</sub> = 15 + 0,3125·V<sub>B</sub>. Dans (2) :<span class="eq">0,53125·V<sub>B</sub> = 0,25 × (15 + 0,3125·V<sub>B</sub>) + 3,5 = 3,75 + 0,078125·V<sub>B</sub> + 3,5</span><span class="eq">0,453125·V<sub>B</sub> = 7,25   →   V<sub>B</sub> = 16 V</span><span class="eq">V<sub>A</sub> = 15 + 0,3125 × 16 = 20 V</span><span class="res">V<sub>A</sub> = 20 V</span> <span class="res">V<sub>B</sub> = 16 V</span></li><li class="step"><span class="lbl">Je vérifie</span>On remplace dans (1) : 0,8 × 20 − 0,25 × 16 = 16 − 4 = 12 ✔. Toujours vérifier un système : cela prend 20 secondes.<div class="trap"><b>Erreur fréquente :</b> poser V<sub>B</sub> = 0 dans la formule en A (on trouverait 15 V), ou oublier la branche R4 au dénominateur.</div><div class="bareme">Barème : 0,5 pt par équation, 1 pt pour la résolution.</div></li></ol>
+<div class="q-actions"><button class="next">Étape suivante ▸</button><button class="all">Tout afficher</button><div class="self">Je me note : <button data-v="full">✓</button><button data-v="half">½</button><button data-v="zero">✗</button></div></div></div></div><div class="q" data-pts="1.5" data-id="A3">
+<div class="q-h"><div class="q-n">A3</div><div class="q-t"><div class="ask">Calculer I1 à I5 avec les sens de la figure 1, puis vérifier la loi des nœuds en A et en B.</div><div class="meta"><span class="pts">1,5 pt</span><span class="theme">Loi d'Ohm · loi des nœuds</span></div></div><div class="chev">›</div></div>
+<div class="q-b"><ol class="steps"><li class="step"><span class="lbl">Méthode</span>Pour chaque branche : courant = (potentiel au départ de la flèche − potentiel à l'arrivée ± f.é.m.) / résistance.</li><li class="step"><span class="lbl">Les cinq courants</span><table class="t"><tr><th>Courant</th><th>Expression</th><th>Valeur</th></tr><tr><td>I1</td><td>(E1 − V<sub>A</sub>) / R1 = (24 − 20) / 2</td><td><b>2 A</b></td></tr><tr><td>I3</td><td>V<sub>A</sub> / R3 = 20 / 20</td><td><b>1 A</b></td></tr><tr><td>I4</td><td>(V<sub>A</sub> − V<sub>B</sub>) / R4 = (20 − 16) / 4</td><td><b>1 A</b></td></tr><tr><td>I2</td><td>(V<sub>B</sub> − E2) / R2 = (16 − 14) / 4</td><td><b>0,5 A</b></td></tr><tr><td>I5</td><td>V<sub>B</sub> / R5 = 16 / 32</td><td><b>0,5 A</b></td></tr></table></li><li class="step"><span class="lbl">Loi des nœuds</span>En A : I1 = I3 + I4 → 2 = 1 + 1 ✔<br>En B : I4 = I2 + I5 → 1 = 0,5 + 0,5 ✔<div class="bareme">Barème : 0,2 pt par courant, 0,5 pt pour les deux vérifications.</div></li></ol>
+<div class="q-actions"><button class="next">Étape suivante ▸</button><button class="all">Tout afficher</button><div class="self">Je me note : <button data-v="full">✓</button><button data-v="half">½</button><button data-v="zero">✗</button></div></div></div></div><div class="q" data-pts="0.5" data-id="A4">
+<div class="q-h"><div class="q-n">A4</div><div class="q-t"><div class="ask">Écrire la loi des mailles sur la maille {E1, R1, R4, R2, E2} et la vérifier.</div><div class="meta"><span class="pts">0,5 pt</span><span class="theme">Loi des mailles</span></div></div><div class="chev">›</div></div>
+<div class="q-b"><ol class="steps"><li class="step"><span class="lbl">J'écris la loi</span>On parcourt la maille dans le sens de I1 : on monte de E1, on descend dans R1, R4 et R2, puis on descend de E2 (on entre par sa borne +).<span class="eq">E1 − R1·I1 − R4·I4 − R2·I2 − E2 = 0</span></li><li class="step"><span class="lbl">Je vérifie</span> <span class="eq">24 − 2×2 − 4×1 − 4×0,5 − 14 = 24 − 4 − 4 − 2 − 14 = 0 ✔</span><span class="res">Loi des mailles vérifiée</span></li></ol>
+<div class="q-actions"><button class="next">Étape suivante ▸</button><button class="all">Tout afficher</button><div class="self">Je me note : <button data-v="full">✓</button><button data-v="half">½</button><button data-v="zero">✗</button></div></div></div></div><div class="q" data-pts="1" data-id="A5">
+<div class="q-h"><div class="q-n">A5</div><div class="q-t"><div class="ask">La batterie auxiliaire est-elle en charge ou en décharge ? Comparer la puissance stockée à la puissance fournie par E1 ; où passe le reste ?</div><div class="meta"><span class="pts">1 pt</span><span class="theme">Bilan de puissance</span></div></div><div class="chev">›</div></div>
+<div class="q-b"><ol class="steps"><li class="step"><span class="lbl">Le signe de I2</span>I2 = +0,5 A dans le sens de la flèche : le courant <b>entre par la borne +</b> de E2. La batterie fonctionne en récepteur.<span class="res">Elle est en charge</span></li><li class="step"><span class="lbl">Les deux puissances</span><span class="eq">P<sub>stockée</sub> = E2 × I2 = 14 × 0,5 = 7 W</span><span class="eq">P<sub>fournie</sub> = E1 × I1 = 24 × 2 = 48 W</span>Seulement 7/48 ≈ <b>14,6 %</b> de la puissance du chargeur finit stockée.</li><li class="step"><span class="lbl">Où passe le reste ?</span><table class="t"><tr><th>Élément</th><th>Calcul</th><th>Puissance</th></tr><tr><td>R1 (chargeur)</td><td>2 × 2²</td><td>8 W</td></tr><tr><td>R3 (LED)</td><td>20 × 1²</td><td>20 W</td></tr><tr><td>R4 (câble)</td><td>4 × 1²</td><td>4 W</td></tr><tr><td>R2 (batterie)</td><td>4 × 0,5²</td><td>1 W</td></tr><tr><td>R5 (capteurs)</td><td>32 × 0,5²</td><td>8 W</td></tr><tr><td>E2 (stockage)</td><td>14 × 0,5</td><td>7 W</td></tr><tr><th>Total</th><th></th><th>48 W ✔</th></tr></table><div class="why"><b>Conservation :</b> La puissance se conserve : tout ce que fournit E1 est reçu quelque part.</div><div class="bareme">Barème : 0,25 pt signe, 0,25 pt puissances, 0,5 pt répartition.</div></li></ol>
+<div class="q-actions"><button class="next">Étape suivante ▸</button><button class="all">Tout afficher</button><div class="self">Je me note : <button data-v="full">✓</button><button data-v="half">½</button><button data-v="zero">✗</button></div></div></div></div>
+<p class="intro"><b>Mesure de la batterie principale :</b> U<sub>Bat</sub> = 42 V, entrée de la carte Re = 0,1 MΩ, série E12. Exigences : U2 ≤ 5 V et courant du pont ≤ 0,5 mA.</p>
+<div class="lab"><h3>Laboratoire 2 – Concevoir le pont diviseur</h3>
+<p class="sub">Choisissez Ra et Rb dans la série E12, puis branchez la carte. Les deux exigences doivent être vertes.</p>
+<div class="lab-grid">
+<svg viewBox="150 50 420 250" font-family="Nunito, Arial" font-size="13">
+<path d="M240 192V70H350V90M350 150V190M350 250V270H240V228M350 170H440V190M440 250V270H350" fill="none" stroke="#2b3a4e" stroke-width="2"/>
+<circle cx="240" cy="210" r="18" fill="#fff" stroke="#2b3a4e" stroke-width="2"/><line x1="240" y1="192" x2="240" y2="228" stroke="#2b3a4e" stroke-width="1.5"/>
+<rect x="340" y="90" width="20" height="60" rx="3" fill="#fff" stroke="#2b3a4e" stroke-width="2"/><rect x="340" y="190" width="20" height="60" rx="3" fill="#fff" stroke="#2b3a4e" stroke-width="2"/>
+<g id="carte"><rect x="410" y="152" width="120" height="132" rx="8" fill="#eef5ff" stroke="#2f7fe0" stroke-dasharray="5 4"/><rect x="430" y="190" width="20" height="60" rx="3" fill="#fff" stroke="#2b3a4e" stroke-width="2"/><text x="470" y="144" text-anchor="middle" fill="#5a6678" font-size="12">Carte de mesure</text><text x="458" y="216">Re</text><text x="458" y="234">100 kΩ</text></g>
+<text x="252" y="194" font-weight="800">+</text><text x="212" y="214" text-anchor="end">42 V</text>
+<text id="tRa" x="332" y="124" text-anchor="end">Ra</text><text id="tRb" x="332" y="224" text-anchor="end">Rb</text><text x="358" y="164" font-weight="800">S</text>
+<rect x="160" y="282" width="200" height="10" rx="5" fill="#eef1f5"/><rect id="gU" x="160" y="282" width="0" height="10" rx="5" fill="#2f7fe0"/><line x1="326.7" y1="278" x2="326.7" y2="296" stroke="#d64545" stroke-width="2"/><text x="330" y="276" fill="#d64545" font-size="11">5 V</text>
+</svg>
+<div class="ctrl"><label>Ra</label><div class="btns" id="bRa"><button class="btn" data-ra="68">68 kΩ</button><button class="btn on" data-ra="82">82 kΩ</button><button class="btn" data-ra="100">100 kΩ</button></div>
+<label>Rb</label><div class="btns" id="bRb"><button class="btn" data-rb="8.2">8,2 kΩ</button><button class="btn on" data-rb="10">10 kΩ</button><button class="btn" data-rb="12">12 kΩ</button></div>
+<div class="btns"><button class="btn on" id="cOff">Carte débranchée</button><button class="btn" id="cOn">Carte branchée</button></div>
+<div class="readout"><div class="ro" id="bU"><b id="rU">–</b><span>U2 (≤ 5 V)</span></div><div class="ro" id="bIp"><b id="rIp">–</b><span>Courant du pont (≤ 0,5 mA)</span></div></div>
+<div class="msg" id="mP"></div></div></div></div><div class="q" data-pts="1" data-id="A6">
+<div class="q-h"><div class="q-n">A6</div><div class="q-t"><div class="ask">Carte débranchée : traduire les deux exigences en conditions sur Ra et Rb, puis proposer un couple E12 qui les respecte.</div><div class="meta"><span class="pts">1 pt</span><span class="theme">Pont diviseur · conception</span></div></div><div class="chev">›</div></div>
+<div class="q-b"><ol class="steps"><li class="step"><span class="lbl">Exigence 1 : U2 ≤ 5 V</span><span class="eq">U2 = U<sub>Bat</sub> × Rb / (Ra + Rb) ≤ 5   →   Rb / (Ra + Rb) ≤ 5/42 ≈ 0,119   →   Ra ≥ 7,4 × Rb</span></li><li class="step"><span class="lbl">Exigence 2 : courant ≤ 0,5 mA</span><span class="eq">I = U<sub>Bat</sub> / (Ra + Rb) ≤ 0,5 mA   →   Ra + Rb ≥ 42 / 0,0005 = 84 000 Ω = 84 kΩ</span><div class="trap"><b>Erreur fréquente :</b> oublier de convertir : 0,5 mA = 0,0005 A, et le résultat sort en Ω, pas en kΩ.</div></li><li class="step"><span class="lbl">Je choisis dans la série E12</span><table class="t"><tr><th>Ra</th><th>Rb</th><th>Ra + Rb</th><th>U2 à vide</th><th>Courant</th><th>Verdict</th></tr><tr><td>82 kΩ</td><td>10 kΩ</td><td>92 kΩ</td><td>4,57 V</td><td>0,46 mA</td><td>✔</td></tr><tr><td>100 kΩ</td><td>12 kΩ</td><td>112 kΩ</td><td>4,50 V</td><td>0,38 mA</td><td>✔</td></tr><tr><td>68 kΩ</td><td>8,2 kΩ</td><td>76,2 kΩ</td><td>4,52 V</td><td>0,55 mA</td><td>✗ courant</td></tr><tr><td>82 kΩ</td><td>12 kΩ</td><td>94 kΩ</td><td>5,36 V</td><td>0,45 mA</td><td>✗ tension</td></tr></table>Plusieurs réponses sont justes : il suffit de vérifier les deux conditions. Testez dans le laboratoire 2.<div class="bareme">Barème : 0,5 pt conditions, 0,5 pt couple justifié.</div></li></ol>
+<div class="q-actions"><button class="next">Étape suivante ▸</button><button class="all">Tout afficher</button><div class="self">Je me note : <button data-v="full">✓</button><button data-v="half">½</button><button data-v="zero">✗</button></div></div></div></div><div class="q" data-pts="1" data-id="A7">
+<div class="q-h"><div class="q-n">A7</div><div class="q-t"><div class="ask">Ra = 82 kΩ, Rb = 10 kΩ. Carte branchée : calculer U2 et l'écart avec la valeur à vide. Quelle tension de batterie correspond réellement à une lecture de 5 V ?</div><div class="meta"><span class="pts">1 pt</span><span class="theme">Pont chargé</span></div></div><div class="chev">›</div></div>
+<div class="q-b"><ol class="steps"><li class="step"><span class="lbl">À vide</span><span class="eq">U2 = 42 × 10 / (82 + 10) = 4,57 V</span></li><li class="step"><span class="lbl">Carte branchée</span>Re est en parallèle avec Rb :<span class="eq">R<sub>eq</sub> = Rb × Re / (Rb + Re) = 10 × 100 / 110 = 9,09 kΩ</span><span class="eq">U2 = 42 × 9,09 / (82 + 9,09) = 4,19 V</span><span class="res">U2 = 4,19 V</span><div class="trap"><b>Erreur fréquente :</b> Re = 0,1 MΩ = 100 kΩ : la conversion est la première étape.</div></li><li class="step"><span class="lbl">Écart relatif</span><span class="eq">(4,57 − 4,19) / 4,57 ≈ 8,2 %</span></li><li class="step"><span class="lbl">Lecture de 5 V</span>Le rapport réel du pont vaut 9,09 / 91,09 ≈ 0,0998.<span class="eq">U<sub>Bat</sub> = 5 / 0,0998 ≈ 50,1 V</span><div class="why"><b>Conclusion :</b> La carte ne lira jamais 5 V : batterie pleine, elle ne voit que 4,19 V. Si le programme utilise le rapport à vide, il affiche environ 38,6 V au lieu de 42 V : la batterie paraît moins chargée qu'elle ne l'est. Il faut programmer le rapport en charge, ou prendre Re beaucoup plus grande que Rb.</div><div class="bareme">Barème : 0,4 pt U2, 0,2 pt écart, 0,2 pt tension réelle, 0,2 pt conclusion.</div></li></ol>
+<div class="q-actions"><button class="next">Étape suivante ▸</button><button class="all">Tout afficher</button><div class="self">Je me note : <button data-v="full">✓</button><button data-v="half">½</button><button data-v="zero">✗</button></div></div></div></div>
+</section>
+
+<section class="part pb" id="B"><div class="part-h"><h2>Partie B – Transmission de puissance</h2><span class="tag">6 points</span></div>
+<p class="intro">Moteur 6 000 tr/min · étage 1 : Z1 = 14 → Z2 = 42 (η1 = 0,96) · étage 2 : Z3 = 18 → Zi = 24 → Z4 = 27 (η2 = 0,95) · roue D = 90 mm.</p>
+<div class="lab"><h3>Laboratoire 3 – Le réducteur avec roue intermédiaire</h3>
+<p class="sub">Les engrenages tournent à vitesse réduite pour qu'on puisse les suivre. Observez le sens de chaque roue, puis changez Z4 pour la question B4.</p>
+<div class="lab-grid">
+<svg id="gsvg" class="gearsvg" viewBox="0 70 520 260" font-family="Nunito, Arial" font-size="12.5"><defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#ef8a17"/></marker></defs></svg>
+<div class="ctrl"><label for="nm">Moteur : <span id="nmv">6 000</span> tr/min</label><input type="range" id="nm" min="1000" max="6000" step="250" value="6000">
+<label>Roue Z4</label><div class="btns" id="bZ4"><button class="btn on" data-z4="27">27 dents</button><button class="btn" data-z4="25">25 dents</button><button class="btn" data-z4="24">24 dents</button></div>
+<div class="readout"><div class="ro"><b id="rN2">–</b><span>N2 = N3 (tr/min)</span></div><div class="ro"><b id="rNi">–</b><span>Ni (tr/min)</span></div><div class="ro"><b id="rN4">–</b><span>N roue (tr/min)</span></div><div class="ro" id="bV"><b id="rV">–</b><span>v (km/h)</span></div></div>
+<div class="msg" id="mG"></div><div class="btns"><button class="btn" id="pG">⏸ Pause</button></div></div></div></div><div class="q" data-pts="1.5" data-id="B1">
+<div class="q-h"><div class="q-n">B1</div><div class="q-t"><div class="ask">Pour chaque contact, identifier roue menante et roue menée (attention à Zi). Déterminer r, puis montrer que Zi n'intervient pas.</div><div class="meta"><span class="pts">1,5 pt</span><span class="theme">Train d'engrenages · roue intermédiaire</span></div></div><div class="chev">›</div></div>
+<div class="q-b"><ol class="steps"><li class="step"><span class="lbl">Les trois contacts</span>Z1 menante → Z2 menée · Z3 menante → <b>Zi menée</b> · <b>Zi menante</b> → Z4 menée.<br>La roue intermédiaire est <b>menée puis menante</b>.</li><li class="step"><span class="lbl">Le rapport global</span><span class="eq">r = (Z1 × Z3 × Zi) / (Z2 × Zi × Z4)</span>Zi est au numérateur <b>et</b> au dénominateur : elle se simplifie.<span class="eq">r = (Z1 × Z3) / (Z2 × Z4) = (14 × 18) / (42 × 27) = 252 / 1134 = 2/9</span><span class="res">r = 2/9 ≈ 0,222</span><div class="trap"><b>Erreur fréquente :</b> mettre Zi seulement au dénominateur (on trouverait r ≈ 0,0093) : la roue est aussi menante.</div><div class="bareme">Barème : 0,5 pt contacts, 0,5 pt r, 0,5 pt justification.</div></li></ol>
+<div class="q-actions"><button class="next">Étape suivante ▸</button><button class="all">Tout afficher</button><div class="self">Je me note : <button data-v="full">✓</button><button data-v="half">½</button><button data-v="zero">✗</button></div></div></div></div><div class="q" data-pts="1.5" data-id="B2">
+<div class="q-h"><div class="q-n">B2</div><div class="q-t"><div class="ask">Déterminer la vitesse maximale du skateboard en km/h. L'exigence de vitesse est-elle respectée ?</div><div class="meta"><span class="pts">1,5 pt</span><span class="theme">Vitesse · conversions</span></div></div><div class="chev">›</div></div>
+<div class="q-b"><ol class="steps"><li class="step"><span class="lbl">Vitesse de la roue</span><span class="eq">N<sub>roue</sub> = r × N<sub>m</sub> = 6 000 × 2/9 = 1 333 tr/min</span></li><li class="step"><span class="lbl">En rad/s</span><span class="eq">ω<sub>roue</sub> = 2π × 1 333 / 60 = 139,6 rad/s</span></li><li class="step"><span class="lbl">Vitesse linéaire</span>R = D/2 = 45 mm = 0,045 m<span class="eq">v = ω × R = 139,6 × 0,045 = 6,28 m/s</span><div class="trap"><b>Erreur fréquente :</b> prendre le diamètre (90 mm) au lieu du rayon, ou oublier de passer en mètres.</div></li><li class="step"><span class="lbl">En km/h</span><span class="eq">v = 6,28 × 3,6 = 22,6 km/h</span><span class="res">22,6 km/h ≤ 25 km/h : exigence respectée</span><div class="bareme">Barème : 0,25 + 0,25 + 0,5 + 0,5 pt.</div></li></ol>
+<div class="q-actions"><button class="next">Étape suivante ▸</button><button class="all">Tout afficher</button><div class="self">Je me note : <button data-v="full">✓</button><button data-v="half">½</button><button data-v="zero">✗</button></div></div></div></div><div class="q" data-pts="1" data-id="B3">
+<div class="q-h"><div class="q-n">B3</div><div class="q-t"><div class="ask">Calculer la vitesse de Zi. La roue tourne-t-elle dans le même sens que le moteur ? Pourquoi le constructeur a-t-il ajouté Zi ?</div><div class="meta"><span class="pts">1 pt</span><span class="theme">Sens de rotation</span></div></div><div class="chev">›</div></div>
+<div class="q-b"><ol class="steps"><li class="step"><span class="lbl">Vitesse de Zi</span><span class="eq">N<sub>2</sub> = N<sub>3</sub> = 6 000 × 14/42 = 2 000 tr/min</span><span class="eq">N<sub>i</sub> = N<sub>3</sub> × Z3/Zi = 2 000 × 18/24 = 1 500 tr/min</span><span class="res">N<sub>i</sub> = 1 500 tr/min</span></li><li class="step"><span class="lbl">Sens de rotation</span>Il y a <b>3 contacts extérieurs</b> : Z1/Z2, Z3/Zi, Zi/Z4.<span class="eq">(−1)³ = −1</span><span class="res">La roue tourne en sens inverse du moteur</span> Regardez le laboratoire 3 : chaque contact inverse le sens.</li><li class="step"><span class="lbl">Rôle de Zi</span>Zi ne change pas le rapport mais <b>inverse le sens</b> de rotation : sans elle, le skateboard reculerait avec le moteur monté ainsi. Elle permet aussi de relier deux axes plus éloignés.<div class="bareme">Barème : 0,25 pt Ni, 0,25 pt sens, 0,5 pt rôle.</div></li></ol>
+<div class="q-actions"><button class="next">Étape suivante ▸</button><button class="all">Tout afficher</button><div class="self">Je me note : <button data-v="full">✓</button><button data-v="half">½</button><button data-v="zero">✗</button></div></div></div></div><div class="q" data-pts="1.5" data-id="B4">
+<div class="q-h"><div class="q-n">B4</div><div class="q-t"><div class="ask">S'approcher de 25 km/h sans dépasser : changer seulement Z4, ou seulement Z1 ? Justifier l'arrondi. Changer Zi aurait-il suffi ?</div><div class="meta"><span class="pts">1,5 pt</span><span class="theme">Dimensionnement</span></div></div><div class="chev">›</div></div>
+<div class="q-b"><ol class="steps"><li class="step"><span class="lbl">Le rapport visé</span><span class="eq">25 km/h = 6,94 m/s   →   ω = 6,94 / 0,045 = 154,3 rad/s   →   N = 1 474 tr/min</span><span class="eq">r<sub>visé</sub> = 1 474 / 6 000 = 0,2456</span></li><li class="step"><span class="lbl">Les deux solutions</span><table class="t"><tr><th>Solution</th><th>Relation</th><th>Valeur exacte</th><th>Arrondi</th><th>Vitesse</th></tr><tr><td>Changer Z4</td><td>r = 6 / Z4</td><td>24,43</td><td><b>Z4 = 25</b> (vers le haut)</td><td>24,4 km/h</td></tr><tr><td>Changer Z1</td><td>r = Z1 / 63</td><td>15,47</td><td><b>Z1 = 15</b> (vers le bas)</td><td>24,2 km/h</td></tr></table></li><li class="step"><span class="lbl">Le sens de l'arrondi</span>Une roue <b>menée</b> plus grande ralentit la sortie : on arrondit Z4 vers le haut. Un pignon <b>menant</b> plus petit ralentit aussi : on arrondit Z1 vers le bas.<div class="trap"><b>Erreur fréquente :</b> Z4 = 24 donne 25,4 km/h et Z1 = 16 donne 25,9 km/h : l'exigence n'est plus respectée.</div></li><li class="step"><span class="lbl">Conclusion</span>Changer Zi ne sert à rien : elle ne modifie pas r.<span class="res">On retient Z4 = 25 (24,4 km/h)</span><div class="bareme">Barème : 0,25 pt rapport, 0,5 pt par solution, 0,25 pt conclusion.</div></li></ol>
+<div class="q-actions"><button class="next">Étape suivante ▸</button><button class="all">Tout afficher</button><div class="self">Je me note : <button data-v="full">✓</button><button data-v="half">½</button><button data-v="zero">✗</button></div></div></div></div><div class="q" data-pts="0.5" data-id="B5">
+<div class="q-h"><div class="q-n">B5</div><div class="q-t"><div class="ask">Le moteur fournit C<sub>m</sub> = 250 mN·m. Déterminer le couple sur la roue, puis la force de propulsion au sol.</div><div class="meta"><span class="pts">0,5 pt</span><span class="theme">Couple · rendement</span></div></div><div class="chev">›</div></div>
+<div class="q-b"><ol class="steps"><li class="step"><span class="lbl">Couple sur la roue</span><span class="eq">η<sub>r</sub> = 0,96 × 0,95 = 0,912   ;   C<sub>m</sub> = 250 mN·m = 0,25 N·m</span><span class="eq">C<sub>roue</sub> = C<sub>m</sub> × η<sub>r</sub> / r = 0,25 × 0,912 × 9/2 = 1,03 N·m</span><span class="res">C<sub>roue</sub> = 1,03 N·m</span></li><li class="step"><span class="lbl">Force au sol</span><span class="eq">F = C<sub>roue</sub> / R = 1,03 / 0,045 = 22,8 N</span><span class="res">F = 22,8 N</span><div class="trap"><b>Erreur fréquente :</b> diviser par le rendement au lieu de multiplier : les pertes diminuent toujours le couple utile.</div></li></ol>
+<div class="q-actions"><button class="next">Étape suivante ▸</button><button class="all">Tout afficher</button><div class="self">Je me note : <button data-v="full">✓</button><button data-v="half">½</button><button data-v="zero">✗</button></div></div></div></div></section>
+
+<section class="part pc" id="C"><div class="part-h"><h2>Partie C – Énergie, puissance et autonomie</h2><span class="tag">6 points</span></div>
+<p class="intro">Batterie 36 V – 12 Ah · ηc = 0,95 · ηm = 0,85 · ηr = 0,912 · m = 80 kg · g = 9,81 m/s² · C<sub>m max</sub> = 1 N·m.</p>
+<div class="lab"><h3>Laboratoire 4 – La chaîne de puissance : plat ou côte ?</h3>
+<p class="sub">Chaque barre est une puissance. Ce qui disparaît d'une barre à l'autre, ce sont les pertes (chaleur, frottements).</p>
+<div class="btns"><button class="btn on" id="sPlat">Sur le plat (21,6 km/h)</button><button class="btn" id="sCote">Dans la côte 8 % (10,8 km/h)</button></div>
+<div class="bars" id="bars" style="margin-top:10px"></div>
+<div class="readout" style="grid-template-columns:repeat(4,1fr);margin-top:8px"><div class="ro"><b id="rF">–</b><span>Force à la roue</span></div><div class="ro"><b id="rIb">–</b><span>I<sub>Bat</sub></span></div><div class="ro" id="bCm"><b id="rCm">–</b><span>C<sub>m</sub> (max 1 N·m)</span></div><div class="ro"><b id="rNm">–</b><span>N moteur</span></div></div>
+<div class="msg" id="mC" style="margin-top:8px"></div></div><div class="q" data-pts="1" data-id="C1">
+<div class="q-h"><div class="q-n">C1</div><div class="q-t"><div class="ask">Compléter la chaîne de puissance : nature de l'énergie, ses deux grandeurs et les puissances.</div><div class="meta"><span class="pts">1 pt</span><span class="theme">Chaîne de puissance</span></div></div><div class="chev">›</div></div>
+<div class="q-b"><ol class="steps"><li class="step"><span class="lbl">Le tableau complété</span><table class="t"><tr><th>Flèche</th><th>Énergie</th><th>Grandeurs</th><th>Puissance</th></tr><tr><td>Batterie → contrôleur</td><td>électrique</td><td>U et I</td><td>P<sub>Bat</sub> = 162,9 W</td></tr><tr><td>Contrôleur → moteur</td><td>électrique</td><td>U et I</td><td>P<sub>a</sub> = 154,8 W</td></tr><tr><td>Moteur → réducteur</td><td>mécanique de rotation</td><td>C et ω</td><td>P<sub>mot</sub> = 131,6 W</td></tr><tr><td>Réducteur → roue</td><td>mécanique de rotation</td><td>C et ω</td><td>P<sub>roue</sub> = 120 W</td></tr></table><div class="why"><b>Astuce :</b> Toujours un effort × un flux : U × I, C × ω, F × v.</div><div class="bareme">Barème : 0,25 pt par flèche.</div></li></ol>
+<div class="q-actions"><button class="next">Étape suivante ▸</button><button class="all">Tout afficher</button><div class="self">Je me note : <button data-v="full">✓</button><button data-v="half">½</button><button data-v="zero">✗</button></div></div></div></div><div class="q" data-pts="1" data-id="C2">
+<div class="q-h"><div class="q-n">C2</div><div class="q-t"><div class="ask">Calculer P<sub>roue</sub>, ω<sub>roue</sub> et C<sub>roue</sub> sur le plat (21,6 km/h, F<sub>r</sub> = 20 N).</div><div class="meta"><span class="pts">1 pt</span><span class="theme">Puissance mécanique</span></div></div><div class="chev">›</div></div>
+<div class="q-b"><ol class="steps"><li class="step"><span class="lbl">Conversion</span><span class="eq">v = 21,6 / 3,6 = 6 m/s</span></li><li class="step"><span class="lbl">Puissance</span><span class="eq">P<sub>roue</sub> = F<sub>r</sub> × v = 20 × 6 = 120 W</span><span class="res">120 W</span></li><li class="step"><span class="lbl">Vitesse angulaire et couple</span><span class="eq">ω<sub>roue</sub> = v / R = 6 / 0,045 = 133,3 rad/s</span><span class="eq">C<sub>roue</sub> = P / ω = 120 / 133,3 = 0,9 N·m   (= F<sub>r</sub> × R)</span><span class="res">C<sub>roue</sub> = 0,9 N·m</span></li></ol>
+<div class="q-actions"><button class="next">Étape suivante ▸</button><button class="all">Tout afficher</button><div class="self">Je me note : <button data-v="full">✓</button><button data-v="half">½</button><button data-v="zero">✗</button></div></div></div></div><div class="q" data-pts="1" data-id="C3">
+<div class="q-h"><div class="q-n">C3</div><div class="q-t"><div class="ask">Calculer la vitesse du moteur en tr/min, P<sub>mot</sub> et C<sub>m</sub>. Cohérent avec la partie B ?</div><div class="meta"><span class="pts">1 pt</span><span class="theme">Remonter la chaîne</span></div></div><div class="chev">›</div></div>
+<div class="q-b"><ol class="steps"><li class="step"><span class="lbl">Vitesse du moteur</span><span class="eq">ω<sub>m</sub> = ω<sub>roue</sub> / r = 133,3 × 9/2 = 600 rad/s   →   N<sub>m</sub> = 600 × 60 / 2π = 5 730 tr/min</span><div class="trap"><b>Erreur fréquente :</b> multiplier par r au lieu de diviser : le moteur tourne toujours plus vite que la roue.</div></li><li class="step"><span class="lbl">Puissance et couple moteur</span><span class="eq">P<sub>mot</sub> = P<sub>roue</sub> / η<sub>r</sub> = 120 / 0,912 = 131,6 W</span><span class="eq">C<sub>m</sub> = P<sub>mot</sub> / ω<sub>m</sub> = 131,6 / 600 = 0,219 N·m</span></li><li class="step"><span class="lbl">Cohérence</span>5 730 tr/min &lt; 6 000 tr/min et 0,219 N·m &lt; 1 N·m : le moteur n'est pas à fond. Le couple est du même ordre que les 250 mN·m de B5.<span class="res">Cohérent</span></li></ol>
+<div class="q-actions"><button class="next">Étape suivante ▸</button><button class="all">Tout afficher</button><div class="self">Je me note : <button data-v="full">✓</button><button data-v="half">½</button><button data-v="zero">✗</button></div></div></div></div><div class="q" data-pts="1" data-id="C4">
+<div class="q-h"><div class="q-n">C4</div><div class="q-t"><div class="ask">Calculer P<sub>Bat</sub>, I<sub>Bat</sub> et le rendement global.</div><div class="meta"><span class="pts">1 pt</span><span class="theme">Rendements</span></div></div><div class="chev">›</div></div>
+<div class="q-b"><ol class="steps"><li class="step"><span class="lbl">Puissances</span><span class="eq">P<sub>a</sub> = 131,6 / 0,85 = 154,8 W   ;   P<sub>Bat</sub> = 154,8 / 0,95 = 162,9 W</span></li><li class="step"><span class="lbl">Courant</span><span class="eq">I<sub>Bat</sub> = P<sub>Bat</sub> / U<sub>Bat</sub> = 162,9 / 36 = 4,53 A</span><span class="res">I<sub>Bat</sub> = 4,53 A</span></li><li class="step"><span class="lbl">Rendement global</span><span class="eq">η = 120 / 162,9 = 0,737   (= 0,95 × 0,85 × 0,912)</span><span class="res">η ≈ 74 %</span></li></ol>
+<div class="q-actions"><button class="next">Étape suivante ▸</button><button class="all">Tout afficher</button><div class="self">Je me note : <button data-v="full">✓</button><button data-v="half">½</button><button data-v="zero">✗</button></div></div></div></div><div class="q" data-pts="1" data-id="C5">
+<div class="q-h"><div class="q-n">C5</div><div class="q-t"><div class="ask">Dans la côte (8 %, 10,8 km/h, F<sub>r</sub> = 15 N) : force motrice, puissance, couple moteur. Le moteur peut-il monter ? I<sub>Bat</sub> ?</div><div class="meta"><span class="pts">1 pt</span><span class="theme">Plan incliné</span></div></div><div class="chev">›</div></div>
+<div class="q-b"><ol class="steps"><li class="step"><span class="lbl">Force motrice</span>Il faut vaincre les frottements <b>et</b> la composante du poids le long de la pente.<span class="eq">F = F<sub>r</sub> + m·g·sin α = 15 + 80 × 9,81 × 0,08 = 15 + 62,8 = 77,8 N</span></li><li class="step"><span class="lbl">Puissance</span><span class="eq">v = 10,8 / 3,6 = 3 m/s   →   P<sub>roue</sub> = 77,8 × 3 = 233,4 W</span></li><li class="step"><span class="lbl">Couple moteur</span><span class="eq">C<sub>roue</sub> = 77,8 × 0,045 = 3,50 N·m   →   C<sub>m</sub> = 3,50 × (2/9) / 0,912 = 0,853 N·m</span><span class="res">0,853 N·m &lt; 1 N·m : la côte passe</span></li><li class="step"><span class="lbl">Courant batterie</span><span class="eq">I<sub>Bat</sub> = P<sub>roue</sub> / (η × U<sub>Bat</sub>) = 233,4 / (0,737 × 36) = 8,8 A</span><div class="why"><b>À retenir :</b> La vitesse a été divisée par 2, mais la puissance a presque doublé : la côte coûte cher.</div></li></ol>
+<div class="q-actions"><button class="next">Étape suivante ▸</button><button class="all">Tout afficher</button><div class="self">Je me note : <button data-v="full">✓</button><button data-v="half">½</button><button data-v="zero">✗</button></div></div></div></div>
+<div class="lab"><h3>Laboratoire 5 – La batterie au fil des jours</h3>
+<p class="sub">Chaque clic ajoute un aller-retour (3,48 Ah). La zone rouge correspond aux 20 % qu'on ne doit pas utiliser.</p>
+<div class="lab-grid"><svg viewBox="0 0 320 150" font-family="Nunito, Arial" font-size="12"><rect x="20" y="20" width="250" height="100" rx="10" fill="#fff" stroke="#2b3a4e" stroke-width="3"/><rect x="270" y="55" width="12" height="30" rx="3" fill="#2b3a4e"/><rect x="24" y="24" width="48.4" height="92" rx="6" fill="#fdeaea"/><rect id="lvl" x="24" y="24" width="242" height="92" rx="6" fill="#1f9d5c"/><line x1="72.4" y1="16" x2="72.4" y2="124" stroke="#d64545" stroke-width="2" stroke-dasharray="4 3"/><text x="72" y="140" text-anchor="middle" fill="#d64545">réserve 20 %</text><text id="tlvl" x="145" y="76" text-anchor="middle" font-size="16" font-weight="800" fill="#fff">12 Ah</text></svg>
+<div class="ctrl"><div class="btns"><button class="btn" id="addT">+ 1 jour (aller-retour)</button><button class="btn" id="rstT">↺ Recharger</button></div>
+<div class="readout"><div class="ro"><b id="rJ">0</b><span>jours roulés</span></div><div class="ro"><b id="rQ">0 Ah</b><span>consommés</span></div></div>
+<div class="msg" id="mB">Batterie pleine : 12 Ah, dont 9,6 Ah utilisables.</div></div></div></div><div class="q" data-pts="0.5" data-id="C6">
+<div class="q-h"><div class="q-n">C6</div><div class="q-t"><div class="ask">Quantité d'électricité par phase et par trajet. Combien de jours sans recharge (80 % de 12 Ah) ?</div><div class="meta"><span class="pts">0,5 pt</span><span class="theme">Autonomie</span></div></div><div class="chev">›</div></div>
+<div class="q-b"><ol class="steps"><li class="step"><span class="lbl">Je convertis les durées en heures</span><table class="t"><tr><th>Phase</th><th>Durée</th><th>I<sub>Bat</sub></th><th>Q = I × t</th></tr><tr><td>Montée</td><td>4/60 = 0,0667 h</td><td>8,8 A</td><td>0,587 Ah</td></tr><tr><td>Plat</td><td>0,25 h</td><td>4,53 A</td><td>1,132 Ah</td></tr><tr><td>Descente</td><td>180/3 600 = 0,05 h</td><td>0,4 A</td><td>0,020 Ah</td></tr><tr><th>Un trajet</th><th></th><th></th><th>1,74 Ah</th></tr></table><div class="trap"><b>Erreur fréquente :</b> multiplier des ampères par des minutes ou des secondes : Q en Ah exige t en heures.</div></li><li class="step"><span class="lbl">Nombre de jours</span><span class="eq">aller-retour : 2 × 1,74 = 3,48 Ah   ;   utilisable : 0,8 × 12 = 9,6 Ah</span><span class="eq">9,6 / 3,48 = 2,76</span><span class="res">2 jours complets : exigence respectée</span></li></ol>
+<div class="q-actions"><button class="next">Étape suivante ▸</button><button class="all">Tout afficher</button><div class="self">Je me note : <button data-v="full">✓</button><button data-v="half">½</button><button data-v="zero">✗</button></div></div></div></div><div class="q" data-pts="0.5" data-id="C7">
+<div class="q-h"><div class="q-n">C7</div><div class="q-t"><div class="ask">Descente de 15 m : énergie potentielle en kJ et Wh, puis électricité récupérable à 60 %. Conclure.</div><div class="meta"><span class="pts">0,5 pt</span><span class="theme">Énergie potentielle</span></div></div><div class="chev">›</div></div>
+<div class="q-b"><ol class="steps"><li class="step"><span class="lbl">Énergie potentielle</span><span class="eq">E<sub>p</sub> = m·g·h = 80 × 9,81 × 15 = 11 772 J = 11,8 kJ</span><span class="eq">11 772 / 3 600 = 3,27 Wh</span></li><li class="step"><span class="lbl">Électricité récupérée</span><span class="eq">0,6 × 3,27 = 1,96 Wh   →   Q = 1,96 / 36 = 0,054 Ah = 54 mAh</span></li><li class="step"><span class="lbl">Conclusion</span>54 mAh, c'est environ <b>3 %</b> d'un trajet (1,74 Ah). Le gain d'autonomie est faible ; le freinage récupératif sert surtout à freiner sans user les freins.</li></ol>
+<div class="q-actions"><button class="next">Étape suivante ▸</button><button class="all">Tout afficher</button><div class="self">Je me note : <button data-v="full">✓</button><button data-v="half">½</button><button data-v="zero">✗</button></div></div></div></div></section>
+
+<section class="concl"><h2>Conclusion de la mission</h2><div class="check">
+<div><b>✔ Vitesse</b>22,6 km/h ≤ 25 km/h (24,4 km/h avec Z4 = 25)</div>
+<div><b>⚠ Carte de mesure</b>U2 = 4,19 V ≤ 5 V, mais le programme doit utiliser le rapport en charge</div>
+<div><b>✔ Autonomie</b>3,48 Ah par jour : 2 jours complets avec 9,6 Ah utilisables</div></div>
+<p style="margin:10px 0 0">La roue intermédiaire ne change pas la vitesse : elle sert à inverser le sens de rotation de la roue.</p></section>
+<p class="foot">SEQ 1 · Devoir de rattrapage · Corrigé interactif · 1re SI</p>
+</main>
+<script>(function(){
+const $=s=>document.querySelector(s), $$=s=>Array.from(document.querySelectorAll(s));
+const sp=n=>String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g,' ');
+const fr=(x,d=2)=>x.toLocaleString('fr-FR',{minimumFractionDigits:d,maximumFractionDigits:d});
+const store={get(k){try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+const reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+const scores=store.get('skate-scores')||{};
+function updateScore(){let t=0;$$('.q').forEach(q=>{const v=scores[q.dataset.id],p=parseFloat(q.dataset.pts);if(v==='full')t+=p;else if(v==='half')t+=p/2;});
+ $('#score').textContent='Mon score : '+(Math.round(t*100)/100).toLocaleString('fr-FR')+' / 20';}
+$$('.q').forEach(q=>{const steps=Array.from(q.querySelectorAll('.step')),next=q.querySelector('.next'),all=q.querySelector('.all');let shown=0;
+ function reveal(n){while(shown<n&&shown<steps.length){const s=steps[shown];s.classList.add('show');requestAnimationFrame(()=>requestAnimationFrame(()=>s.classList.add('vis')));shown++;}
+  next.disabled=shown>=steps.length;next.textContent=shown>=steps.length?'Correction complète ✔':'Étape suivante ▸';}
+ q.querySelector('.q-h').addEventListener('click',()=>{q.classList.toggle('open');if(q.classList.contains('open')&&shown===0)reveal(1);});
+ next.addEventListener('click',()=>reveal(shown+1));all.addEventListener('click',()=>reveal(steps.length));
+ q.querySelectorAll('.self button').forEach(b=>{if(scores[q.dataset.id]===b.dataset.v)b.classList.add('sel',b.dataset.v);
+  b.addEventListener('click',()=>{q.querySelectorAll('.self button').forEach(x=>x.classList.remove('sel','full','half','zero'));b.classList.add('sel',b.dataset.v);scores[q.dataset.id]=b.dataset.v;store.set('skate-scores',scores);updateScore();});});});
+updateScore();
+
+/* flows */
+const flows=[];function mk(id){const el=$(id);el.setAttribute('stroke-dasharray','2 16');const f={el,speed:0,off:0};flows.push(f);return f;}
+/* Lab 1 */
+const g1=mk('#g1'),g2=mk('#g2'),g3=mk('#g3'),g4=mk('#g4'),g5=mk('#g5'),K=28;
+function calcA(){const E1=24,R1=2,R2=4,R3=20,R4=4,R5=32,E2=parseFloat($('#e2').value);
+ const a=1/R1+1/R3+1/R4,b=-1/R4,c=-1/R4,d=1/R4+1/R2+1/R5,e=E1/R1,f=E2/R2,det=a*d-b*c;
+ const VA=(e*d-b*f)/det,VB=(a*f-c*e)/det,I1=(E1-VA)/R1,I3=VA/R3,I4=(VA-VB)/R4,I2=(VB-E2)/R2,I5=VB/R5;
+ $('#e2v').textContent=fr(E2,E2%1?1:0);$('#labE2').textContent='E2 = '+fr(E2,E2%1?1:0)+' V';
+ $('#rVA').textContent=fr(VA)+' V';$('#rVB').textContent=fr(VB)+' V';$('#rI1').textContent=fr(I1)+' A';$('#rI2').textContent=fr(I2)+' A';$('#rI4').textContent=fr(I4)+' A';
+ $('#rP').textContent=fr(E2*I2,1)+' W';$('#bI2').className='ro'+(I2>0.005?' ok':(I2<-0.005?' neg':''));
+ g1.speed=I1*K;g2.speed=I2*K;g3.speed=I3*K;g4.speed=I4*K;g5.speed=I5*K;
+ $('#led').setAttribute('fill',`rgba(242,176,30,${Math.min(1,.15+I3*.7)})`);
+ $('#mA').innerHTML=I2>0.005?'I2 = '+fr(I2)+' A &gt; 0 : le courant entre par la borne + : la batterie <b>se charge</b>.':(I2<-0.005?'I2 = '+fr(I2)+' A &lt; 0 : la batterie <b>se décharge</b> et aide le chargeur.':'I2 ≈ 0 : la batterie n\'échange plus de courant.');}
+$('#e2').addEventListener('input',calcA);$('#rsA').addEventListener('click',()=>{$('#e2').value=14;calcA();});calcA();
+
+/* Lab 2 */
+let ra=82,rb=10,carte=false;
+function calcP(){const Re=100,rbas=carte?rb*Re/(rb+Re):rb,U2=42*rbas/(ra+rbas),Ip=42/(ra+rbas);
+ $('#tRa').textContent='Ra = '+fr(ra,ra%1?1:0)+' kΩ';$('#tRb').textContent='Rb = '+fr(rb,rb%1?1:0)+' kΩ';
+ $('#rU').textContent=fr(U2)+' V';$('#rIp').textContent=fr(Ip)+' mA';
+ const okU=U2<=5.0001,okI=Ip<=0.5001;$('#bU').className='ro '+(okU?'ok':'bad');$('#bIp').className='ro '+(okI?'ok':'bad');
+ $('#gU').setAttribute('width',Math.min(200,U2/6*200));$('#gU').setAttribute('fill',okU?'#2f7fe0':'#d64545');$('#carte').style.opacity=carte?1:.2;
+ let t=okU&&okI?'Les deux exigences sont respectées.':(!okU?'U2 dépasse 5 V : la carte risque d\'être détruite.':'Le pont consomme trop : la batterie se vide pendant le stockage.');
+ if(carte)t+=' La carte « charge » le pont : U2 baisse de '+fr((42*rb/(ra+rb))-U2)+' V par rapport à la valeur à vide.';$('#mP').innerHTML=t;}
+$$('[data-ra]').forEach(b=>b.addEventListener('click',()=>{$$('[data-ra]').forEach(x=>x.classList.remove('on'));b.classList.add('on');ra=+b.dataset.ra;calcP();}));
+$$('[data-rb]').forEach(b=>b.addEventListener('click',()=>{$$('[data-rb]').forEach(x=>x.classList.remove('on'));b.classList.add('on');rb=+b.dataset.rb;calcP();}));
+$('#cOff').addEventListener('click',()=>{carte=false;$('#cOff').classList.add('on');$('#cOn').classList.remove('on');calcP();});
+$('#cOn').addEventListener('click',()=>{carte=true;$('#cOn').classList.add('on');$('#cOff').classList.remove('on');calcP();});calcP();
+
+/* Lab 3 gears */
+function gp(Z,m){const rp=m*Z/2,ra=rp+m,rf=rp-1.25*m,tau=2*Math.PI/Z,pts=[];for(let i=0;i<Z;i++){const th=i*tau;[[-.5,rf],[-.3,rf],[-.15,ra],[.15,ra],[.3,rf]].forEach(([o,r])=>{const a=th+o*tau;pts.push((r*Math.cos(a)).toFixed(1)+','+(r*Math.sin(a)).toFixed(1));});}return 'M'+pts.join('L')+'Z';}
+const NS='http://www.w3.org/2000/svg',gs=$('#gsvg'),m=5;
+const P={z1:[80,175],z2:[220,175],zi:[300.4,242.5]};
+function el(t,a,p){const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);(p||gs).appendChild(e);return e;}
+let G={},Z4=27,run=true,nm=6000;
+function build(){gs.querySelectorAll('g.gear,.lbl3').forEach(x=>x.remove());
+ const ang=Math.atan2(178.7-242.5,410.9-300.4),dist=m*(24+Z4)/2;P.z4=[300.4+dist*Math.cos(ang),242.5+dist*Math.sin(ang)];
+ const spec=[['z2',42,'#dce4eb'],['z1',14,'#9fb1c1'],['z3',18,'#7c90a3'],['zi',24,'#9fb1c1'],['z4',Z4,'#7c90a3']];
+ spec.forEach(([k,Z,c])=>{const [x,y]=k==='z3'?P.z2:P[k];const g=el('g',{class:'gear'});el('path',{d:gp(Z,m),fill:c},g);el('circle',{r:4,fill:'#2b3a4e'},g);el('line',{x1:0,y1:0,x2:m*Z/2-6,y2:0,stroke:'#ef8a17','stroke-width':3,'stroke-linecap':'round'},g);G[k]={g,x,y,a:k==='zi'?7.5:0};});
+ [['Z1 = 14',40,110],['Z2 = 42',150,84],['Z3 = 18',196,246],['Zi = 24',300,322],['Z4 = '+Z4,P.z4[0]+40,P.z4[1]-70]].forEach(([t,x,y])=>{const e=el('text',{x,y,'font-weight':800,class:'lbl3','text-anchor':'middle'});e.textContent=t;});
+ calcG();}
+function calcG(){const N2=nm*14/42,Ni=N2*18/24,N4=Ni*24/Z4,v=N4*2*Math.PI/60*0.045*3.6;
+ $('#nmv').textContent=sp(nm);$('#rN2').textContent=sp(N2);$('#rNi').textContent=sp(Ni);$('#rN4').textContent=sp(N4);
+ $('#rV').textContent=fr(v,1);$('#bV').className='ro '+(v<=25?'ok':'bad');
+ $('#mG').innerHTML='Moteur <b>horaire</b> → Z2/Z3 <b>anti-horaire</b> → Zi <b>horaire</b> → roue <b>anti-horaire</b> : 3 contacts, le sens est inversé. '+(v<=25?'Vitesse '+fr(v,1)+' km/h ≤ 25 km/h ✔':'Vitesse '+fr(v,1)+' km/h &gt; 25 km/h ✗');}
+$('#nm').addEventListener('input',e=>{nm=+e.target.value;calcG();});
+$$('[data-z4]').forEach(b=>b.addEventListener('click',()=>{$$('[data-z4]').forEach(x=>x.classList.remove('on'));b.classList.add('on');Z4=+b.dataset.z4;build();}));
+$('#pG').addEventListener('click',e=>{run=!run;e.target.textContent=run?'⏸ Pause':'▶ Reprendre';});
+build();
+function gearTick(dt){if(!run||reduce)return;const w1=40*nm/6000,w2=-w1*14/42,wi=-w2*18/24,w4=-wi*24/Z4;
+ const W={z1:w1,z2:w2,z3:w2,zi:wi,z4:w4};for(const k in G){G[k].a+=W[k]*dt;G[k].g.setAttribute('transform',`translate(${G[k].x} ${G[k].y}) rotate(${G[k].a.toFixed(2)})`);}}
+for(const k in G)G[k].g.setAttribute('transform',`translate(${G[k].x} ${G[k].y}) rotate(${G[k].a})`);
+
+/* Lab 4 */
+let cote=false;
+function calcC(){const v=cote?3:6,F=cote?15+80*9.81*0.08:20,Pr=F*v,Pm=Pr/0.912,Pa=Pm/0.85,Pb=Pa/0.95,Ib=Pb/36,wr=v/0.045,wm=wr*9/2,Cm=Pm/wm,Nm=wm*60/2/Math.PI;
+ const rows=[['Batterie',Pb,'#2f7fe0'],['Contrôleur → moteur',Pa,'#7c5cd6'],['Moteur → réducteur',Pm,'#ef8a17'],['Roue',Pr,'#1f9d5c']];
+ $('#bars').innerHTML=rows.map(([l,p,c])=>`<div class="row"><span>${l}</span><div class="track"><div class="fill" style="width:${p/340*100}%;background:${c}"></div></div><b>${fr(p,1)} W</b></div>`).join('');
+ $('#rF').textContent=fr(F,1)+' N';$('#rIb').textContent=fr(Ib)+' A';$('#rCm').textContent=fr(Cm,3)+' N·m';$('#rNm').textContent=sp(Nm)+' tr/min';
+ $('#bCm').className='ro '+(Cm<=1?'ok':'bad');
+ $('#mC').innerHTML=cote?'Dans la côte, le poids freine : il faut 62,8 N de plus. La puissance double presque alors que la vitesse est divisée par 2, et le courant passe à <b>'+fr(Ib,1)+' A</b>.':'Sur le plat, seulement 74 % de l\'énergie de la batterie arrive à la roue : '+fr(Pb-Pr,1)+' W partent en chaleur.';}
+$('#sPlat').addEventListener('click',()=>{cote=false;$('#sPlat').classList.add('on');$('#sCote').classList.remove('on');calcC();});
+$('#sCote').addEventListener('click',()=>{cote=true;$('#sCote').classList.add('on');$('#sPlat').classList.remove('on');calcC();});calcC();
+
+/* Lab 5 */
+let j=0;function calcB(){const used=j*3.48,rest=Math.max(0,12-used);$('#lvl').setAttribute('width',242*rest/12);$('#lvl').setAttribute('fill',rest<2.4?'#d64545':'#1f9d5c');
+ $('#tlvl').textContent=fr(rest,1)+' Ah';$('#rJ').textContent=j;$('#rQ').textContent=fr(used,2)+' Ah';
+ $('#mB').innerHTML=j===0?'Batterie pleine : 12 Ah, dont 9,6 Ah utilisables.':(rest>=2.4?'Après '+j+' jour'+(j>1?'s':'')+', il reste '+fr(rest,2)+' Ah : on peut encore rouler.':'Après '+j+' jours, on entame la réserve des 20 % : il fallait recharger avant ! On peut donc rouler <b>2 jours complets</b>.');
+ $('#addT').disabled=j>=3;}
+$('#addT').addEventListener('click',()=>{j++;calcB();});$('#rstT').addEventListener('click',()=>{j=0;calcB();});calcB();
+
+/* loop */
+let last=performance.now(),ha=0;
+function tick(now){const dt=Math.min(.05,(now-last)/1000);last=now;
+ if(!reduce)flows.forEach(f=>{f.off-=f.speed*dt;f.el.setAttribute('stroke-dashoffset',f.off.toFixed(1));f.el.style.opacity=Math.abs(f.speed)<1?.15:1;});
+ gearTick(dt);if(!reduce){ha+=120*dt;$('#hw1').setAttribute('transform',`rotate(${ha} 58 122)`);$('#hw2').setAttribute('transform',`rotate(${ha} 152 122)`);}
+ requestAnimationFrame(tick);}
+requestAnimationFrame(tick);
+})();
+</script>
+<script data-goatcounter="https://mrassi-si.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+</body></html>
