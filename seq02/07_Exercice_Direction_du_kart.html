@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Exercice – La direction du kart</title>
+<style>
+:root{--bleu:#1f4e8c;--rouge:#d62828;--vert:#2a9d4b;--orange:#e07a00;--gris:#5b6470;--fond:#f6f8fb;--carte:#fff;--bord:#d5dde8;}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Segoe UI",Roboto,Arial,sans-serif;background:var(--fond);color:#1d2430;line-height:1.55}
+header{background:linear-gradient(135deg,#1f4e8c,#2f6fbf);color:#fff;padding:18px 20px 14px}
+header .tag{font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;opacity:.85}
+header h1{margin:4px 0 2px;font-size:1.5rem}
+header p{margin:0;opacity:.9;font-size:.95rem}
+.progress{height:6px;background:rgba(255,255,255,.25);border-radius:3px;margin-top:12px;overflow:hidden}
+.progress span{display:block;height:100%;width:0;background:#ffd166;transition:width .4s}
+nav{display:flex;gap:6px;overflow-x:auto;padding:10px 12px;background:#fff;border-bottom:1px solid var(--bord);position:sticky;top:0;z-index:5}
+nav button{flex:0 0 auto;border:1px solid var(--bord);background:#fff;border-radius:20px;padding:7px 14px;font-size:.9rem;cursor:pointer;color:var(--bleu);font-weight:600}
+nav button.active{background:var(--bleu);color:#fff;border-color:var(--bleu)}
+nav button.vu::after{content:" ✓";color:var(--vert)}
+nav button.active.vu::after{color:#ffd166}
+main{max-width:920px;margin:0 auto;padding:16px 16px 80px}
+section{display:none}
+section.active{display:block;animation:fade .35s}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+h2{color:var(--bleu);border-left:6px solid var(--bleu);padding-left:10px;margin:8px 0 14px}
+.card{background:var(--carte);border:1px solid var(--bord);border-radius:12px;padding:14px 16px;margin:12px 0;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.clair{background:#eaf7ee;border-color:#b6e2c2}
+.clair::before{content:"💡 Méthode : ";font-weight:700;color:var(--vert)}
+.consigne{background:#fff8e1;border-color:#f3d27a}
+.consigne::before{content:"📝 Consigne : ";font-weight:700;color:#a86b00}
+.lab{background:#eef4fb;border:1px dashed #9db8dc;border-radius:12px;padding:12px;margin:14px 0}
+.lab .titre{font-weight:700;color:var(--bleu);margin-bottom:6px}
+.lab .titre::before{content:"🔬 "}
+canvas{width:100%;height:auto;background:#fff;border:1px solid var(--bord);border-radius:8px;display:block;touch-action:none}
+.ctrl{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;margin-top:10px;font-size:.93rem}
+.ctrl label{display:flex;align-items:center;gap:6px}
+input[type=range]{width:200px;accent-color:var(--bleu)}
+.btn{border:none;background:var(--bleu);color:#fff;padding:8px 14px;border-radius:8px;cursor:pointer;font-weight:600;font-size:.9rem}
+.btn.sec{background:#fff;color:var(--bleu);border:1px solid var(--bleu)}
+.btn.on{background:#ffd166;color:#1d2430}
+table{width:100%;border-collapse:collapse;font-size:.93rem;background:#fff}
+th,td{border:1px solid var(--bord);padding:7px 8px;text-align:left;vertical-align:middle}
+th{background:var(--bleu);color:#fff}
+td.nt{font-family:"Cambria Math",Georgia,serif;font-weight:bold;color:var(--bleu);font-size:1.1rem;white-space:nowrap;width:1%}
+textarea,input.rep{width:100%;padding:7px 9px;border:1px solid var(--bord);border-radius:7px;font:inherit;font-size:.93rem;background:#fffdf5;resize:vertical}
+textarea{min-height:58px}
+textarea:focus,input.rep:focus{outline:2px solid #ffd166;border-color:#e0b84a}
+.q{margin:18px 0 6px;font-weight:600}
+.q .pts{font-weight:400;color:var(--gris);font-size:.85rem}
+.suite{display:flex;justify-content:space-between;gap:10px;margin:24px 0 6px}
+.pieces tr{cursor:pointer} .pieces tr.sel td{background:#fff3c4}
+.formule{background:#f3f7fc;border-radius:8px;padding:8px 12px;font-family:"Cambria Math",Georgia,serif}
+.save{font-size:.85rem;color:var(--gris)}
+.recap h3{color:var(--bleu);margin:16px 0 4px;font-size:1rem}
+.recap p{margin:2px 0 8px;white-space:pre-wrap}
+.recap .vide{color:#b33;font-style:italic}
+@media print{header,nav,.suite,.noprint,a[href="../index.html"]{display:none!important}section{display:none!important}#s6{display:block!important}body{background:#fff}}
+@media (max-width:600px){header h1{font-size:1.2rem} input[type=range]{width:150px}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="tag">Spécialité SI · 1re · Séquence 2 · Exercice à préparer</div>
+  <h1>La direction du kart : mouvements et trajectoires</h1>
+  <p>Prépare tes réponses, construis les trajectoires avec les outils, puis imprime ou garde tes notes</p>
+  <div class="progress"><span id="prog"></span></div>
+</header>
+
+<nav>
+  <button data-go="s0">Présentation</button>
+  <button data-go="s1">A · Cours</button>
+  <button data-go="s2">B · Mouvements</button>
+  <button data-go="s3">B · Construction</button>
+  <button data-go="s4">B · Vitesse</button>
+  <button data-go="s5">C · Roue arrière</button>
+  <button data-go="s6">Mes réponses</button>
+</nav>
+
+<main>
+
+<!-- ===================== PRÉSENTATION ===================== -->
+<section id="s0">
+  <h2>Le système : la direction d'un kart</h2>
+  <div class="card">
+    <p>Quand le pilote tourne le <b>volant</b>, la <b>colonne de direction</b> tourne et entraîne un petit <b>bras</b>. Ce bras pousse une <b>biellette</b>, qui fait pivoter la <b>fusée</b> (le porte-roue) : la roue avant <b>braque</b>.</p>
+    <p>On étudie le <b>côté droit</b> du kart, vu <b>de dessus</b>.</p>
+  </div>
+  <div class="lab">
+    <div class="titre">Schéma de la direction (vue de dessus, côté droit)</div>
+    <canvas id="cvPres" width="900" height="520"></canvas>
+    <div class="ctrl"><span>👉 Clique sur une ligne du tableau pour repérer la pièce sur le schéma.</span></div>
+  </div>
+  <table class="pieces" id="tabPieces">
+    <tr><th>Repère</th><th>Pièce</th><th>Liaison avec les autres pièces</th></tr>
+    <tr data-p="0"><td><b>0</b></td><td>Châssis</td><td>–</td></tr>
+    <tr data-p="1"><td><b>1</b></td><td>Volant + colonne + bras AB</td><td>Articulée sur 0 en A (axe z vertical)</td></tr>
+    <tr data-p="2"><td><b>2</b></td><td>Biellette BC</td><td>Articulée sur 1 en B et sur 3 en C</td></tr>
+    <tr data-p="3"><td><b>3</b></td><td>Fusée, avec son levier DC et l'axe de roue DE</td><td>Articulée sur 0 en D (axe z vertical)</td></tr>
+    <tr data-p="4"><td><b>4</b></td><td>Roue avant droite</td><td>Tourne autour de l'axe (DE) de la fusée 3</td></tr>
+  </table>
+  <div class="card">
+    <b>Hypothèses.</b> L'étude se fait dans le plan horizontal (x, y). Toutes les pièces sont des solides indéformables.<br>
+    <b>Dimensions réelles :</b> AB = 40 mm · BC = 200 mm · DC = 60 mm · DE = 50 mm.
+  </div>
+  <div class="card">Rappel des notations : <b>M<sub>i/k</sub></b> = mouvement de la pièce i par rapport à la pièce k. <b>T<sub>P∈i/k</sub></b> = trajectoire du point P de la pièce i, par rapport à la pièce k.</div>
+  <p class="save">💾 Tes réponses sont gardées dans ce navigateur. Tu peux les relire ou les imprimer dans l'onglet « Mes réponses ».</p>
+  <div class="suite"><span></span><button class="btn" data-go="s1">Commencer : partie A →</button></div>
+</section>
+
+<!-- ===================== PARTIE A ===================== -->
+<section id="s1">
+  <h2>Partie A – Questions de cours</h2>
+  <div class="q">A1. Complète la définition. <span class="pts">(1 pt)</span></div>
+  <div class="card">« La cinématique est la partie de la mécanique qui étudie ……… des corps en fonction ………, indépendamment ……… qui le provoquent. »
+    <textarea data-r="A1" placeholder="Écris la phrase complète…"></textarea></div>
+  <div class="q">A2. En cinématique, on suppose que les solides sont <b>indéformables</b>. Explique ce que cela signifie pour deux points A et B d'un même solide (S). <span class="pts">(1 pt)</span></div>
+  <textarea data-r="A2"></textarea>
+  <div class="q">A3. Un référentiel est constitué de deux « repères ». Lesquels ? À quelle question répond chacun d'eux ? <span class="pts">(1 pt)</span></div>
+  <textarea data-r="A3"></textarea>
+  <div class="q">A4. Écris en toutes lettres ce que signifient ces notations. <span class="pts">(1 pt)</span></div>
+  <table>
+    <tr><td class="nt">M<sub>3/0</sub></td><td><input class="rep" data-r="A4a"></td></tr>
+    <tr><td class="nt">T<sub>C∈2/0</sub></td><td><input class="rep" data-r="A4b"></td></tr>
+  </table>
+  <div class="q">A5. Pour chaque mouvement, décris les trajectoires des points du solide. <span class="pts">(1 pt)</span></div>
+  <table>
+    <tr><th>Mouvement</th><th>Trajectoires des points du solide</th></tr>
+    <tr><td><b>Translation rectiligne</b></td><td><input class="rep" data-r="A5a"></td></tr>
+    <tr><td><b>Translation circulaire</b></td><td><input class="rep" data-r="A5b"></td></tr>
+    <tr><td><b>Translation curviligne</b></td><td><input class="rep" data-r="A5c"></td></tr>
+    <tr><td><b>Mouvement plan général</b></td><td><input class="rep" data-r="A5d"></td></tr>
+  </table>
+  <div class="suite"><button class="btn sec" data-go="s0">← Présentation</button><button class="btn" data-go="s2">Suite : mouvements et trajectoires →</button></div>
+</section>
+
+<!-- ===================== PARTIE B1-B2 ===================== -->
+<section id="s2">
+  <h2>Partie B – Mouvements et trajectoires</h2>
+  <div class="card clair">Pour trouver un mouvement, regarde la <b>liaison</b> entre les 2 pièces. Pour trouver une trajectoire, cherche d'abord le <b>mouvement</b> de la pièce qui porte le point.</div>
+  <div class="q">B1. Donne la nature de chaque mouvement (rotation d'axe…, translation…, mouvement plan). <span class="pts">(2 pts)</span></div>
+  <table>
+    <tr><th>Mouvement</th><th>Nature du mouvement</th></tr>
+    <tr><td class="nt">M<sub>1/0</sub></td><td><input class="rep" data-r="B1a"></td></tr>
+    <tr><td class="nt">M<sub>3/0</sub></td><td><input class="rep" data-r="B1b"></td></tr>
+    <tr><td class="nt">M<sub>4/3</sub></td><td><input class="rep" data-r="B1c"></td></tr>
+    <tr><td class="nt">M<sub>2/0</sub></td><td><input class="rep" data-r="B1d"></td></tr>
+  </table>
+  <div class="q">B2. Donne la nature de chaque trajectoire (avec son centre et son rayon si c'est un cercle ou un arc de cercle). <span class="pts">(2,5 pts)</span></div>
+  <table>
+    <tr><th>Trajectoire</th><th>Nature de la trajectoire</th></tr>
+    <tr><td class="nt">T<sub>B∈1/0</sub></td><td><input class="rep" data-r="B2a"></td></tr>
+    <tr><td class="nt">T<sub>C∈3/0</sub></td><td><input class="rep" data-r="B2b"></td></tr>
+    <tr><td class="nt">T<sub>E∈3/0</sub></td><td><input class="rep" data-r="B2c"></td></tr>
+    <tr><td class="nt">T<sub>D∈3/0</sub></td><td><input class="rep" data-r="B2d"></td></tr>
+    <tr><td class="nt">T<sub>B∈2/0</sub></td><td><input class="rep" data-r="B2e"></td></tr>
+  </table>
+  <div class="q">B2 bis. Explique en une phrase pourquoi T<sub>B∈2/0</sub> = T<sub>B∈1/0</sub>.</div>
+  <textarea data-r="B2bis"></textarea>
+  <div class="suite"><button class="btn sec" data-go="s1">← Partie A</button><button class="btn" data-go="s3">Suite : construction →</button></div>
+</section>
+
+<!-- ===================== CONSTRUCTION ===================== -->
+<section id="s3">
+  <h2>Partie B – Le pilote tourne le volant</h2>
+  <div class="card consigne">Le pilote tourne le volant de <b>60°</b> dans le sens de la flèche. Entraîne-toi à faire la construction avec les outils ci-dessous : le jour du devoir, tu la feras sur papier, au compas et au rapporteur.</div>
+  <div class="card">
+    <b>B3.</b> Trace T<sub>B∈1/0</sub> et T<sub>C∈3/0</sub>. <span class="pts">(1 pt)</span><br>
+    <b>B4.</b> Place la nouvelle position B1 du point B après une rotation du volant de 60°. <span class="pts">(1 pt)</span><br>
+    <b>B5.</b> a) Que peut-on dire de la distance BC pendant le mouvement ? b) Construis au compas la nouvelle position C1 du point C. <span class="pts">(1,5 pt)</span><br>
+    <b>B6.</b> Mesure l'angle α = C0DC1 dont la roue a tourné, et compare-le à l'angle du volant. <span class="pts">(1 pt)</span>
+  </div>
+
+  <div class="lab">
+    <div class="titre">Plan de construction (vue de dessus)</div>
+    <canvas id="cvB" width="900" height="520"></canvas>
+    <div class="ctrl"><span id="hintB" style="font-weight:600;color:var(--bleu)"></span></div>
+    <div class="ctrl">
+      <label>🎡 Rotation du volant : <input type="range" id="rgV" min="0" max="90" value="0" step="1"> <b id="vV">0°</b></label>
+    </div>
+    <div class="ctrl">
+      <button class="btn sec" id="tCompas">🧭 Compas</button>
+      <button class="btn sec" id="tPoint">📍 Déplacer le point C1</button>
+      <button class="btn sec" id="tRap">📐 Rapporteur</button>
+      <label id="lRap" style="display:none">Tourner le rapporteur : <input type="range" id="rgR" min="0" max="360" value="0" step="1"></label>
+      <label><input type="checkbox" id="ckDC1"> Tracer le levier DC1</label>
+      <button class="btn sec" id="tAnnul">↶ Annuler le dernier arc</button>
+      <button class="btn sec" id="tEff">🗑 Tout effacer</button>
+    </div>
+  </div>
+  <div class="q">B5 a) Que peut-on dire de la distance BC ? b) Explique ta méthode pour trouver C1.</div>
+  <textarea data-r="B5"></textarea>
+  <div class="q">B6. Valeur mesurée de α et comparaison avec l'angle du volant.</div>
+  <textarea data-r="B6"></textarea>
+  <div class="suite"><button class="btn sec" data-go="s2">← Mouvements</button><button class="btn" data-go="s4">Suite : vitesse →</button></div>
+</section>
+
+<!-- ===================== VITESSE ===================== -->
+<section id="s4">
+  <h2>Partie B – Vitesse du point B</h2>
+  <div class="card">Le pilote tourne le volant de <b>60°</b> en <b>0,5 s</b>, à vitesse constante. AB = 40 mm.</div>
+  <div class="formule">ω = θ / t (θ en rad) &nbsp;·&nbsp; N = ω × 60 / (2π) &nbsp;·&nbsp; ‖V‖ = ω × R (R en m)</div>
+  <div class="card clair">Écris toujours la formule littérale, puis l'application numérique, puis le résultat avec son unité.</div>
+  <div class="q">B7 a) Convertis 60° en radians, puis calcule la vitesse angulaire ω<sub>1/0</sub> (en rad/s). <span class="pts">(0,5 pt)</span></div>
+  <textarea data-r="B7a"></textarea>
+  <div class="q">B7 b) Calcule la vitesse de rotation N du volant en tr/min. <span class="pts">(0,5 pt)</span></div>
+  <textarea data-r="B7b"></textarea>
+  <div class="q">B7 c) Calcule ‖V<sub>B∈1/0</sub>‖ (en m/s) et précise la direction de ce vecteur. <span class="pts">(1 pt)</span></div>
+  <textarea data-r="B7c"></textarea>
+  <div class="suite"><button class="btn sec" data-go="s3">← Construction</button><button class="btn" data-go="s5">Suite : partie C →</button></div>
+</section>
+
+<!-- ===================== PARTIE C ===================== -->
+<section id="s5">
+  <h2>Partie C – Mouvement absolu et mouvement relatif</h2>
+  <div class="card">Le kart roule <b>en ligne droite</b>. On note : <b>S</b> = sol (piste) · <b>0</b> = châssis · <b>R</b> = roue arrière, de centre O, articulée sur le châssis · <b>V</b> = valve de la roue (sur la jante) · <b>K</b> = un point du casque du pilote (le pilote ne bouge pas sur son siège).</div>
+  <div class="q">C1. Complète le tableau. <span class="pts">(2 pts)</span></div>
+  <table>
+    <tr><th>Mouvement ou trajectoire</th><th>Nature</th></tr>
+    <tr><td class="nt">M<sub>0/S</sub></td><td><input class="rep" data-r="C1a"></td></tr>
+    <tr><td class="nt">M<sub>R/0</sub></td><td><input class="rep" data-r="C1b"></td></tr>
+    <tr><td class="nt">T<sub>V∈R/0</sub></td><td><input class="rep" data-r="C1c"></td></tr>
+    <tr><td class="nt">T<sub>K∈0/S</sub></td><td><input class="rep" data-r="C1d"></td></tr>
+  </table>
+  <div class="q">C2. Un élève filme la valve V depuis le bord de la piste. Sa trajectoire T<sub>V∈R/S</sub> est-elle un cercle ? Justifie, puis donne la nature du mouvement M<sub>R/S</sub>. <span class="pts">(1 pt)</span></div>
+  <textarea data-r="C2"></textarea>
+  <div class="q">C3. Lequel des deux observateurs décrit un mouvement <b>absolu</b>, lequel un mouvement <b>relatif</b> ? Justifie. <span class="pts">(1 pt)</span></div>
+  <div class="card">👨‍✈️ Observateur 1 : le pilote, assis sur le kart, regarde la valve V.<br>🧍 Observateur 2 : l'élève, debout au bord de la piste, regarde la valve V.</div>
+  <textarea data-r="C3"></textarea>
+  <div class="suite"><button class="btn sec" data-go="s4">← Vitesse</button><button class="btn" data-go="s6">Mes réponses →</button></div>
+</section>
+
+<!-- ===================== MES RÉPONSES ===================== -->
+<section id="s6">
+  <h2>Mes réponses</h2>
+  <p class="noprint">Relis tes réponses. Les questions sans réponse sont signalées en rouge. Tu peux imprimer cette page pour la garder.</p>
+  <div class="ctrl noprint"><button class="btn" onclick="window.print()">🖨 Imprimer mes réponses</button><button class="btn sec" id="raz">🗑 Effacer toutes mes réponses</button></div>
+  <div class="card recap" id="recap"></div>
+  <div class="suite"><button class="btn sec" data-go="s5">← Partie C</button><button class="btn" data-go="s0">Revenir au début</button></div>
+</section>
+</main>
+
+<script>
+const $=id=>document.getElementById(id);
+/* ===================== NAVIGATION ===================== */
+const vus=new Set();
+function show(id){document.querySelectorAll('section').forEach(s=>s.classList.toggle('active',s.id===id));
+  document.querySelectorAll('nav button').forEach(b=>{b.classList.toggle('active',b.dataset.go===id);if(vus.has(b.dataset.go))b.classList.add('vu')});
+  vus.add(id);window.scrollTo({top:0,behavior:'smooth'});if(id==='s6')recap();if(id==='s3')drawB()}
+document.querySelectorAll('[data-go]').forEach(b=>b.addEventListener('click',()=>show(b.dataset.go)));
+
+/* ===================== RÉPONSES (sauvegarde locale) ===================== */
+const KEY='kart-seq02-reponses';let R={};
+try{R=JSON.parse(localStorage.getItem(KEY)||'{}')}catch(e){R={}}
+const champs=[...document.querySelectorAll('[data-r]')];
+function progression(){const n=champs.filter(c=>c.value.trim()).length;$('prog').style.width=(n/champs.length*100)+'%'}
+champs.forEach(c=>{c.value=R[c.dataset.r]||'';c.addEventListener('input',()=>{R[c.dataset.r]=c.value;try{localStorage.setItem(KEY,JSON.stringify(R))}catch(e){}progression()})});
+progression();
+function recap(){const out=[];let titre='';
+  champs.forEach(c=>{const sec=c.closest('section').querySelector('h2').textContent;if(sec!==titre){titre=sec;out.push(`<h3>${titre}</h3>`)}
+    const v=c.value.trim();out.push(`<p><b>${c.dataset.r}</b> : ${v?v.replace(/[<>&]/g,m=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[m])):'<span class="vide">pas encore de réponse</span>'}</p>`)});
+  $('recap').innerHTML=out.join('')}
+$('raz').onclick=()=>{if(!confirm('Effacer toutes tes réponses ?'))return;R={};try{localStorage.removeItem(KEY)}catch(e){}champs.forEach(c=>c.value='');progression();recap()};
+
+/* ===================== GÉOMÉTRIE ===================== */
+const G=(()=>{const A=[0,0],D=[220,20],DC=60,DE=50,a=20*Math.PI/180;
+  return{A,D,B0:[0,-40],C0:[D[0]-DC*Math.sin(a),D[1]-DC*Math.cos(a)],E0:[D[0]+DE,D[1]]}})();
+const rot=(P,O,t)=>{const c=Math.cos(t),s=Math.sin(t),x=P[0]-O[0],y=P[1]-O[1];return[O[0]+c*x-s*y,O[1]+s*x+c*y]};
+const VX0=-45,VY1=110,SC=900/355;
+const W=p=>[(p[0]-VX0)*SC,(VY1-p[1])*SC];
+const Winv=(x,y)=>[x/SC+VX0,VY1-y/SC];
+const dist=(P,Q)=>Math.hypot(P[0]-Q[0],P[1]-Q[1]);
+function line(c,P,Q,col,w,dash){c.save();c.strokeStyle=col;c.lineWidth=w;c.setLineDash(dash||[]);c.lineCap='round';c.beginPath();c.moveTo(...W(P));c.lineTo(...W(Q));c.stroke();c.restore()}
+function poly(c,pts,col,w){c.save();c.strokeStyle=col;c.lineWidth=w;c.lineCap='round';c.lineJoin='round';c.beginPath();pts.forEach((p,i)=>i?c.lineTo(...W(p)):c.moveTo(...W(p)));c.stroke();c.restore()}
+function joint(c,P,r){c.save();c.fillStyle='#fff';c.strokeStyle='#000';c.lineWidth=2;c.beginPath();c.arc(...W(P),r||7,0,7);c.fill();c.stroke();c.restore()}
+function txt(c,s,P,dx,dy,col,f){c.save();c.fillStyle=col||'#1d2430';c.font=(f||'bold 17px Segoe UI, Arial');c.textAlign='center';c.textBaseline='middle';const p=W(P);c.fillText(s,p[0]+dx,p[1]+dy);c.restore()}
+function bati(c,P){const p=W(P);c.save();c.strokeStyle='#000';c.lineWidth=1.8;c.beginPath();c.moveTo(p[0],p[1]);c.lineTo(p[0]-14,p[1]-24);c.lineTo(p[0]+14,p[1]-24);c.closePath();c.stroke();
+  c.beginPath();c.moveTo(p[0]-24,p[1]-24);c.lineTo(p[0]+24,p[1]-24);c.stroke();for(let k=-22;k<=18;k+=8){c.beginPath();c.moveTo(p[0]+k,p[1]-24);c.lineTo(p[0]+k+8,p[1]-34);c.stroke()}c.restore()}
+function roue(c,E,col,fill){const w=40,h=110;const p=W([E[0]-w/2,E[1]+h/2]);c.save();if(fill){c.fillStyle=fill;c.fillRect(p[0],p[1],w*SC,h*SC)}c.strokeStyle=col;c.lineWidth=2;c.strokeRect(p[0],p[1],w*SC,h*SC);c.restore()}
+function fleche(c){const p=W(G.A);c.save();c.strokeStyle='#000';c.lineWidth=2;c.beginPath();c.arc(p[0],p[1],38,80*Math.PI/180,20*Math.PI/180,true);c.stroke();
+  const a=20*Math.PI/180,q=[p[0]+38*Math.cos(a),p[1]+38*Math.sin(a)];c.fillStyle='#000';c.beginPath();c.moveTo(q[0]+4,q[1]-12);c.lineTo(q[0]+9,q[1]+5);c.lineTo(q[0]-7,q[1]-2);c.fill();c.restore()}
+function axes(c){const o=[16,500];c.save();c.strokeStyle='#000';c.fillStyle='#000';c.lineWidth=1.5;c.beginPath();c.moveTo(o[0],o[1]);c.lineTo(o[0]+50,o[1]);c.moveTo(o[0],o[1]);c.lineTo(o[0],o[1]-50);c.stroke();
+  c.font='14px Segoe UI, Arial';c.fillText('x',o[0]+54,o[1]+4);c.fillText('y',o[0]-4,o[1]-56);c.restore()}
+const COL={1:'#1f4e8c',2:'#2a9d4b',3:'#d62828'};
+function mecanisme(c,hl){const H='#e09f00';
+  roue(c,G.E0,hl===4?H:'#000',hl===4?'#fff3c4':null);
+  line(c,G.A,G.B0,hl===1?H:COL[1],hl===1?11:6);
+  line(c,G.B0,G.C0,hl===2?H:COL[2],hl===2?9:4.5);
+  poly(c,[G.C0,G.D,G.E0],hl===3?H:COL[3],hl===3?11:6);
+  bati(c,G.A);bati(c,G.D);
+  if(hl===0){c.save();c.strokeStyle=H;c.lineWidth=4;[G.A,G.D].forEach(P=>{const p=W(P);c.beginPath();c.arc(p[0],p[1]-20,30,0,7);c.stroke()});c.restore()}
+  [G.A,G.B0,G.C0,G.D,G.E0].forEach(P=>joint(c,P));
+  txt(c,'A',G.A,-22,10);txt(c,'B0',G.B0,-26,4);txt(c,'C0',G.C0,-10,24);txt(c,'D',G.D,22,16);txt(c,'E0',G.E0,24,-16);
+  txt(c,'1',[0,-20],-22,0,COL[1]);txt(c,'2',[100,-38],0,22,COL[2]);txt(c,'3',[245,20],0,-16,COL[3]);txt(c,'4',[290,70],0,0,'#000');
+  txt(c,'0 : châssis',[60,95],0,0,'#1d2430','15px Segoe UI, Arial');fleche(c);axes(c)}
+
+/* ===================== PRÉSENTATION ===================== */
+const cP=$('cvPres').getContext('2d');let hlP=-1;
+function drawPres(){cP.clearRect(0,0,900,520);mecanisme(cP,hlP)}
+document.querySelectorAll('#tabPieces tr[data-p]').forEach(tr=>tr.addEventListener('click',()=>{hlP=+tr.dataset.p;document.querySelectorAll('#tabPieces tr').forEach(t=>t.classList.toggle('sel',t===tr));drawPres()}));
+drawPres();
+
+/* ===================== CONSTRUCTION (outils libres, sans correction) ===================== */
+const cv=$('cvB'),cB=cv.getContext('2d');
+const ST={th:0,outil:null,arcs:[],centre:null,souris:null,c1:null,rap:false,rapA:0,drag:false};
+const ARC_COL=['#7b2cbf','#e07a00','#2a9d4b','#0077b6','#c2185b'];
+function pointsNommes(){const B=rot(G.B0,G.A,ST.th*Math.PI/180);const pts={A:G.A,B0:G.B0,C0:G.C0,D:G.D,E0:G.E0};if(ST.th>0)pts.B1=B;if(ST.c1)pts.C1=ST.c1;return pts}
+function aimant(p){const pts=pointsNommes();let best=null,bd=6;for(const k in pts){const d=dist(p,pts[k]);if(d<bd){bd=d;best=pts[k]}}return best?[...best]:p}
+function rapporteur(c){const p=W(G.D),R=95;c.save();c.translate(p[0],p[1]);c.rotate(-ST.rapA*Math.PI/180);
+  c.fillStyle='rgba(255,230,120,.3)';c.strokeStyle='#a86b00';c.lineWidth=1.5;c.beginPath();c.moveTo(R,0);c.arc(0,0,R,0,-Math.PI,true);c.closePath();c.fill();c.stroke();
+  for(let d=0;d<=180;d+=5){const t=-d*Math.PI/180,r1=d%10?R-7:R-13;c.beginPath();c.moveTo(r1*Math.cos(t),r1*Math.sin(t));c.lineTo(R*Math.cos(t),R*Math.sin(t));c.stroke();
+    if(d%20===0){c.save();c.fillStyle='#7a4d00';c.font='11px Segoe UI, Arial';c.textAlign='center';c.textBaseline='middle';c.fillText(d,(R-24)*Math.cos(t),(R-24)*Math.sin(t));c.restore()}}
+  c.restore()}
+function drawB(){const c=cB;c.clearRect(0,0,900,520);
+  roue(c,G.E0,'#000');line(c,G.A,G.B0,COL[1],6);line(c,G.B0,G.C0,COL[2],4.5);poly(c,[G.C0,G.D,G.E0],COL[3],6);bati(c,G.A);bati(c,G.D);
+  ST.arcs.forEach((a,i)=>{const p=W(a.O);c.save();c.strokeStyle=ARC_COL[i%5];c.lineWidth=2;c.beginPath();c.arc(p[0],p[1],a.r*SC,0,7);c.stroke();c.restore()});
+  if(ST.outil==='compas'&&ST.centre&&ST.souris){const p=W(ST.centre);c.save();c.strokeStyle='#888';c.setLineDash([6,5]);c.lineWidth=1.5;c.beginPath();c.arc(p[0],p[1],dist(ST.centre,ST.souris)*SC,0,7);c.stroke();
+    c.beginPath();c.moveTo(...p);c.lineTo(...W(ST.souris));c.stroke();c.restore()}
+  if(ST.th>0){const B=rot(G.B0,G.A,ST.th*Math.PI/180);line(c,G.A,B,COL[1],3,[8,6]);joint(c,B,6);txt(c,'B1',B,22,8,COL[1])}
+  if(ST.c1&&$('ckDC1').checked)line(c,G.D,ST.c1,COL[3],3,[8,6]);
+  if(ST.rap)rapporteur(c);
+  [G.A,G.B0,G.C0,G.D,G.E0].forEach(P=>joint(c,P));
+  txt(c,'A',G.A,-22,10);txt(c,'B0',G.B0,-26,4);txt(c,'C0',G.C0,-10,24);txt(c,'D',G.D,22,16);txt(c,'E0',G.E0,24,-16);fleche(c);axes(c);
+  if(ST.c1){const p=W(ST.c1);c.save();c.fillStyle='#e07a00';c.strokeStyle='#000';c.lineWidth=1.5;c.beginPath();c.arc(p[0],p[1],8,0,7);c.fill();c.stroke();c.font='bold 16px Segoe UI, Arial';c.fillText('C1',p[0]+12,p[1]+20);c.restore()}
+  if(ST.centre&&ST.outil==='compas'){const p=W(ST.centre);c.save();c.fillStyle='#000';c.beginPath();c.arc(p[0],p[1],4,0,7);c.fill();c.restore()}
+  $('hintB').textContent='👉 '+(ST.outil==='compas'?(ST.centre?'Clique pour fixer le rayon (l\'écartement du compas).':'Clique sur le centre du cercle (le compas s\'accroche aux points nommés).'):
+    ST.outil==='point'?'Fais glisser le point C1 là où tu penses qu\'il doit être.':ST.rap?'Tourne le rapporteur pour mettre son 0 sur le levier DC0, puis lis l\'angle.':'Choisis un outil. Le schéma est à l\'échelle : les dimensions sont respectées.')}
+function pos(e){const r=cv.getBoundingClientRect(),t=e.touches?e.touches[0]:e;return Winv((t.clientX-r.left)*900/r.width,(t.clientY-r.top)*520/r.height)}
+function setOutil(o){ST.outil=ST.outil===o?null:o;ST.centre=null;$('tCompas').classList.toggle('on',ST.outil==='compas');$('tPoint').classList.toggle('on',ST.outil==='point');
+  if(ST.outil==='point'&&!ST.c1)ST.c1=[250,-80];drawB()}
+$('tCompas').onclick=()=>setOutil('compas');$('tPoint').onclick=()=>setOutil('point');
+$('tRap').onclick=()=>{ST.rap=!ST.rap;$('tRap').classList.toggle('on',ST.rap);$('lRap').style.display=ST.rap?'flex':'none';drawB()};
+$('rgR').oninput=()=>{ST.rapA=+$('rgR').value;drawB()};
+$('ckDC1').onchange=()=>{if(!ST.c1){$('ckDC1').checked=false}drawB()};
+$('tAnnul').onclick=()=>{ST.arcs.pop();drawB()};
+$('tEff').onclick=()=>{ST.arcs=[];ST.centre=null;ST.c1=null;$('ckDC1').checked=false;ST.th=0;$('rgV').value=0;$('vV').textContent='0°';drawB()};
+$('rgV').oninput=()=>{ST.th=+$('rgV').value;$('vV').textContent=ST.th+'°';drawB()};
+function down(e){const p=pos(e);
+  if(ST.outil==='compas'){e.preventDefault();if(!ST.centre){ST.centre=aimant(p)}else{const q=aimant(p);ST.arcs.push({O:ST.centre,r:dist(ST.centre,q)});ST.centre=null}drawB();return}
+  if(ST.outil==='point'&&ST.c1&&dist(p,ST.c1)<12){ST.drag=true;e.preventDefault()}}
+function move(e){const p=pos(e);ST.souris=p;if(ST.drag){e.preventDefault();ST.c1=p}if(ST.drag||ST.outil==='compas')drawB()}
+cv.addEventListener('mousedown',down);cv.addEventListener('mousemove',move);window.addEventListener('mouseup',()=>ST.drag=false);
+cv.addEventListener('touchstart',down,{passive:false});cv.addEventListener('touchmove',move,{passive:false});window.addEventListener('touchend',()=>ST.drag=false);
+show('s0');
+</script>
+<a href="../index.html" style="position:fixed;bottom:16px;left:16px;z-index:99999;background:#1e3a5f;color:#fff;padding:10px 16px;border-radius:24px;font:600 14px system-ui,sans-serif;text-decoration:none;box-shadow:0 2px 8px rgba(0,0,0,.25)">← Sommaire</a><script data-goatcounter="https://mrassi-si.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+</body>
+</html>
