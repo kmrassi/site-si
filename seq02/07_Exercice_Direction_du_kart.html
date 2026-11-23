@@ -76,6 +76,7 @@ textarea:focus,input.rep:focus{outline:2px solid #ffd166;border-color:#e0b84a}
   <button data-go="s4">B · Vitesse</button>
   <button data-go="s5">C · Roue arrière</button>
   <button data-go="s6">Mes réponses</button>
+  <button data-go="s7">🎮 Simulation</button>
 </nav>
 
 <main>
@@ -239,6 +240,29 @@ textarea:focus,input.rep:focus{outline:2px solid #ffd166;border-color:#e0b84a}
   <div class="card recap" id="recap"></div>
   <div class="suite"><button class="btn sec" data-go="s5">← Partie C</button><button class="btn" data-go="s0">Revenir au début</button></div>
 </section>
+
+<!-- ===================== SIMULATION ===================== -->
+<section id="s7">
+  <h2>🎮 Simulation : fais tourner le volant</h2>
+  <div class="card consigne">Fais d'abord ta construction (partie B), <b>puis</b> utilise la simulation pour vérifier ta réponse. Bouge le curseur et regarde comment chaque pièce bouge.</div>
+  <div class="lab">
+    <div class="titre">Mécanisme de direction animé (vue de dessus)</div>
+    <canvas id="cvS" width="900" height="520"></canvas>
+    <div class="ctrl">
+      <label>🎡 Volant : <input type="range" id="rgS" min="-45" max="90" value="0" step="1"> <b id="vS">0°</b></label>
+      <button class="btn" id="bAnim">▶ Animer</button>
+      <button class="btn sec" id="b60">Mettre à 60°</button>
+    </div>
+    <div class="ctrl">
+      <label><input type="checkbox" id="ckTraj" checked> Montrer les trajectoires de B, C et E</label>
+      <label><input type="checkbox" id="ckPos0" checked> Garder la position de départ en pointillés</label>
+      <label><input type="checkbox" id="ckAng"> Afficher l'angle de la roue α</label>
+    </div>
+    <div class="ctrl"><span id="infoS" style="font-weight:600;color:var(--bleu)"></span></div>
+  </div>
+  <div class="card clair">Regarde bien : B et C décrivent des <b>arcs de cercle</b> (centres A et D), mais la biellette 2 ne tourne pas autour d'un point fixe. Sa longueur BC, elle, ne change jamais.</div>
+  <div class="suite"><button class="btn sec" data-go="s6">← Mes réponses</button><button class="btn" data-go="s3">Revenir à la construction</button></div>
+</section>
 </main>
 
 <script>
@@ -247,7 +271,7 @@ const $=id=>document.getElementById(id);
 const vus=new Set();
 function show(id){document.querySelectorAll('section').forEach(s=>s.classList.toggle('active',s.id===id));
   document.querySelectorAll('nav button').forEach(b=>{b.classList.toggle('active',b.dataset.go===id);if(vus.has(b.dataset.go))b.classList.add('vu')});
-  vus.add(id);window.scrollTo({top:0,behavior:'smooth'});if(id==='s6')recap();if(id==='s3')drawB()}
+  vus.add(id);window.scrollTo({top:0,behavior:'smooth'});if(id==='s6')recap();if(id==='s3')drawB();if(id==='s7')drawS()}
 document.querySelectorAll('[data-go]').forEach(b=>b.addEventListener('click',()=>show(b.dataset.go)));
 
 /* ===================== RÉPONSES (sauvegarde locale) ===================== */
@@ -342,6 +366,43 @@ function down(e){const p=pos(e);
 function move(e){const p=pos(e);ST.souris=p;if(ST.drag){e.preventDefault();ST.c1=p}if(ST.drag||ST.outil==='compas')drawB()}
 cv.addEventListener('mousedown',down);cv.addEventListener('mousemove',move);window.addEventListener('mouseup',()=>ST.drag=false);
 cv.addEventListener('touchstart',down,{passive:false});cv.addEventListener('touchmove',move,{passive:false});window.addEventListener('touchend',()=>ST.drag=false);
+/* ===================== SIMULATION ===================== */
+const cS=$('cvS').getContext('2d');const LBC=dist(G.B0,G.C0),DCl=dist(G.D,G.C0);
+const SIM={th:0,C:[...G.C0],anim:null,dir:1,trB:[],trC:[],trE:[]};
+const ang=(P,O)=>Math.atan2(P[1]-O[1],P[0]-O[0]);
+function solveC(B,prev){const d=dist(B,G.D);if(d>LBC+DCl||d<Math.abs(LBC-DCl))return null;
+  const a=(DCl*DCl-LBC*LBC+d*d)/(2*d),h=Math.sqrt(Math.max(0,DCl*DCl-a*a));
+  const ux=(B[0]-G.D[0])/d,uy=(B[1]-G.D[1])/d,M=[G.D[0]+a*ux,G.D[1]+a*uy];
+  const s1=[M[0]-h*uy,M[1]+h*ux],s2=[M[0]+h*uy,M[1]-h*ux];return dist(s1,prev)<dist(s2,prev)?s1:s2}
+function roueR(c,E,t,col){const w=40,h=110,co=Math.cos(t),si=Math.sin(t);
+  const pts=[[-w/2,-h/2],[w/2,-h/2],[w/2,h/2],[-w/2,h/2]].map(([x,y])=>[E[0]+co*x-si*y,E[1]+si*x+co*y]);
+  c.save();c.fillStyle='rgba(60,60,60,.12)';c.strokeStyle=col;c.lineWidth=2;c.beginPath();pts.forEach((p,i)=>i?c.lineTo(...W(p)):c.moveTo(...W(p)));c.closePath();c.fill();c.stroke();c.restore()}
+function setSim(th){let C=[...G.C0],prev=[...G.C0];const n=Math.max(1,Math.ceil(Math.abs(th)));
+  for(let k=1;k<=n;k++){const B=rot(G.B0,G.A,th*k/n*Math.PI/180);const r=solveC(B,prev);if(!r)return false;prev=r}
+  SIM.th=th;SIM.C=prev;return true}
+function arcTrace(c,O,r,a0,a1,col){const p=W(O);c.save();c.strokeStyle=col;c.lineWidth=2.5;c.setLineDash([7,5]);c.beginPath();
+  c.arc(p[0],p[1],r*SC,-Math.max(a0,a1),-Math.min(a0,a1));c.stroke();c.restore()}
+function drawS(){const c=cS;c.clearRect(0,0,900,520);
+  const B=rot(G.B0,G.A,SIM.th*Math.PI/180),C=SIM.C,al=ang(C,G.D)-ang(G.C0,G.D),E=rot(G.E0,G.D,al);
+  if($('ckPos0').checked){c.save();c.globalAlpha=.3;roue(c,G.E0,'#000');line(c,G.A,G.B0,COL[1],4,[6,5]);line(c,G.B0,G.C0,COL[2],3,[6,5]);poly(c,[G.C0,G.D,G.E0],COL[3],4);c.restore();
+    txt(c,'B0',G.B0,-26,4,'#888');txt(c,'C0',G.C0,-12,24,'#888')}
+  if($('ckTraj').checked){const tB=ang(G.B0,G.A),tC=ang(G.C0,G.D),tE=ang(G.E0,G.D),dB=SIM.th*Math.PI/180;
+    arcTrace(c,G.A,40,tB+(-45*Math.PI/180),tB+Math.PI/2,'rgba(31,78,140,.35)');arcTrace(c,G.A,40,tB,tB+dB,COL[1]);
+    arcTrace(c,G.D,DCl,tC,tC+al,COL[3]);arcTrace(c,G.D,50,tE,tE+al,'#7b2cbf')}
+  roueR(c,E,al,'#000');line(c,G.A,B,COL[1],6);line(c,B,C,COL[2],4.5);poly(c,[C,G.D,E],COL[3],6);bati(c,G.A);bati(c,G.D);
+  [G.A,B,C,G.D,E].forEach(P=>joint(c,P));
+  txt(c,'A',G.A,-22,10);txt(c,'B',B,14,22,COL[1]);txt(c,'C',C,-14,24,COL[3]);txt(c,'D',G.D,22,16);txt(c,'E',E,22,-16,'#7b2cbf');
+  txt(c,'1',[0,-20],-22,0,COL[1]);txt(c,'0 : châssis',[60,95],0,0,'#1d2430','15px Segoe UI, Arial');fleche(c);axes(c);
+  $('vS').textContent=SIM.th+'°';
+  const bc=Math.round(dist(B,C));
+  $('infoS').textContent='📏 Longueur BC = '+bc+' mm (elle ne change pas)'+($('ckAng').checked?'   ·   🛞 Angle de la roue α = '+Math.abs(al*180/Math.PI).toFixed(1)+'°':'')}
+$('rgS').oninput=()=>{if(!setSim(+$('rgS').value))$('rgS').value=SIM.th;drawS()};
+['ckTraj','ckPos0','ckAng'].forEach(id=>$(id).onchange=drawS);
+$('b60').onclick=()=>{stopAnim();$('rgS').value=60;setSim(60);drawS()};
+function stopAnim(){if(SIM.anim){clearInterval(SIM.anim);SIM.anim=null;$('bAnim').textContent='▶ Animer'}}
+$('bAnim').onclick=()=>{if(SIM.anim){stopAnim();return}$('bAnim').textContent='⏸ Pause';
+  SIM.anim=setInterval(()=>{let t=SIM.th+SIM.dir;if(t>90||t<-45){SIM.dir*=-1;t=SIM.th+SIM.dir}if(setSim(t)){$('rgS').value=t;drawS()}else SIM.dir*=-1},40)};
+setSim(0);drawS();
 show('s0');
 </script>
 <a href="../index.html" style="position:fixed;bottom:16px;left:16px;z-index:99999;background:#1e3a5f;color:#fff;padding:10px 16px;border-radius:24px;font:600 14px system-ui,sans-serif;text-decoration:none;box-shadow:0 2px 8px rgba(0,0,0,.25)">← Sommaire</a><script data-goatcounter="https://mrassi-si.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
