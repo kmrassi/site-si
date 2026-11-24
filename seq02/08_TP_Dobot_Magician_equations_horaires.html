@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TP Dobot Magician — trajectoires et équations horaires</title>
+<style>
+:root{--bleu:#1f4e8c;--rouge:#d62828;--vert:#2a9d4b;--orange:#e07a00;--gris:#5b6470;--fond:#f6f8fb;--carte:#fff;--bord:#d5dde8;}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Segoe UI",Roboto,Arial,sans-serif;background:var(--fond);color:#1d2430;line-height:1.55;padding-bottom:70px}
+header{background:linear-gradient(135deg,#1f4e8c,#2f6fbf);color:#fff;padding:18px 20px 14px}
+header .tag{font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;opacity:.85}
+header h1{margin:4px 0 2px;font-size:1.5rem}
+header p{margin:0;opacity:.9;font-size:.95rem}
+.progress{height:6px;background:rgba(255,255,255,.25);border-radius:3px;margin-top:12px;overflow:hidden}
+.progress span{display:block;height:100%;width:0;background:#ffd166;transition:width .4s}
+nav{display:flex;gap:6px;overflow-x:auto;padding:10px 12px;background:#fff;border-bottom:1px solid var(--bord);position:sticky;top:0;z-index:5}
+nav button{flex:0 0 auto;border:1px solid var(--bord);background:#fff;border-radius:20px;padding:7px 14px;font-size:.9rem;cursor:pointer;color:var(--bleu);font-weight:600}
+nav button.active{background:var(--bleu);color:#fff;border-color:var(--bleu)}
+nav button.vu::after{content:" ✓";color:var(--vert)}
+nav button.active.vu::after{color:#ffd166}
+main{max-width:920px;margin:0 auto;padding:16px}
+section{display:none}
+section.active{display:block;animation:fade .35s}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+h2{color:var(--bleu);border-left:6px solid var(--bleu);padding-left:10px;margin:8px 0 14px}
+h3{color:var(--bleu);margin:22px 0 8px;font-size:1.12rem}
+.card{background:var(--carte);border:1px solid var(--bord);border-radius:12px;padding:14px 16px;margin:12px 0;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.def{border-left:6px solid var(--rouge)}
+.def b{color:var(--rouge)}
+.clair{background:#eaf7ee;border-color:#b6e2c2}
+.clair::before{content:"💡 En clair : ";font-weight:700;color:var(--vert)}
+.consigne{background:#fff8e1;border-color:#f3d27a}
+.consigne::before{content:"📝 Consigne : ";font-weight:700;color:#a86b00}
+.manip{background:#fdf0f6;border-color:#efb7d0}
+.manip::before{content:"🛠️ Sur le système réel : ";font-weight:700;color:#a2275f}
+.lab{background:#eef4fb;border:1px dashed #9db8dc;border-radius:12px;padding:12px;margin:14px 0}
+.lab .titre{font-weight:700;color:var(--bleu);margin-bottom:6px}
+.lab .titre::before{content:"🔬 "}
+canvas{width:100%;height:auto;background:#fff;border:1px solid var(--bord);border-radius:8px;display:block}
+.ctrl{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;margin-top:10px;font-size:.93rem}
+.ctrl label{display:flex;align-items:center;gap:6px}
+input[type=range]{width:200px;accent-color:var(--bleu)}
+.btn{border:none;background:var(--bleu);color:#fff;padding:8px 14px;border-radius:8px;cursor:pointer;font-weight:600;font-size:.9rem}
+.btn.sec{background:#fff;color:var(--bleu);border:1px solid var(--bleu)}
+.seg{display:inline-flex;border:1px solid var(--bleu);border-radius:8px;overflow:hidden}
+.seg button{border:none;border-right:1px solid var(--bord);background:#fff;color:var(--bleu);padding:6px 12px;cursor:pointer;font-weight:600;font-size:.88rem}
+.seg button:last-child{border-right:none}
+.seg button.on{background:var(--bleu);color:#fff}
+.out{font-weight:600;padding:6px 10px;border-radius:6px;background:#fff;border:1px solid var(--bord);display:inline-block;margin-top:8px}
+.ok{color:var(--vert)} .ko{color:var(--rouge)}
+.suite{display:flex;justify-content:space-between;gap:10px;margin:24px 0 6px}
+table{width:100%;border-collapse:collapse;font-size:.93rem;background:#fff}
+th,td{border:1px solid var(--bord);padding:7px 8px;text-align:left;vertical-align:middle}
+th{background:var(--bleu);color:#fff}
+.reveal{display:none;margin-top:8px;background:#eaf7ee;border:1px solid #b6e2c2;border-radius:8px;padding:8px 12px}
+.reveal.on{display:block}
+.q{margin:14px 0}
+.q > b{color:var(--bleu)}
+.mini{font-size:.86rem;color:var(--gris)}
+.calc{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:6px 0}
+.calc input,.calc select{width:100px;padding:5px;border:1px solid var(--bord);border-radius:6px;font-size:.95rem}
+.calc input.bon,.calc select.bon{background:#e3f6e8;border-color:var(--vert)}
+.calc input.faux,.calc select.faux{background:#fde8e8;border-color:var(--rouge)}
+.fm{font-family:"Cambria Math",Georgia,serif;font-size:1.15rem;color:var(--bleu);font-weight:bold}
+.big{font-family:"Cambria Math",Georgia,serif;font-size:1.25rem;font-weight:bold;color:var(--rouge);text-align:center;margin:8px 0}
+pre.code{background:#1e2533;color:#e6edf7;border-radius:10px;padding:12px 14px;overflow-x:auto;font-size:.9rem;line-height:1.5}
+pre.code .c{color:#8fa3bf} pre.code input{background:#fff8e1;border:1px solid #f3d27a;border-radius:4px;font-family:monospace;font-size:.88rem;padding:2px 4px;width:300px}
+pre.code input.bon{background:#c8f0d2} pre.code input.faux{background:#fbd0d0}
+.duo{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media (max-width:620px){header h1{font-size:1.2rem} input[type=range]{width:140px} .duo{grid-template-columns:1fr} pre.code input{width:200px}}
+</style>
+</head>
+<body>
+<header><div class="tag">Séquence 2 · Cinématique · TP</div><h1>TP Dobot Magician : trajectoires et équations horaires</h1><p>Mode Joint ou Cartesian, effet de l'accélération, courbes x(t) et v(t), MUA, simulation Python</p><div class="progress"><span></span></div></header>
+<nav></nav>
+<main>
+
+<section id="s0" data-titre="0. Le robot">
+<h2>Le robot Dobot Magician</h2>
+<div class="card">Le <b>Dobot Magician</b> est un petit bras robot, comme ceux des usines. Dans ce TP, tu vas étudier <b>comment il se déplace</b> : sa trajectoire, sa vitesse et son accélération.</div>
+<div class="card def"><b>Objectifs du TP</b>
+<ul><li><b>Expérimenter</b> : mesurer l'effet de l'accélération sur la durée d'un trajet.</li>
+<li><b>Analyser</b> : relier les courbes de position, de vitesse et d'accélération.</li>
+<li><b>Modéliser</b> : utiliser les équations horaires du mouvement.</li>
+<li><b>Programmer</b> : compléter un petit script Python.</li></ul></div>
+
+<h3>1. Pilotage manuel : mode Joint ou mode Cartesian ?</h3>
+<div class="card manip">Fais le « Home » du robot dans DobotStudio. Déplace-le d'abord en mode <b>Joint</b>, puis en mode <b>Cartesian</b> (X, Y, Z).</div>
+<div class="lab"><div class="titre">Le robot vu de dessus</div>
+<canvas id="cvArm" width="860" height="380"></canvas>
+<div class="ctrl"><span class="seg" id="segMode"><button class="on" data-m="joint">Mode Joint</button><button data-m="cart">Mode Cartesian</button></span>
+<button class="btn" id="armGo">▶ Aller de A vers B</button><span class="mini">La trace orange montre le chemin suivi par la pince.</span></div></div>
+<div class="q"><b>Question 1.</b> Quelle est la grande différence entre un mouvement en mode Joint et un mouvement en mode Cartesian ?
+<br><button class="btn sec" data-rev="r1">Voir la correction</button>
+<div class="reveal" id="r1"><b>Mode Joint (articulaire)</b> : chaque moteur tourne d'un angle à un autre. La pince décrit des <b>arcs de cercle</b> : la trajectoire n'est pas droite.<br>
+<b>Mode Cartesian (linéaire)</b> : le robot calcule en permanence les angles des moteurs pour que la pince aille <b>en ligne droite</b> de A à B.</div></div>
+</section>
+
+<section id="s1" data-titre="1. Expérimenter">
+<h2>Scénario 1 : l'effet de l'accélération</h2>
+<div class="card manip">Règle un déplacement en ligne droite de <b>d = 200 mm</b>. Mesure la durée du trajet pour plusieurs réglages d'accélération. Note tes mesures dans le tableau de ton document.</div>
+<div class="lab"><div class="titre">Simulateur : le robot fait 200 mm (vitesse max 100 mm/s)</div>
+<canvas id="cvS1" width="860" height="300"></canvas>
+<div class="ctrl"><label>Accélération : <input type="range" id="acc" min="10" max="100" step="10" value="10"> <b id="accV"></b></label>
+<button class="btn" id="s1Go">▶ Lancer</button><span class="out" id="s1Out"></span></div>
+<p class="mini">Dans ce simulateur, 10 % correspond à 100 mm/s² et 50 % à 500 mm/s². Les durées du vrai robot seront un peu différentes.</p></div>
+<table><tr><th>Accélération</th><th>10 %</th><th>30 %</th><th>50 %</th><th>80 %</th></tr>
+<tr><td>Durée simulée (s)</td><td id="tb10">…</td><td id="tb30">…</td><td id="tb50">…</td><td id="tb80">…</td></tr></table>
+<div class="q"><b>Question 2.</b> Pourquoi, au-delà d'un certain réglage, augmenter l'accélération ne fait presque plus gagner de temps ?
+<br><button class="btn sec" data-rev="r2">Voir la correction</button>
+<div class="reveal" id="r2">Le robot a une <b>vitesse maximale</b> (ici 100 mm/s) qu'il ne peut pas dépasser.<br>
+Avec une faible accélération, il passe beaucoup de temps à démarrer et à freiner.<br>
+Avec une forte accélération, il atteint vite la vitesse maximale : il fait presque tout le trajet à 100 mm/s. Accélérer encore plus ne fait gagner que quelques centièmes de seconde au démarrage : le temps total tend vers 200 / 100 = 2 s.</div></div>
+<div class="q"><b>Question 3.</b> Regarde l'arrêt du robot à 80 %. Que remarques-tu (vibrations, bruit, précision) ?
+<br><button class="btn sec" data-rev="r3">Voir la correction</button>
+<div class="reveal" id="r3">On observe en général : des <b>vibrations</b> à l'arrêt, un <b>bruit</b> plus fort (à-coups dans la mécanique) et une <b>perte de précision</b> : la pince dépasse un peu sa cible à cause de son élan (l'inertie).</div></div>
+</section>
+
+<section id="s2" data-titre="2. Lire les courbes">
+<h2>Scénario 2 : la vitesse est la pente de la position</h2>
+<div class="card">Voici les courbes du trajet de 200 mm avec a = 500 mm/s² et v<sub>max</sub> = 100 mm/s. Déplace les points A et B sur la partie <b>droite</b> de la courbe de position.</div>
+<div class="lab"><div class="titre">Position x(t)</div><canvas id="cvX" width="860" height="300"></canvas>
+<div class="ctrl"><label>t<sub>A</sub> : <input type="range" id="tA" min="0" max="2.2" step="0.05" value="0.5"> <b id="tAv"></b></label>
+<label>t<sub>B</sub> : <input type="range" id="tB" min="0" max="2.2" step="0.05" value="1.5"> <b id="tBv"></b></label></div>
+<div class="out" id="penteOut"></div></div>
+<div class="lab"><div class="titre">Vitesse v(t)</div><canvas id="cvV" width="860" height="240"></canvas></div>
+<div class="q"><b>Question 4.</b> Calcule la pente de la partie droite : <span class="fm">v = Δx / Δt = (x<sub>B</sub> − x<sub>A</sub>) / (t<sub>B</sub> − t<sub>A</sub>)</span>
+<div class="calc">v = <input data-ans="100" data-tol="3"> mm/s <button class="btn chk" data-aide="lis x_A et x_B sur la courbe, puis divise par la durée.">Vérifier</button></div>
+<button class="btn sec" data-rev="r4">Voir la correction</button>
+<div class="reveal" id="r4">Sur la partie droite, par exemple t<sub>A</sub> = 0,5 s → x<sub>A</sub> = 40 mm et t<sub>B</sub> = 1,5 s → x<sub>B</sub> = 140 mm.<br>
+v = (140 − 40) / (1,5 − 0,5) = <b>100 mm/s</b>. C'est bien la hauteur du <b>palier</b> sur la courbe de vitesse.</div></div>
+<div class="card clair">Là où la position est une <b>droite</b>, la vitesse est <b>constante</b>. Là où la position est <b>courbée</b> (au début et à la fin), la vitesse change : le robot accélère ou freine.</div>
+</section>
+
+<section id="s3" data-titre="3. Équations horaires">
+<h2>Scénario 3 : modéliser le démarrage</h2>
+<div class="card def"><b>Mouvement uniformément accéléré (MUA)</b><br>
+<span class="fm">v(t) = a·t + v<sub>0</sub></span> &nbsp;&nbsp;&nbsp; <span class="fm">x(t) = ½·a·t² + v<sub>0</sub>·t + x<sub>0</sub></span><br>
+Ici le robot part à l'arrêt de l'origine : v<sub>0</sub> = 0 et x<sub>0</sub> = 0.</div>
+<div class="q"><b>Question 5.</b> Avec a = 500 mm/s² et v<sub>max</sub> = 100 mm/s, calcule le temps t<sub>acc</sub> pour atteindre la vitesse maximale.
+<div class="calc">t<sub>acc</sub> = <input data-ans="0.2" data-tol="0.005"> s <button class="btn chk" data-aide="v_max = a × t_acc, donc t_acc = v_max / a.">Vérifier</button></div>
+<button class="btn sec" data-rev="r5">Voir la correction</button>
+<div class="reveal" id="r5">v<sub>max</sub> = a·t<sub>acc</sub> donc t<sub>acc</sub> = v<sub>max</sub> / a = 100 / 500 = <b>0,2 s</b>.</div></div>
+<div class="q"><b>Question 6.</b> Calcule la distance d<sub>acc</sub> parcourue pendant cette phase.
+<div class="calc">d<sub>acc</sub> = <input data-ans="10" data-tol="0.3"> mm <button class="btn chk" data-aide="d_acc = ½ × a × t_acc².">Vérifier</button></div>
+<button class="btn sec" data-rev="r6">Voir la correction</button>
+<div class="reveal" id="r6">d<sub>acc</sub> = ½ × 500 × 0,2² = 250 × 0,04 = <b>10 mm</b>.</div></div>
+<h3>Défi</h3>
+<div class="q"><b>Question 7.</b> Pourquoi le robot ne peut-il jamais atteindre 100 mm/s si on lui demande un trajet de seulement 5 mm ?</div>
+<div class="lab"><div class="titre">Simulateur : change la longueur du trajet</div><canvas id="cvD" width="860" height="260"></canvas>
+<div class="ctrl"><label>Trajet : <input type="range" id="dist" min="2" max="60" step="1" value="5"> <b id="distV"></b></label><span class="out" id="dOut"></span></div></div>
+<button class="btn sec" data-rev="r7">Voir la correction</button>
+<div class="reveal" id="r7">Il faut <b>10 mm pour accélérer</b> jusqu'à 100 mm/s, et encore <b>10 mm pour freiner</b>. Sur un trajet de 5 mm, le robot doit commencer à freiner avant d'avoir atteint sa vitesse maximale (il plafonne à 50 mm/s).<br>
+Le profil de vitesse est alors un <b>triangle</b> et non un <b>trapèze</b>. Il faut au moins 20 mm pour atteindre 100 mm/s.</div>
+</section>
+
+<section id="s4" data-titre="4. Python">
+<h2>Scénario 4 : simulation en Python</h2>
+<div class="consigne card">Complète les deux lignes jaunes, puis clique sur « Exécuter ».</div>
+<pre class="code"><span class="c"># --- Paramètres ---</span>
+dist  = 200   <span class="c"># distance totale (mm)</span>
+v_max = 100   <span class="c"># vitesse maximale (mm/s)</span>
+accel = 500   <span class="c"># accélération (mm/s²)</span>
+
+<span class="c"># --- Phase 1 : accélération ---</span>
+t_acc = v_max / accel
+d_acc = 0.5 * accel * (t_acc**2)
+
+<span class="c"># --- Phase 2 : croisière (vitesse constante) ---</span>
+d_reste = dist - (2 * d_acc)
+<span class="c"># TODO : temps de croisière</span>
+t_crois = <input id="py1" placeholder="à compléter">
+
+<span class="c"># --- Phase 3 : position pendant la phase 2 ---</span>
+<span class="c"># TODO : formule de la position</span>
+x = <input id="py2" placeholder="à compléter"></pre>
+<div class="ctrl"><button class="btn" id="pyRun">▶ Exécuter</button><button class="btn sec" data-rev="r8">Voir la correction</button></div>
+<div class="out" id="pyOut" style="display:block;white-space:pre-wrap;font-family:monospace"></div>
+<canvas id="cvPy" width="860" height="260" style="margin-top:10px"></canvas>
+<div class="reveal" id="r8"><code>t_crois = d_reste / v_max</code> → d<sub>reste</sub> = 200 − 2×10 = 180 mm, donc t<sub>crois</sub> = 180 / 100 = <b>1,8 s</b>.<br>
+<code>x = v_max * (t - t_acc) + d_acc</code> : au début de la phase 2, le robot a déjà parcouru d<sub>acc</sub> = 10 mm, puis il avance à 100 mm/s pendant (t − t<sub>acc</sub>).<br>
+Durée totale : 0,2 + 1,8 + 0,2 = <b>2,2 s</b> (accélération + croisière + freinage). Le profil de vitesse est un <b>trapèze</b>.</div>
+</section>
+
+<section id="s5" data-titre="5. Synthèse">
+<h2>Synthèse</h2>
+<div class="q"><b>Question 8.</b> Rédige une conclusion sur le compromis entre <b>productivité</b> (aller vite) et <b>précision / maintenance</b> (limiter les accélérations).
+<br><button class="btn sec" data-rev="r9">Voir la correction</button>
+<div class="reveal" id="r9"><b>Productivité</b> : en augmentant l'accélération et la vitesse, on réduit le temps de cycle, donc on produit plus.<br>
+<b>Qualité et maintenance</b> : une accélération trop forte crée des vibrations, réduit la précision et use plus vite la mécanique (courroies, moteurs, réducteurs).<br>
+Le bon réglage est l'accélération la plus forte qui ne dégrade ni la qualité du travail ni la durée de vie du robot. Au-delà d'un certain seuil, on ne gagne presque plus de temps : ça ne vaut pas le coup.</div></div>
+<div class="card clair">Un mouvement de robot = <b>accélération</b> (position en parabole) + <b>vitesse constante</b> (position en droite) + <b>freinage</b>. La vitesse est la <b>pente</b> de la position, l'accélération est la <b>pente</b> de la vitesse.</div>
+</section>
+
+</main>
+<script>
+
+const $=id=>document.getElementById(id);
+const SECS=[...document.querySelectorAll('main section')];
+const NAV=document.querySelector('nav');let current=null;
+SECS.forEach((s,i)=>{const b=document.createElement('button');b.textContent=s.dataset.titre;b.onclick=()=>show(s.id);b.id='nb_'+s.id;NAV.appendChild(b);
+  const su=document.createElement('div');su.className='suite';
+  su.innerHTML=(i>0?`<button class="btn sec" onclick="show('${SECS[i-1].id}')">← ${SECS[i-1].dataset.titre}</button>`:'<span></span>')+(i<SECS.length-1?`<button class="btn" onclick="show('${SECS[i+1].id}')">${SECS[i+1].dataset.titre} →</button>`:'<span></span>');
+  s.appendChild(su);});
+function show(id){SECS.forEach(s=>s.classList.toggle('active',s.id===id));document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('active',b.id==='nb_'+id));
+  $('nb_'+id).classList.add('vu');current=id;const n=document.querySelectorAll('nav button.vu').length;document.querySelector('.progress span').style.width=(100*n/SECS.length)+'%';
+  window.scrollTo({top:0,behavior:'smooth'});if(window.onShow)onShow(id);}
+document.querySelectorAll('[data-rev]').forEach(b=>{b.dataset.lab=b.textContent;b.addEventListener('click',()=>{
+  const r=$(b.dataset.rev);r.classList.toggle('on');b.textContent=r.classList.contains('on')?'Cacher la correction':b.dataset.lab;});});
+/* vérification des calculs : <input data-ans="0.2" data-tol="0.02"> dans un .calc avec un bouton .chk */
+function num(v){return parseFloat(String(v).replace(',','.').replace(/\s/g,''));}
+document.querySelectorAll('.chk').forEach(b=>b.addEventListener('click',()=>{
+  const box=b.closest('.q')||b.parentElement;const ins=[...box.querySelectorAll('[data-ans]')];let ok=0;
+  ins.forEach(i=>{let g;if(i.tagName==='SELECT')g=i.value===i.dataset.ans;else{const a=num(i.dataset.ans),t=num(i.dataset.tol||Math.abs(a)*0.03+1e-9);g=Math.abs(num(i.value)-a)<=t;}
+    if(g)ok++;i.classList.toggle('bon',g);i.classList.toggle('faux',!g);});
+  let o=box.querySelector('.res');if(!o){o=document.createElement('span');o.className='out res';b.after(o);}
+  o.innerHTML=ok===ins.length?'<span class="ok">✓ Bravo, c\'est juste !</span>':`<span class="ko">${ok} / ${ins.length} juste(s)</span> : ${b.dataset.aide||'relis la formule et vérifie les unités.'}`;}));
+/* tracé de courbes */
+function plot(cv,o){const c=cv.getContext('2d'),W=cv.width,H=cv.height,L=58,R=16,T=18,B=40;c.clearRect(0,0,W,H);
+  const X=x=>L+(x-o.x0)/(o.x1-o.x0)*(W-L-R),Y=y=>H-B-(y-o.y0)/(o.y1-o.y0)*(H-T-B);
+  c.font='12px Segoe UI,Arial';c.strokeStyle='#e3e8ef';c.fillStyle='#5b6470';c.lineWidth=1;
+  for(let i=0;i<=o.nx;i++){const x=o.x0+i*(o.x1-o.x0)/o.nx;c.beginPath();c.moveTo(X(x),T);c.lineTo(X(x),H-B);c.stroke();c.textAlign='center';c.fillText(+x.toFixed(3),X(x),H-B+15);}
+  for(let i=0;i<=o.ny;i++){const y=o.y0+i*(o.y1-o.y0)/o.ny;c.beginPath();c.moveTo(L,Y(y));c.lineTo(W-R,Y(y));c.stroke();c.textAlign='right';c.fillText(+y.toFixed(4),L-5,Y(y)+4);}
+  c.strokeStyle='#1d2430';c.lineWidth=1.5;c.beginPath();c.moveTo(L,T);c.lineTo(L,H-B);c.lineTo(W-R,H-B);c.stroke();
+  c.fillStyle='#1d2430';c.textAlign='center';c.fillText(o.xl,(L+W-R)/2,H-6);c.save();c.translate(13,(T+H-B)/2);c.rotate(-Math.PI/2);c.fillText(o.yl,0,0);c.restore();
+  (o.s||[]).forEach(s=>{c.strokeStyle=s.col;c.lineWidth=s.w||2.5;c.setLineDash(s.dash||[]);c.beginPath();
+    if(s.pts){s.pts.forEach((p,i)=>i?c.lineTo(X(p[0]),Y(p[1])):c.moveTo(X(p[0]),Y(p[1])));}
+    else{const n=300;for(let i=0;i<=n;i++){const x=s.a+(s.b-s.a)*i/n;const y=s.f(x);i?c.lineTo(X(x),Y(y)):c.moveTo(X(x),Y(y));}}
+    c.stroke();c.setLineDash([]);});
+  (o.dots||[]).forEach(d=>{c.fillStyle=d.col;c.beginPath();c.arc(X(d.x),Y(d.y),d.r||3,0,7);c.fill();if(d.t){c.textAlign='left';c.fillText(d.t,X(d.x)+6,Y(d.y)-6);}});
+  return {X,Y};}
+
+
+const VM=100;
+function prof(D,a,v){/* profil trapèze ou triangle */const ta=v/a,da=v*v/(2*a);
+  if(D>=2*da){const tc=(D-2*da)/v,T=2*ta+tc;return {T,vp:v,ta,tc,x:t=>t<=0?0:t<ta?a*t*t/2:t<ta+tc?da+v*(t-ta):t<T?D-a*(T-t)**2/2:D,vt:t=>t<0?0:t<ta?a*t:t<ta+tc?v:t<T?a*(T-t):0};}
+  const t1=Math.sqrt(D/a),T=2*t1,vp=a*t1;return {T,vp,ta:t1,tc:0,x:t=>t<=0?0:t<t1?a*t*t/2:t<T?D-a*(T-t)**2/2:D,vt:t=>t<0?0:t<t1?a*t:t<T?a*(T-t):0};}
+/* bras vu de dessus */
+const arm={mode:'joint',p:0,run:false,trace:[]};const L1=150,L2=150,O=[430,330];
+const A=[-180,140],B=[150,230];
+function ik(p){const d2=p[0]**2+p[1]**2;let c2=(d2-L1*L1-L2*L2)/(2*L1*L2);c2=Math.max(-1,Math.min(1,c2));const q2=Math.acos(c2);const q1=Math.atan2(p[1],p[0])-Math.atan2(L2*Math.sin(q2),L1+L2*Math.cos(q2));return [q1,q2];}
+function fk(q){const e=[L1*Math.cos(q[0]),L1*Math.sin(q[0])];return [e,[e[0]+L2*Math.cos(q[0]+q[1]),e[1]+L2*Math.sin(q[0]+q[1])]];}
+const qA=ik(A),qB=ik(B);
+function armPos(s){if(arm.mode==='joint'){return [qA[0]+(qB[0]-qA[0])*s,qA[1]+(qB[1]-qA[1])*s];}return ik([A[0]+(B[0]-A[0])*s,A[1]+(B[1]-A[1])*s]);}
+function drawArm(){const c=$('cvArm').getContext('2d');c.clearRect(0,0,860,380);const P=p=>[O[0]+p[0],O[1]-p[1]];
+  c.fillStyle='#f3f6fa';c.fillRect(0,0,860,380);c.strokeStyle='#ccd6e3';c.setLineDash([5,5]);c.beginPath();c.moveTo(...P(A));c.lineTo(...P(B));c.stroke();c.setLineDash([]);
+  c.strokeStyle='#e07a00';c.lineWidth=4;c.beginPath();arm.trace.forEach((t,i)=>{const q=P(t);i?c.lineTo(...q):c.moveTo(...q);});c.stroke();
+  const [e,w]=fk(armPos(arm.p));c.lineCap='round';c.strokeStyle='#1f4e8c';c.lineWidth=18;c.beginPath();c.moveTo(...P([0,0]));c.lineTo(...P(e));c.stroke();
+  c.strokeStyle='#2f6fbf';c.lineWidth=14;c.beginPath();c.moveTo(...P(e));c.lineTo(...P(w));c.stroke();
+  [[0,0],e].forEach(p=>{c.fillStyle='#fff';c.beginPath();c.arc(...P(p),7,0,7);c.fill();});
+  c.fillStyle='#d62828';c.beginPath();c.arc(...P(w),9,0,7);c.fill();
+  c.font='bold 16px Segoe UI';c.fillStyle='#2a9d4b';[[A,'A'],[B,'B']].forEach(([p,t])=>{const q=P(p);c.beginPath();c.arc(q[0],q[1],6,0,7);c.fill();c.fillText(t,q[0]+10,q[1]-8);});
+  c.fillStyle='#1d2430';c.font='14px Segoe UI';c.fillText(arm.mode==='joint'?'Mode Joint : les moteurs tournent ensemble → arc de cercle':'Mode Cartesian : la pince suit la droite AB',16,26);c.fillText('socle',O[0]-20,O[1]+28);}
+document.querySelectorAll('#segMode button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#segMode button').forEach(x=>x.classList.toggle('on',x===b));arm.mode=b.dataset.m;arm.p=0;arm.trace=[];arm.run=false;drawArm();});
+$('armGo').onclick=()=>{arm.p=0;arm.trace=[];arm.run=true;};
+/* scénario 1 */
+const s1={t:0,run:false};
+function s1draw(){const a=$('acc').value*10,P=prof(200,a,VM);$('accV').textContent=$('acc').value+' % (a = '+a+' mm/s²)';
+  const t=Math.min(s1.t,P.T);const g=plot($('cvS1'),{x0:0,x1:3.2,y0:0,y1:120,nx:8,ny:6,xl:'temps t (s)',yl:'vitesse v (mm/s)',
+    s:[{a:0,b:t,f:P.vt,col:'#1f4e8c'},{pts:[[2,0],[2,120]],col:'#d62828',dash:[6,5],w:1.5}],dots:[{x:t,y:P.vt(t),col:'#d62828',r:5}]});
+  const c=$('cvS1').getContext('2d');c.fillStyle='#d62828';c.font='12px Segoe UI';c.fillText('2 s = durée si le robot allait à 100 mm/s tout le temps',g.X(2)+6,30);
+  const bx=g.X(0.15),bw=g.X(3.0)-bx;c.fillStyle='#eef4fb';c.fillRect(bx,40,bw,16);c.fillStyle='#e07a00';c.fillRect(bx,40,bw*P.x(t)/200,16);c.fillStyle='#1d2430';c.fillText('x = '+P.x(t).toFixed(0)+' mm',bx+bw*P.x(t)/200+6,53);
+  if(s1.t>=P.T&&s1.run){s1.run=false;$('s1Out').innerHTML='Durée du trajet : <b>'+P.T.toFixed(2)+' s</b>';const id='tb'+$('acc').value;if($(id))$(id).textContent=P.T.toFixed(2);}}
+$('acc').oninput=()=>{s1.t=0;s1.run=false;$('s1Out').textContent='';s1draw();};
+$('s1Go').onclick=()=>{s1.t=0;s1.run=true;$('s1Out').textContent='…';};
+/* scénario 2 */
+const P2=prof(200,500,VM);
+function s2draw(){const tA=+$('tA').value,tB=+$('tB').value;$('tAv').textContent=tA.toFixed(2)+' s';$('tBv').textContent=tB.toFixed(2)+' s';
+  const xA=P2.x(tA),xB=P2.x(tB);
+  plot($('cvX'),{x0:0,x1:2.4,y0:0,y1:220,nx:12,ny:11,xl:'temps t (s)',yl:'position x (mm)',s:[{a:0,b:2.4,f:P2.x,col:'#1f4e8c'},{pts:[[tA,xA],[tB,xA],[tB,xB]],col:'#e07a00',dash:[5,4],w:2}],
+    dots:[{x:tA,y:xA,col:'#2a9d4b',r:6,t:'A ('+xA.toFixed(1)+' mm)'},{x:tB,y:xB,col:'#d62828',r:6,t:'B ('+xB.toFixed(1)+' mm)'}]});
+  plot($('cvV'),{x0:0,x1:2.4,y0:0,y1:120,nx:12,ny:6,xl:'temps t (s)',yl:'vitesse v (mm/s)',s:[{a:0,b:2.4,f:P2.vt,col:'#2a9d4b'}]});
+  $('penteOut').innerHTML=Math.abs(tB-tA)<0.01?'Écarte les deux points.':`Δx = ${(xB-xA).toFixed(1)} mm &nbsp; Δt = ${(tB-tA).toFixed(2)} s &nbsp; → pente = <b>${((xB-xA)/(tB-tA)).toFixed(1)} mm/s</b>`;}
+$('tA').oninput=s2draw;$('tB').oninput=s2draw;
+/* défi distance */
+function s3draw(){const D=+$('dist').value,P=prof(D,500,VM);$('distV').textContent=D+' mm';
+  plot($('cvD'),{x0:0,x1:0.8,y0:0,y1:120,nx:8,ny:6,xl:'temps t (s)',yl:'vitesse v (mm/s)',s:[{pts:[[0,100],[0.8,100]],col:'#d62828',dash:[6,5],w:1.5},{a:0,b:0.8,f:P.vt,col:'#1f4e8c'}]});
+  $('dOut').innerHTML=P.vp<99.9?`Profil <b>triangle</b> : vitesse max atteinte = <b>${P.vp.toFixed(0)} mm/s</b> (pas 100)`:`Profil <b>trapèze</b> : le robot atteint 100 mm/s`;}
+$('dist').oninput=s3draw;
+/* python */
+const norm=s=>s.replace(/\s+/g,'').replace(/[()]/g,'');
+$('pyRun').onclick=()=>{const a=norm($('py1').value),b=norm($('py2').value);
+  const g1=a==='d_reste/v_max',g2=['v_max*t-t_acc+d_acc','d_acc+v_max*t-t_acc'].includes(b);
+  $('py1').classList.toggle('bon',g1);$('py1').classList.toggle('faux',!g1);$('py2').classList.toggle('bon',g2);$('py2').classList.toggle('faux',!g2);
+  if(!g1||!g2){$('pyOut').innerHTML='<span class="ko">Erreur :</span> '+(!g1?'temps = distance / vitesse. ':'')+(!g2?'au début de la phase 2, x vaut déjà d_acc ; ensuite il augmente de v_max à chaque seconde depuis t_acc.':'');return;}
+  $('pyOut').innerHTML='>>> t_acc = 0.2 s\n>>> d_acc = 10.0 mm\n>>> d_reste = 180.0 mm\n>>> t_crois = 1.8 s\n>>> durée totale = 2.2 s  ✓';
+  plot($('cvPy'),{x0:0,x1:2.4,y0:0,y1:220,nx:12,ny:11,xl:'temps t (s)',yl:'position x (mm)',s:[{a:0,b:2.4,f:P2.x,col:'#1f4e8c'},{a:0.2,b:2.0,f:t=>100*(t-0.2)+10,col:'#e07a00',dash:[6,4],w:3}]});};
+let last=performance.now();
+function loop(now){const dt=Math.min(.05,(now-last)/1000);last=now;
+  if(arm.run){arm.p=Math.min(1,arm.p+dt*0.45);const [,w]=fk(armPos(arm.p));arm.trace.push(w);if(arm.p>=1)arm.run=false;drawArm();}
+  if(s1.run){s1.t+=dt;s1draw();}
+  requestAnimationFrame(loop);}
+drawArm();s1draw();s2draw();s3draw();
+plot($('cvPy'),{x0:0,x1:2.4,y0:0,y1:220,nx:12,ny:11,xl:'temps t (s)',yl:'position x (mm)',s:[]});
+show('s0');requestAnimationFrame(loop);
+
+</script>
+<div class="nav-btns" style="position:fixed;bottom:16px;left:16px;z-index:99999;display:flex;gap:8px;flex-wrap:wrap"><a href="../index.html" style="z-index:99999;background:#1e3a5f;color:#fff;padding:10px 16px;border-radius:24px;font:600 14px system-ui,sans-serif;text-decoration:none;box-shadow:0 2px 8px rgba(0,0,0,.25)">← Sommaire</a><a class="btn-precedent" href="../index.html#seq02" onclick="if(history.length>1){history.back();return false}" style="z-index:99999;background:#2e6da4;color:#fff;padding:10px 16px;border-radius:24px;font:600 14px system-ui,sans-serif;text-decoration:none;box-shadow:0 2px 8px rgba(0,0,0,.25)">↩ Page précédente</a></div><script data-goatcounter="https://mrassi-si.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+</body>
+</html>

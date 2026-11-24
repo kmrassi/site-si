@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TP Pilote automatique de voilier — équations horaires</title>
+<style>
+:root{--bleu:#1f4e8c;--rouge:#d62828;--vert:#2a9d4b;--orange:#e07a00;--gris:#5b6470;--fond:#f6f8fb;--carte:#fff;--bord:#d5dde8;}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Segoe UI",Roboto,Arial,sans-serif;background:var(--fond);color:#1d2430;line-height:1.55;padding-bottom:70px}
+header{background:linear-gradient(135deg,#1f4e8c,#2f6fbf);color:#fff;padding:18px 20px 14px}
+header .tag{font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;opacity:.85}
+header h1{margin:4px 0 2px;font-size:1.5rem}
+header p{margin:0;opacity:.9;font-size:.95rem}
+.progress{height:6px;background:rgba(255,255,255,.25);border-radius:3px;margin-top:12px;overflow:hidden}
+.progress span{display:block;height:100%;width:0;background:#ffd166;transition:width .4s}
+nav{display:flex;gap:6px;overflow-x:auto;padding:10px 12px;background:#fff;border-bottom:1px solid var(--bord);position:sticky;top:0;z-index:5}
+nav button{flex:0 0 auto;border:1px solid var(--bord);background:#fff;border-radius:20px;padding:7px 14px;font-size:.9rem;cursor:pointer;color:var(--bleu);font-weight:600}
+nav button.active{background:var(--bleu);color:#fff;border-color:var(--bleu)}
+nav button.vu::after{content:" ✓";color:var(--vert)}
+nav button.active.vu::after{color:#ffd166}
+main{max-width:920px;margin:0 auto;padding:16px}
+section{display:none}
+section.active{display:block;animation:fade .35s}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+h2{color:var(--bleu);border-left:6px solid var(--bleu);padding-left:10px;margin:8px 0 14px}
+h3{color:var(--bleu);margin:22px 0 8px;font-size:1.12rem}
+.card{background:var(--carte);border:1px solid var(--bord);border-radius:12px;padding:14px 16px;margin:12px 0;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.def{border-left:6px solid var(--rouge)}
+.def b{color:var(--rouge)}
+.clair{background:#eaf7ee;border-color:#b6e2c2}
+.clair::before{content:"💡 En clair : ";font-weight:700;color:var(--vert)}
+.consigne{background:#fff8e1;border-color:#f3d27a}
+.consigne::before{content:"📝 Consigne : ";font-weight:700;color:#a86b00}
+.manip{background:#fdf0f6;border-color:#efb7d0}
+.manip::before{content:"🛠️ Sur le système réel : ";font-weight:700;color:#a2275f}
+.lab{background:#eef4fb;border:1px dashed #9db8dc;border-radius:12px;padding:12px;margin:14px 0}
+.lab .titre{font-weight:700;color:var(--bleu);margin-bottom:6px}
+.lab .titre::before{content:"🔬 "}
+canvas{width:100%;height:auto;background:#fff;border:1px solid var(--bord);border-radius:8px;display:block}
+.ctrl{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;margin-top:10px;font-size:.93rem}
+.ctrl label{display:flex;align-items:center;gap:6px}
+input[type=range]{width:200px;accent-color:var(--bleu)}
+.btn{border:none;background:var(--bleu);color:#fff;padding:8px 14px;border-radius:8px;cursor:pointer;font-weight:600;font-size:.9rem}
+.btn.sec{background:#fff;color:var(--bleu);border:1px solid var(--bleu)}
+.seg{display:inline-flex;border:1px solid var(--bleu);border-radius:8px;overflow:hidden}
+.seg button{border:none;border-right:1px solid var(--bord);background:#fff;color:var(--bleu);padding:6px 12px;cursor:pointer;font-weight:600;font-size:.88rem}
+.seg button:last-child{border-right:none}
+.seg button.on{background:var(--bleu);color:#fff}
+.out{font-weight:600;padding:6px 10px;border-radius:6px;background:#fff;border:1px solid var(--bord);display:inline-block;margin-top:8px}
+.ok{color:var(--vert)} .ko{color:var(--rouge)}
+.suite{display:flex;justify-content:space-between;gap:10px;margin:24px 0 6px}
+table{width:100%;border-collapse:collapse;font-size:.93rem;background:#fff}
+th,td{border:1px solid var(--bord);padding:7px 8px;text-align:left;vertical-align:middle}
+th{background:var(--bleu);color:#fff}
+.reveal{display:none;margin-top:8px;background:#eaf7ee;border:1px solid #b6e2c2;border-radius:8px;padding:8px 12px}
+.reveal.on{display:block}
+.q{margin:14px 0}
+.q > b{color:var(--bleu)}
+.mini{font-size:.86rem;color:var(--gris)}
+.calc{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:6px 0}
+.calc input,.calc select{width:100px;padding:5px;border:1px solid var(--bord);border-radius:6px;font-size:.95rem}
+.calc input.bon,.calc select.bon{background:#e3f6e8;border-color:var(--vert)}
+.calc input.faux,.calc select.faux{background:#fde8e8;border-color:var(--rouge)}
+.fm{font-family:"Cambria Math",Georgia,serif;font-size:1.15rem;color:var(--bleu);font-weight:bold}
+.big{font-family:"Cambria Math",Georgia,serif;font-size:1.25rem;font-weight:bold;color:var(--rouge);text-align:center;margin:8px 0}
+pre.code{background:#1e2533;color:#e6edf7;border-radius:10px;padding:12px 14px;overflow-x:auto;font-size:.9rem;line-height:1.5}
+pre.code .c{color:#8fa3bf} pre.code input{background:#fff8e1;border:1px solid #f3d27a;border-radius:4px;font-family:monospace;font-size:.88rem;padding:2px 4px;width:300px}
+pre.code input.bon{background:#c8f0d2} pre.code input.faux{background:#fbd0d0}
+.duo{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media (max-width:620px){header h1{font-size:1.2rem} input[type=range]{width:140px} .duo{grid-template-columns:1fr} pre.code input{width:200px}}
+</style>
+</head>
+<body>
+<header><div class="tag">Séquence 2 · Cinématique · TP</div><h1>TP Pilote automatique de voilier : équations horaires</h1><p>Phases du mouvement de la tige, course, vitesse moyenne, poulie-courroie et vis-écrou, validation par la mesure</p><div class="progress"><span></span></div></header>
+<nav></nav>
+<main>
+
+<section id="s0" data-titre="0. Le pilote">
+<h2>Le pilote automatique de voilier</h2>
+<div class="card">Le pilote automatique tient la <b>barre</b> du voilier à la place du skipper. Un compas mesure le cap. Si le bateau s'écarte de sa route, le pilote <b>pousse ou tire la barre</b> avec sa tige, pour ramener le bateau sur son cap.</div>
+<div class="lab"><div class="titre">Le pilote vu de dessus</div>
+<canvas id="cvBoat" width="860" height="330"></canvas>
+<div class="ctrl"><button class="btn" id="boatGo">▶ La tige sort puis rentre</button><span class="mini">La tige (rouge) fait tourner la barre autour de son axe.</span></div></div>
+<h3>La chaîne de puissance</h3>
+<div class="q"><b>Question 0.</b> Associe chaque fonction à son composant.
+<div class="calc">ALIMENTER : <select data-ans="bat"><option value="">…</option><option value="bat">Batterie du bateau 12 V</option><option value="carte">Carte électronique</option><option value="mot">Moteur 12 V CC</option><option value="trans">Poulie-courroie + vis-écrou</option></select></div>
+<div class="calc">DISTRIBUER : <select data-ans="carte"><option value="">…</option><option value="bat">Batterie du bateau 12 V</option><option value="carte">Carte électronique</option><option value="mot">Moteur 12 V CC</option><option value="trans">Poulie-courroie + vis-écrou</option></select></div>
+<div class="calc">CONVERTIR : <select data-ans="mot"><option value="">…</option><option value="bat">Batterie du bateau 12 V</option><option value="carte">Carte électronique</option><option value="mot">Moteur 12 V CC</option><option value="trans">Poulie-courroie + vis-écrou</option></select></div>
+<div class="calc">TRANSMETTRE : <select data-ans="trans"><option value="">…</option><option value="bat">Batterie du bateau 12 V</option><option value="carte">Carte électronique</option><option value="mot">Moteur 12 V CC</option><option value="trans">Poulie-courroie + vis-écrou</option></select></div>
+<button class="btn chk" data-aide="l'énergie part de la batterie, la carte la dose, le moteur la transforme en rotation, la transmission la transforme en translation.">Vérifier</button></div>
+</section>
+
+<section id="s1" data-titre="1. Équations">
+<h2>Les équations de mouvement de la tige</h2>
+<div class="card">Données : la vitesse maximale de la tige est <b>V<sub>max</sub> = 4,03 m/min</b>, soit <b>67,16 mm/s</b>. Le mouvement se fait en <b>3 phases</b> (figure 4 du sujet).</div>
+<div class="lab"><div class="titre">Vitesse de la tige v(t)</div><canvas id="cvV" width="860" height="280"></canvas>
+<div class="ctrl"><label>Instant t : <input type="range" id="tV" min="0" max="4.8" step="0.01" value="2"> <b id="tVv"></b></label></div>
+<div class="out" id="phOut"></div></div>
+<div class="q"><b>Question 1a.</b> Quel est le type de mouvement de chaque phase ?
+<div class="calc">Phase 1 (0 → 0,1 s) : <select data-ans="v"><option value="">…</option><option value="u">MRU</option><option value="v">MRUV</option></select>
+Phase 2 (0,1 → 4,6 s) : <select data-ans="u"><option value="">…</option><option value="u">MRU</option><option value="v">MRUV</option></select>
+Phase 3 (4,6 → 4,8 s) : <select data-ans="v"><option value="">…</option><option value="u">MRU</option><option value="v">MRUV</option></select></div>
+<button class="btn chk" data-aide="vitesse constante = MRU (uniforme) ; vitesse qui change régulièrement = MRUV (uniformément varié).">Vérifier</button></div>
+<div class="q"><b>Question 1b.</b> Calcule l'accélération de la phase 1 et celle de la phase 3.
+<div class="calc">a<sub>1</sub> = <input data-ans="671.6" data-tol="2"> mm/s² &nbsp; a<sub>3</sub> = <input data-ans="-335.8" data-tol="2"> mm/s²
+<button class="btn chk" data-aide="a = Δv / Δt. En phase 3 la vitesse diminue : l'accélération est négative.">Vérifier</button></div>
+<button class="btn sec" data-rev="r1">Voir la correction</button>
+<div class="reveal" id="r1"><b>Phase 1 (0 → 0,1 s) : MRUV.</b> a = 67,16 / 0,1 = <b>671,6 mm/s²</b><br>
+v(t) = 671,6·t &nbsp;&nbsp; x(t) = ½·671,6·t² = <b>335,8·t²</b> → à 0,1 s, la tige a avancé de 3,358 mm.<br>
+<b>Phase 2 (0,1 → 4,6 s) : MRU.</b> a = 0, v = 67,16 mm/s constante.<br>
+x(t) = 67,16·(t − 0,1) + 3,358 = <b>67,16·t − 3,358</b><br>
+<b>Phase 3 (4,6 → 4,8 s) : MRUV.</b> a = (0 − 67,16) / 0,2 = <b>−335,8 mm/s²</b> : la tige freine jusqu'à l'arrêt.</div></div>
+</section>
+
+<section id="s2" data-titre="2. Course">
+<h2>Course totale et vitesse moyenne</h2>
+<div class="card clair">La distance parcourue est l'<b>aire sous la courbe</b> de vitesse : un triangle, puis un rectangle, puis un triangle.</div>
+<div class="lab"><div class="titre">La tige sort du pilote</div><canvas id="cvT" width="860" height="200"></canvas>
+<div class="ctrl"><button class="btn" id="tGo">▶ Lancer (4,8 s)</button><span class="out" id="tOut">x = 0 mm</span></div></div>
+<div class="q"><b>Question 2.</b> Calcule la course totale de la tige. Le cahier des charges demande au moins 250 mm. Est-ce respecté ?
+<div class="calc">course = <input data-ans="312.3" data-tol="1"> mm <button class="btn chk" data-aide="additionne les 3 aires : ½×0,1×67,16 + 4,5×67,16 + ½×0,2×67,16.">Vérifier</button></div>
+<button class="btn sec" data-rev="r2">Voir la correction</button>
+<div class="reveal" id="r2">d<sub>1</sub> = ½ × 0,1 × 67,16 = 3,358 mm<br>d<sub>2</sub> = 4,5 × 67,16 = 302,22 mm<br>d<sub>3</sub> = ½ × 0,2 × 67,16 = 6,716 mm<br>
+Course = 3,358 + 302,22 + 6,716 ≈ <b>312,3 mm</b> : c'est <b>plus que 250 mm</b>, l'exigence est respectée.</div></div>
+<div class="q"><b>Question 3.</b> Calcule la vitesse moyenne de la tige sur les 4,8 s.
+<div class="calc">v<sub>moy</sub> = <input data-ans="65.06" data-tol="0.3"> mm/s <button class="btn chk" data-aide="v_moy = distance totale / durée totale.">Vérifier</button></div>
+<button class="btn sec" data-rev="r3">Voir la correction</button>
+<div class="reveal" id="r3">v<sub>moy</sub> = 312,3 / 4,8 ≈ <b>65,06 mm/s</b>. Elle est un peu plus petite que V<sub>max</sub> à cause du démarrage et du freinage.</div></div>
+</section>
+
+<section id="s3" data-titre="3. Transmission">
+<h2>De la tige au moteur</h2>
+<div class="card">La tige est poussée par un système <b>vis-écrou</b> (vis 5, pas = 3 mm). La vis est entraînée par une <b>poulie-courroie</b> : petite poulie moteur de <b>20 dents</b>, grande poulie de <b>71 dents</b>.</div>
+<div class="lab"><div class="titre">Poulie-courroie + vis-écrou</div><canvas id="cvTr" width="860" height="260"></canvas>
+<div class="ctrl"><button class="btn sec" id="trPlay">⏸ Pause</button><span class="mini">La grande poulie tourne 71/20 ≈ 3,55 fois moins vite que la petite. Un tour de vis = 3 mm d'avance.</span></div></div>
+<div class="q"><b>Question 4.</b> Calcule la fréquence de rotation de la vis 5.
+<div class="calc">N<sub>5</sub> = <input data-ans="22.39" data-tol="0.1"> tr/s = <input data-ans="1343" data-tol="5"> tr/min <button class="btn chk" data-aide="un tour de vis fait avancer la tige d'un pas : N = V / pas.">Vérifier</button></div>
+<button class="btn sec" data-rev="r4">Voir la correction</button>
+<div class="reveal" id="r4">N<sub>5</sub> = V / pas = 67,16 / 3 = <b>22,39 tr/s</b>, soit 22,39 × 60 ≈ <b>1343 tr/min</b>.</div></div>
+<div class="q"><b>Question 5.</b> Calcule le rapport de réduction r de la poulie-courroie.
+<div class="calc">r = <input data-ans="0.2817" data-tol="0.002"> <button class="btn chk" data-aide="r = dents de la poulie menante / dents de la poulie menée.">Vérifier</button></div>
+<button class="btn sec" data-rev="r5">Voir la correction</button>
+<div class="reveal" id="r5">r = Z<sub>menante</sub> / Z<sub>menée</sub> = 20 / 71 ≈ <b>0,2817</b>.</div></div>
+<div class="q"><b>Question 6.</b> Calcule la fréquence de rotation du moteur et sa vitesse angulaire.
+<div class="calc">N<sub>moteur</sub> = <input data-ans="4769" data-tol="10"> tr/min &nbsp; ω<sub>moteur</sub> = <input data-ans="499" data-tol="3"> rad/s <button class="btn chk" data-aide="le moteur tourne plus vite que la vis : N_moteur = N5 / r. Puis ω = 2π × N (N en tr/s).">Vérifier</button></div>
+<button class="btn sec" data-rev="r6">Voir la correction</button>
+<div class="reveal" id="r6">N<sub>moteur</sub> = N<sub>5</sub> / r = 22,39 / 0,2817 ≈ 79,48 tr/s ≈ <b>4769 tr/min</b><br>
+ω<sub>moteur</sub> = 2π × 79,48 ≈ <b>499 rad/s</b></div></div>
+</section>
+
+<section id="s4" data-titre="4. Valider">
+<h2>Simulation, mesure et validation</h2>
+<div class="card manip">Lance la simulation Matlab et relève la vitesse de la tige. Mesure ensuite la vitesse de la poulie motrice avec le <b>tachymètre optique</b> (en tr/min).</div>
+<div class="q"><b>Question 7.</b> La simulation donne V<sub>sim</sub> = −6,52042×10⁻² m/s (le signe donne juste le sens). Compare avec la vitesse calculée 67,16 mm/s.
+<div class="calc">V<sub>sim</sub> = <input data-ans="65.2" data-tol="0.1"> mm/s &nbsp; écart = <input data-ans="2.9" data-tol="0.15"> % <button class="btn chk" data-aide="1 m = 1000 mm. Écart = |calcul − simulation| / calcul × 100.">Vérifier</button></div>
+<button class="btn sec" data-rev="r7">Voir la correction</button>
+<div class="reveal" id="r7">0,0652042 m/s = <b>65,20 mm/s</b>.<br>Écart = (67,16 − 65,20) / 67,16 × 100 ≈ <b>2,9 %</b> : le modèle informatique est cohérent avec le calcul.</div></div>
+<div class="lab"><div class="titre">Calculateur d'écart avec ta mesure</div>
+<div class="calc">N<sub>mesuré</sub> = <input type="number" id="nMes" value="4650" style="width:110px"> tr/min <button class="btn" id="ecGo">Calculer</button></div><div class="out" id="ecOut"></div></div>
+<div class="q"><b>Question 8.</b> Exemple de mesure : N = 4650 tr/min. Calcule ω et l'écart avec la théorie (4769 tr/min). Le modèle est-il validé (écart &lt; 5 %) ?
+<div class="calc">ω = <input data-ans="486.9" data-tol="1.5"> rad/s &nbsp; écart = <input data-ans="2.5" data-tol="0.15"> % <button class="btn chk" data-aide="ω = N × 2π / 60 ; écart = |théorie − mesure| / théorie × 100.">Vérifier</button></div>
+<button class="btn sec" data-rev="r8">Voir la correction</button>
+<div class="reveal" id="r8">ω = 4650 × 2π / 60 ≈ <b>486,9 rad/s</b><br>Écart = (4769 − 4650) / 4769 × 100 ≈ <b>2,5 %</b><br>
+L'écart est inférieur à 5 % : <b>le modèle est validé</b>. Le pilote est performant et conforme aux attentes.</div></div>
+</section>
+
+<section id="s5" data-titre="5. Exercice TP30">
+<h2>Exercice complémentaire : le vérin du pilote TP30</h2>
+<div class="card">Le pilote TP30 a été simulé sous Matlab pendant 4 s : déplacement total de la tige <b>d<sub>simulée</sub> = 0,2252 m</b>, vitesse en régime établi <b>V<sub>simulée</sub> = 0,0643 m/s</b>.</div>
+<div class="lab"><div class="titre">Vitesse de la tige : simulation et modèle</div><canvas id="cvG" width="860" height="280"></canvas>
+<div class="ctrl"><label><input type="checkbox" id="showMod"> Afficher le modèle en 2 phases (question 2)</label></div>
+<p class="mini">Courbe bleue : allure de la courbe simulée. Courbe orange : modèle simplifié.</p></div>
+<div class="q"><b>Question 1.</b> Décris les phases du mouvement sur la courbe simulée.
+<br><button class="btn sec" data-rev="g1">Voir la correction</button>
+<div class="reveal" id="g1">De 0 à 2,5 s : phase d'<b>accélération</b>, mais l'accélération n'est pas constante (la courbe n'est pas une droite).<br>De 2,5 à 4 s : <b>mouvement uniforme</b>, la vitesse reste à 0,0643 m/s.</div></div>
+<div class="card">On simplifie : <b>phase 1</b> de 0 à 1 s, mouvement uniformément accéléré de 0 à V ; <b>phase 2</b> de 1 s à 4 s, mouvement uniforme.</div>
+<div class="q"><b>Question 3.</b> Calcule l'accélération de la phase 1 et le déplacement d<sub>1</sub>.
+<div class="calc">a = <input data-ans="0.0643" data-tol="0.0005"> m/s² &nbsp; d<sub>1</sub> = <input data-ans="0.03215" data-tol="0.0003"> m <button class="btn chk" data-aide="a = V / t1, puis x(t) = ½·a·t².">Vérifier</button></div>
+<button class="btn sec" data-rev="g3">Voir la correction</button>
+<div class="reveal" id="g3">a = V / t<sub>1</sub> = 0,0643 / 1 = <b>0,0643 m/s²</b><br>v(t) = 0,0643·t &nbsp;&nbsp; x(t) = ½·0,0643·t² = 0,03215·t²<br>d<sub>1</sub> = x(1) = <b>0,03215 m</b></div></div>
+<div class="q"><b>Question 4.</b> Calcule d<sub>2</sub>, le déplacement total d, et l'écart avec la simulation.
+<div class="calc">d<sub>2</sub> = <input data-ans="0.1929" data-tol="0.0005"> m &nbsp; d = <input data-ans="0.22505" data-tol="0.0005"> m &nbsp; écart = <input data-ans="0.07" data-tol="0.05"> %
+<button class="btn chk" data-aide="phase 2 : d2 = V × (4 − 1). Puis d = d1 + d2. Écart = |d_sim − d| / d_sim × 100.">Vérifier</button></div>
+<button class="btn sec" data-rev="g4">Voir la correction</button>
+<div class="reveal" id="g4">v(t) = 0,0643 m/s constante, donc d<sub>2</sub> = 0,0643 × (4 − 1) = <b>0,1929 m</b><br>
+d = d<sub>1</sub> + d<sub>2</sub> = 0,03215 + 0,1929 = <b>0,22505 m</b><br>
+Écart = (0,2252 − 0,22505) / 0,2252 × 100 ≈ <b>0,07 %</b> : le modèle simple en 2 phases donne presque le même résultat que la simulation.</div></div>
+</section>
+
+</main>
+<script>
+
+const $=id=>document.getElementById(id);
+const SECS=[...document.querySelectorAll('main section')];
+const NAV=document.querySelector('nav');let current=null;
+SECS.forEach((s,i)=>{const b=document.createElement('button');b.textContent=s.dataset.titre;b.onclick=()=>show(s.id);b.id='nb_'+s.id;NAV.appendChild(b);
+  const su=document.createElement('div');su.className='suite';
+  su.innerHTML=(i>0?`<button class="btn sec" onclick="show('${SECS[i-1].id}')">← ${SECS[i-1].dataset.titre}</button>`:'<span></span>')+(i<SECS.length-1?`<button class="btn" onclick="show('${SECS[i+1].id}')">${SECS[i+1].dataset.titre} →</button>`:'<span></span>');
+  s.appendChild(su);});
+function show(id){SECS.forEach(s=>s.classList.toggle('active',s.id===id));document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('active',b.id==='nb_'+id));
+  $('nb_'+id).classList.add('vu');current=id;const n=document.querySelectorAll('nav button.vu').length;document.querySelector('.progress span').style.width=(100*n/SECS.length)+'%';
+  window.scrollTo({top:0,behavior:'smooth'});if(window.onShow)onShow(id);}
+document.querySelectorAll('[data-rev]').forEach(b=>{b.dataset.lab=b.textContent;b.addEventListener('click',()=>{
+  const r=$(b.dataset.rev);r.classList.toggle('on');b.textContent=r.classList.contains('on')?'Cacher la correction':b.dataset.lab;});});
+/* vérification des calculs : <input data-ans="0.2" data-tol="0.02"> dans un .calc avec un bouton .chk */
+function num(v){return parseFloat(String(v).replace(',','.').replace(/\s/g,''));}
+document.querySelectorAll('.chk').forEach(b=>b.addEventListener('click',()=>{
+  const box=b.closest('.q')||b.parentElement;const ins=[...box.querySelectorAll('[data-ans]')];let ok=0;
+  ins.forEach(i=>{let g;if(i.tagName==='SELECT')g=i.value===i.dataset.ans;else{const a=num(i.dataset.ans),t=num(i.dataset.tol||Math.abs(a)*0.03+1e-9);g=Math.abs(num(i.value)-a)<=t;}
+    if(g)ok++;i.classList.toggle('bon',g);i.classList.toggle('faux',!g);});
+  let o=box.querySelector('.res');if(!o){o=document.createElement('span');o.className='out res';b.after(o);}
+  o.innerHTML=ok===ins.length?'<span class="ok">✓ Bravo, c\'est juste !</span>':`<span class="ko">${ok} / ${ins.length} juste(s)</span> : ${b.dataset.aide||'relis la formule et vérifie les unités.'}`;}));
+/* tracé de courbes */
+function plot(cv,o){const c=cv.getContext('2d'),W=cv.width,H=cv.height,L=58,R=16,T=18,B=40;c.clearRect(0,0,W,H);
+  const X=x=>L+(x-o.x0)/(o.x1-o.x0)*(W-L-R),Y=y=>H-B-(y-o.y0)/(o.y1-o.y0)*(H-T-B);
+  c.font='12px Segoe UI,Arial';c.strokeStyle='#e3e8ef';c.fillStyle='#5b6470';c.lineWidth=1;
+  for(let i=0;i<=o.nx;i++){const x=o.x0+i*(o.x1-o.x0)/o.nx;c.beginPath();c.moveTo(X(x),T);c.lineTo(X(x),H-B);c.stroke();c.textAlign='center';c.fillText(+x.toFixed(3),X(x),H-B+15);}
+  for(let i=0;i<=o.ny;i++){const y=o.y0+i*(o.y1-o.y0)/o.ny;c.beginPath();c.moveTo(L,Y(y));c.lineTo(W-R,Y(y));c.stroke();c.textAlign='right';c.fillText(+y.toFixed(4),L-5,Y(y)+4);}
+  c.strokeStyle='#1d2430';c.lineWidth=1.5;c.beginPath();c.moveTo(L,T);c.lineTo(L,H-B);c.lineTo(W-R,H-B);c.stroke();
+  c.fillStyle='#1d2430';c.textAlign='center';c.fillText(o.xl,(L+W-R)/2,H-6);c.save();c.translate(13,(T+H-B)/2);c.rotate(-Math.PI/2);c.fillText(o.yl,0,0);c.restore();
+  (o.s||[]).forEach(s=>{c.strokeStyle=s.col;c.lineWidth=s.w||2.5;c.setLineDash(s.dash||[]);c.beginPath();
+    if(s.pts){s.pts.forEach((p,i)=>i?c.lineTo(X(p[0]),Y(p[1])):c.moveTo(X(p[0]),Y(p[1])));}
+    else{const n=300;for(let i=0;i<=n;i++){const x=s.a+(s.b-s.a)*i/n;const y=s.f(x);i?c.lineTo(X(x),Y(y)):c.moveTo(X(x),Y(y));}}
+    c.stroke();c.setLineDash([]);});
+  (o.dots||[]).forEach(d=>{c.fillStyle=d.col;c.beginPath();c.arc(X(d.x),Y(d.y),d.r||3,0,7);c.fill();if(d.t){c.textAlign='left';c.fillText(d.t,X(d.x)+6,Y(d.y)-6);}});
+  return {X,Y};}
+
+
+const VM=67.16;
+const vt=t=>t<0?0:t<0.1?671.6*t:t<4.6?VM:t<4.8?VM-335.8*(t-4.6):0;
+const xt=t=>t<=0?0:t<0.1?335.8*t*t:t<4.6?VM*t-3.358:t<4.8?305.578+VM*(t-4.6)-167.9*(t-4.6)**2:312.294;
+/* bateau */
+let bp=0,brun=false;
+function drawBoat(ext){const c=$('cvBoat').getContext('2d');c.clearRect(0,0,860,330);c.fillStyle='#dff0fb';c.fillRect(0,0,860,330);
+  c.fillStyle='#fff';c.strokeStyle='#5b6470';c.lineWidth=2;c.beginPath();c.moveTo(120,60);c.quadraticCurveTo(620,30,760,165);c.quadraticCurveTo(620,300,120,270);c.closePath();c.fill();c.stroke();
+  c.fillStyle='#1d2430';c.font='14px Segoe UI';c.fillText('arrière du voilier (cockpit)',150,90);
+  const P=[220,165],ang=(ext-0.5)*0.6,Lb=230;const tip=[P[0]+Lb*Math.cos(ang),P[1]+Lb*Math.sin(ang)];
+  c.strokeStyle='#8a5a2b';c.lineWidth=12;c.lineCap='round';c.beginPath();c.moveTo(...P);c.lineTo(...tip);c.stroke();
+  c.fillStyle='#1d2430';c.beginPath();c.arc(...P,8,0,7);c.fill();c.fillText('barre',tip[0]-20,tip[1]-14);c.fillText('axe du safran',P[0]-40,P[1]+30);
+  const att=[P[0]+150*Math.cos(ang),P[1]+150*Math.sin(ang)],F=[370,285];
+  c.save();c.translate(...F);const a2=Math.atan2(att[1]-F[1],att[0]-F[0]);c.rotate(a2);const D=Math.hypot(att[0]-F[0],att[1]-F[1]);
+  c.fillStyle='#1f4e8c';c.fillRect(0,-13,70,26);c.strokeStyle='#d62828';c.lineWidth=7;c.beginPath();c.moveTo(70,0);c.lineTo(D,0);c.stroke();c.restore();
+  c.fillStyle='#1d2430';c.fillText('pilote (corps fixé au cockpit)',F[0]-60,F[1]+30);c.fillStyle='#d62828';c.fillText('tige',(att[0]+F[0])/2+12,(att[1]+F[1])/2);}
+$('boatGo').onclick=()=>{bp=0;brun=true;};
+/* v(t) */
+function drawV(){const t=+$('tV').value;$('tVv').textContent=t.toFixed(2)+' s';
+  plot($('cvV'),{x0:0,x1:5,y0:0,y1:80,nx:10,ny:8,xl:'temps t (s)',yl:'vitesse v (mm/s)',s:[{a:0,b:5,f:vt,col:'#1f4e8c'}],dots:[{x:t,y:vt(t),col:'#d62828',r:6}]});
+  const ph=t<0.1?'Phase 1 : la tige accélère (MRUV)':t<4.6?'Phase 2 : vitesse constante (MRU)':t<=4.8?'Phase 3 : la tige freine (MRUV)':'Arrêt';
+  $('phOut').innerHTML=`${ph} — v = <b>${vt(t).toFixed(2)} mm/s</b>, x = <b>${xt(t).toFixed(1)} mm</b>`;}
+$('tV').oninput=drawV;
+/* tige */
+let tt=0,trun=false;
+function drawT(){const c=$('cvT').getContext('2d');c.clearRect(0,0,860,200);const x=xt(Math.min(tt,4.8)),s=1.9;
+  c.fillStyle='#1f4e8c';c.fillRect(40,70,160,60);c.fillStyle='#fff';c.font='bold 14px Segoe UI';c.fillText('PILOTE',90,105);
+  c.fillStyle='#d62828';c.fillRect(200,90,x*s+20,20);c.fillStyle='#1d2430';c.beginPath();c.arc(220+x*s,100,10,0,7);c.fill();
+  c.strokeStyle='#2a9d4b';c.setLineDash([5,5]);c.beginPath();c.moveTo(220+250*s,40);c.lineTo(220+250*s,160);c.stroke();c.setLineDash([]);
+  c.fillStyle='#2a9d4b';c.font='13px Segoe UI';c.fillText('250 mm (minimum)',220+250*s-60,35);
+  for(let i=0;i<=300;i+=50){c.fillStyle='#5b6470';c.fillRect(220+i*s,150,1,8);c.fillText(i,214+i*s,175);}
+  $('tOut').innerHTML=`t = ${Math.min(tt,4.8).toFixed(2)} s — x = <b>${x.toFixed(1)} mm</b> — v = ${vt(tt).toFixed(1)} mm/s`;}
+$('tGo').onclick=()=>{tt=0;trun=true;};
+/* transmission */
+let ta=0,trPlay=true;
+function gear(c,x,y,r,n,a,col){c.save();c.translate(x,y);c.rotate(a);c.fillStyle=col;c.beginPath();c.arc(0,0,r,0,7);c.fill();c.strokeStyle='#fff';c.lineWidth=3;c.beginPath();c.moveTo(0,0);c.lineTo(r-4,0);c.stroke();
+  c.fillStyle='#fff';c.beginPath();c.arc(0,0,5,0,7);c.fill();c.restore();}
+function drawTr(){const c=$('cvTr').getContext('2d');c.clearRect(0,0,860,260);const r1=26,r2=92,A=[110,150],B=[330,150];
+  c.strokeStyle='#333';c.lineWidth=4;c.beginPath();c.moveTo(A[0],A[1]-r1);c.lineTo(B[0],B[1]-r2);c.moveTo(A[0],A[1]+r1);c.lineTo(B[0],B[1]+r2);c.stroke();
+  gear(c,...A,r1,20,ta,'#e07a00');gear(c,...B,r2,71,ta*20/71,'#1f4e8c');
+  c.fillStyle='#1d2430';c.font='13px Segoe UI';c.fillText('poulie moteur (20 dents)',50,40);c.fillText('grande poulie (71 dents)',270,40);
+  const turn=ta*20/71/(2*Math.PI),xs=(turn*3*6)%180;
+  c.fillStyle='#9aa7b8';c.fillRect(430,138,330,24);c.strokeStyle='#5b6470';c.lineWidth=2;
+  for(let i=0;i<30;i++){const x=430+((i*12+turn*12*12)%330);c.beginPath();c.moveTo(x,138);c.lineTo(x+6,162);c.stroke();}
+  c.fillStyle='#d62828';c.fillRect(460+xs,124,50,52);c.fillStyle='#fff';c.fillText('écrou',466+xs,155);
+  c.fillStyle='#1d2430';c.fillText('vis 5 (pas 3 mm) → l\'écrou et la tige avancent',440,110);
+  c.strokeStyle='#333';c.lineWidth=3;c.beginPath();c.moveTo(B[0]+r2,150);c.lineTo(430,150);c.stroke();}
+$('trPlay').onclick=()=>{trPlay=!trPlay;$('trPlay').textContent=trPlay?'⏸ Pause':'▶ Reprendre';};
+$('ecGo').onclick=()=>{const N=num($('nMes').value);if(!(N>0)){$('ecOut').textContent='Entre une vitesse en tr/min.';return;}
+  const w=N*2*Math.PI/60,e=Math.abs(4769-N)/4769*100;$('ecOut').innerHTML=`ω = <b>${w.toFixed(1)} rad/s</b> — écart avec 4769 tr/min = <b>${e.toFixed(1)} %</b> → `+(e<5?'<span class="ok">modèle validé (&lt; 5 %)</span>':'<span class="ko">écart trop grand : cherche les causes</span>');};
+/* exercice TP30 */
+const vs=t=>{if(t<=0)return 0;if(t>=2.5)return 0.0643;const u=t/2.5;return 0.0643*(1-Math.pow(1-u,2.2));};
+function drawG(){const s=[{a:0,b:4,f:vs,col:'#1f4e8c'}];if($('showMod').checked)s.push({pts:[[0,0],[1,0.0643],[4,0.0643]],col:'#e07a00',w:3,dash:[8,5]});
+  plot($('cvG'),{x0:0,x1:4,y0:0,y1:0.08,nx:8,ny:8,xl:'temps t (s)',yl:'V tige (m/s)',s});}
+$('showMod').onchange=drawG;
+let last=performance.now();
+function loop(now){const dt=Math.min(.05,(now-last)/1000);last=now;
+  if(brun){bp+=dt*0.5;const e=bp<1?bp:2-bp;drawBoat(Math.max(0,e));if(bp>=2){brun=false;bp=0;}}
+  if(trun){tt+=dt;drawT();if(tt>4.8)trun=false;}
+  if(trPlay&&current==='s3'){ta+=dt*6;drawTr();}
+  requestAnimationFrame(loop);}
+drawBoat(0.5);drawV();drawT();drawTr();drawG();show('s0');requestAnimationFrame(loop);
+
+</script>
+<div class="nav-btns" style="position:fixed;bottom:16px;left:16px;z-index:99999;display:flex;gap:8px;flex-wrap:wrap"><a href="../index.html" style="z-index:99999;background:#1e3a5f;color:#fff;padding:10px 16px;border-radius:24px;font:600 14px system-ui,sans-serif;text-decoration:none;box-shadow:0 2px 8px rgba(0,0,0,.25)">← Sommaire</a><a class="btn-precedent" href="../index.html#seq02" onclick="if(history.length>1){history.back();return false}" style="z-index:99999;background:#2e6da4;color:#fff;padding:10px 16px;border-radius:24px;font:600 14px system-ui,sans-serif;text-decoration:none;box-shadow:0 2px 8px rgba(0,0,0,.25)">↩ Page précédente</a></div><script data-goatcounter="https://mrassi-si.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+</body>
+</html>

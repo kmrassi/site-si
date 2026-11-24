@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TP Volant G27 — équations horaires</title>
+<style>
+:root{--bleu:#1f4e8c;--rouge:#d62828;--vert:#2a9d4b;--orange:#e07a00;--gris:#5b6470;--fond:#f6f8fb;--carte:#fff;--bord:#d5dde8;}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Segoe UI",Roboto,Arial,sans-serif;background:var(--fond);color:#1d2430;line-height:1.55;padding-bottom:70px}
+header{background:linear-gradient(135deg,#1f4e8c,#2f6fbf);color:#fff;padding:18px 20px 14px}
+header .tag{font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;opacity:.85}
+header h1{margin:4px 0 2px;font-size:1.5rem}
+header p{margin:0;opacity:.9;font-size:.95rem}
+.progress{height:6px;background:rgba(255,255,255,.25);border-radius:3px;margin-top:12px;overflow:hidden}
+.progress span{display:block;height:100%;width:0;background:#ffd166;transition:width .4s}
+nav{display:flex;gap:6px;overflow-x:auto;padding:10px 12px;background:#fff;border-bottom:1px solid var(--bord);position:sticky;top:0;z-index:5}
+nav button{flex:0 0 auto;border:1px solid var(--bord);background:#fff;border-radius:20px;padding:7px 14px;font-size:.9rem;cursor:pointer;color:var(--bleu);font-weight:600}
+nav button.active{background:var(--bleu);color:#fff;border-color:var(--bleu)}
+nav button.vu::after{content:" ✓";color:var(--vert)}
+nav button.active.vu::after{color:#ffd166}
+main{max-width:920px;margin:0 auto;padding:16px}
+section{display:none}
+section.active{display:block;animation:fade .35s}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+h2{color:var(--bleu);border-left:6px solid var(--bleu);padding-left:10px;margin:8px 0 14px}
+h3{color:var(--bleu);margin:22px 0 8px;font-size:1.12rem}
+.card{background:var(--carte);border:1px solid var(--bord);border-radius:12px;padding:14px 16px;margin:12px 0;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.def{border-left:6px solid var(--rouge)}
+.def b{color:var(--rouge)}
+.clair{background:#eaf7ee;border-color:#b6e2c2}
+.clair::before{content:"💡 En clair : ";font-weight:700;color:var(--vert)}
+.consigne{background:#fff8e1;border-color:#f3d27a}
+.consigne::before{content:"📝 Consigne : ";font-weight:700;color:#a86b00}
+.manip{background:#fdf0f6;border-color:#efb7d0}
+.manip::before{content:"🛠️ Sur le système réel : ";font-weight:700;color:#a2275f}
+.lab{background:#eef4fb;border:1px dashed #9db8dc;border-radius:12px;padding:12px;margin:14px 0}
+.lab .titre{font-weight:700;color:var(--bleu);margin-bottom:6px}
+.lab .titre::before{content:"🔬 "}
+canvas{width:100%;height:auto;background:#fff;border:1px solid var(--bord);border-radius:8px;display:block}
+.ctrl{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;margin-top:10px;font-size:.93rem}
+.ctrl label{display:flex;align-items:center;gap:6px}
+input[type=range]{width:200px;accent-color:var(--bleu)}
+.btn{border:none;background:var(--bleu);color:#fff;padding:8px 14px;border-radius:8px;cursor:pointer;font-weight:600;font-size:.9rem}
+.btn.sec{background:#fff;color:var(--bleu);border:1px solid var(--bleu)}
+.seg{display:inline-flex;border:1px solid var(--bleu);border-radius:8px;overflow:hidden}
+.seg button{border:none;border-right:1px solid var(--bord);background:#fff;color:var(--bleu);padding:6px 12px;cursor:pointer;font-weight:600;font-size:.88rem}
+.seg button:last-child{border-right:none}
+.seg button.on{background:var(--bleu);color:#fff}
+.out{font-weight:600;padding:6px 10px;border-radius:6px;background:#fff;border:1px solid var(--bord);display:inline-block;margin-top:8px}
+.ok{color:var(--vert)} .ko{color:var(--rouge)}
+.suite{display:flex;justify-content:space-between;gap:10px;margin:24px 0 6px}
+table{width:100%;border-collapse:collapse;font-size:.93rem;background:#fff}
+th,td{border:1px solid var(--bord);padding:7px 8px;text-align:left;vertical-align:middle}
+th{background:var(--bleu);color:#fff}
+.reveal{display:none;margin-top:8px;background:#eaf7ee;border:1px solid #b6e2c2;border-radius:8px;padding:8px 12px}
+.reveal.on{display:block}
+.q{margin:14px 0}
+.q > b{color:var(--bleu)}
+.mini{font-size:.86rem;color:var(--gris)}
+.calc{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:6px 0}
+.calc input,.calc select{width:100px;padding:5px;border:1px solid var(--bord);border-radius:6px;font-size:.95rem}
+.calc input.bon,.calc select.bon{background:#e3f6e8;border-color:var(--vert)}
+.calc input.faux,.calc select.faux{background:#fde8e8;border-color:var(--rouge)}
+.fm{font-family:"Cambria Math",Georgia,serif;font-size:1.15rem;color:var(--bleu);font-weight:bold}
+.big{font-family:"Cambria Math",Georgia,serif;font-size:1.25rem;font-weight:bold;color:var(--rouge);text-align:center;margin:8px 0}
+pre.code{background:#1e2533;color:#e6edf7;border-radius:10px;padding:12px 14px;overflow-x:auto;font-size:.9rem;line-height:1.5}
+pre.code .c{color:#8fa3bf} pre.code input{background:#fff8e1;border:1px solid #f3d27a;border-radius:4px;font-family:monospace;font-size:.88rem;padding:2px 4px;width:300px}
+pre.code input.bon{background:#c8f0d2} pre.code input.faux{background:#fbd0d0}
+.duo{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media (max-width:620px){header h1{font-size:1.2rem} input[type=range]{width:140px} .duo{grid-template-columns:1fr} pre.code input{width:200px}}
+</style>
+</head>
+<body>
+<header><div class="tag">Séquence 2 · Cinématique · TP</div><h1>TP Volant G27 : équations horaires et modélisation</h1><p>Rapport de réduction, acquisition θ(t), modèle parabolique, accélération angulaire, vitesse moyenne et instantanée</p><div class="progress"><span></span></div></header>
+<nav></nav>
+<main>
+
+<section id="s0" data-titre="0. Le volant">
+<h2>Le volant de simulation Logitech G27</h2>
+<div class="card">Le volant G27 sert aux jeux de course. Il possède un <b>retour de force</b> : un moteur fait « résister » le volant comme une vraie voiture, et le ramène au centre quand on le lâche.</div>
+<div class="card def"><b>Ce qu'il y a dedans (document ressource)</b>
+<ul><li><b>Moteur à courant continu</b> : il crée la rotation.</li>
+<li><b>Engrenages à denture hélicoïdale</b> : ils transmettent la rotation au volant (plus silencieux que des dents droites).</li>
+<li><b>Codeur optique</b> en bout d'arbre moteur : il compte des impulsions pour connaître l'angle à 0,1° près.</li></ul></div>
+<div class="q"><b>Question 1.</b> Quel est le type de transmission entre le moteur et le volant ? Pourquoi utilise-t-on un réducteur ?
+<br><button class="btn sec" data-rev="r1">Voir la correction</button>
+<div class="reveal" id="r1">Transmission par <b>engrenages</b> (denture hélicoïdale) qui forme un <b>réducteur</b>.<br>
+Le moteur tourne vite mais avec peu de couple. Le réducteur <b>diminue la vitesse</b> et <b>augmente le couple</b> : le volant tourne moins vite mais avec plus de force, assez pour résister aux mains du joueur.</div></div>
+</section>
+
+<section id="s1" data-titre="1. Rapport k">
+<h2>Mesurer le rapport de réduction k</h2>
+<div class="card manip">Trace un repère au feutre sur l'axe du moteur (à l'arrière) et un repère sur le volant. Fais tourner le volant de <b>2 tours complets</b> et compte les tours du moteur.</div>
+<div class="lab"><div class="titre">Simulation : volant et moteur</div><canvas id="cvG" width="860" height="280"></canvas>
+<div class="ctrl"><button class="btn" id="gGo">▶ Tourner le volant de 2 tours</button><span class="out" id="gOut">Volant : 0 tour — Moteur : 0 tour</span></div></div>
+<div class="card def"><b>Rapport de réduction</b> &nbsp; <span class="fm">k = ω<sub>volant</sub> / ω<sub>moteur</sub> = N<sub>volant</sub> / N<sub>moteur</sub></span></div>
+<div class="lab"><div class="titre">Calculateur avec ta mesure</div>
+<div class="calc">N<sub>volant</sub> = 2 tours &nbsp; N<sub>moteur</sub> = <input type="number" id="nMot" value="12" style="width:80px"> tours <button class="btn" id="kGo">Calculer k</button></div><div class="out" id="kOut"></div></div>
+<div class="q"><b>Question 2.</b> Avec la simulation (12 tours du moteur), calcule k et l'écart avec la valeur théorique k = 1/6.
+<div class="calc">k = <input data-ans="0.1667" data-tol="0.002"> &nbsp; écart = <input data-ans="0" data-tol="0.3"> % <button class="btn chk" data-aide="k = N_volant / N_moteur = 2 / 12.">Vérifier</button></div>
+<button class="btn sec" data-rev="r2">Voir la correction</button>
+<div class="reveal" id="r2">k = 2 / 12 = 1/6 ≈ <b>0,167</b> : écart <b>0 %</b>.<br>Sur le vrai volant, le comptage n'est jamais parfait (on arrondit les fractions de tour) : un écart de quelques % est normal.<br>
+Écart (%) = |k<sub>mesuré</sub> − k<sub>théorique</sub>| / k<sub>théorique</sub> × 100</div></div>
+</section>
+
+<section id="s2" data-titre="2. Acquisition">
+<h2>Acquisition : le volant revient au centre</h2>
+<div class="card manip">Dans le logiciel d'acquisition, règle une durée de 2 s. Tourne le volant de <b>90° (1,57 rad)</b>, maintiens-le, lance l'acquisition et <b>lâche brusquement</b> le volant : le retour de force le ramène à 0.</div>
+<div class="lab"><div class="titre">Simulation de l'essai</div>
+<div class="duo"><canvas id="cvW" width="400" height="300"></canvas><canvas id="cvA" width="460" height="300"></canvas></div>
+<div class="ctrl"><label>Réglage « Force » : <input type="range" id="force" min="6" max="24" step="1" value="12"> <b id="forceV"></b></label>
+<button class="btn" id="aGo">▶ Lâcher le volant</button></div>
+<p class="mini">Les points sont des mesures simulées (avec un peu de « bruit », comme sur un vrai capteur). Les résultats de ton volant seront différents : utilise tes propres mesures.</p></div>
+<div class="q"><b>Question 3.</b> Sur la courbe θ(t), repère la zone d'accélération (forme de parabole) et relève le temps t<sub>fin</sub> pour revenir à 0 (réglage Force = 12).
+<div class="calc">t<sub>fin</sub> = <input data-ans="0.51" data-tol="0.03"> s <button class="btn chk" data-aide="regarde où la courbe coupe l'axe θ = 0.">Vérifier</button></div>
+<button class="btn sec" data-rev="r3">Voir la correction</button>
+<div class="reveal" id="r3">Toute la courbe de retour est une <b>parabole</b> (elle s'incurve de plus en plus) : la vitesse augmente, le volant accélère.<br>Elle coupe θ = 0 vers <b>t<sub>fin</sub> ≈ 0,51 s</b>.</div></div>
+</section>
+
+<section id="s3" data-titre="3. Modéliser">
+<h2>Modélisation : θ(t) = A·t² + B·t + C</h2>
+<div class="card">On suppose que l'accélération angulaire α est <b>constante</b> pendant le retour. Le modèle est une parabole : <span class="fm">θ(t) = A·t² + B·t + C</span></div>
+<div class="lab"><div class="titre">Outil « Modélisation » : ajuste la parabole sur les points</div>
+<canvas id="cvM" width="860" height="300"></canvas>
+<div class="ctrl"><label>A : <input type="range" id="mA" min="-12" max="0" step="0.1" value="-3"> <b id="mAv"></b></label>
+<label>B : <input type="range" id="mB" min="-2" max="2" step="0.05" value="0.5"> <b id="mBv"></b></label>
+<label>C : <input type="range" id="mC" min="1" max="2" step="0.01" value="1.3"> <b id="mCv"></b></label></div>
+<div class="out" id="mOut"></div></div>
+<div class="q"><b>Question 4.</b> Note les valeurs de A, B et C (réglage Force = 12) et leurs unités.
+<div class="calc">A = <input data-ans="-6" data-tol="0.3"> &nbsp; B = <input data-ans="0" data-tol="0.1"> &nbsp; C = <input data-ans="1.57" data-tol="0.03">
+<button class="btn chk" data-aide="ajuste les curseurs jusqu'à ce que la courbe passe au milieu des points (écart le plus petit).">Vérifier</button></div>
+<button class="btn sec" data-rev="r4">Voir la correction</button>
+<div class="reveal" id="r4">A ≈ <b>−6 rad/s²</b> &nbsp; B ≈ <b>0 rad/s</b> &nbsp; C ≈ <b>1,57 rad</b><br>Pour que θ soit en radians : A·t² doit être en rad, donc A est en rad/s² ; B·t aussi, donc B est en rad/s ; C est en rad.</div></div>
+<div class="q"><b>Question 5.</b> Compare avec l'équation théorique <span class="fm">θ(t) = ½·α·t² + ω<sub>0</sub>·t + θ<sub>0</sub></span>. Calcule α et donne ω<sub>0</sub>.
+<div class="calc">α = <input data-ans="-12" data-tol="0.5"> rad/s² &nbsp; ω<sub>0</sub> = <input data-ans="0" data-tol="0.1"> rad/s <button class="btn chk" data-aide="A correspond à ½·α, donc α = 2 × A. B correspond à ω0.">Vérifier</button></div>
+<button class="btn sec" data-rev="r5">Voir la correction</button>
+<div class="reveal" id="r5">A = ½·α donc α = 2 × A = 2 × (−6) = <b>−12 rad/s²</b> (négatif car le volant revient vers 0).<br>
+ω<sub>0</sub> = B ≈ <b>0 rad/s</b> : c'est <b>cohérent</b>, car on a lâché le volant sans élan, il partait de l'arrêt.<br>θ<sub>0</sub> = C = 1,57 rad = 90° : la position de départ.</div></div>
+</section>
+
+<section id="s4" data-titre="4. Vitesses">
+<h2>Vitesse moyenne et vitesse instantanée</h2>
+<div class="lab"><div class="titre">Pente de la courbe θ(t) : la tangente</div><canvas id="cvT" width="860" height="300"></canvas>
+<div class="ctrl"><label>Instant t : <input type="range" id="tT" min="0" max="0.51" step="0.01" value="0.1"> <b id="tTv"></b></label></div>
+<div class="out" id="tOut"></div></div>
+<div class="q"><b>Question 6a.</b> Calcule la vitesse moyenne sur tout le mouvement (de 1,57 rad à 0 en 0,51 s).
+<div class="calc">ω<sub>moy</sub> = <input data-ans="-3.08" data-tol="0.08"> rad/s <button class="btn chk" data-aide="ω_moy = Δθ / Δt = (0 − 1,57) / 0,51.">Vérifier</button></div></div>
+<div class="q"><b>Question 6b.</b> Écris ω(t) en dérivant θ(t), puis calcule ω à t = 0,1 s.
+<div class="calc">ω(0,1) = <input data-ans="-1.2" data-tol="0.05"> rad/s <button class="btn chk" data-aide="ω(t) = 2·A·t + B = −12·t.">Vérifier</button></div>
+<button class="btn sec" data-rev="r6">Voir la correction</button>
+<div class="reveal" id="r6">ω<sub>moy</sub> = (0 − 1,57) / 0,51 ≈ <b>−3,08 rad/s</b><br>
+ω(t) = dθ/dt = 2·A·t + B = <b>−12·t</b> (c'est aussi α·t + ω<sub>0</sub>)<br>
+ω(0,1) = −12 × 0,1 = <b>−1,2 rad/s</b><br>
+Elle est plus petite (en valeur) que la vitesse moyenne car à 0,1 s le volant <b>vient juste de démarrer</b> : sa vitesse augmente pendant tout le mouvement. La vitesse moyenne « lisse » tout le trajet.</div></div>
+</section>
+
+<section id="s5" data-titre="5. Synthèse">
+<h2>Synthèse</h2>
+<div class="q"><b>Question 7 (bonus).</b> Si on augmente le réglage « Force » dans le logiciel, quel coefficient (A, B ou C) change le plus ? Vérifie avec le simulateur de l'onglet 2.
+<div class="calc"><select data-ans="A"><option value="">…</option><option>A</option><option>B</option><option>C</option></select> <button class="btn chk" data-aide="plus de force = plus de couple = plus d'accélération. Quel coefficient est lié à α ?">Vérifier</button></div>
+<button class="btn sec" data-rev="r7">Voir la correction</button>
+<div class="reveal" id="r7">C'est <b>A</b>. Plus de force = un couple moteur plus grand = une <b>accélération α plus grande</b>. Or A = ½·α.<br>
+B reste à 0 (on lâche toujours sans élan) et C reste à 1,57 rad (on part toujours de 90°). Le volant revient donc plus vite au centre.</div></div>
+<div class="card clair">Accélération constante → vitesse en <b>droite</b> (ω = α·t + ω<sub>0</sub>) → position en <b>parabole</b> (θ = ½·α·t² + ω<sub>0</sub>·t + θ<sub>0</sub>). La vitesse instantanée est la <b>pente</b> de la courbe de position à un instant précis.</div>
+</section>
+
+</main>
+<script>
+
+const $=id=>document.getElementById(id);
+const SECS=[...document.querySelectorAll('main section')];
+const NAV=document.querySelector('nav');let current=null;
+SECS.forEach((s,i)=>{const b=document.createElement('button');b.textContent=s.dataset.titre;b.onclick=()=>show(s.id);b.id='nb_'+s.id;NAV.appendChild(b);
+  const su=document.createElement('div');su.className='suite';
+  su.innerHTML=(i>0?`<button class="btn sec" onclick="show('${SECS[i-1].id}')">← ${SECS[i-1].dataset.titre}</button>`:'<span></span>')+(i<SECS.length-1?`<button class="btn" onclick="show('${SECS[i+1].id}')">${SECS[i+1].dataset.titre} →</button>`:'<span></span>');
+  s.appendChild(su);});
+function show(id){SECS.forEach(s=>s.classList.toggle('active',s.id===id));document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('active',b.id==='nb_'+id));
+  $('nb_'+id).classList.add('vu');current=id;const n=document.querySelectorAll('nav button.vu').length;document.querySelector('.progress span').style.width=(100*n/SECS.length)+'%';
+  window.scrollTo({top:0,behavior:'smooth'});if(window.onShow)onShow(id);}
+document.querySelectorAll('[data-rev]').forEach(b=>{b.dataset.lab=b.textContent;b.addEventListener('click',()=>{
+  const r=$(b.dataset.rev);r.classList.toggle('on');b.textContent=r.classList.contains('on')?'Cacher la correction':b.dataset.lab;});});
+/* vérification des calculs : <input data-ans="0.2" data-tol="0.02"> dans un .calc avec un bouton .chk */
+function num(v){return parseFloat(String(v).replace(',','.').replace(/\s/g,''));}
+document.querySelectorAll('.chk').forEach(b=>b.addEventListener('click',()=>{
+  const box=b.closest('.q')||b.parentElement;const ins=[...box.querySelectorAll('[data-ans]')];let ok=0;
+  ins.forEach(i=>{let g;if(i.tagName==='SELECT')g=i.value===i.dataset.ans;else{const a=num(i.dataset.ans),t=num(i.dataset.tol||Math.abs(a)*0.03+1e-9);g=Math.abs(num(i.value)-a)<=t;}
+    if(g)ok++;i.classList.toggle('bon',g);i.classList.toggle('faux',!g);});
+  let o=box.querySelector('.res');if(!o){o=document.createElement('span');o.className='out res';b.after(o);}
+  o.innerHTML=ok===ins.length?'<span class="ok">✓ Bravo, c\'est juste !</span>':`<span class="ko">${ok} / ${ins.length} juste(s)</span> : ${b.dataset.aide||'relis la formule et vérifie les unités.'}`;}));
+/* tracé de courbes */
+function plot(cv,o){const c=cv.getContext('2d'),W=cv.width,H=cv.height,L=58,R=16,T=18,B=40;c.clearRect(0,0,W,H);
+  const X=x=>L+(x-o.x0)/(o.x1-o.x0)*(W-L-R),Y=y=>H-B-(y-o.y0)/(o.y1-o.y0)*(H-T-B);
+  c.font='12px Segoe UI,Arial';c.strokeStyle='#e3e8ef';c.fillStyle='#5b6470';c.lineWidth=1;
+  for(let i=0;i<=o.nx;i++){const x=o.x0+i*(o.x1-o.x0)/o.nx;c.beginPath();c.moveTo(X(x),T);c.lineTo(X(x),H-B);c.stroke();c.textAlign='center';c.fillText(+x.toFixed(3),X(x),H-B+15);}
+  for(let i=0;i<=o.ny;i++){const y=o.y0+i*(o.y1-o.y0)/o.ny;c.beginPath();c.moveTo(L,Y(y));c.lineTo(W-R,Y(y));c.stroke();c.textAlign='right';c.fillText(+y.toFixed(4),L-5,Y(y)+4);}
+  c.strokeStyle='#1d2430';c.lineWidth=1.5;c.beginPath();c.moveTo(L,T);c.lineTo(L,H-B);c.lineTo(W-R,H-B);c.stroke();
+  c.fillStyle='#1d2430';c.textAlign='center';c.fillText(o.xl,(L+W-R)/2,H-6);c.save();c.translate(13,(T+H-B)/2);c.rotate(-Math.PI/2);c.fillText(o.yl,0,0);c.restore();
+  (o.s||[]).forEach(s=>{c.strokeStyle=s.col;c.lineWidth=s.w||2.5;c.setLineDash(s.dash||[]);c.beginPath();
+    if(s.pts){s.pts.forEach((p,i)=>i?c.lineTo(X(p[0]),Y(p[1])):c.moveTo(X(p[0]),Y(p[1])));}
+    else{const n=300;for(let i=0;i<=n;i++){const x=s.a+(s.b-s.a)*i/n;const y=s.f(x);i?c.lineTo(X(x),Y(y)):c.moveTo(X(x),Y(y));}}
+    c.stroke();c.setLineDash([]);});
+  (o.dots||[]).forEach(d=>{c.fillStyle=d.col;c.beginPath();c.arc(X(d.x),Y(d.y),d.r||3,0,7);c.fill();if(d.t){c.textAlign='left';c.fillText(d.t,X(d.x)+6,Y(d.y)-6);}});
+  return {X,Y};}
+
+
+/* engrenages */
+let gv=0,grun=false;
+function drawGear(){const c=$('cvG').getContext('2d');c.clearRect(0,0,860,280);const av=gv*2*Math.PI,am=-gv*6*2*Math.PI;
+  c.save();c.translate(250,140);c.rotate(av);c.strokeStyle='#1d2430';c.lineWidth=16;c.beginPath();c.arc(0,0,105,0,7);c.stroke();
+  c.lineWidth=10;[0,2.1,4.2].forEach(a=>{c.beginPath();c.moveTo(0,0);c.lineTo(100*Math.cos(a),100*Math.sin(a));c.stroke();});
+  c.fillStyle='#d62828';c.beginPath();c.arc(0,-105,9,0,7);c.fill();c.restore();
+  c.save();c.translate(620,140);c.rotate(am);c.fillStyle='#e07a00';c.beginPath();c.arc(0,0,40,0,7);c.fill();c.fillStyle='#fff';c.fillRect(-3,-40,6,22);c.restore();
+  c.fillStyle='#1d2430';c.font='14px Segoe UI';c.fillText('volant (repère rouge)',180,275);c.fillText('axe moteur (repère blanc)',540,220);
+  c.fillText('réducteur ×6',405,140);c.strokeStyle='#5b6470';c.beginPath();c.moveTo(370,145);c.lineTo(570,145);c.stroke();
+  $('gOut').innerHTML=`Volant : <b>${gv.toFixed(2)}</b> tour(s) — Moteur : <b>${(gv*6).toFixed(1)}</b> tours`;}
+$('gGo').onclick=()=>{gv=0;grun=true;};
+$('kGo').onclick=()=>{const n=num($('nMot').value);if(!(n>0))return;const k=2/n,e=Math.abs(k-1/6)/(1/6)*100;$('kOut').innerHTML=`k = 2 / ${n} = <b>${k.toFixed(4)}</b> — écart avec 1/6 = <b>${e.toFixed(1)} %</b>`;};
+/* acquisition simulée */
+let alpha=12,DATA=[],ta=0,arun=false;
+function mk(){alpha=+$('force').value;$('forceV').textContent=alpha+' (α = −'+alpha+' rad/s²)';let s=7;const rnd=()=>{s=(s*9301+49297)%233280;return s/233280-0.5;};
+  DATA=[];for(let t=0;t<=0.8;t+=0.02){const th=Math.max(0,1.57-alpha*t*t/2);DATA.push([+t.toFixed(2),th+(th>0?rnd()*0.04:rnd()*0.01)]);}}
+const tf=()=>Math.sqrt(2*1.57/alpha);
+function drawAcq(){const t=Math.min(ta,0.8);const th=Math.max(0,1.57-alpha*t*t/2);
+  const c=$('cvW').getContext('2d');c.clearRect(0,0,400,300);c.save();c.translate(200,160);c.rotate(-th);c.strokeStyle='#1d2430';c.lineWidth=14;c.beginPath();c.arc(0,0,100,0,7);c.stroke();
+  c.lineWidth=9;[Math.PI/2,Math.PI*7/6,-Math.PI/6].forEach(a=>{c.beginPath();c.moveTo(0,0);c.lineTo(95*Math.cos(a),95*Math.sin(a));c.stroke();});c.fillStyle='#d62828';c.beginPath();c.arc(0,-100,9,0,7);c.fill();c.restore();
+  c.fillStyle='#1d2430';c.font='14px Segoe UI';c.fillText('θ = '+th.toFixed(2)+' rad ('+(th*180/Math.PI).toFixed(0)+'°)',120,25);
+  plot($('cvA'),{x0:0,x1:0.8,y0:0,y1:1.8,nx:8,ny:9,xl:'temps t (s)',yl:'θ (rad)',s:[],dots:DATA.filter(p=>p[0]<=t+1e-9).map(p=>({x:p[0],y:p[1],col:'#1f4e8c',r:3}))
+    .concat(t>=tf()?[{x:tf(),y:0,col:'#d62828',r:6,t:'t_fin ≈ '+tf().toFixed(2)+' s'}]:[])});}
+$('force').oninput=()=>{mk();ta=0;arun=false;drawAcq();drawM();};
+$('aGo').onclick=()=>{ta=0;arun=true;};
+/* modélisation */
+function drawM(){const A=+$('mA').value,B=+$('mB').value,C=+$('mC').value;$('mAv').textContent=A.toFixed(1);$('mBv').textContent=B.toFixed(2);$('mCv').textContent=C.toFixed(2);
+  const pts=DATA.filter(p=>p[0]<=tf());const f=t=>A*t*t+B*t+C;const err=Math.sqrt(pts.reduce((s,p)=>s+(p[1]-f(p[0]))**2,0)/pts.length);
+  plot($('cvM'),{x0:0,x1:0.6,y0:-0.4,y1:2,nx:6,ny:12,xl:'temps t (s)',yl:'θ (rad)',s:[{a:0,b:0.6,f,col:'#e07a00'}],dots:pts.map(p=>({x:p[0],y:p[1],col:'#1f4e8c',r:3.5}))});
+  $('mOut').innerHTML=`θ(t) = ${A.toFixed(1)}·t² ${B<0?'−':'+'} ${Math.abs(B).toFixed(2)}·t + ${C.toFixed(2)} &nbsp; — écart moyen avec les points : <b class="${err<0.03?'ok':'ko'}">${err.toFixed(3)} rad</b>`+(err<0.03?' ✓ bon ajustement':'');}
+['mA','mB','mC'].forEach(i=>$(i).oninput=drawM);
+/* tangente (Force = 12 fixé) */
+function drawTan(){const t=+$('tT').value;$('tTv').textContent=t.toFixed(2)+' s';const th=t=>1.57-6*t*t,w=-12*t;
+  plot($('cvT'),{x0:0,x1:0.6,y0:-0.4,y1:2,nx:6,ny:12,xl:'temps t (s)',yl:'θ (rad)',s:[{a:0,b:0.5115,f:th,col:'#1f4e8c'},{a:Math.max(0,t-0.15),b:Math.min(0.6,t+0.15),f:x=>th(t)+w*(x-t),col:'#d62828',w:2},
+    {pts:[[0,1.57],[0.5115,0]],col:'#2a9d4b',dash:[6,5],w:2}],dots:[{x:t,y:th(t),col:'#d62828',r:6}]});
+  $('tOut').innerHTML=`Pente de la tangente (rouge) = vitesse instantanée ω(${t.toFixed(2)}) = <b>${w.toFixed(2)} rad/s</b> &nbsp; | &nbsp; Pente de la droite verte = vitesse moyenne = <b>−3,07 rad/s</b>`;}
+$('tT').oninput=drawTan;
+let last=performance.now();
+function loop(now){const dt=Math.min(.05,(now-last)/1000);last=now;
+  if(grun){gv=Math.min(2,gv+dt*0.5);drawGear();if(gv>=2)grun=false;}
+  if(arun){ta+=dt*0.5;drawAcq();if(ta>0.8)arun=false;}
+  requestAnimationFrame(loop);}
+mk();ta=0.8;drawGear();drawAcq();ta=0;drawM();drawTan();show('s0');requestAnimationFrame(loop);
+
+</script>
+<div class="nav-btns" style="position:fixed;bottom:16px;left:16px;z-index:99999;display:flex;gap:8px;flex-wrap:wrap"><a href="../index.html" style="z-index:99999;background:#1e3a5f;color:#fff;padding:10px 16px;border-radius:24px;font:600 14px system-ui,sans-serif;text-decoration:none;box-shadow:0 2px 8px rgba(0,0,0,.25)">← Sommaire</a><a class="btn-precedent" href="../index.html#seq02" onclick="if(history.length>1){history.back();return false}" style="z-index:99999;background:#2e6da4;color:#fff;padding:10px 16px;border-radius:24px;font:600 14px system-ui,sans-serif;text-decoration:none;box-shadow:0 2px 8px rgba(0,0,0,.25)">↩ Page précédente</a></div><script data-goatcounter="https://mrassi-si.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+</body>
+</html>
