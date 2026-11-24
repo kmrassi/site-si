@@ -26,6 +26,8 @@
     "#aide-ia-box a,#aide-ia-box button{flex:1;text-align:center;border-radius:8px;padding:9px 10px;font:600 14px system-ui,sans-serif;cursor:pointer;text-decoration:none}" +
     "#aide-ia-box a{background:#1a73e8;color:#fff;border:0}" +
     "#aide-ia-box button{background:#eef3fd;color:#1a73e8;border:1px solid #c6d7f7}" +
+    "#aide-ia-box textarea{width:100%;box-sizing:border-box;margin:0 0 10px;padding:8px;border:1px solid #c6d7f7;border-radius:8px;font:14px/1.4 system-ui,sans-serif;resize:vertical}" +
+    "#aide-ia-msg{margin-top:8px;color:#b3261e;font-size:13px}" +
     "#aide-ia-box small{display:block;margin-top:10px;color:#666}" +
     "@media print{#aide-ia-btn,#aide-ia-box{display:none!important}}";
   document.head.appendChild(css);
@@ -35,16 +37,20 @@
   box.innerHTML =
     "<h3>🤖 L'assistant de la séquence</h3>" +
     "<ol>" +
-    "<li>Clique sur <b>Copier ma phrase</b>.</li>" +
-    "<li>Ouvre l'assistant et colle la phrase.</li>" +
-    "<li>Écris ta question et <b>ce que tu as déjà essayé</b>.</li>" +
+    "<li>Complète ta question ci-dessous.</li>" +
+    "<li>Clique sur <b>Copier</b>.</li>" +
+    "<li>Ouvre l'assistant et colle (Ctrl+V).</li>" +
     "</ol>" +
+    "<textarea id='aide-ia-texte' rows='4'></textarea>" +
     "<div class='ia-row'>" +
-    "<button type='button' id='aide-ia-copier'>📋 Copier ma phrase</button>" +
+    "<button type='button' id='aide-ia-copier'>📋 Copier</button>" +
     "<a href='" + url + "' target='_blank' rel='noopener'>Ouvrir l'assistant ↗</a>" +
     "</div>" +
+    "<div id='aide-ia-msg'></div>" +
     "<small>Il te donne des indices, pas la réponse. Connecte-toi avec ton compte ert.tn.</small>";
   document.body.appendChild(box);
+  var zone = document.getElementById("aide-ia-texte");
+  zone.value = phrase;
 
   var btn = document.createElement("button");
   btn.id = "aide-ia-btn";
@@ -54,10 +60,23 @@
   document.body.appendChild(btn);
 
   document.getElementById("aide-ia-copier").onclick = function () {
-    var b = this;
-    function ok() { b.textContent = "✅ Copié !"; setTimeout(function () { b.textContent = "📋 Copier ma phrase"; }, 2000); }
-    try {
-      navigator.clipboard.writeText(phrase).then(ok, function () { prompt("Copie cette phrase :", phrase); });
-    } catch (e) { prompt("Copie cette phrase :", phrase); }
+    var b = this, msg = document.getElementById("aide-ia-msg");
+    function ok() {
+      b.textContent = "✅ Copié !"; msg.textContent = "";
+      setTimeout(function () { b.textContent = "📋 Copier"; }, 2000);
+    }
+    function manuel() {
+      zone.focus(); zone.select();
+      msg.textContent = "Le texte est sélectionné : appuie sur Ctrl+C (ou appui long → Copier sur téléphone).";
+    }
+    // 1) méthode classique : marche aussi quand la page est intégrée dans Google Sites
+    zone.focus(); zone.select(); zone.setSelectionRange(0, zone.value.length);
+    var reussi = false;
+    try { reussi = document.execCommand("copy"); } catch (e) { reussi = false; }
+    if (reussi) { ok(); return; }
+    // 2) méthode moderne
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(zone.value).then(ok, manuel);
+    } else { manuel(); }
   };
 })();
