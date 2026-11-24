@@ -55,6 +55,9 @@ textarea:focus,input.rep:focus{outline:2px solid #ffd166;border-color:#e0b84a}
 .recap h3{color:var(--bleu);margin:16px 0 4px;font-size:1rem}
 .recap p{margin:2px 0 8px;white-space:pre-wrap}
 .recap .vide{color:#b33;font-style:italic}
+.corr td{vertical-align:top}.corr td.mine{background:#fffdf5;color:#555;width:32%;white-space:pre-wrap}.corr td.mine i{color:#b33}
+.corr td.ok{background:#eaf7ee}.corr .pts{color:var(--gris);font-size:.8rem;white-space:nowrap}
+.legC span{display:inline-flex;align-items:center;gap:6px;margin:3px 12px 3px 0;font-size:.9rem}.legC b{display:inline-block;width:22px;height:4px;border-radius:2px}
 @media print{header,nav,.suite,.noprint,a[href="../index.html"]{display:none!important}section{display:none!important}#s6{display:block!important}body{background:#fff}}
 @media (max-width:600px){header h1{font-size:1.2rem} input[type=range]{width:150px}}
 </style>
@@ -77,6 +80,7 @@ textarea:focus,input.rep:focus{outline:2px solid #ffd166;border-color:#e0b84a}
   <button data-go="s5">C · Roue arrière</button>
   <button data-go="s6">Mes réponses</button>
   <button data-go="s7">🎮 Simulation</button>
+  <button data-go="s8">✅ Correction</button>
 </nav>
 
 <main>
@@ -263,6 +267,27 @@ textarea:focus,input.rep:focus{outline:2px solid #ffd166;border-color:#e0b84a}
   <div class="card clair">Regarde bien : B et C décrivent des <b>arcs de cercle</b> (centres A et D), mais la biellette 2 ne tourne pas autour d'un point fixe. Sa longueur BC, elle, ne change jamais.</div>
   <div class="suite"><button class="btn sec" data-go="s6">← Mes réponses</button><button class="btn" data-go="s3">Revenir à la construction</button></div>
 </section>
+
+<!-- ===================== CORRECTION ===================== -->
+<section id="s8">
+  <h2>✅ Correction de l'exercice</h2>
+  <div class="card">Compare <b>ta réponse</b> (colonne de gauche, reprise de ce que tu as écrit) avec la <b>correction</b>. Corrige au stylo vert ce qui ne va pas. Total : <b>/20</b> (A 5 pts · B 11 pts · C 4 pts).</div>
+  <div id="corrA"></div>
+  <h2>Partie B – La construction corrigée (B3 à B6)</h2>
+  <div class="lab">
+    <div class="titre">Construction corrigée (volant tourné de 60°)</div>
+    <canvas id="cvC" width="900" height="520"></canvas>
+    <div class="legC" style="margin-top:8px">
+      <span><b style="background:#7b2cbf"></b> T<sub>B∈1/0</sub> : arc de centre A, rayon 40 mm</span>
+      <span><b style="background:#e07a00"></b> T<sub>C∈3/0</sub> : arc de centre D, rayon 60 mm</span>
+      <span><b style="background:#2a9d4b"></b> arc de centre B1, rayon BC = 200 mm</span>
+    </div>
+    <div class="ctrl"><button class="btn" id="bEtape">▶ Étape suivante</button><button class="btn sec" id="bTout">Tout afficher</button><span id="txtEtape" style="font-weight:600;color:var(--bleu)"></span></div>
+  </div>
+  <div id="corrB"></div>
+  <div id="corrC"></div>
+  <div class="suite"><button class="btn sec" data-go="s7">← Simulation</button><button class="btn" data-go="s0">Revenir au début</button></div>
+</section>
 </main>
 
 <script>
@@ -271,7 +296,7 @@ const $=id=>document.getElementById(id);
 const vus=new Set();
 function show(id){document.querySelectorAll('section').forEach(s=>s.classList.toggle('active',s.id===id));
   document.querySelectorAll('nav button').forEach(b=>{b.classList.toggle('active',b.dataset.go===id);if(vus.has(b.dataset.go))b.classList.add('vu')});
-  vus.add(id);window.scrollTo({top:0,behavior:'smooth'});if(id==='s6')recap();if(id==='s3')drawB();if(id==='s7')drawS()}
+  vus.add(id);window.scrollTo({top:0,behavior:'smooth'});if(id==='s6')recap();if(id==='s3')drawB();if(id==='s7')drawS();if(id==='s8')majCorr()}
 document.querySelectorAll('[data-go]').forEach(b=>b.addEventListener('click',()=>show(b.dataset.go)));
 
 /* ===================== RÉPONSES (sauvegarde locale) ===================== */
@@ -403,6 +428,67 @@ function stopAnim(){if(SIM.anim){clearInterval(SIM.anim);SIM.anim=null;$('bAnim'
 $('bAnim').onclick=()=>{if(SIM.anim){stopAnim();return}$('bAnim').textContent='⏸ Pause';
   SIM.anim=setInterval(()=>{let t=SIM.th+SIM.dir;if(t>90||t<-45){SIM.dir*=-1;t=SIM.th+SIM.dir}if(setSim(t)){$('rgS').value=t;drawS()}else SIM.dir*=-1},40)};
 setSim(0);drawS();
+/* ===================== CORRECTION ===================== */
+const CORR={
+ A:{t:'Partie A – Questions de cours (5 pts)',l:[
+  ['A1','A1. Définition','… étudie le <b>mouvement</b> des corps en fonction <b>du temps</b>, indépendamment <b>des causes (efforts)</b> qui le provoquent.','1'],
+  ['A2','A2. Solide indéformable','La <b>distance AB reste constante</b> au cours du temps, quels que soient les points A et B du solide : ‖AB‖ = constante.','1'],
+  ['A3','A3. Référentiel','Un <b>repère d\'espace</b> (O, x, y, z) répond à « <b>où ?</b> » ; un <b>repère de temps</b> (origine t<sub>0</sub>, en s) répond à « <b>quand ?</b> ».','0,5 + 0,5'],
+  ['A4a','A4. M<sub>3/0</sub>','Mouvement de la pièce 3 par rapport à la pièce 0.','0,5'],
+  ['A4b','A4. T<sub>C∈2/0</sub>','Trajectoire du point C appartenant à la pièce 2, dans son mouvement par rapport à la pièce 0.','0,5'],
+  ['A5a','A5. Translation rectiligne','Des <b>segments de droite parallèles</b>.','0,25'],
+  ['A5b','A5. Translation circulaire','Des <b>cercles de même rayon</b>, mais de centres différents.','0,25'],
+  ['A5c','A5. Translation curviligne','Des <b>courbes quelconques superposables</b> (identiques).','0,25'],
+  ['A5d','A5. Mouvement plan général','Au moins <b>deux points ont des trajectoires différentes</b>.','0,25']]},
+ B:{t:'Partie B – Mouvements, trajectoires et vitesse (11 pts)',l:[
+  ['B1a','B1. M<sub>1/0</sub>','Rotation d\'axe (A, z).','0,5'],
+  ['B1b','B1. M<sub>3/0</sub>','Rotation d\'axe (D, z).','0,5'],
+  ['B1c','B1. M<sub>4/3</sub>','Rotation d\'axe (DE).','0,5'],
+  ['B1d','B1. M<sub>2/0</sub>','<b>Mouvement plan</b> : la biellette n\'a pas de liaison directe avec 0 ; B et C décrivent des arcs de centres différents (A et D).','0,5'],
+  ['B2a','B2. T<sub>B∈1/0</sub>','Arc de cercle de centre A, rayon AB = 40 mm.','0,4'],
+  ['B2b','B2. T<sub>C∈3/0</sub>','Arc de cercle de centre D, rayon DC = 60 mm.','0,4'],
+  ['B2c','B2. T<sub>E∈3/0</sub>','Arc de cercle de centre D, rayon DE = 50 mm.','0,4'],
+  ['B2d','B2. T<sub>D∈3/0</sub>','Un <b>point</b> : D est sur l\'axe de rotation, il ne bouge pas.','0,4'],
+  ['B2e','B2. T<sub>B∈2/0</sub>','Arc de cercle de centre A, rayon 40 mm.','0,4'],
+  ['B2bis','B2 bis. Pourquoi T<sub>B∈2/0</sub> = T<sub>B∈1/0</sub> ?','B est le centre de l\'articulation entre 1 et 2 : il <b>appartient aux deux pièces à la fois</b>.','0,5'],
+  ['','B3. Tracer les trajectoires','Les deux arcs tracés au compas : centre A, rayon AB (violet) ; centre D, rayon DC (orange). Voir la construction.','0,5 + 0,5'],
+  ['','B4. Position B1','B1 est sur l\'arc de centre A, avec l\'angle B0AB1 = 60° (au rapporteur, ou au compas : B0B1 = AB car le triangle AB0B1 est équilatéral).','1'],
+  ['B5','B5. Distance BC et position C1','a) BC <b>reste constante</b> (200 mm), car la biellette est indéformable.<br>b) C1 est à la fois sur T<sub>C∈3/0</sub> (arc de centre D) et sur l\'arc de centre B1 et de rayon BC reporté au compas : <b>C1 = intersection des deux arcs</b> (celle proche de C0).','0,5 + 1'],
+  ['B6','B6. Angle α','α ≈ <b>33°</b> (accepté de 31° à 35°). La roue tourne environ <b>deux fois moins</b> que le volant (60°) : la direction est moins sensible, donc plus précise.','0,5 + 0,5'],
+  ['B7a','B7 a) ω<sub>1/0</sub>','θ = 60 × π / 180 ≈ <b>1,05 rad</b><br>ω<sub>1/0</sub> = θ / t = 1,05 / 0,5 ≈ <b>2,1 rad/s</b>','0,5'],
+  ['B7b','B7 b) N','N = ω × 60 / (2π) = 2,1 × 60 / (2π) ≈ <b>20 tr/min</b>','0,5'],
+  ['B7c','B7 c) ‖V<sub>B∈1/0</sub>‖','‖V<sub>B∈1/0</sub>‖ = ω × AB = 2,1 × 0,040 ≈ <b>0,084 m/s</b> (84 mm/s)<br>Direction : <b>perpendiculaire à (AB)</b>, tangente à T<sub>B∈1/0</sub>, dans le sens de rotation.','0,5 + 0,5']]},
+ C:{t:'Partie C – Mouvement absolu et relatif (4 pts)',l:[
+  ['C1a','C1. M<sub>0/S</sub>','Translation rectiligne.','0,5'],
+  ['C1b','C1. M<sub>R/0</sub>','Rotation d\'axe passant par O (l\'axe de la roue).','0,5'],
+  ['C1c','C1. T<sub>V∈R/0</sub>','Cercle de centre O, rayon OV.','0,5'],
+  ['C1d','C1. T<sub>K∈0/S</sub>','Segment de droite parallèle à la piste.','0,5'],
+  ['C2','C2. Trajectoire de la valve vue du bord de la piste','<b>Non</b> : la roue tourne et avance en même temps, la valve décrit une courbe en « arches » (une <b>cycloïde</b>). M<sub>R/S</sub> est un <b>mouvement plan</b> (général).','0,5 + 0,5'],
+  ['C3','C3. Absolu ou relatif ?','Observateur 2 (l\'élève au bord de la piste) : <b>mouvement absolu</b> (référentiel lié à la Terre).<br>Observateur 1 (le pilote) : <b>mouvement relatif</b> (référentiel lié au kart, qui bouge lui-même).','0,5 + 0,5']]}};
+const escH=v=>v.replace(/[<>&]/g,m=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[m]));
+function tableCorr(k){const P=CORR[k];return `<h2>${P.t}</h2><table class="corr"><tr><th>Question</th><th>Ta réponse</th><th>Correction</th><th>Pts</th></tr>`+
+  P.l.map(([r,q,c,pt])=>{const v=r?(R[r]||'').trim():null;
+   return `<tr><td><b>${q}</b></td><td class="mine">${r?(v?escH(v):'<i>pas de réponse</i>'):'<i>construction</i>'}</td><td class="ok">${c}</td><td class="pts">${pt}</td></tr>`}).join('')+'</table>'}
+function majCorr(){$('corrA').innerHTML=tableCorr('A');$('corrB').innerHTML=tableCorr('B');$('corrC').innerHTML=tableCorr('C');drawC()}
+const cC=$('cvC').getContext('2d');let etape=0;
+const ETAPES=['Le mécanisme au départ.','B3 : on trace T<sub>B∈1/0</sub> (centre A, rayon 40 mm) et T<sub>C∈3/0</sub> (centre D, rayon 60 mm).',
+ 'B4 : on place B1 sur l\'arc violet, à 60° de B0.','B5 : BC ne change pas → arc de centre B1, rayon BC = 200 mm (vert).',
+ 'B5 : C1 est à l\'intersection des arcs orange et vert.','B6 : on trace le levier DC1 et on mesure α ≈ 33°.'];
+function drawC(){const c=cC;c.clearRect(0,0,900,520);setSim(60);const B1=rot(G.B0,G.A,Math.PI/3),C1=SIM.C;setSim(+$('rgS').value||0);
+  const al=ang(C1,G.D)-ang(G.C0,G.D),E1=rot(G.E0,G.D,al);
+  roue(c,G.E0,'#000');line(c,G.A,G.B0,COL[1],6);line(c,G.B0,G.C0,COL[2],4.5);poly(c,[G.C0,G.D,G.E0],COL[3],6);bati(c,G.A);bati(c,G.D);
+  const circ=(O,r,col)=>{const p=W(O);c.save();c.strokeStyle=col;c.lineWidth=2.2;c.beginPath();c.arc(p[0],p[1],r*SC,0,7);c.stroke();c.restore()};
+  if(etape>=1){circ(G.A,40,'#7b2cbf');circ(G.D,DCl,'#e07a00')}
+  if(etape>=2){line(c,G.A,B1,COL[1],3,[8,6]);joint(c,B1,6);txt(c,'B1',B1,22,8,COL[1]);txt(c,'60°',G.A,26,48,'#7b2cbf','bold 14px Segoe UI, Arial')}
+  if(etape>=3){const p=W(B1);c.save();c.strokeStyle='#2a9d4b';c.lineWidth=2.2;c.beginPath();const a=Math.atan2(-(C1[1]-B1[1]),C1[0]-B1[0]);c.arc(p[0],p[1],LBC*SC,a-.35,a+.35);c.stroke();c.restore()}
+  if(etape>=4){const p=W(C1);c.save();c.fillStyle='#e07a00';c.strokeStyle='#000';c.lineWidth=1.5;c.beginPath();c.arc(p[0],p[1],8,0,7);c.fill();c.stroke();c.restore();txt(c,'C1',C1,22,18,'#e07a00')}
+  if(etape>=5){line(c,G.D,C1,COL[3],3,[8,6]);line(c,G.D,E1,COL[3],3,[8,6]);line(c,B1,C1,COL[2],2,[4,5]);
+    const p=W(G.D),a0=-ang(G.C0,G.D),a1=-ang(C1,G.D);c.save();c.strokeStyle='#d62828';c.lineWidth=2;c.beginPath();c.arc(p[0],p[1],34,Math.min(a0,a1),Math.max(a0,a1));c.stroke();c.restore();
+    txt(c,'α ≈ 33°',G.D,-60,52,'#d62828')}
+  [G.A,G.B0,G.C0,G.D,G.E0].forEach(P=>joint(c,P));
+  txt(c,'A',G.A,-22,10);txt(c,'B0',G.B0,-26,4);txt(c,'C0',G.C0,-10,24);txt(c,'D',G.D,22,16);txt(c,'E0',G.E0,24,-16);fleche(c);axes(c);
+  $('txtEtape').innerHTML='Étape '+etape+'/5 · '+ETAPES[etape];$('bEtape').textContent=etape<5?'▶ Étape suivante':'↺ Recommencer'}
+$('bEtape').onclick=()=>{etape=etape<5?etape+1:0;drawC()};$('bTout').onclick=()=>{etape=5;drawC()};
 show('s0');
 </script>
 <a href="../index.html" style="position:fixed;bottom:16px;left:16px;z-index:99999;background:#1e3a5f;color:#fff;padding:10px 16px;border-radius:24px;font:600 14px system-ui,sans-serif;text-decoration:none;box-shadow:0 2px 8px rgba(0,0,0,.25)">← Sommaire</a><script data-goatcounter="https://mrassi-si.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
