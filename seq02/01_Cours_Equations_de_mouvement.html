@@ -221,7 +221,7 @@ td.mono{white-space:nowrap}
       x(t) = ½·a·(t − t<sub>i</sub>)² + v<sub>i</sub>·(t − t<sub>i</sub>) + x<sub>i</sub> &nbsp;&nbsp;&nbsp; v(t) = a·(t − t<sub>i</sub>) + v<sub>i</sub></div>
     <ol style="margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px">
       <li><strong>Phase 1 (0 → 10 s)</strong> : le mobile part de x = 0 m avec v = 2 m/s et accélère avec a = 1 m/s². Calculer sa position et sa vitesse à t = 10 s.</li>
-      <li><strong>Phase 2 (10 → 15 s)</strong> : il freine avec une accélération constante. À t = 15 s, il se trouve à x = 50 m. Calculer cette accélération.</li>
+      <li><strong>Phase 2 (10 → 15 s)</strong> : arrivé à x = 70 m, on veut qu'il <strong>revienne à x = 50 m en 5 s</strong>, avec une accélération constante. Calculer cette accélération.</li>
       <li>À quel instant s'arrête-t-il (v = 0) ? Quelle est alors sa position maximale ?</li>
     </ol>
   </div>
@@ -255,13 +255,14 @@ td.mono{white-space:nowrap}
   <details>
     <summary>Correction 2 · Phase 2 : trouver l'accélération (10 à 15 s)</summary>
     <div class="body">
-      <p>Nouveau départ : t<sub>i</sub> = 10 s, x<sub>i</sub> = 70 m, v<sub>i</sub> = 12 m/s. On sait que x(15) = 50 m : l'inconnue est a.</p>
+      <p>Nouveau départ : t<sub>i</sub> = 10 s, x<sub>i</sub> = 70 m, v<sub>i</sub> = 12 m/s. Revenir à 50 m en 5 s veut dire x(15) = 50 m : l'inconnue est a.</p>
       <div class="calc">
         50 = ½·a·(15 − 10)² + 12·(15 − 10) + 70<br>
         50 = 12,5·a + 60 + 70<br>
         50 − 130 = 12,5·a &nbsp;→&nbsp; a = −80 / 12,5
       </div>
-      <div class="answer">a = −6,4 m/s² : l'accélération est négative, le mobile freine.</div>
+      <div class="answer">a = −6,4 m/s² : l'accélération est négative, le mobile freine puis repart en arrière.</div>
+      <p class="muted">Attention : à t = 10 s, le mobile roule encore à 12 m/s vers l'avant. Il ne peut pas reculer tout de suite : il continue d'abord d'avancer en freinant, s'arrête, puis recule jusqu'à 50 m (voir correction 3).</p>
     </div>
   </details>
   <details>
