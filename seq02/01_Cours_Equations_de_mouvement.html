@@ -139,9 +139,9 @@ td.mono{white-space:nowrap}
 <nav class="jump" aria-label="Sommaire">
   <a href="#translation">1 · Translation</a>
   <a href="#graphes">2 · Lire un graphe</a>
-  <a href="#rotation">3 · Rotation</a>
-  <a href="#sncf">4 · Exo SNCF</a>
-  <a href="#exemple">5 · Exemple 2 phases</a>
+  <a href="#exemple">3 · Exemple 2 phases</a>
+  <a href="#rotation">4 · Rotation</a>
+  <a href="#sncf">5 · Exo SNCF</a>
   <a href="#retenir">6 · À retenir</a>
   <a href="#quiz">7 · Quiz</a>
 </nav>
@@ -212,9 +212,76 @@ td.mono{white-space:nowrap}
   </div>
 </section>
 
-<!-- 3 ROTATION -->
+<!-- 3 EXEMPLE -->
+<section id="exemple">
+  <div class="sec-head"><span class="sec-num">Partie 3</span><h2>Exemple : un mouvement en deux phases</h2>
+  <p>Un mobile accélère, puis freine, s'arrête et repart en marche arrière. Pour chaque phase, on repart de la <strong>même formule</strong>, en changeant l'instant de départ t<sub>i</sub>, la position x<sub>i</sub> et la vitesse v<sub>i</sub>.</p></div>
+  <div class="enonce">
+    <div class="calc" style="text-align:center;font-size:1.05rem"><strong>Équation horaire générale (MRUV)</strong><br>
+      x(t) = ½·a·(t − t<sub>i</sub>)² + v<sub>i</sub>·(t − t<sub>i</sub>) + x<sub>i</sub> &nbsp;&nbsp;&nbsp; v(t) = a·(t − t<sub>i</sub>) + v<sub>i</sub></div>
+    <ol style="margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px">
+      <li><strong>Phase 1 (0 → 10 s)</strong> : le mobile part de x = 0 m avec v = 2 m/s et accélère avec a = 1 m/s². Calculer sa position et sa vitesse à t = 10 s.</li>
+      <li><strong>Phase 2 (10 → 15 s)</strong> : il freine avec une accélération constante. À t = 15 s, il se trouve à x = 50 m. Calculer cette accélération.</li>
+      <li>À quel instant s'arrête-t-il (v = 0) ? Quelle est alors sa position maximale ?</li>
+    </ol>
+  </div>
+
+  <div class="bench" style="grid-template-columns:1fr">
+    <div class="stage">
+      <div style="display:flex;gap:14px;flex-wrap:wrap;align-items:end">
+        <div class="ctl" style="flex:1;min-width:200px"><label for="s-ex">Temps t <output id="o-ex"></output></label><input id="s-ex" type="range" min="0" max="15" step="0.025" value="0"></div>
+        <button class="primary" id="play-ex" type="button">▶ Lancer</button>
+      </div>
+      <div class="trackbox"><svg id="ex-track" viewBox="0 0 720 80" role="img" aria-label="Position du mobile sur l'axe"></svg></div>
+      <div class="readout" id="ex-read"></div>
+      <div class="legend"><span><i style="background:var(--tA)"></i>Phase 1 : accélération (a = +1 m/s²)</span><span><i style="background:var(--accent)"></i>Phase 2 : freinage puis recul (a = −6,4 m/s²)</span><span class="muted">● points remarquables</span></div>
+      <div style="overflow-x:auto"><svg id="g-ex-x" style="min-width:420px"></svg></div>
+      <div style="overflow-x:auto"><svg id="g-ex-v" style="min-width:420px"></svg></div>
+    </div>
+  </div>
+
+  <details>
+    <summary>Correction 1 · Phase 1 : accélération (0 à 10 s)</summary>
+    <div class="body">
+      <p>Données : t<sub>i</sub> = 0 s, x<sub>i</sub> = 0 m, v<sub>i</sub> = 2 m/s, a = 1 m/s².</p>
+      <div class="calc">
+        x(t) = ½·1·t² + 2·t + 0 = 0,5·t² + 2·t<br>
+        x(10) = 0,5 × 100 + 2 × 10 = 50 + 20 = <strong>70 m</strong><br>
+        v(10) = 1 × 10 + 2 = <strong>12 m/s</strong>
+      </div>
+      <div class="answer">À t = 10 s : x = 70 m et v = 12 m/s. Ce sont les conditions de départ de la phase 2.</div>
+    </div>
+  </details>
+  <details>
+    <summary>Correction 2 · Phase 2 : trouver l'accélération (10 à 15 s)</summary>
+    <div class="body">
+      <p>Nouveau départ : t<sub>i</sub> = 10 s, x<sub>i</sub> = 70 m, v<sub>i</sub> = 12 m/s. On sait que x(15) = 50 m : l'inconnue est a.</p>
+      <div class="calc">
+        50 = ½·a·(15 − 10)² + 12·(15 − 10) + 70<br>
+        50 = 12,5·a + 60 + 70<br>
+        50 − 130 = 12,5·a &nbsp;→&nbsp; a = −80 / 12,5
+      </div>
+      <div class="answer">a = −6,4 m/s² : l'accélération est négative, le mobile freine.</div>
+    </div>
+  </details>
+  <details>
+    <summary>Correction 3 · Instant d'arrêt et position maximale</summary>
+    <div class="body">
+      <p>Le mobile s'arrête quand sa <strong>vitesse est nulle</strong>. C'est là qu'il fait demi-tour : sa position est alors maximale.</p>
+      <div class="calc">
+        0 = −6,4·(t<sub>arrêt</sub> − 10) + 12<br>
+        t<sub>arrêt</sub> − 10 = 12 / 6,4 = 1,875 s &nbsp;→&nbsp; t<sub>arrêt</sub> = <strong>11,875 s</strong><br>
+        x(11,875) = ½·(−6,4)·1,875² + 12 × 1,875 + 70 = −11,25 + 22,5 + 70 = <strong>81,25 m</strong>
+      </div>
+      <div class="answer">Demi-tour à t = 11,875 s, à x = 81,25 m. Ensuite v &lt; 0 : le mobile recule jusqu'à x = 50 m à t = 15 s.</div>
+      <p class="muted">Sur le graphe x(t), le demi-tour est le <strong>sommet</strong> de la parabole (tangente horizontale). Sur le graphe v(t), c'est l'endroit où la droite coupe l'axe v = 0.</p>
+    </div>
+  </details>
+</section>
+
+<!-- 4 ROTATION -->
 <section id="rotation">
-  <div class="sec-head"><span class="sec-num">Partie 3</span><h2>Mouvement de rotation</h2>
+  <div class="sec-head"><span class="sec-num">Partie 4</span><h2>Mouvement de rotation</h2>
   <p>Un solide tourne autour d'un axe (roue, arbre moteur, bras de robot). Tous ses points tournent du même angle θ, à la même vitesse angulaire ω. Mais plus un point est loin de l'axe, plus il va vite.</p></div>
   <div class="cols">
     <div class="formule">
@@ -247,9 +314,9 @@ td.mono{white-space:nowrap}
   </div>
 </section>
 
-<!-- 4 SNCF -->
+<!-- 5 SNCF -->
 <section id="sncf">
-  <div class="sec-head"><span class="sec-num">Partie 4</span><h2>Exercice : SNCF, c'est possible !</h2>
+  <div class="sec-head"><span class="sec-num">Partie 5</span><h2>Exercice : SNCF, c'est possible !</h2>
   <p>Trois trains circulent sur la ligne Paris – Creil – Amiens. Amiens–Paris = 150 km, Amiens–Creil = 90 km, donc <strong>Paris–Creil = 60 km</strong>.</p></div>
   <div class="enonce">
     <div class="trains">
@@ -326,73 +393,7 @@ td.mono{white-space:nowrap}
   </details>
 </section>
 
-<!-- 5 À RETENIR -->
-<section id="exemple">
-  <div class="sec-head"><span class="sec-num">Partie 5</span><h2>Exemple : un mouvement en deux phases</h2>
-  <p>Un mobile accélère, puis freine, s'arrête et repart en marche arrière. Pour chaque phase, on repart de la <strong>même formule</strong>, en changeant l'instant de départ t<sub>i</sub>, la position x<sub>i</sub> et la vitesse v<sub>i</sub>.</p></div>
-  <div class="enonce">
-    <div class="calc" style="text-align:center;font-size:1.05rem"><strong>Équation horaire générale (MRUV)</strong><br>
-      x(t) = ½·a·(t − t<sub>i</sub>)² + v<sub>i</sub>·(t − t<sub>i</sub>) + x<sub>i</sub> &nbsp;&nbsp;&nbsp; v(t) = a·(t − t<sub>i</sub>) + v<sub>i</sub></div>
-    <ol style="margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px">
-      <li><strong>Phase 1 (0 → 10 s)</strong> : le mobile part de x = 0 m avec v = 2 m/s et accélère avec a = 1 m/s². Calculer sa position et sa vitesse à t = 10 s.</li>
-      <li><strong>Phase 2 (10 → 15 s)</strong> : il freine avec une accélération constante. À t = 15 s, il se trouve à x = 50 m. Calculer cette accélération.</li>
-      <li>À quel instant s'arrête-t-il (v = 0) ? Quelle est alors sa position maximale ?</li>
-    </ol>
-  </div>
-
-  <div class="bench" style="grid-template-columns:1fr">
-    <div class="stage">
-      <div style="display:flex;gap:14px;flex-wrap:wrap;align-items:end">
-        <div class="ctl" style="flex:1;min-width:200px"><label for="s-ex">Temps t <output id="o-ex"></output></label><input id="s-ex" type="range" min="0" max="15" step="0.025" value="0"></div>
-        <button class="primary" id="play-ex" type="button">▶ Lancer</button>
-      </div>
-      <div class="trackbox"><svg id="ex-track" viewBox="0 0 720 80" role="img" aria-label="Position du mobile sur l'axe"></svg></div>
-      <div class="readout" id="ex-read"></div>
-      <div class="legend"><span><i style="background:var(--tA)"></i>Phase 1 : accélération (a = +1 m/s²)</span><span><i style="background:var(--accent)"></i>Phase 2 : freinage puis recul (a = −6,4 m/s²)</span><span class="muted">● points remarquables</span></div>
-      <div style="overflow-x:auto"><svg id="g-ex-x" style="min-width:420px"></svg></div>
-      <div style="overflow-x:auto"><svg id="g-ex-v" style="min-width:420px"></svg></div>
-    </div>
-  </div>
-
-  <details>
-    <summary>Correction 1 · Phase 1 : accélération (0 à 10 s)</summary>
-    <div class="body">
-      <p>Données : t<sub>i</sub> = 0 s, x<sub>i</sub> = 0 m, v<sub>i</sub> = 2 m/s, a = 1 m/s².</p>
-      <div class="calc">
-        x(t) = ½·1·t² + 2·t + 0 = 0,5·t² + 2·t<br>
-        x(10) = 0,5 × 100 + 2 × 10 = 50 + 20 = <strong>70 m</strong><br>
-        v(10) = 1 × 10 + 2 = <strong>12 m/s</strong>
-      </div>
-      <div class="answer">À t = 10 s : x = 70 m et v = 12 m/s. Ce sont les conditions de départ de la phase 2.</div>
-    </div>
-  </details>
-  <details>
-    <summary>Correction 2 · Phase 2 : trouver l'accélération (10 à 15 s)</summary>
-    <div class="body">
-      <p>Nouveau départ : t<sub>i</sub> = 10 s, x<sub>i</sub> = 70 m, v<sub>i</sub> = 12 m/s. On sait que x(15) = 50 m : l'inconnue est a.</p>
-      <div class="calc">
-        50 = ½·a·(15 − 10)² + 12·(15 − 10) + 70<br>
-        50 = 12,5·a + 60 + 70<br>
-        50 − 130 = 12,5·a &nbsp;→&nbsp; a = −80 / 12,5
-      </div>
-      <div class="answer">a = −6,4 m/s² : l'accélération est négative, le mobile freine.</div>
-    </div>
-  </details>
-  <details>
-    <summary>Correction 3 · Instant d'arrêt et position maximale</summary>
-    <div class="body">
-      <p>Le mobile s'arrête quand sa <strong>vitesse est nulle</strong>. C'est là qu'il fait demi-tour : sa position est alors maximale.</p>
-      <div class="calc">
-        0 = −6,4·(t<sub>arrêt</sub> − 10) + 12<br>
-        t<sub>arrêt</sub> − 10 = 12 / 6,4 = 1,875 s &nbsp;→&nbsp; t<sub>arrêt</sub> = <strong>11,875 s</strong><br>
-        x(11,875) = ½·(−6,4)·1,875² + 12 × 1,875 + 70 = −11,25 + 22,5 + 70 = <strong>81,25 m</strong>
-      </div>
-      <div class="answer">Demi-tour à t = 11,875 s, à x = 81,25 m. Ensuite v &lt; 0 : le mobile recule jusqu'à x = 50 m à t = 15 s.</div>
-      <p class="muted">Sur le graphe x(t), le demi-tour est le <strong>sommet</strong> de la parabole (tangente horizontale). Sur le graphe v(t), c'est l'endroit où la droite coupe l'axe v = 0.</p>
-    </div>
-  </details>
-</section>
-
+<!-- 6 À RETENIR -->
 <section id="retenir">
   <div class="sec-head"><span class="sec-num">Partie 6</span><h2>À retenir pour le bac</h2>
   <p>La fiche à relire la veille. Tout ce qui est ici tombe régulièrement.</p></div>
@@ -456,7 +457,7 @@ td.mono{white-space:nowrap}
   </div>
 </section>
 
-<!-- 6 QUIZ -->
+<!-- 7 QUIZ -->
 <section id="quiz">
   <div class="sec-head"><span class="sec-num">Partie 7</span><h2>Quiz express</h2>
   <p>Clique sur une réponse. L'explication s'affiche tout de suite.</p></div>
