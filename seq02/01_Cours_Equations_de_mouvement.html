@@ -232,9 +232,12 @@ td.mono{white-space:nowrap}
         <div class="ctl" style="flex:1;min-width:200px"><label for="s-ex">Temps t <output id="o-ex"></output></label><input id="s-ex" type="range" min="0" max="15" step="0.025" value="0"></div>
         <button class="primary" id="play-ex" type="button">▶ Lancer</button>
       </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><span class="label">Scénario :</span>
+        <button type="button" id="ex-m-fr" aria-pressed="true">Avec freinage (a = −6,4 m/s²)</button>
+        <button type="button" id="ex-m-net" aria-pressed="false">Variante : arrêt net (a = −1,6 m/s²)</button></div>
       <div class="trackbox"><svg id="ex-track" viewBox="0 0 720 80" role="img" aria-label="Position du mobile sur l'axe"></svg></div>
       <div class="readout" id="ex-read"></div>
-      <div class="legend"><span><i style="background:var(--tA)"></i>Phase 1 : accélération (a = +1 m/s²)</span><span><i style="background:var(--accent)"></i>Phase 2 : freinage puis recul (a = −6,4 m/s²)</span><span class="muted">● points remarquables</span></div>
+      <div class="legend"><span><i style="background:var(--tA)"></i>Phase 1 : accélération (a = +1 m/s²)</span><span><i style="background:var(--accent)"></i>Phase 2 : freinage puis recul (a = −6,4 m/s²)</span><span><i style="background:var(--tC)"></i>Variante : arrêt net puis recul (a = −1,6 m/s²)</span><span class="muted">● points remarquables</span></div>
       <div style="overflow-x:auto"><svg id="g-ex-x" style="min-width:420px"></svg></div>
       <div style="overflow-x:auto"><svg id="g-ex-v" style="min-width:420px"></svg></div>
     </div>
@@ -276,6 +279,44 @@ td.mono{white-space:nowrap}
       </div>
       <div class="answer">Demi-tour à t = 11,875 s, à x = 81,25 m. Ensuite v &lt; 0 : le mobile recule jusqu'à x = 50 m à t = 15 s.</div>
       <p class="muted">Sur le graphe x(t), le demi-tour est le <strong>sommet</strong> de la parabole (tangente horizontale). Sur le graphe v(t), c'est l'endroit où la droite coupe l'axe v = 0.</p>
+    </div>
+  </details>
+
+  <h3 style="margin-top:26px">Variante : et si le mobile s'arrêtait net à 70 m ?</h3>
+  <div class="enonce">
+    <p style="margin:0">On change la phase 2 : arrivé à x = 70 m (à t = 10 s), le mobile <strong>s'arrête net</strong>, puis repart aussitôt en arrière pour revenir à <strong>x = 50 m en 5 s</strong>, avec une accélération constante.</p>
+    <ol start="4" style="margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px">
+      <li>Quelles sont les valeurs de t<sub>i</sub>, x<sub>i</sub> et v<sub>i</sub> pour cette phase 2 ? Quel instant t faut-il atteindre ?</li>
+      <li>Calculer l'accélération. Comparer avec l'exemple avec freinage.</li>
+    </ol>
+    <p class="muted" style="margin:0">Clique sur « Variante : arrêt net » au-dessus des graphes pour comparer les deux mouvements.</p>
+  </div>
+  <details>
+    <summary>Correction 4 · Les conditions de départ de la phase 2</summary>
+    <div class="body">
+      <div class="calc">
+        t<sub>i</sub> = 10 s &nbsp;(l'instant où il arrive à 70 m)<br>
+        x<sub>i</sub> = 70 m<br>
+        v<sub>i</sub> = 0 m/s &nbsp;(il s'est arrêté net)<br>
+        instant à atteindre : t = 10 + 5 = <strong>15 s</strong>
+      </div>
+      <div class="answer">Attention : « 5 s » est une <u>durée</u>, c'est t − t<sub>i</sub>. L'<u>instant</u> à mettre dans la formule est t = 15 s, pas t = 5 s.</div>
+      <p class="muted">Autre méthode correcte : remettre le chronomètre à zéro à l'arrivée à 70 m. Alors t<sub>i</sub> = 0 et t = 5 s. Mais il faut choisir l'une ou l'autre, sans mélanger.</p>
+    </div>
+  </details>
+  <details>
+    <summary>Correction 5 · L'accélération et la comparaison</summary>
+    <div class="body">
+      <div class="calc">
+        50 = ½·a·(15 − 10)² + 0·(15 − 10) + 70<br>
+        50 = 12,5·a + 70 &nbsp;→&nbsp; a = −20 / 12,5 = <strong>−1,6 m/s²</strong><br>
+        x(t) = −0,8·(t − 10)² + 70 &nbsp;&nbsp; v(t) = −1,6·(t − 10)<br>
+        v(15) = −1,6 × 5 = −8 m/s
+      </div>
+      <div class="answer">a = −1,6 m/s² : le mobile recule tout de suite, sans dépasser 70 m. Avec freinage, il fallait a = −6,4 m/s², car il roulait encore à 12 m/s et allait d'abord jusqu'à 81,25 m.</div>
+      <p><strong>Pourquoi une telle différence ?</strong> Seule la vitesse de départ v<sub>i</sub> change (12 m/s ou 0 m/s). Le terme v<sub>i</sub>·(t − t<sub>i</sub>) vaut 60 m dans un cas et 0 dans l'autre : la vitesse de départ compte autant que l'accélération.</p>
+      <p><strong>Piège classique :</strong> si on écrit t = 5 s au lieu de 15 s, on obtient (t − t<sub>i</sub>) = 5 − 10 = −5 s. Ici l'erreur ne se voit pas, car (−5)² = 25 et v<sub>i</sub> = 0. Mais avec freinage (v<sub>i</sub> = 12 m/s), on trouverait a = −3,2 m/s² au lieu de −6,4 m/s² : le résultat est faux.</p>
+      <p class="muted"><strong>Limite du modèle :</strong> passer de 12 m/s à 0 m/s en un instant demanderait une décélération infinie. Sur le graphe v(t), cela se voit comme un saut vertical à t = 10 s. C'est une simplification, impossible pour un vrai véhicule.</p>
     </div>
   </details>
 </section>
@@ -611,26 +652,40 @@ function qBuild(){score=0;done=0;const box=$('quizbox');box.innerHTML='';
  $('score').textContent='Score : 0 / '+Q.length}
 $('qreset').addEventListener('click',qBuild);qBuild();
 
-/* ===== Exemple : mouvement en deux phases ===== */
+/* ===== Exemple : mouvement en deux phases (+ variante arrêt net) ===== */
 (function(){
-const st=t=>t<=10?{x:0.5*t*t+2*t,v:2+t,a:1}:(()=>{const d=t-10;return {x:-3.2*d*d+12*d+70,v:12-6.4*d,a:-6.4}})();
-const P1=[],P2=[],V1=[],V2=[];for(let i=0;i<=600;i++){const t=i*0.025;const e=st(t);(t<=10?P1:P2).push([t,e.x]);(t<=10?V1:V2).push([t,e.v]);if(Math.abs(t-10)<1e-9){P2.push([t,e.x]);V2.push([t,e.v])}}
+let mode='fr';
+const st=(t,m=mode)=>{if(t<=10)return {x:0.5*t*t+2*t,v:2+t,a:1};const d=t-10;
+  return m==='fr'?{x:-3.2*d*d+12*d+70,v:12-6.4*d,a:-6.4}:{x:-0.8*d*d+70,v:-1.6*d,a:-1.6}};
+const P1=[],V1=[],P2=[],V2=[],P3=[],V3=[];
+for(let i=0;i<=600;i++){const t=i*0.025;if(t<=10){const e=st(t);P1.push([t,e.x]);V1.push([t,e.v])}
+  if(t>=10){const a=st(t,'fr'),b=st(t,'net');P2.push([t,a.x]);V2.push([t,a.v]);P3.push([t,b.x]);V3.push([t,b.v])}}
 let T=0,play=false,last=0;
-function render(){const e=st(T);$('o-ex').textContent=fr(T,2)+' s';
+function render(){const e=st(T),fr_=mode==='fr';$('o-ex').textContent=fr(T,2)+' s';
+  $('ex-m-fr').setAttribute('aria-pressed',fr_);$('ex-m-net').setAttribute('aria-pressed',!fr_);
+  $('ex-m-fr').className=fr_?'primary':'';$('ex-m-net').className=fr_?'':'primary';
+  const sx=[{pts:P1,color:'var(--tA)'},{pts:P2,color:'var(--accent)',w:fr_?2.5:1.2},{pts:P3,color:'var(--tC)',w:fr_?1.2:2.5}];
+  const ptx=fr_?[{x:10,y:70,color:'var(--tB)',t:'(10 ; 70)'},{x:11.875,y:81.25,color:'var(--tB)',t:'sommet : 81,25 m'},{x:15,y:50,color:'var(--tB)',t:'50 m'}]
+              :[{x:10,y:70,color:'var(--tB)',t:'arrêt net à 70 m'},{x:15,y:50,color:'var(--tB)',t:'50 m'}];
   plot($('g-ex-x'),{W:620,H:250,mr:56,x:[0,15],y:[0,90],xl:'t (s)',xt:[0,2,4,6,8,10,12,14],yt:[0,10,20,30,40,50,60,70,80,90],
-    series:[{pts:P1,color:'var(--tA)'},{pts:P2,color:'var(--accent)'}],cursor:T,
-    pts:[{x:0,y:0,color:'var(--tB)'},{x:10,y:70,color:'var(--tB)',t:'(10 ; 70)'},{x:11.875,y:81.25,color:'var(--tB)',t:'sommet : 81,25 m'},{x:15,y:50,color:'var(--tB)',t:'50 m'},{x:T,y:e.x,color:'var(--ink)'}]});
+    series:sx,cursor:T,pts:[{x:0,y:0,color:'var(--tB)'}].concat(ptx,[{x:T,y:e.x,color:'var(--ink)'}])});
+  const sv=[{pts:V1,color:'var(--tA)'},{pts:V2,color:'var(--accent)',w:fr_?2.5:1.2},{pts:V3,color:'var(--tC)',w:fr_?1.2:2.5}];
+  if(!fr_)sv.push({pts:[[10,12],[10,0]],color:'var(--tC)',w:2});
+  const ptv=fr_?[{x:10,y:12,color:'var(--tB)',t:'12 m/s'},{x:11.875,y:0,color:'var(--tB)',t:'v = 0 : demi-tour'}]
+              :[{x:10,y:12,color:'var(--tB)',t:'saut 12 → 0 m/s'},{x:15,y:-8,color:'var(--tB)',t:'−8 m/s'}];
   plot($('g-ex-v'),{W:620,H:220,mr:56,x:[0,15],y:[-20,15],xl:'t (s)',xt:[0,2,4,6,8,10,12,14],yt:[-20,-15,-10,-5,0,5,10,15],
-    series:[{pts:V1,color:'var(--tA)'},{pts:V2,color:'var(--accent)'}],cursor:T,
-    pts:[{x:10,y:12,color:'var(--tB)',t:'12 m/s'},{x:11.875,y:0,color:'var(--tB)',t:'v = 0 : demi-tour'},{x:T,y:e.v,color:'var(--ink)'}]});
+    series:sv,cursor:T,pts:ptv.concat([{x:T,y:e.v,color:'var(--ink)'}])});
   const X=x=>40+x/90*640;let s='<line x1="40" x2="680" y1="44" y2="44" style="stroke:var(--muted);stroke-width:2"/>';
   for(let x=0;x<=90;x+=10)s+=`<line x1="${X(x)}" x2="${X(x)}" y1="38" y2="50" style="stroke:var(--muted)"/><text class="g-txt" x="${X(x)}" y="68" text-anchor="middle">${x}</text>`;
-  s+=`<line x1="${X(81.25)}" x2="${X(81.25)}" y1="20" y2="50" style="stroke:var(--tB);stroke-dasharray:3 3"/><text class="g-txt" x="${X(81.25)}" y="14" text-anchor="middle">81,25 m</text>`;
-  const col=e.v>=0?'var(--tA)':'var(--accent)';s+=`<circle cx="${X(e.x)}" cy="44" r="10" style="fill:${col};stroke:#fff;stroke-width:3"/>`;
+  const xm=fr_?81.25:70;s+=`<line x1="${X(xm)}" x2="${X(xm)}" y1="20" y2="50" style="stroke:var(--tB);stroke-dasharray:3 3"/><text class="g-txt" x="${X(xm)}" y="14" text-anchor="middle">${fr(xm,2)} m</text>`;
+  const col=T<=10?'var(--tA)':fr_?(e.v>=0?'var(--accent)':'var(--accent)'):'var(--tC)';s+=`<circle cx="${X(e.x)}" cy="44" r="10" style="fill:${col};stroke:#fff;stroke-width:3"/>`;
   if(Math.abs(e.v)>0.05){const d=e.v>0?1:-1;s+=arrow(X(e.x)+d*14,44,X(e.x)+d*(14+Math.min(60,Math.abs(e.v)*4)),44,col,3)}
   $('ex-track').innerHTML=s;
-  $('ex-read').innerHTML=`<span class="k">phase :</span> ${T<=10?'1 (accélération)':e.v>=0?'2 (freinage)':'2 (marche arrière)'}<br><span class="k">x =</span> ${fr(e.x,2)} m &nbsp; <span class="k">v =</span> ${fr(e.v,2)} m/s &nbsp; <span class="k">a =</span> ${e.a>0?'+':''}${fr(e.a,1)} m/s²`;}
+  const ph=T<=10?'1 (accélération)':fr_?(e.v>=0?'2 (freinage)':'2 (marche arrière)'):'2 (arrêt net puis marche arrière)';
+  $('ex-read').innerHTML=`<span class="k">phase :</span> ${ph}<br><span class="k">x =</span> ${fr(e.x,2)} m &nbsp; <span class="k">v =</span> ${fr(e.v,2)} m/s &nbsp; <span class="k">a =</span> ${e.a>0?'+':''}${fr(e.a,1)} m/s²`;}
 $('s-ex').addEventListener('input',ev=>{T=+ev.target.value;render()});
+$('ex-m-fr').addEventListener('click',()=>{mode='fr';render()});
+$('ex-m-net').addEventListener('click',()=>{mode='net';render()});
 function loop(ts){if(!play)return;if(last){T+=(ts-last)/1000*1.5;if(T>=15){T=15;play=false;$('play-ex').textContent='▶ Lancer'}}last=ts;$('s-ex').value=T;render();requestAnimationFrame(loop)}
 $('play-ex').addEventListener('click',()=>{play=!play;$('play-ex').textContent=play?'⏸ Pause':'▶ Lancer';if(play){if(T>=14.9)T=0;last=0;if(reduce){T=15;play=false;render();$('play-ex').textContent='▶ Lancer';return}requestAnimationFrame(loop)}});
 render();
